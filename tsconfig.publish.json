@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "build/esm",
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "noEmit": false
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "build", "**/*.visual.test.tsx"]
+}

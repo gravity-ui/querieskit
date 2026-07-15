@@ -1,7 +1,6 @@
 {
     "extends": "@gravity-ui/tsconfig/tsconfig.json",
     "compilerOptions": {
-        "baseUrl": ".",
         "outDir": "./build/",
         "rootDir": "src",
         "target": "es2020",
