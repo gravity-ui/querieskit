@@ -1,3 +1,4 @@
+// eslint.config.mjs
 import baseConfig from "@gravity-ui/eslint-config";
 import prettierConfig from "@gravity-ui/eslint-config/prettier";
 import reactConfig from "@gravity-ui/eslint-config/react";
@@ -17,6 +18,12 @@ export default [
     ...prettierConfig,
     ...reactConfig,
     {
+        settings: {
+            "import/resolver": {
+                typescript: true,
+                node: true
+            }
+        },
         plugins: {
             "@typescript-eslint": typescriptEslint,
         },
@@ -43,20 +50,4 @@ export default [
             "import/no-extraneous-dependencies": "off",
         },
     },
-    // {
-    //     files: ["src/stories/StoryWrapper.tsx"],
-    //     rules: {
-    //         "no-param-reassign": "off",
-    //     },
-    // },
-    // {
-    //     files: [
-    //         "src/components/**/Default*Renderer.ts",
-    //         "src/stories/My*Renderer.ts",
-    //         "src/components/**/Abstract*Renderer.ts",
-    //     ],
-    //     rules: {
-    //         "no-param-reassign": ["error", { props: false }],
-    //     },
-    // },
 ];
