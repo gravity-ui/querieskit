@@ -1,0 +1,21 @@
+{
+    "extends": "@gravity-ui/tsconfig/tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "./build/",
+        "rootDir": "src",
+        "target": "es2020",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "noEmitOnError": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "typeRoots": ["./node_modules/@types"],
+        "skipLibCheck": true,
+        "jsx": "react",
+        "declaration": true
+    },
+    "include": ["src/**/*", ".storybook/**/*"],
+    "exclude": ["node_modules", "build"]
+}

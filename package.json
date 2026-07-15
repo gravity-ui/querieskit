@@ -4,7 +4,7 @@
   "description": "Query page component library",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "storybook": "storybook dev -p 6006 --no-open"
   },
   "repository": {
     "type": "git",
@@ -22,10 +22,17 @@
     "@gravity-ui/prettier-config": "^1.1.1",
     "@gravity-ui/tsconfig": "^1.0.0",
     "@gravity-ui/uikit": "^7.45.1",
+    "@storybook/react": "^10.5.0",
+    "@storybook/react-vite": "^10.5.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.64.0",
+    "@typescript-eslint/parser": "^8.64.0",
     "eslint": "^10.7.0",
     "prettier": "^3.9.5",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "storybook": "^10.5.0",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
@@ -33,5 +40,11 @@
     "@gravity-ui/uikit": ">=7.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@gravity-ui/i18n": "^1.8.0",
+    "@gravity-ui/react-data-table": "^2.2.1",
+    "@gravity-ui/unipika": "^5.6.3",
+    "bem-cn-lite": "^4.1.0"
   }
 }
