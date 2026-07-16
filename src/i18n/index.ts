@@ -8,7 +8,7 @@ export function setLang(lang: string) {
     i18n.setLang(lang);
 }
 
-export function addI18Keysets<const T extends KeysData, const Name extends `yt:${string}`>(
+export function addI18Keysets<const T extends KeysData, const Name extends `qp:${string}`>(
     componentName: Name,
     data: Partial<Record<AppLang, T>>,
 ) {
