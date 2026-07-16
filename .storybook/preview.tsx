@@ -4,6 +4,7 @@ import React from 'react';
 
 import '@gravity-ui/uikit/styles/styles.css';
 import '@gravity-ui/unipika/dist/unipika.css';
+import './redefinition.css';
 
 configure({lang: 'en'});
 
@@ -11,15 +12,10 @@ const withYtComponentsTheme: Decorator = (Story, context) => {
     const globalsTheme = context.globals.theme;
     const isDark = globalsTheme === 'dark';
     const uikitTheme = isDark ? 'dark' : 'light';
-    // const rootClassName = isDark
-    //     ? 'yt-components-root yt-components-root_theme_dark'
-    //     : 'yt-components-root';
 
     return (
         <ThemeProvider theme={uikitTheme}>
-            {/*<div className={rootClassName}>*/}
-                <Story />
-            {/*</div>*/}
+            <Story />
         </ThemeProvider>
     );
 };
@@ -40,9 +36,7 @@ const preview: Preview = {
             },
         },
     },
-    parameters: {
-        layout: 'centered',
-    },
+    parameters: {},
 };
 
 export default preview;

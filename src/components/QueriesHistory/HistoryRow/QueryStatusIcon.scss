@@ -1,0 +1,17 @@
+.qp-query-status-icon {
+  &_completed {
+    color: var(--g-color-text-positive-heavy);
+  }
+
+  &_failed {
+    color: var(--g-color-text-danger);
+  }
+
+  &_running {
+    color: var(--g-color-base-brand);
+  }
+
+  &_draft, &_aborted {
+    color: var(--g-color-text-secondary);
+  }
+}
