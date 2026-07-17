@@ -22,6 +22,7 @@
   "license": "MIT",
   "homepage": "https://gravity-ui.com/ru/libraries/querieskit",
   "devDependencies": {
+    "@commitlint/config-conventional": "^20.5.3",
     "@gravity-ui/app-builder": "^0.49.0",
     "@gravity-ui/eslint-config": "^4.3.2",
     "@gravity-ui/icons": "^2.20.0",
