@@ -22,6 +22,9 @@ type Story = StoryObj<typeof QueriesHistory>;
 
 const onDelete = fn().mockName('onDelete');
 const onRename = fn().mockName('onRename');
+const onEditingCancel = fn().mockName('editing.onCancel');
+const onEditingSubmit = fn().mockName('editing.onSubmit');
+const onSelectionChange = fn().mockName('selection.onChange');
 
 export const Default: Story = {
     args: {
@@ -72,6 +75,15 @@ export const Default: Story = {
                 endTime: '2026-07-01T09:09:59.929879Z',
                 height: 52,
             },
+            {
+                id: 6,
+                title: 'Query 6',
+                engine: 'SQL',
+                status: 'failed',
+                startTime: '2026-07-01T09:09:33.300767Z',
+                endTime: '2026-07-01T09:09:59.929879Z',
+                height: 52,
+            },
         ],
         getRowActions: (item) => {
             if (item.id === 1)
@@ -88,6 +100,28 @@ export const Default: Story = {
                     onClick: onDelete,
                 },
             ];
+        },
+    },
+};
+
+export const WithEditing: Story = {
+    args: {
+        ...Default.args,
+        editing: {
+            rowId: 6,
+            onCancel: onEditingCancel,
+            onSubmit: onEditingSubmit,
+        },
+    },
+};
+
+export const WithSelection: Story = {
+    args: {
+        ...Default.args,
+        selection: {
+            enabled: true,
+            selectedRowIds: [2],
+            onChange: onSelectionChange,
         },
     },
 };

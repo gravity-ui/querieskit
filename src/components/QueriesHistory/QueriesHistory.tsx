@@ -4,24 +4,30 @@ import {HistoryHeader} from './HistoryHeader';
 import {HistoryList} from './HistoryList';
 import i18n from './i18n';
 import {
+    QueryHistoryEditingConfig,
     QueryHistoryItem,
     QueryHistoryRow,
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
+    QueryHistorySelectionConfig,
 } from '../../types/history';
 
 export type Props<T extends QueryHistoryRow = QueryHistoryRow> = {
+    className?: string;
     title?: string;
     items: QueryHistoryItem<T>[];
+    editing?: QueryHistoryEditingConfig<T>;
+    selection?: QueryHistorySelectionConfig<T>;
     renderRowItem?: (data: QueryHistoryRowRenderData<T>) => React.ReactNode;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
     onListItemClick?: (item: QueryHistoryItem<T>) => void;
-    className?: string;
 };
 
 export const QueriesHistory = <T extends QueryHistoryRow>({
     title,
     items,
+    editing,
+    selection,
     renderRowItem,
     getRowActions,
     onListItemClick,
@@ -33,6 +39,8 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
             <HistoryHeader />
             <HistoryList
                 items={items}
+                editing={editing}
+                selection={selection}
                 renderRowItem={renderRowItem}
                 getRowActions={getRowActions}
                 onItemClick={onListItemClick}
