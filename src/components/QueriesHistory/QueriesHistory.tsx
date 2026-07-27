@@ -9,12 +9,14 @@ import {
     QueryHistoryRow,
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
+    QueryHistorySearchConfig,
     QueryHistorySelectionConfig,
 } from '../../types/history';
 
 export type Props<T extends QueryHistoryRow = QueryHistoryRow> = {
     className?: string;
     title?: string;
+    search: QueryHistorySearchConfig;
     items: QueryHistoryItem<T>[];
     editing?: QueryHistoryEditingConfig<T>;
     selection?: QueryHistorySelectionConfig<T>;
@@ -25,6 +27,7 @@ export type Props<T extends QueryHistoryRow = QueryHistoryRow> = {
 
 export const QueriesHistory = <T extends QueryHistoryRow>({
     title,
+    search,
     items,
     editing,
     selection,
@@ -36,7 +39,12 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
     return (
         <Flex direction="column" gap={1} className={className}>
             <Text variant="subheader-3">{title || i18n('title_history')}</Text>
-            <HistoryHeader />
+            <HistoryHeader
+                search={search.value}
+                fullSearch={search.fullSearch}
+                hasClear={search.hasClear}
+                onUpdate={search.onUpdate}
+            />
             <HistoryList
                 items={items}
                 editing={editing}

@@ -29,6 +29,13 @@ export type QueryHistoryRowAction<T extends QueryHistoryRow = QueryHistoryRow> =
     onClick: (item: T) => void;
 };
 
+export type QueryHistorySearchConfig = {
+    value?: string;
+    fullSearch?: boolean;
+    hasClear?: boolean;
+    onUpdate: (data: {value: string; fullSearch: boolean}) => void;
+};
+
 export type QueryHistoryEditingConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
     rowId?: T['id'];
     onSubmit?: (item: T, title: string) => void;
