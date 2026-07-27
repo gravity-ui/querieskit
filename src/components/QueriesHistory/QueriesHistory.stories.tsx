@@ -25,6 +25,7 @@ const onRename = fn().mockName('onRename');
 const onEditingCancel = fn().mockName('editing.onCancel');
 const onEditingSubmit = fn().mockName('editing.onSubmit');
 const onSelectionChange = fn().mockName('selection.onChange');
+const onSearchChange = fn().mockName('search.onChange');
 
 export const Default: Story = {
     args: {
@@ -85,6 +86,10 @@ export const Default: Story = {
                 height: 52,
             },
         ],
+        search: {
+            value: '',
+            onUpdate: onSearchChange,
+        },
         getRowActions: (item) => {
             if (item.id === 1)
                 return [
