@@ -1,7 +1,7 @@
 import React, {FC} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import {HistorySearch} from './internal/HistorySearch';
-import {HistoryFilter} from './internal/HistoryFilter';
+import {HistoryFilter} from '../../components/HistoryFilter';
 
 type Props = {
     search?: string;
