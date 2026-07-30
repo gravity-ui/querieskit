@@ -5,10 +5,10 @@ import CircleExclamationIcon from '@gravity-ui/icons/svgs/circle-exclamation.svg
 import FileIcon from '@gravity-ui/icons/svgs/file.svg';
 import CircleStopIcon from '@gravity-ui/icons/svgs/circle-stop.svg';
 import CirclePlayIcon from '@gravity-ui/icons/svgs/circle-play.svg';
-import {QueryStatus} from '../../../types/history';
+import {QueryStatus} from '../../types/history';
 import cn from 'bem-cn-lite';
 import './QueryStatusIcon.scss';
-import {ProgressQueryStatuses} from '../../../constants/query';
+import {ProgressQueryStatuses} from '../../constants/query';
 
 type Props = {
     status: QueryStatus;

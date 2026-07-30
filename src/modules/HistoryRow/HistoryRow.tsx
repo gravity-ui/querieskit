@@ -1,11 +1,11 @@
 import React from 'react';
-import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../../types/history';
+import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
 import {Checkbox, Flex, Text} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
 import cn from 'bem-cn-lite';
-import {QueryStatusIcon} from './QueryStatusIcon';
-import {formatTime} from '../../../helpers/time';
-import {HistoryDuration} from './HistoryDuration';
+import {QueryStatusIcon} from '../../components/QueryStatusIcon';
+import {formatTime} from '../../helpers/time';
+import {QueryDuration} from '../../components/QueryDuration';
 import {HistoryRowHeader} from './HistoryRowHeader';
 
 export type Props<T extends QueryHistoryRow> = {
@@ -55,7 +55,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
                     editing={editing}
                 />
                 <div className={block('data')}>
-                    <HistoryDuration
+                    <QueryDuration
                         className={block('duration')}
                         status={item.status}
                         startTime={item.startTime}

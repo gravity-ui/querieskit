@@ -22,7 +22,7 @@ src/
 
 Правило включения: компонент попадает в `src/components`, только если потребитель библиотеки может использовать его отдельно и у компонента есть стабильный props-контракт. Не выносить компонент сюда только ради единообразия.
 
-Примеры: [`QueryStatusIcon`](src/components/QueriesHistory/HistoryRow/QueryStatusIcon.tsx:27), [`HistoryDuration`](src/components/QueriesHistory/HistoryRow/HistoryDuration.tsx).
+Примеры: [`QueryStatusIcon`](src/components/QueryStatusIcon/QueryStatusIcon.tsx:27), [`QueryDuration`](src/components/QueryDuration/QueryDuration.tsx).
 
 Структура компонента:
 

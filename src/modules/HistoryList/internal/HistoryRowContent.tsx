@@ -1,7 +1,7 @@
 import React from 'react';
-import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
-import {HistoryGroupHeader} from './HistoryGroupHeader';
-import {HistoryRow} from './HistoryRow';
+import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../../types/history';
+import {HistoryGroupHeader} from '../../../components/HistoryGroupHeader';
+import {HistoryRow} from '../../HistoryRow';
 
 export const HistoryRowContent = <T extends QueryHistoryRow>(
     data: QueryHistoryRowRenderData<T>,

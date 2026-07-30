@@ -9,7 +9,7 @@ import {
     QueryHistorySelectionConfig,
 } from '../../types/history';
 import cn from 'bem-cn-lite';
-import {HistoryRowContent} from './HistoryRowContent';
+import {HistoryRowContent} from './internal/HistoryRowContent';
 import {prepareRowData} from './helpers/prepareRowData';
 
 type Props<T extends QueryHistoryRow> = {

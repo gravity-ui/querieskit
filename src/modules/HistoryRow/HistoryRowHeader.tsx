@@ -3,7 +3,7 @@ import {
     QueryHistoryEditingRenderData,
     QueryHistoryRow,
     QueryHistoryRowRenderData,
-} from '../../../types/history';
+} from '../../types/history';
 import {Flex, Text, TextInput} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
 import cn from 'bem-cn-lite';

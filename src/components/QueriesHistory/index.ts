@@ -1,1 +1,0 @@
-export {QueriesHistory} from './QueriesHistory';

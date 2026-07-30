@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
-import {QueryStatus} from '../../../types/history';
-import {CompletedQueryStates} from '../../../constants/query';
-import {durationDates} from '../../../helpers/time';
+import {QueryStatus} from '../../types/history';
+import {CompletedQueryStates} from '../../constants/query';
+import {durationDates} from '../../helpers/time';
 
 export const useQueryDuration = (
     state: QueryStatus,

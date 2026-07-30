@@ -9,8 +9,8 @@ import './HistoryFilter.scss';
 const block = cn('qp-history-filter');
 
 type Props = {
-    onApply: () => void;
-    onReset: () => void;
+    onApply?: () => void;
+    onReset?: () => void;
 };
 
 export const HistoryFilter: FC<Props> = ({onApply, onReset}) => {
@@ -18,11 +18,11 @@ export const HistoryFilter: FC<Props> = ({onApply, onReset}) => {
     const [open, toggleOpen] = useToggle(false);
 
     const handleOnApply = () => {
-        onApply();
+        onApply?.();
     };
 
     const handleOnReset = () => {
-        onReset();
+        onReset?.();
     };
 
     return (
