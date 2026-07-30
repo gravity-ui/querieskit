@@ -1,9 +1,9 @@
 import React, {FC} from 'react';
-import {QueryStatus} from '../../../types/history';
+import {QueryStatus} from '../../types/history';
 import {Label} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import './HistoryDuration.scss';
-import {useQueryDuration} from '../hooks/useQueryDuration';
+import './QueryDuration.scss';
+import {useQueryDuration} from './useQueryDuration';
 
 type Props = {
     startTime: string | number;
@@ -12,9 +12,9 @@ type Props = {
     className?: string;
 };
 
-const block = cn('qp-query-history-duration');
+const block = cn('qp-query-duration');
 
-export const HistoryDuration: FC<Props> = ({startTime, endTime, status, className}) => {
+export const QueryDuration: FC<Props> = ({startTime, endTime, status, className}) => {
     const duration = useQueryDuration(status, startTime, endTime);
 
     return <Label className={block(null, className)}>{duration}</Label>;

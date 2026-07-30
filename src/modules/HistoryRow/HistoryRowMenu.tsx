@@ -1,7 +1,7 @@
 import React, {MouseEvent, useMemo} from 'react';
 import {Button, DropdownMenu, DropdownMenuItem, Icon} from '@gravity-ui/uikit';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
-import {QueryHistoryRow, QueryHistoryRowAction} from '../../../types/history';
+import {QueryHistoryRow, QueryHistoryRowAction} from '../../types/history';
 
 type Props<T extends QueryHistoryRow> = {
     row: T;

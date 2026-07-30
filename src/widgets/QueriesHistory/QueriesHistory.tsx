@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {HistoryHeader} from './HistoryHeader';
-import {HistoryList} from './HistoryList';
+import {HistoryHeader} from '../../modules/HistoryHeader';
+import {HistoryList} from '../../modules/HistoryList';
 import i18n from './i18n';
 import {
     QueryHistoryEditingConfig,
