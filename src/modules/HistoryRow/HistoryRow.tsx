@@ -3,10 +3,10 @@ import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
 import {Checkbox, Flex, Text} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
 import cn from 'bem-cn-lite';
-import {QueryStatusIcon} from '../../components/QueryStatusIcon';
-import {formatTime} from '../../helpers/time';
-import {QueryDuration} from '../../components/QueryDuration';
+import {HistoryPrivateIcon, QueryDuration, QueryStatusIcon} from '../../components';
 import {HistoryRowHeader} from './HistoryRowHeader';
+import {formatTime} from '../../helpers/time';
+import {isFieldVisible} from '../../helpers/isFieldVisible';
 
 export type Props<T extends QueryHistoryRow> = {
     item: T;
@@ -20,7 +20,9 @@ export const HistoryRow = <T extends QueryHistoryRow>({
     isActive,
     editing,
     selection,
+    visibleFields,
 }: Props<T>) => {
+    const {href, status, mode, startTime, endTime, engine, isPrivate} = item;
     const isSelectMode = Boolean(selection?.enabled);
     const isSelected = Boolean(isSelectMode && selection?.checked);
     const isEditing = Boolean(editing?.enabled);
@@ -32,7 +34,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
 
     const Wrap = linkMode ? 'a' : 'div';
     return (
-        <Wrap href={item.href} className={block({[item.status]: true})}>
+        <Wrap href={href} className={block({[status]: true})}>
             {isSelectMode ? (
                 <div
                     onClick={(event) => event.stopPropagation()}
@@ -41,7 +43,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
                     <Checkbox checked={isSelected} onUpdate={handleToggleSelect} />
                 </div>
             ) : (
-                <QueryStatusIcon status={item.status} />
+                <QueryStatusIcon status={status} />
             )}
             <Flex
                 direction="column"
@@ -55,15 +57,28 @@ export const HistoryRow = <T extends QueryHistoryRow>({
                     editing={editing}
                 />
                 <div className={block('data')}>
-                    <QueryDuration
-                        className={block('duration')}
-                        status={item.status}
-                        startTime={item.startTime}
-                        endTime={item.endTime}
-                    />
-                    <Text color="secondary" ellipsis>
-                        {formatTime(item.startTime) || '-'} {item.engine}
-                    </Text>
+                    {isFieldVisible(visibleFields, 'duration') && startTime && (
+                        <QueryDuration
+                            className={block('duration')}
+                            status={status}
+                            startTime={startTime}
+                            endTime={endTime}
+                        />
+                    )}
+                    <Flex gap={2}>
+                        {isFieldVisible(visibleFields, 'mode') && mode && (
+                            <Text color="complementary">{mode}</Text>
+                        )}
+                        {isFieldVisible(visibleFields, 'startTime') && startTime && (
+                            <Text color="complementary">{formatTime(startTime)}</Text>
+                        )}
+                        {isFieldVisible(visibleFields, 'engine') && engine && (
+                            <Text color="complementary">{engine}</Text>
+                        )}
+                        {isFieldVisible(visibleFields, 'isPrivate') && (
+                            <HistoryPrivateIcon isPrivate={isPrivate} />
+                        )}
+                    </Flex>
                 </div>
             </Flex>
         </Wrap>

@@ -15,12 +15,12 @@ export default meta;
 type Story = StoryObj<typeof HistoryFilter>;
 
 const fields: FormField[] = [
-    {id: 'onlyMine', type: 'switch', title: 'Только мои запросы', initialValue: true},
-    {id: 'range', type: 'rangeDatePicker', title: 'Период'},
+    {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
+    {id: 'range', type: 'rangeDatePicker', title: 'Period'},
     {
         id: 'checkobxGroup',
         type: 'checkboxGroup',
-        title: 'Диалект',
+        title: 'Dialect',
         initialValue: [],
         items: [
             {id: 'yql', title: 'YQL'},
@@ -29,7 +29,7 @@ const fields: FormField[] = [
     },
 ];
 
-/** Базовый фильтр с набором полей и обработчиками Apply и Reset */
+/** Basic filter with a set of fields and Apply/Reset handlers */
 export const Default: Story = {
     args: {
         fields,
@@ -38,7 +38,7 @@ export const Default: Story = {
     },
 };
 
-/** Фильтр с признаком изменённого состояния — кнопка раскрытия попапа подсвечена (view="action") */
+/** Filter with a "changed" state — the popup toggle button is highlighted (view="action") */
 export const Changed: Story = {
     args: {
         fields,
@@ -48,7 +48,7 @@ export const Changed: Story = {
     },
 };
 
-/** Фильтр в controlled-режиме с переданными values */
+/** Filter in controlled mode with provided values */
 export const Controlled: Story = {
     args: {
         fields,
@@ -58,7 +58,7 @@ export const Controlled: Story = {
     },
 };
 
-/** Фильтр с начальными значениями (uncontrolled-режим) */
+/** Filter with initial values (uncontrolled mode) */
 export const WithInitialValues: Story = {
     args: {
         fields,

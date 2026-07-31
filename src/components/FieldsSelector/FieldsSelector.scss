@@ -1,0 +1,18 @@
+.qp-fields-selector {
+  padding: 8px 16px;
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    //width: 16px;
+    //height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: var(--g-color-base-generic-medium);
+
+    &_checked {
+      color: var(--g-color-base-brand);
+    }
+  }
+}

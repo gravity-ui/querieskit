@@ -14,12 +14,12 @@ export default meta;
 type Story = StoryObj<typeof SimpleForm>;
 
 const fields: FormField[] = [
-    {id: 'onlyMine', type: 'switch', title: 'Только мои запросы', initialValue: true},
-    {id: 'range', type: 'rangeDatePicker', title: 'Период'},
+    {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
+    {id: 'range', type: 'rangeDatePicker', title: 'Period'},
     {
         id: 'dialect',
         type: 'checkboxGroup',
-        title: 'Диалект',
+        title: 'Dialect',
         initialValue: [],
         items: [
             {id: 'yql', title: 'YQL'},
@@ -29,7 +29,7 @@ const fields: FormField[] = [
     {
         id: 'author',
         type: 'select',
-        title: 'Автор',
+        title: 'Author',
         initialValue: [],
         options: [
             {value: 'alice', content: 'Alice'},
@@ -38,7 +38,7 @@ const fields: FormField[] = [
     },
 ];
 
-/** Базовый набор полей формы (uncontrolled-режим со значениями по умолчанию из initialValue каждого поля) */
+/** Basic set of form fields (uncontrolled mode with default values from each field's initialValue) */
 export const Default: Story = {
     args: {
         fields,
@@ -46,7 +46,7 @@ export const Default: Story = {
     },
 };
 
-/** Форма с явными начальными значениями (initialValues), переопределяющими initialValue полей */
+/** Form with explicit initial values (initialValues), overriding fields' initialValue */
 export const WithInitialValues: Story = {
     args: {
         fields,
@@ -55,7 +55,7 @@ export const WithInitialValues: Story = {
     },
 };
 
-/** Controlled-режим: значения полностью управляются снаружи через values */
+/** Controlled mode: values are fully managed from outside via values */
 export const Controlled: Story = {
     args: {
         fields,
@@ -64,28 +64,28 @@ export const Controlled: Story = {
     },
 };
 
-/** Только одно поле-переключатель */
+/** Only a single switch field */
 export const SwitchOnly: Story = {
     args: {
-        fields: [{id: 'onlyMine', type: 'switch', title: 'Только мои запросы', initialValue: true}],
+        fields: [{id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true}],
     },
 };
 
-/** Только выбор диапазона дат */
+/** Only a date range picker */
 export const RangeDatePickerOnly: Story = {
     args: {
-        fields: [{id: 'range', type: 'rangeDatePicker', title: 'Период'}],
+        fields: [{id: 'range', type: 'rangeDatePicker', title: 'Period'}],
     },
 };
 
-/** Только группа чекбоксов */
+/** Only a checkbox group */
 export const CheckboxGroupOnly: Story = {
     args: {
         fields: [
             {
                 id: 'dialect',
                 type: 'checkboxGroup',
-                title: 'Диалект',
+                title: 'Dialect',
                 initialValue: ['yql'],
                 items: [
                     {id: 'yql', title: 'YQL'},
@@ -96,14 +96,14 @@ export const CheckboxGroupOnly: Story = {
     },
 };
 
-/** Только выбор из списка (select) */
+/** Only a select field */
 export const SelectOnly: Story = {
     args: {
         fields: [
             {
                 id: 'author',
                 type: 'select',
-                title: 'Автор',
+                title: 'Author',
                 initialValue: ['alice'],
                 options: [
                     {value: 'alice', content: 'Alice'},

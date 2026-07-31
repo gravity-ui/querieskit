@@ -28,7 +28,7 @@ const DefaultStory = () => {
 };
 
 const WithValueStory = () => {
-    const [search, setSearch] = useState({value: 'SELECT * FROM', fullSearch: false});
+    const [search, setSearch] = useState({value: 'Query 1', fullSearch: false});
 
     return (
         <HistoryHeader
@@ -53,11 +53,11 @@ const FullSearchStory = () => {
     );
 };
 
-/** Пустой заголовок с полем поиска */
+/** Empty header with a search field */
 export const Default: Story = {render: () => <DefaultStory />};
 
-/** Поле поиска с предзаполненным значением */
+/** Search field with a prefilled value */
 export const WithValue: Story = {render: () => <WithValueStory />};
 
-/** Полнотекстовый поиск активирован (кнопка подсвечена) */
+/** Full-text search is active (button is highlighted) */
 export const FullSearchActive: Story = {render: () => <FullSearchStory />};

@@ -5,12 +5,14 @@ import {
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
     QueryHistorySelectionConfig,
+    QueryHistoryVisibleFieldsConfig,
 } from '../../../types/history';
 
 type Props<T extends QueryHistoryRow> = {
     item: QueryHistoryItem<T>;
     isActive: boolean;
     index: number;
+    visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     editing?: QueryHistoryEditingConfig<T>;
     selection?: QueryHistorySelectionConfig<T>;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
@@ -20,6 +22,7 @@ export const prepareRowData = <T extends QueryHistoryRow>({
     item,
     isActive,
     index,
+    visibleFields,
     editing,
     selection,
     getRowActions,
@@ -47,6 +50,7 @@ export const prepareRowData = <T extends QueryHistoryRow>({
         item,
         index,
         isActive,
+        visibleFields,
         actions,
         editing: editingData,
         selection: selectionData,

@@ -6,10 +6,10 @@ export type BaseFormField<T extends string = string, Value = any, Extra extends 
 } & Extra;
 
 /**
- * Реестр пропсов зарегистрированных типов полей формы.
+ * Registry of props for registered form field types.
  *
- * Каждый компонент поля должен дополнять этот интерфейс через
- * module augmentation в своём файле, например:
+ * Each field component should augment this interface via
+ * module augmentation in its own file, for example:
  *
  * ```ts
  * declare module '../../types/forms' {
@@ -19,8 +19,8 @@ export type BaseFormField<T extends string = string, Value = any, Extra extends 
  * }
  * ```
  *
- * Это позволяет автоматически расширять union `RegisteredFormFields`
- * без правки SimpleForm при добавлении новых типов полей.
+ * This allows the `RegisteredFormFields` union to be extended
+ * automatically without modifying SimpleForm when new field types are added.
  */
 export interface FormFieldPropsRegistry {}
 

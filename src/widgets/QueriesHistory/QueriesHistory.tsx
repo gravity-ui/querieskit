@@ -1,7 +1,6 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {HistoryHeader} from '../../modules/HistoryHeader';
-import {HistoryList} from '../../modules/HistoryList';
+import {HistoryHeader, HistoryList} from '../../modules';
 import i18n from './i18n';
 import {
     QueryHistoryEditingConfig,
@@ -11,7 +10,9 @@ import {
     QueryHistoryRowRenderData,
     QueryHistorySearchConfig,
     QueryHistorySelectionConfig,
+    QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
+import {FieldsSelector} from '../../components';
 
 export type Props<T extends QueryHistoryRow = QueryHistoryRow> = {
     className?: string;
@@ -20,6 +21,7 @@ export type Props<T extends QueryHistoryRow = QueryHistoryRow> = {
     items: QueryHistoryItem<T>[];
     editing?: QueryHistoryEditingConfig<T>;
     selection?: QueryHistorySelectionConfig<T>;
+    visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     renderRowItem?: (data: QueryHistoryRowRenderData<T>) => React.ReactNode;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
     onListItemClick?: (item: QueryHistoryItem<T>) => void;
@@ -31,6 +33,7 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
     items,
     editing,
     selection,
+    visibleFields,
     renderRowItem,
     getRowActions,
     onListItemClick,
@@ -38,6 +41,10 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
 }: Props<T>) => {
     return (
         <Flex direction="column" gap={1} className={className}>
+            <Flex alignItems="center" justifyContent="space-between">
+                <div>logo</div>
+                {visibleFields && <FieldsSelector {...visibleFields} />}
+            </Flex>
             <Text variant="subheader-3">{title || i18n('title_history')}</Text>
             <HistoryHeader
                 search={search.value}
@@ -47,6 +54,7 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
             />
             <HistoryList
                 items={items}
+                visibleFields={visibleFields}
                 editing={editing}
                 selection={selection}
                 renderRowItem={renderRowItem}

@@ -7,6 +7,7 @@ import {
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
     QueryHistorySelectionConfig,
+    QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
 import cn from 'bem-cn-lite';
 import {HistoryRowContent} from './internal/HistoryRowContent';
@@ -14,6 +15,7 @@ import {prepareRowData} from './helpers/prepareRowData';
 
 type Props<T extends QueryHistoryRow> = {
     items: QueryHistoryItem<T>[];
+    visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     editing?: QueryHistoryEditingConfig<T>;
     selection?: QueryHistorySelectionConfig<T>;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
@@ -25,6 +27,7 @@ const block = cn('qp-history-list');
 
 export const HistoryList = <T extends QueryHistoryRow>({
     items,
+    visibleFields,
     editing,
     selection,
     getRowActions,
@@ -55,6 +58,7 @@ export const HistoryList = <T extends QueryHistoryRow>({
                     item,
                     isActive,
                     index,
+                    visibleFields,
                     editing,
                     selection,
                     getRowActions,

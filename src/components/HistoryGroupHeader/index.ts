@@ -1,1 +1,0 @@
-export {HistoryGroupHeader} from './HistoryGroupHeader';

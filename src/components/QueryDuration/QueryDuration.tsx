@@ -6,7 +6,7 @@ import './QueryDuration.scss';
 import {useQueryDuration} from './useQueryDuration';
 
 type Props = {
-    startTime: string | number;
+    startTime?: string | number;
     endTime?: string | number;
     status: QueryStatus;
     className?: string;
