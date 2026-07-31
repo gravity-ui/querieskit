@@ -10,7 +10,7 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     {header: 'Today', height: 28},
     {
         id: 1,
-        title: 'SELECT * FROM users WHERE active = true',
+        title: 'Query 1',
         status: 'completed',
         engine: 'YQL',
         startTime: now - 2 * min,
@@ -19,7 +19,7 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     },
     {
         id: 2,
-        title: 'INSERT INTO logs VALUES (...)',
+        title: 'Query 2',
         status: 'failed',
         engine: 'YQL',
         startTime: now - 10 * min,
@@ -28,7 +28,7 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     },
     {
         id: 3,
-        title: 'Running analytics query',
+        title: 'Query 3',
         status: 'running',
         engine: 'YQL',
         startTime: now - min,
@@ -37,7 +37,7 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     {header: 'Yesterday', height: 28},
     {
         id: 4,
-        title: 'DROP TABLE temp_data',
+        title: 'Query 4',
         status: 'aborted',
         engine: 'YQL',
         startTime: now - 25 * 60 * min,
@@ -46,7 +46,7 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     },
     {
         id: 5,
-        title: 'Draft query — not yet executed',
+        title: 'Query 5',
         status: 'draft',
         engine: 'YQL',
         startTime: now - 30 * 60 * min,

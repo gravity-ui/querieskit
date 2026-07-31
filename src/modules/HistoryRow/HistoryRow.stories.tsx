@@ -1,21 +1,29 @@
-import React, {useState} from 'react';
+import React from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {HistoryRow} from './HistoryRow';
-import {QueryHistoryRow} from '../../types/history';
+import {QueryHistoryRow, QueryHistoryRowAction} from '../../types/history';
 
 const now = Date.now();
 const min = 60 * 1000;
 
 const makeRow = (overrides: Partial<QueryHistoryRow>): QueryHistoryRow => ({
     id: 1,
-    title: 'SELECT * FROM users WHERE active = true',
+    title: 'Query 1',
     status: 'completed',
     engine: 'YQL',
+    mode: 'batch',
+    isPrivate: false,
     startTime: now - 5 * min,
     endTime: now - min,
     height: 64,
     ...overrides,
 });
+
+const defaultActions: Array<QueryHistoryRowAction<QueryHistoryRow>> = [
+    {text: 'Run again', onClick: (row) => alert(`Run: ${row.title}`)},
+    {text: 'Copy', onClick: (row) => alert(`Copy: ${row.title}`)},
+    {text: 'Delete', onClick: (row) => alert(`Delete: ${row.title}`)},
+];
 
 const meta: Meta<typeof HistoryRow> = {
     title: 'Modules/HistoryRow',
@@ -23,6 +31,12 @@ const meta: Meta<typeof HistoryRow> = {
     tags: ['autodocs'],
     parameters: {
         layout: 'padded',
+    },
+    args: {
+        item: makeRow({}),
+        isActive: false,
+        index: 0,
+        actions: defaultActions,
     },
     decorators: [
         (Story) => (
@@ -36,62 +50,19 @@ const meta: Meta<typeof HistoryRow> = {
 export default meta;
 type Story = StoryObj<typeof HistoryRow>;
 
-/** Завершённый запрос, базовый вид */
-export const Completed: Story = {
+/** Default row with a ready-to-use actions menu */
+export const Default: Story = {};
+
+/** Private query — shows the lock icon */
+export const Private: Story = {
     args: {
-        item: makeRow({status: 'completed'}),
-        isActive: false,
-        index: 0,
+        item: makeRow({isPrivate: true}),
     },
 };
 
-/** Запрос завершился с ошибкой */
-export const Failed: Story = {
-    args: {
-        item: makeRow({status: 'failed', title: 'INSERT INTO logs VALUES (...)'}),
-        isActive: false,
-        index: 0,
-    },
-};
-
-/** Прерванный запрос */
-export const Aborted: Story = {
-    args: {
-        item: makeRow({status: 'aborted', title: 'DROP TABLE temp_data'}),
-        isActive: false,
-        index: 0,
-    },
-};
-
-/** Черновик — время показывает --:-- */
-export const Draft: Story = {
-    args: {
-        item: makeRow({status: 'draft', title: 'Draft query', startTime: now, endTime: undefined}),
-        isActive: false,
-        index: 0,
-    },
-};
-
-/** Активный (hovered) запрос — показывает меню действий */
-export const ActiveWithActions: Story = {
-    args: {
-        item: makeRow({status: 'completed'}),
-        isActive: true,
-        index: 0,
-        actions: [
-            {text: 'Run again', onClick: (row) => alert(`Run: ${row.title}`)},
-            {text: 'Copy', onClick: (row) => alert(`Copy: ${row.title}`)},
-            {text: 'Delete', onClick: (row) => alert(`Delete: ${row.title}`)},
-        ],
-    },
-};
-
-/** Режим selection — вместо иконки статуса показывается чекбокс */
+/** Selection mode — a checkbox is shown instead of the status icon */
 export const SelectionMode: Story = {
     args: {
-        item: makeRow({status: 'completed'}),
-        isActive: false,
-        index: 0,
         selection: {
             enabled: true,
             checked: false,
@@ -100,12 +71,9 @@ export const SelectionMode: Story = {
     },
 };
 
-/** Строка выбрана в режиме selection */
+/** Row is selected in selection mode */
 export const SelectionModeChecked: Story = {
     args: {
-        item: makeRow({status: 'completed'}),
-        isActive: false,
-        index: 0,
         selection: {
             enabled: true,
             checked: true,
@@ -114,12 +82,9 @@ export const SelectionModeChecked: Story = {
     },
 };
 
-/** Режим редактирования заголовка */
+/** Title editing mode */
 export const EditingMode: Story = {
     args: {
-        item: makeRow({status: 'completed'}),
-        isActive: false,
-        index: 0,
         editing: {
             enabled: true,
             onSubmit: (_item, title) => alert(`Saved: ${title}`),
@@ -127,26 +92,3 @@ export const EditingMode: Story = {
         },
     },
 };
-
-/** Интерактивный пример с живым переключением selection */
-const InteractiveSelectionStory = () => {
-    const [checked, setChecked] = useState(false);
-    const item = makeRow({status: 'completed'});
-
-    return (
-        <div style={{width: 380}}>
-            <HistoryRow
-                item={item}
-                isActive={false}
-                index={0}
-                selection={{
-                    enabled: true,
-                    checked,
-                    onChange: (_row, selected) => setChecked(selected),
-                }}
-            />
-        </div>
-    );
-};
-
-export const InteractiveSelection: Story = {render: () => <InteractiveSelectionStory />};

@@ -15,61 +15,25 @@ const meta: Meta<typeof QueryDuration> = {
 export default meta;
 type Story = StoryObj<typeof QueryDuration>;
 
-/** Статичное время: startTime + endTime переданы, отображается итоговая длительность */
-export const Completed: Story = {
-    args: {
-        status: 'completed',
-        startTime: fiveMinutesAgo,
-        endTime: now,
-    },
-};
-
-/** Статичное время: запрос завершился с ошибкой */
-export const Failed: Story = {
-    args: {
-        status: 'failed',
-        startTime: oneHourAgo,
-        endTime: now,
-    },
-};
-
-/** Статичное время: запрос прерван */
-export const Aborted: Story = {
-    args: {
-        status: 'aborted',
-        startTime: fiveMinutesAgo,
-        endTime: now,
-    },
-};
-
-/** Живой таймер: endTime не передан — счётчик тикает каждую секунду */
-export const Running: Story = {
+/** Live timer: endTime not provided — counter ticks every second */
+export const Default: Story = {
     args: {
         status: 'running',
         startTime: fiveMinutesAgo,
-        // endTime намеренно не передаётся
     },
 };
 
-/** Черновик: всегда показывает --:-- независимо от времён */
-export const Draft: Story = {
-    args: {
-        status: 'draft',
-        startTime: now,
-    },
-};
-
-/** Все варианты рядом: Running обновляется в реальном времени, Draft статичен */
+/** All variants side by side: Running updates in real time, Draft is static */
 export const AllStatuses: Story = {
     render: () => (
         <div style={{display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center'}}>
-            {/* Статичные */}
+            {/* Static */}
             <QueryDuration status="completed" startTime={fiveMinutesAgo} endTime={now} />
             <QueryDuration status="failed" startTime={oneHourAgo} endTime={now} />
             <QueryDuration status="aborted" startTime={fiveMinutesAgo} endTime={now} />
-            {/* Живой таймер */}
+            {/* Live timer */}
             <QueryDuration status="running" startTime={fiveMinutesAgo} />
-            {/* Всегда --:-- */}
+            {/* Always --:-- */}
             <QueryDuration status="draft" startTime={now} />
         </div>
     ),

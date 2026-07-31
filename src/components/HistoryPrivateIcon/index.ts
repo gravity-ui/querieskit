@@ -1,0 +1,1 @@
+export {HistoryPrivateIcon} from './HistoryPrivateIcon';

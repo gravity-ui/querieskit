@@ -5,13 +5,13 @@ import {durationDates} from '../../helpers/time';
 
 export const useQueryDuration = (
     state: QueryStatus,
-    startTime: string | number,
+    startTime?: string | number,
     endTime?: string | number,
 ) => {
     const [duration, setDuration] = useState(durationDates(startTime, endTime));
 
     useEffect(() => {
-        if (state === 'draft') {
+        if (state === 'draft' || !startTime) {
             setDuration('--:--');
             return;
         }

@@ -5,6 +5,7 @@ import ArrowRotateLeftIcon from '@gravity-ui/icons/svgs/arrow-rotate-left.svg';
 import {useToggle} from '../../helpers/useToggle';
 import cn from 'bem-cn-lite';
 import {FormField, SimpleForm} from '../SimpleForm';
+import i18n from './i18n';
 import './HistoryFilter.scss';
 
 const block = cn('qp-history-filter');
@@ -61,11 +62,11 @@ export const HistoryFilter: FC<Props> = ({
                 </div>
                 <Flex gap={3} className={block('container')}>
                     <Button view="action" onClick={() => onApply?.(valuesRef.current)}>
-                        Apply
+                        {i18n('action_apply')}
                     </Button>
                     <Button onClick={onReset}>
                         <Icon data={ArrowRotateLeftIcon} size={16} />
-                        Reset
+                        {i18n('action_reset')}
                     </Button>
                 </Flex>
             </Popup>
