@@ -4,6 +4,7 @@ import React from 'react';
 
 import '@gravity-ui/uikit/styles/styles.css';
 import '@gravity-ui/unipika/dist/unipika.css';
+import '@gravity-ui/illustrations/styles/styles.scss';
 import './redefinition.css';
 
 configure({lang: 'en'});
