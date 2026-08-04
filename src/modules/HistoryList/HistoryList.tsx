@@ -9,8 +9,8 @@ import {
     QueryHistorySelectionConfig,
     QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
-import cn from 'bem-cn-lite';
 import {HistoryRowContent} from './internal/HistoryRowContent';
+import {HistoryListEmpty} from './internal/HistoryListEmpty';
 import {prepareRowData} from './helpers/prepareRowData';
 
 type Props<T extends QueryHistoryRow> = {
@@ -22,8 +22,6 @@ type Props<T extends QueryHistoryRow> = {
     renderRowItem?: (data: QueryHistoryRowRenderData<T>) => React.ReactNode;
     onItemClick?: (item: QueryHistoryItem<T>) => void;
 };
-
-const block = cn('qp-history-list');
 
 export const HistoryList = <T extends QueryHistoryRow>({
     items,
@@ -44,9 +42,12 @@ export const HistoryList = <T extends QueryHistoryRow>({
         selection.onChange?.(item, !selected);
     };
 
+    if (!items.length) {
+        return <HistoryListEmpty />;
+    }
+
     return (
         <List
-            className={block()}
             filterable={false}
             items={items}
             itemHeight={({height}: QueryHistoryItem<T>) => height}
