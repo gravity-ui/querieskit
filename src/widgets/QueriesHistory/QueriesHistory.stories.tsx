@@ -1,10 +1,24 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {QueriesHistory} from './QueriesHistory';
-import {QueryHistoryItem, QueryHistoryRow} from '../../types/history';
+import {
+    QueryHistoryFieldKey,
+    QueryHistoryFilterConfig,
+    QueryHistoryItem,
+    QueryHistoryRow,
+    QueryHistoryVisibleFieldsConfig,
+} from '../../types/history';
+import {action} from 'storybook/actions';
 
 const now = Date.now();
 const min = 60 * 1000;
+
+const QUERY = `use test;
+
+SELECT
+    "test_session" AS session_id,
+    "test_task" AS task_id,
+    SUBSTRING("test", 1, 1) AS truncated_char`;
 
 const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     {header: 'Today', height: 28},
@@ -13,26 +27,32 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         title: 'Query 1',
         status: 'completed',
         engine: 'YQL',
+        mode: 'Validation',
         startTime: now - 2 * min,
         endTime: now - min,
-        height: 64,
+        query: QUERY,
+        height: 52,
     },
     {
         id: 2,
         title: 'Query 2',
         status: 'failed',
         engine: 'YQL',
+        mode: 'Test',
         startTime: now - 10 * min,
         endTime: now - 9 * min,
-        height: 64,
+        query: QUERY,
+        height: 52,
     },
     {
         id: 3,
         title: 'Query 3',
         status: 'running',
         engine: 'YQL',
+        mode: 'Test',
         startTime: now - min,
-        height: 64,
+        query: QUERY,
+        height: 52,
     },
     {header: 'Yesterday', height: 28},
     {
@@ -40,19 +60,72 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         title: 'Query 4',
         status: 'aborted',
         engine: 'YQL',
+        mode: 'Validation',
         startTime: now - 25 * 60 * min,
         endTime: now - 24 * 60 * min,
-        height: 64,
+        query: 'SELECT 1',
+        height: 52,
     },
     {
         id: 5,
         title: 'Query 5',
         status: 'draft',
         engine: 'YQL',
+        mode: 'Test',
         startTime: now - 30 * 60 * min,
-        height: 64,
+        query: QUERY,
+        height: 52,
     },
 ];
+
+type VisibleFields = QueryHistoryVisibleFieldsConfig<QueryHistoryRow>['fields'];
+const activeFields: QueryHistoryFieldKey[] = [
+    'duration',
+    'mode',
+    'startTime',
+    'engine',
+    'isPrivate',
+];
+const fields: VisibleFields = [
+    {
+        id: 'duration',
+        title: 'Duration',
+    },
+    {
+        id: 'mode',
+        title: 'Mode',
+    },
+    {
+        id: 'startTime',
+        title: 'Start time',
+    },
+    {
+        id: 'engine',
+        title: 'Engine',
+    },
+    {
+        id: 'isPrivate',
+        title: 'ACO',
+    },
+];
+
+const filterFields: QueryHistoryFilterConfig['fields'] = [
+    {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
+    {id: 'range', type: 'rangeDatePicker', title: 'Period'},
+    {
+        id: 'dialect',
+        type: 'checkboxGroup',
+        title: 'Dialect',
+        initialValue: [],
+        items: [
+            {id: 'yql', title: 'YQL'},
+            {id: 'sql', title: 'SQL'},
+        ],
+    },
+];
+
+const logFilterApply = action('onFilterApply');
+const logFilterReset = action('onFilterReset');
 
 const meta: Meta<typeof QueriesHistory> = {
     title: 'Widgets/QueriesHistory',
@@ -67,116 +140,112 @@ export default meta;
 type Story = StoryObj<typeof QueriesHistory>;
 
 const DefaultStory = () => {
+    const [items, setItems] = useState([...BASE_ITEMS]);
     const [search, setSearch] = useState({value: '', fullSearch: false});
+    const [visibleFields, setVisibleFields] = useState<QueryHistoryFieldKey[]>(activeFields);
+    const [compareMode, setCompareMode] = useState(false);
+    const [comparedRows, setComparedRows] = useState<number[]>([]);
+    const [editingId, setEditingId] = useState<number | undefined>(undefined);
 
-    return (
-        <div style={{width: 420, height: 500}}>
-            <QueriesHistory
-                title="Query History"
-                items={BASE_ITEMS}
-                search={{
-                    value: search.value,
-                    fullSearch: search.fullSearch,
-                    hasClear: true,
-                    onUpdate: setSearch,
-                }}
-            />
-        </div>
-    );
-};
+    const handleCompareChange = (item: QueryHistoryRow, selected: boolean) => {
+        const result = selected
+            ? [...comparedRows.slice(0, 1), item.id]
+            : comparedRows.filter((id) => id !== item.id);
+        setComparedRows(result);
 
-const WithActionsStory = () => {
-    const [search, setSearch] = useState({value: '', fullSearch: false});
+        if (!result.length) setCompareMode(false);
+    };
 
-    return (
-        <div style={{width: 420, height: 500}}>
-            <QueriesHistory
-                title="Query History"
-                items={BASE_ITEMS}
-                search={{
-                    value: search.value,
-                    fullSearch: search.fullSearch,
-                    hasClear: true,
-                    onUpdate: setSearch,
-                }}
-                getRowActions={(_item) => [
-                    {
-                        text: 'Run again',
-                        onClick: (row) => alert(`Run: ${row.title}`),
-                    },
-                    {
-                        text: 'Copy query',
-                        onClick: (row) => alert(`Copy: ${row.title}`),
-                    },
-                    {
-                        text: 'Delete',
-                        onClick: (row) => alert(`Delete: ${row.title}`),
-                    },
-                ]}
-            />
-        </div>
-    );
-};
+    const handleCompareCancel = () => {
+        setComparedRows([]);
+        setCompareMode(false);
+    };
 
-const WithSelectionStory = () => {
-    const [search, setSearch] = useState({value: '', fullSearch: false});
-    const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+    const handleEditSubmit = (item: QueryHistoryRow, title: string) => {
+        const index = items.findIndex((i) => 'id' in i && i.id === item.id);
+        if (index < 0) return;
 
-    const handleSelectionChange = (item: QueryHistoryRow, selected: boolean) => {
-        setSelectedRowIds((prev) =>
-            selected ? [...prev, item.id] : prev.filter((id) => id !== item.id),
-        );
+        const result = [...items];
+        result[index] = {...result[index], title};
+        setItems(result);
+        setEditingId(undefined);
+    };
+
+    const handleEditCancel = () => {
+        setEditingId(undefined);
+    };
+
+    const handleCompare = () => {
+        action('onCompare')(comparedRows);
+    };
+
+    const handleOnSearch = (data: {value: string; fullSearch: boolean}) => {
+        setSearch(data);
+
+        if (!data.value) {
+            setItems(BASE_ITEMS);
+            return;
+        }
+
+        const newItems = BASE_ITEMS.filter((item) => {
+            if (!('id' in item)) return false;
+
+            const title = item.title.toLowerCase();
+            const query = item.query?.toLowerCase();
+            const searchValue = data.value.toLowerCase();
+
+            if (data.fullSearch) {
+                return title.includes(searchValue) || query?.includes(searchValue);
+            }
+
+            return title.includes(searchValue);
+        });
+        setItems(newItems);
     };
 
     return (
-        <div style={{width: 420, height: 500}}>
-            <div style={{marginBottom: 8, fontSize: 12, color: '#888'}}>
-                Selected: {selectedRowIds.join(', ') || 'none'}
-            </div>
+        <div style={{width: 300, height: 500}}>
             <QueriesHistory
-                title="Query History"
-                items={BASE_ITEMS}
+                title="History"
+                items={items}
+                visibleFields={{value: visibleFields, fields, onChange: setVisibleFields}}
                 search={{
                     value: search.value,
                     fullSearch: search.fullSearch,
                     hasClear: true,
-                    onUpdate: setSearch,
+                    onUpdate: handleOnSearch,
                 }}
-                selection={{
-                    enabled: true,
-                    selectedRowIds,
-                    onChange: handleSelectionChange,
+                filter={{
+                    fields: filterFields,
+                    onApply: logFilterApply,
+                    onReset: logFilterReset('reset'),
                 }}
-            />
-        </div>
-    );
-};
-
-const WithEditingStory = () => {
-    const [search, setSearch] = useState({value: '', fullSearch: false});
-    const [editingRowId, setEditingRowId] = useState<number | undefined>(1);
-
-    return (
-        <div style={{width: 420, height: 500}}>
-            <div style={{marginBottom: 8, fontSize: 12, color: '#888'}}>
-                Editing row id: {editingRowId ?? 'none'} (row #1 is in edit mode by default)
-            </div>
-            <QueriesHistory
-                title="Query History"
-                items={BASE_ITEMS}
-                search={{
-                    value: search.value,
-                    fullSearch: search.fullSearch,
-                    hasClear: true,
-                    onUpdate: setSearch,
+                getRowActions={() => [
+                    {
+                        text: 'Compare',
+                        onClick: (item) => {
+                            setCompareMode(true);
+                            setComparedRows([item.id]);
+                        },
+                    },
+                    {
+                        text: 'Edit',
+                        onClick: (item) => {
+                            setEditingId(item.id);
+                        },
+                    },
+                ]}
+                comparison={{
+                    enabled: compareMode,
+                    comparedRowIds: comparedRows,
+                    onChange: handleCompareChange,
+                    onCancel: handleCompareCancel,
+                    onCompare: handleCompare,
                 }}
                 editing={{
-                    rowId: editingRowId,
-                    onSubmit: (item, title) => {
-                        alert(`Renamed row ${item.id} to: "${title}"`);
-                        setEditingRowId(undefined);
-                    },
-                    onCancel: () => setEditingRowId(undefined),
+                    rowId: editingId,
+                    onSubmit: handleEditSubmit,
+                    onCancel: handleEditCancel,
                 }}
             />
         </div>
@@ -187,9 +256,9 @@ const EmptyStory = () => {
     const [search, setSearch] = useState({value: '', fullSearch: false});
 
     return (
-        <div style={{width: 420, height: 500}}>
+        <div style={{width: 300, height: 500}}>
             <QueriesHistory
-                title="Query History"
+                title="History"
                 items={[]}
                 search={{
                     value: search.value,
@@ -203,7 +272,4 @@ const EmptyStory = () => {
 };
 
 export const Default: Story = {render: () => <DefaultStory />};
-export const WithActions: Story = {render: () => <WithActionsStory />};
-export const WithSelection: Story = {render: () => <WithSelectionStory />};
-export const WithEditing: Story = {render: () => <WithEditingStory />};
 export const Empty: Story = {render: () => <EmptyStory />};

@@ -1,4 +1,5 @@
 import {ReactNode} from 'react';
+import {RegisteredFormFields} from './forms';
 
 export type QueryStatus = 'completed' | 'failed' | 'aborted' | 'draft' | 'running';
 
@@ -39,16 +40,27 @@ export type QueryHistorySearchConfig = {
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
 };
 
+export type QueryHistoryFilterConfig = {
+    fields?: RegisteredFormFields[];
+    values?: Record<string, any>;
+    initialValues?: Record<string, any>;
+    isChanged?: boolean;
+    onApply?: (values: Record<string, any>) => void;
+    onReset?: () => void;
+};
+
 export type QueryHistoryEditingConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
     rowId?: T['id'];
     onSubmit?: (item: T, title: string) => void;
     onCancel?: (item: T) => void;
 };
 
-export type QueryHistorySelectionConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
-    enabled?: boolean;
-    selectedRowIds: T['id'][];
-    onChange?: (item: T, selected: boolean) => void;
+export type QueryHistoryComparisonConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
+    enabled: boolean;
+    comparedRowIds: T['id'][];
+    onChange: (item: T, selected: boolean) => void;
+    onCancel: () => void;
+    onCompare: () => void;
 };
 
 /**
@@ -80,17 +92,15 @@ export type QueryHistoryEditingRenderData<T extends QueryHistoryRow = QueryHisto
     enabled: boolean;
 } & Pick<QueryHistoryEditingConfig<T>, 'onSubmit' | 'onCancel'>;
 
-export type QueryHistorySelectionRenderData<T extends QueryHistoryRow = QueryHistoryRow> = {
-    enabled: boolean;
-    checked: boolean;
-} & Pick<QueryHistorySelectionConfig<T>, 'onChange'>;
-
 export type QueryHistoryRowRenderData<T extends QueryHistoryRow = QueryHistoryRow> = {
     item: QueryHistoryItem<T>;
     index: number;
     isActive: boolean;
+    comparison?: {
+        enabled: boolean;
+        checked: boolean;
+    };
     visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     actions?: QueryHistoryRowAction<T>[];
     editing?: QueryHistoryEditingRenderData<T>;
-    selection?: QueryHistorySelectionRenderData<T>;
 };

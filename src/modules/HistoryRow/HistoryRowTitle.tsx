@@ -1,27 +1,14 @@
 import React, {KeyboardEvent, useState} from 'react';
-import {
-    QueryHistoryEditingRenderData,
-    QueryHistoryRow,
-    QueryHistoryRowRenderData,
-} from '../../types/history';
-import {Flex, Text, TextInput} from '@gravity-ui/uikit';
+import {QueryHistoryEditingRenderData, QueryHistoryRow} from '../../types/history';
+import {Text, TextInput} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
-import cn from 'bem-cn-lite';
-import {HistoryRowMenu} from './HistoryRowMenu';
 
 export type Props<T extends QueryHistoryRow> = {
     item: T;
     editing?: QueryHistoryEditingRenderData<T>;
-} & Pick<QueryHistoryRowRenderData<T>, 'actions' | 'isActive'>;
+};
 
-const block = cn('qp-history-row');
-
-export const HistoryRowHeader = <T extends QueryHistoryRow>({
-    item,
-    actions,
-    isActive,
-    editing,
-}: Props<T>) => {
+export const HistoryRowTitle = <T extends QueryHistoryRow>({item, editing}: Props<T>) => {
     const [title, setTitle] = useState(item.title);
     const isEditing = Boolean(editing?.enabled);
     const isTitleEmpty = !title.trim();
@@ -75,11 +62,8 @@ export const HistoryRowHeader = <T extends QueryHistoryRow>({
     }
 
     return (
-        <Flex justifyContent="space-between" className={block('title')}>
-            <Text variant="subheader-1" ellipsis>
-                {item.title}
-            </Text>
-            {isActive && <HistoryRowMenu row={item} actions={actions} />}
-        </Flex>
+        <Text variant="subheader-1" ellipsis>
+            {item.title}
+        </Text>
     );
 };

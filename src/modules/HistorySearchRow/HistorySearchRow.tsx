@@ -13,10 +13,22 @@ import {isFieldVisible} from '../../helpers/isFieldVisible';
 import './HistorySearchRow.scss';
 import cn from 'bem-cn-lite';
 
-const PREVIEW_FONT_SIZE_PX = 14;
+const MONACO_VISIBLE_LINES = 4;
+const MONACO_LINE_HEIGHT = 18;
+
+const fitQueryToVisibleLines = (query = '') => {
+    const lines = query.split(/\r\n|\r|\n/).slice(0, MONACO_VISIBLE_LINES);
+    while (lines.length < MONACO_VISIBLE_LINES) {
+        lines.push('');
+    }
+
+    return lines.join('\n');
+};
+
 const MONACO_CONFIG: MonacoEditorConfig = {
     contextmenu: false,
-    fontSize: PREVIEW_FONT_SIZE_PX,
+    fontSize: 12,
+    lineHeight: MONACO_LINE_HEIGHT,
     language: 'plaintext',
     renderWhitespace: 'boundary',
     minimap: {
@@ -38,6 +50,8 @@ const MONACO_CONFIG: MonacoEditorConfig = {
 
 const block = cn('qp-history-search-row');
 
+export const SEARCH_ROW_HEIGHT = 144;
+
 export type Props<T extends QueryHistoryRow> = {
     item: T;
 } & Omit<QueryHistoryRowRenderData<T>, 'item'>;
@@ -56,7 +70,9 @@ export const HistorySearchRow = <T extends QueryHistoryRow>({item, visibleFields
                     <Text color="complementary">{mode}</Text>
                 )}
                 {isFieldVisible(visibleFields, 'startTime') && startTime && (
-                    <Text color="complementary">{formatTimeCanonical(startTime)}</Text>
+                    <Text color="complementary" className={block('start-time')}>
+                        {formatTimeCanonical(startTime)}
+                    </Text>
                 )}
                 {isFieldVisible(visibleFields, 'engine') && engine && (
                     <Text color="complementary">{engine}</Text>
@@ -66,7 +82,7 @@ export const HistorySearchRow = <T extends QueryHistoryRow>({item, visibleFields
                 )}
             </Flex>
             <MonacoEditor
-                value={query ?? ''}
+                value={fitQueryToVisibleLines(query)}
                 readOnly
                 monacoConfig={MONACO_CONFIG}
                 className={block('monaco')}

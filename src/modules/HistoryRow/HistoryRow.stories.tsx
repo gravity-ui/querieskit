@@ -51,33 +51,29 @@ export default meta;
 type Story = StoryObj<typeof HistoryRow>;
 
 /** Default row with a ready-to-use actions menu */
-export const Default: Story = {};
-
-/** Private query — shows the lock icon */
-export const Private: Story = {
+export const Default: Story = {
     args: {
         item: makeRow({isPrivate: true}),
+        isActive: true,
     },
 };
 
-/** Selection mode — a checkbox is shown instead of the status icon */
-export const SelectionMode: Story = {
+/** Comparison mode — row highlighted as checked, menu is hidden */
+export const ComparisonMode: Story = {
     args: {
-        selection: {
+        comparison: {
             enabled: true,
-            checked: false,
-            onChange: (_item, selected) => alert(`Selected: ${selected}`),
+            checked: true,
         },
     },
 };
 
-/** Row is selected in selection mode */
-export const SelectionModeChecked: Story = {
+/** Comparison mode is enabled globally, but this row is not checked yet */
+export const ComparisonModeUnchecked: Story = {
     args: {
-        selection: {
+        comparison: {
             enabled: true,
-            checked: true,
-            onChange: (_item, selected) => alert(`Selected: ${selected}`),
+            checked: false,
         },
     },
 };

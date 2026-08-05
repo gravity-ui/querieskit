@@ -1,2 +1,2 @@
 export {QueriesHistory} from './QueriesHistory';
-export type {Props as QueriesHistoryProps} from './QueriesHistory';
+export type {QueriesHistoryProps} from './QueriesHistory';

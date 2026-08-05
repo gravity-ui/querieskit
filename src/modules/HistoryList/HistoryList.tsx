@@ -1,23 +1,26 @@
 import React from 'react';
 import {List} from '@gravity-ui/uikit';
 import {
+    QueryHistoryComparisonConfig,
     QueryHistoryEditingConfig,
     QueryHistoryItem,
     QueryHistoryRow,
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
-    QueryHistorySelectionConfig,
     QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
 import {HistoryRowContent} from './internal/HistoryRowContent';
 import {HistoryListEmpty} from './internal/HistoryListEmpty';
 import {prepareRowData} from './helpers/prepareRowData';
+import {SEARCH_ROW_HEIGHT} from '../HistorySearchRow';
 
 type Props<T extends QueryHistoryRow> = {
+    selectedRowId?: T['id'];
     items: QueryHistoryItem<T>[];
+    rowVariant?: 'default' | 'search';
     visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     editing?: QueryHistoryEditingConfig<T>;
-    selection?: QueryHistorySelectionConfig<T>;
+    comparison?: QueryHistoryComparisonConfig<T>;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
     renderRowItem?: (data: QueryHistoryRowRenderData<T>) => React.ReactNode;
     onItemClick?: (item: QueryHistoryItem<T>) => void;
@@ -25,21 +28,26 @@ type Props<T extends QueryHistoryRow> = {
 
 export const HistoryList = <T extends QueryHistoryRow>({
     items,
+    selectedRowId,
+    rowVariant = 'default',
     visibleFields,
     editing,
-    selection,
+    comparison,
     getRowActions,
     renderRowItem,
     onItemClick,
 }: Props<T>) => {
+    const getItemHeight = (item: QueryHistoryItem<T>) =>
+        rowVariant === 'search' && !('header' in item) ? SEARCH_ROW_HEIGHT : item.height;
+
     const handleItemClick = (item: QueryHistoryItem<T>) => {
-        if ('header' in item || !selection?.enabled) {
+        if ('header' in item || !comparison?.enabled) {
             onItemClick?.(item);
             return;
         }
 
-        const selected = selection.selectedRowIds.includes(item.id);
-        selection.onChange?.(item, !selected);
+        const selected = comparison.comparedRowIds.includes(item.id);
+        comparison.onChange(item, !selected);
     };
 
     if (!items.length) {
@@ -50,9 +58,9 @@ export const HistoryList = <T extends QueryHistoryRow>({
         <List
             filterable={false}
             items={items}
-            itemHeight={({height}: QueryHistoryItem<T>) => height}
+            itemHeight={getItemHeight}
             itemsHeight={(listItems) =>
-                listItems.reduce((totalHeight, {height}) => totalHeight + height, 0)
+                listItems.reduce((totalHeight, item) => totalHeight + getItemHeight(item), 0)
             }
             renderItem={(item, isActive, index) => {
                 const data = prepareRowData({
@@ -61,12 +69,17 @@ export const HistoryList = <T extends QueryHistoryRow>({
                     index,
                     visibleFields,
                     editing,
-                    selection,
+                    comparison,
                     getRowActions,
                 });
 
-                return renderRowItem ? renderRowItem(data) : <HistoryRowContent {...data} />;
+                return renderRowItem ? (
+                    renderRowItem(data)
+                ) : (
+                    <HistoryRowContent {...data} variant={rowVariant} />
+                );
             }}
+            selectedItemIndex={selectedRowId}
             onItemClick={handleItemClick}
         />
     );

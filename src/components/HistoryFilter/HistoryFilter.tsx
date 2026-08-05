@@ -3,26 +3,15 @@ import {Button, Flex, Icon, Popup} from '@gravity-ui/uikit';
 import FunnelIcon from '@gravity-ui/icons/svgs/funnel.svg';
 import ArrowRotateLeftIcon from '@gravity-ui/icons/svgs/arrow-rotate-left.svg';
 import {useToggle} from '../../helpers/useToggle';
+import {QueryHistoryFilterConfig} from '../../types/history';
 import cn from 'bem-cn-lite';
-import {FormField, SimpleForm} from '../SimpleForm';
+import {SimpleForm} from '../SimpleForm';
 import i18n from './i18n';
 import './HistoryFilter.scss';
 
 const block = cn('qp-history-filter');
 
-type Props = {
-    fields?: FormField[];
-    /** Значения формы в controlled-режиме. Если переданы — компонент не хранит собственный стейт. */
-    values?: Record<string, any>;
-    /** Начальные значения для uncontrolled-режима (используются один раз при монтировании). */
-    initialValues?: Record<string, any>;
-    /** Признак того, что фильтр изменён относительно исходного состояния. Влияет на view кнопки раскрытия попапа. */
-    isChanged?: boolean;
-    onApply?: (values: Record<string, any>) => void;
-    onReset?: () => void;
-};
-
-export const HistoryFilter: FC<Props> = ({
+export const HistoryFilter: FC<QueryHistoryFilterConfig> = ({
     fields = [],
     values,
     initialValues,
