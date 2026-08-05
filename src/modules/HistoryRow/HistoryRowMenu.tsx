@@ -4,11 +4,11 @@ import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
 import {QueryHistoryRow, QueryHistoryRowAction} from '../../types/history';
 
 type Props<T extends QueryHistoryRow> = {
-    row: T;
+    item: T;
     actions?: QueryHistoryRowAction<T>[];
 };
 
-export const HistoryRowMenu = <T extends QueryHistoryRow>({row, actions}: Props<T>) => {
+export const HistoryRowMenu = <T extends QueryHistoryRow>({item, actions}: Props<T>) => {
     const items = useMemo(() => {
         return actions?.map<DropdownMenuItem>(({icon, text, hidden, disabled, onClick}) => {
             return {
@@ -17,11 +17,11 @@ export const HistoryRowMenu = <T extends QueryHistoryRow>({row, actions}: Props<
                 disabled,
                 iconStart: icon,
                 action: () => {
-                    onClick(row);
+                    onClick(item);
                 },
             };
         });
-    }, [actions, row]);
+    }, [actions, item]);
 
     if (!actions || !actions.length) return null;
 

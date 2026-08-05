@@ -1,10 +1,10 @@
 import {
+    QueryHistoryComparisonConfig,
     QueryHistoryEditingConfig,
     QueryHistoryItem,
     QueryHistoryRow,
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
-    QueryHistorySelectionConfig,
     QueryHistoryVisibleFieldsConfig,
 } from '../../../types/history';
 
@@ -14,7 +14,7 @@ type Props<T extends QueryHistoryRow> = {
     index: number;
     visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     editing?: QueryHistoryEditingConfig<T>;
-    selection?: QueryHistorySelectionConfig<T>;
+    comparison?: QueryHistoryComparisonConfig<T>;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
 };
 
@@ -24,7 +24,7 @@ export const prepareRowData = <T extends QueryHistoryRow>({
     index,
     visibleFields,
     editing,
-    selection,
+    comparison,
     getRowActions,
 }: Props<T>): QueryHistoryRowRenderData<T> => {
     const isRow = !('header' in item);
@@ -37,12 +37,11 @@ export const prepareRowData = <T extends QueryHistoryRow>({
                   onCancel: editing.onCancel,
               }
             : undefined;
-    const selectionData =
-        isRow && selection
+    const comparisonData =
+        isRow && comparison && comparison.enabled
             ? {
-                  enabled: Boolean(selection.enabled),
-                  checked: selection.selectedRowIds.includes(item.id),
-                  onChange: selection.onChange,
+                  enabled: true,
+                  checked: comparison.comparedRowIds.includes(item.id),
               }
             : undefined;
 
@@ -53,6 +52,6 @@ export const prepareRowData = <T extends QueryHistoryRow>({
         visibleFields,
         actions,
         editing: editingData,
-        selection: selectionData,
+        comparison: comparisonData,
     };
 };

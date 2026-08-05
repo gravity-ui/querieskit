@@ -2,15 +2,17 @@ import React, {FC} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import {HistorySearch} from './internal/HistorySearch';
 import {HistoryFilter} from '../../components/HistoryFilter';
+import {QueryHistoryFilterConfig} from '../../types/history';
 
 type Props = {
     search?: string;
     fullSearch?: boolean;
     hasClear?: boolean;
+    filter?: QueryHistoryFilterConfig;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
 };
 
-export const HistoryHeader: FC<Props> = ({search, fullSearch, hasClear, onUpdate}) => {
+export const HistoryHeader: FC<Props> = ({search, fullSearch, hasClear, filter, onUpdate}) => {
     return (
         <Flex gap={1}>
             <HistorySearch
@@ -19,7 +21,7 @@ export const HistoryHeader: FC<Props> = ({search, fullSearch, hasClear, onUpdate
                 hasClear={hasClear}
                 onUpdate={onUpdate}
             />
-            <HistoryFilter />
+            {filter && <HistoryFilter {...filter} />}
         </Flex>
     );
 };

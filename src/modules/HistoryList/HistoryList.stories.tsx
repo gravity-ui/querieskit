@@ -15,7 +15,7 @@ const ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         engine: 'YQL',
         startTime: now - 2 * min,
         endTime: now - min,
-        height: 64,
+        height: 52,
     },
     {
         id: 2,
@@ -24,7 +24,7 @@ const ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         engine: 'YQL',
         startTime: now - 10 * min,
         endTime: now - 9 * min,
-        height: 64,
+        height: 52,
     },
     {
         id: 3,
@@ -32,7 +32,7 @@ const ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         status: 'running',
         engine: 'YQL',
         startTime: now - min,
-        height: 64,
+        height: 52,
     },
     {header: 'Yesterday', height: 28},
     {
@@ -42,7 +42,7 @@ const ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         engine: 'YQL',
         startTime: now - 25 * 60 * min,
         endTime: now - 24 * 60 * min,
-        height: 64,
+        height: 52,
     },
     {
         id: 5,
@@ -50,7 +50,7 @@ const ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
         status: 'draft',
         engine: 'YQL',
         startTime: now - 30 * 60 * min,
-        height: 64,
+        height: 52,
     },
 ];
 
@@ -99,12 +99,12 @@ export const WithActions: Story = {
     },
 };
 
-/** Interactive row selection mode */
+/** Interactive row comparison mode */
 const WithSelectionStory = () => {
-    const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+    const [comparedRowIds, setComparedRowIds] = useState<number[]>([]);
 
     const handleChange = (item: QueryHistoryRow, selected: boolean) => {
-        setSelectedRowIds((prev) =>
+        setComparedRowIds((prev) =>
             selected ? [...prev, item.id] : prev.filter((id) => id !== item.id),
         );
     };
@@ -112,14 +112,16 @@ const WithSelectionStory = () => {
     return (
         <div style={{width: 420, height: 480}}>
             <div style={{marginBottom: 8, fontSize: 12, color: '#888'}}>
-                Selected ids: {selectedRowIds.join(', ') || 'none'}
+                Selected ids: {comparedRowIds.join(', ') || 'none'}
             </div>
             <HistoryList
                 items={ITEMS}
-                selection={{
+                comparison={{
                     enabled: true,
-                    selectedRowIds,
+                    comparedRowIds,
                     onChange: handleChange,
+                    onCancel: () => setComparedRowIds([]),
+                    onCompare: () => {},
                 }}
             />
         </div>
@@ -127,6 +129,30 @@ const WithSelectionStory = () => {
 };
 
 export const WithSelection: Story = {render: () => <WithSelectionStory />};
+
+/** Row highlighted via selectedRowId */
+const WithSelectedRowStory = () => {
+    const [selectedRowId, setSelectedRowId] = useState<number | undefined>(1);
+
+    return (
+        <div style={{width: 420, height: 480}}>
+            <div style={{marginBottom: 8, fontSize: 12, color: '#888'}}>
+                Selected row id: {selectedRowId ?? 'none'}
+            </div>
+            <HistoryList
+                items={ITEMS}
+                selectedRowId={selectedRowId}
+                onItemClick={(item) => {
+                    if (!('header' in item)) {
+                        setSelectedRowId(item.id);
+                    }
+                }}
+            />
+        </div>
+    );
+};
+
+export const WithSelectedRow: Story = {render: () => <WithSelectedRowStory />};
 
 /** Interactive row title editing mode */
 const WithEditingStory = () => {
