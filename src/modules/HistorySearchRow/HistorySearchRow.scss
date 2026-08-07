@@ -1,5 +1,5 @@
 .qp-history-search-row {
-  height: 144px;
+  height: 110px;
   padding: 4px 16px;
   box-sizing: border-box;
 
@@ -8,7 +8,11 @@
   }
 
   &__monaco {
-    height: 106px;
+    height: 74px;
     border: 1px solid var(--g-color-line-generic-accent);
+  }
+
+  &__icon {
+    flex-shrink: 0;
   }
 }
