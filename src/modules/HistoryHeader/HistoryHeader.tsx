@@ -1,6 +1,6 @@
 import React, {FC} from 'react';
 import {Flex} from '@gravity-ui/uikit';
-import {HistorySearch} from './internal/HistorySearch';
+import {HistorySearch} from './HistorySearch';
 import {HistoryFilter} from '../../components/HistoryFilter';
 import {QueryHistoryFilterConfig} from '../../types/history';
 

@@ -9,8 +9,8 @@ import {
     QueryHistoryRowRenderData,
     QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
-import {HistoryRowContent} from './internal/HistoryRowContent';
-import {HistoryListEmpty} from './internal/HistoryListEmpty';
+import {HistoryRowContent} from './HistoryRowContent';
+import {HistoryListEmpty} from './HistoryListEmpty';
 import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../HistorySearchRow';
 
