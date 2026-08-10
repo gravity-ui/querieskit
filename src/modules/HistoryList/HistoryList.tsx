@@ -1,5 +1,6 @@
 import React from 'react';
 import {List} from '@gravity-ui/uikit';
+import cn from 'bem-cn-lite';
 import {
     QueryHistoryComparisonConfig,
     QueryHistoryEditingConfig,
@@ -13,6 +14,9 @@ import {HistoryRowContent} from './HistoryRowContent';
 import {HistoryListEmpty} from './HistoryListEmpty';
 import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../HistorySearchRow';
+import './HistoryList.scss';
+
+const block = cn('qp-history-list');
 
 type Props<T extends QueryHistoryRow> = {
     selectedRowId?: T['id'];
@@ -23,7 +27,7 @@ type Props<T extends QueryHistoryRow> = {
     comparison?: QueryHistoryComparisonConfig<T>;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
     renderRowItem?: (data: QueryHistoryRowRenderData<T>) => React.ReactNode;
-    onItemClick?: (item: QueryHistoryItem<T>) => void;
+    onItemClick?: (item: QueryHistoryItem<T>, index: number) => void;
 };
 
 export const HistoryList = <T extends QueryHistoryRow>({
@@ -40,9 +44,9 @@ export const HistoryList = <T extends QueryHistoryRow>({
     const getItemHeight = (item: QueryHistoryItem<T>) =>
         rowVariant === 'search' && !('header' in item) ? SEARCH_ROW_HEIGHT : item.height;
 
-    const handleItemClick = (item: QueryHistoryItem<T>) => {
+    const handleItemClick = (item: QueryHistoryItem<T>, index: number) => {
         if ('header' in item || !comparison?.enabled) {
-            onItemClick?.(item);
+            onItemClick?.(item, index);
             return;
         }
 
@@ -56,6 +60,7 @@ export const HistoryList = <T extends QueryHistoryRow>({
 
     return (
         <List
+            className={block()}
             filterable={false}
             items={items}
             itemHeight={getItemHeight}

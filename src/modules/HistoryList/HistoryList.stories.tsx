@@ -142,9 +142,9 @@ const WithSelectedRowStory = () => {
             <HistoryList
                 items={ITEMS}
                 selectedRowId={selectedRowId}
-                onItemClick={(item) => {
+                onItemClick={(item, index) => {
                     if (!('header' in item)) {
-                        setSelectedRowId(item.id);
+                        setSelectedRowId(index);
                     }
                 }}
             />
