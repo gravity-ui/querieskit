@@ -100,8 +100,8 @@ export const WithActions: Story = {
 };
 
 /** Interactive row comparison mode */
-const WithSelectionStory = () => {
-    const [comparedRowIds, setComparedRowIds] = useState<number[]>([]);
+const WithComparisonStory = () => {
+    const [comparedRowIds, setComparedRowIds] = useState<number[]>([2]);
 
     const handleChange = (item: QueryHistoryRow, selected: boolean) => {
         setComparedRowIds((prev) =>
@@ -112,7 +112,7 @@ const WithSelectionStory = () => {
     return (
         <div style={{width: 420, height: 480}}>
             <div style={{marginBottom: 8, fontSize: 12, color: '#888'}}>
-                Selected ids: {comparedRowIds.join(', ') || 'none'}
+                Compared ids: {comparedRowIds.join(', ') || 'none'}
             </div>
             <HistoryList
                 items={ITEMS}
@@ -121,14 +121,14 @@ const WithSelectionStory = () => {
                     comparedRowIds,
                     onChange: handleChange,
                     onCancel: () => setComparedRowIds([]),
-                    onCompare: () => {},
+                    onCompare: () => alert(`Compare: ${comparedRowIds.join(', ')}`),
                 }}
             />
         </div>
     );
 };
 
-export const WithSelection: Story = {render: () => <WithSelectionStory />};
+export const WithComparison: Story = {render: () => <WithComparisonStory />};
 
 /** Row highlighted via selectedRowId */
 const WithSelectedRowStory = () => {
