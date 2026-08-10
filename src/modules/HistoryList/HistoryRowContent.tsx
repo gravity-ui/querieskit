@@ -1,8 +1,8 @@
 import React from 'react';
-import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../../types/history';
+import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
 import {HistoryGroupHeader} from './HistoryGroupHeader';
-import {HistoryRow} from '../../HistoryRow';
-import {HistorySearchRow} from '../../HistorySearchRow';
+import {HistoryRow} from '../HistoryRow';
+import {HistorySearchRow} from '../HistorySearchRow';
 
 export const HistoryRowContent = <T extends QueryHistoryRow>(
     data: QueryHistoryRowRenderData<T> & {variant: 'default' | 'search'},
