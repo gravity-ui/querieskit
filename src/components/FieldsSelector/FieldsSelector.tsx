@@ -3,6 +3,7 @@ import {Button, Flex, Icon, Popup, Text} from '@gravity-ui/uikit';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import CheckIcon from '@gravity-ui/icons/svgs/check.svg';
 import {useToggle} from '../../helpers/useToggle';
+import i18n from './i18n';
 import './FieldsSelector.scss';
 import cn from 'bem-cn-lite';
 
@@ -24,7 +25,7 @@ export const FieldsSelector = <K extends string = string>({
     fields,
     value,
     onChange,
-    buttonLabel = 'Configure visible fields',
+    buttonLabel = i18n('action_configure-visible-fields'),
 }: FieldsSelectorProps<K>) => {
     const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
     const [open, toggleOpen] = useToggle(false);
