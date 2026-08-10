@@ -21,6 +21,7 @@ import './QueriesHistory.scss';
 export type QueriesHistoryProps<T extends QueryHistoryRow = QueryHistoryRow> = {
     className?: string;
     title?: string;
+    logo?: React.ReactNode;
     search: QueryHistorySearchConfig;
     filter?: QueryHistoryFilterConfig;
     items: QueryHistoryItem<T>[];
@@ -37,6 +38,7 @@ const block = cn('qp-query-history');
 
 export const QueriesHistory = <T extends QueryHistoryRow>({
     title,
+    logo,
     search,
     filter,
     items,
@@ -57,8 +59,8 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
 
     return (
         <Flex direction="column" gap={1} className={block(null, className)}>
-            <Flex alignItems="center" justifyContent="space-between">
-                <div>logo</div>
+            <Flex alignItems="center" justifyContent={logo ? 'space-between' : 'flex-end'}>
+                {logo}
                 {visibleFields && <FieldsSelector {...visibleFields} />}
             </Flex>
             <Text variant="subheader-1">{title || i18n('title_history')}</Text>
