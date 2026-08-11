@@ -1,0 +1,12 @@
+.qp-chart-editor {
+    background: var(--g-color-base-background);
+
+    &__preview {
+        flex: 1 1 auto;
+    }
+
+    &__panel {
+        min-width: 320px;
+        border-left: 1px solid var(--g-color-line-generic);
+    }
+}

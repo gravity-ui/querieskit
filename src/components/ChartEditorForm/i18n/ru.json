@@ -1,0 +1,12 @@
+{
+  "title_form": "Добавить график",
+  "field_data": "Данные",
+  "field_x": "X",
+  "field_axis-type": "Тип оси",
+  "field_chart-title": "Заголовок графика",
+  "field_x-title": "Заголовок X",
+  "field_y-title": "Заголовок Y",
+  "field_show-legend": "Показывать легенду",
+  "button_cancel": "Отменить",
+  "button_submit": "Добавить график"
+}

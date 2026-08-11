@@ -1,0 +1,12 @@
+.qp-add-chart-button {
+    flex-shrink: 0;
+
+    &__menu {
+        inline-size: 360px;
+        max-inline-size: calc(100vw - var(--g-spacing-8));
+    }
+
+    &__option-icon {
+        color: var(--g-color-text-brand);
+    }
+}
