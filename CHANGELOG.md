@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/gravity-ui/querieskit/compare/v1.0.3...v1.0.4) (2026-08-12)
+
+
+### Bug Fixes
+
+* **CI:** wrong deploy directory [YTFRONT-5935] ([30a5621](https://github.com/gravity-ui/querieskit/commit/30a5621659acc20e7439a7a3f5eeade033ad1a5e))
+
 ## [1.0.3](https://github.com/gravity-ui/querieskit/compare/v1.0.2...v1.0.3) (2026-08-12)
 
 
