@@ -5,8 +5,8 @@ export {
     applyGravityChartsFormValues,
     gravityAxisTypeOptions,
     gravityChartCategoryOptions,
-} from './transform';
-export type {GravityChartCategory} from './transform';
+} from './transform.stories.helper';
+export type {GravityChartCategory} from './transform.stories.helper';
 export type {
     ChartEditorFormProps,
     ChartEditorFormValues,

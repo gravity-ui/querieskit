@@ -8,7 +8,7 @@ import {
     type GravityChartCategory,
     applyGravityChartsFormValues,
     gravityChartCategoryOptions,
-} from './transform';
+} from './transform.stories.helper';
 import type {ChartEditorFormValues} from './types';
 
 const createCartesianData = (type: 'area' | 'bar-x' | 'line' | 'scatter'): ChartData => {

@@ -1,0 +1,43 @@
+.qp-dashboard-charts {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 480px;
+    background: var(--g-color-base-background);
+
+    &__actions {
+        flex-shrink: 0;
+        padding: var(--g-spacing-5) var(--g-spacing-5) 0;
+    }
+
+    &__content {
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 0;
+        padding: var(--g-spacing-5);
+        overflow: auto;
+    }
+
+    &__dashboard {
+        min-height: 100%;
+    }
+
+    &__modal {
+        --g-modal-width: calc(100vw - var(--g-spacing-10));
+        --g-modal-max-width: 1200px;
+        --g-modal-height: calc(100vh - var(--g-spacing-10));
+        --g-modal-max-height: 720px;
+
+        overflow: hidden;
+    }
+
+    &__editor {
+        min-width: 720px;
+        min-height: 440px;
+    }
+
+    &__empty {
+        min-height: 320px;
+        border: 1px dashed var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+    }
+}
