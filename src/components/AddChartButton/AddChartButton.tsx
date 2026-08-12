@@ -66,7 +66,7 @@ export type AddChartButtonProps<TValue extends string = DefaultAddChartButtonVal
     popupProps?: PopupProps;
 };
 
-export function AddChartButton<TValue extends string = DefaultAddChartButtonValue>({
+export const AddChartButton = <TValue extends string = DefaultAddChartButtonValue>({
     text = 'Add chart',
     options = DEFAULT_ADD_CHART_BUTTON_OPTIONS as readonly AddChartButtonOption<TValue>[],
     onSelect,
@@ -77,7 +77,7 @@ export function AddChartButton<TValue extends string = DefaultAddChartButtonValu
     buttonProps,
     menuProps,
     popupProps,
-}: AddChartButtonProps<TValue>) {
+}: AddChartButtonProps<TValue>) => {
     const [innerOpen, setInnerOpen] = useState(false);
     const isOpen = open ?? innerOpen;
 
@@ -136,4 +136,4 @@ export function AddChartButton<TValue extends string = DefaultAddChartButtonValu
             popupProps={{placement: 'bottom-start', ...popupProps}}
         />
     );
-}
+};

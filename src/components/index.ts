@@ -18,3 +18,13 @@ export type {
     ChartEditorLabels,
     ChartEditorOption,
 } from './ChartEditorForm';
+export {Dashboard} from './Dashboard';
+export type {
+    DashboardGrid,
+    DashboardItem,
+    DashboardItemAppearance,
+    DashboardItemContent,
+    DashboardItemRenderProps,
+    DashboardLayoutItem,
+    DashboardProps,
+} from './Dashboard';

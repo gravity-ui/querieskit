@@ -11,12 +11,12 @@ import './ChartEditor.scss';
 
 const block = cn('qp-chart-editor');
 
-export function ChartEditor<TCategory extends string>({
+export const ChartEditor = <TCategory extends string>({
     data,
     className,
     emptyDataLabel,
     chartFormProps,
-}: ChartEditorProps<TCategory>) {
+}: ChartEditorProps<TCategory>) => {
     const emptyLabel = emptyDataLabel ?? i18n('alert_no-chart-data');
 
     return (
@@ -44,4 +44,4 @@ export function ChartEditor<TCategory extends string>({
             </div>
         </Flex>
     );
-}
+};
