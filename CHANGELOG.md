@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/gravity-ui/querieskit/compare/v1.0.0...v1.0.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* **CI:** lost typecheck [YTFRONT-5935] ([aca9f5c](https://github.com/gravity-ui/querieskit/commit/aca9f5cee9868d8d75d628d34b831cfa04e0d2a7))
+
 ## 1.0.0 (2026-08-12)
 
 
