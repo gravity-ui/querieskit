@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/gravity-ui/querieskit/compare/v1.0.1...v1.0.2) (2026-08-12)
+
+
+### Bug Fixes
+
+* **CI:** storybook build problem [YTFRONT-5935] ([f0db180](https://github.com/gravity-ui/querieskit/commit/f0db180fd6c5c5974db28259d41205e97a655cf9))
+
 ## [1.0.1](https://github.com/gravity-ui/querieskit/compare/v1.0.0...v1.0.1) (2026-08-12)
 
 
