@@ -26,14 +26,16 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
 }) => {
     return (
         <Flex direction="column" gap={1} className={block(null, className)}>
-            {(logo || actions) && (
-                <Flex alignItems="center" justifyContent={logo ? 'space-between' : 'flex-end'}>
-                    {logo}
-                    {actions}
-                </Flex>
-            )}
-            <Text variant="subheader-1">{title}</Text>
-            {header}
+            <Flex direction="column" gap={1} className={block('header')}>
+                {(logo || actions) && (
+                    <Flex alignItems="center" justifyContent={logo ? 'space-between' : 'flex-end'}>
+                        {logo}
+                        {actions}
+                    </Flex>
+                )}
+                <Text variant="subheader-1">{title}</Text>
+                {header}
+            </Flex>
             {children}
             {footer}
         </Flex>
