@@ -3,6 +3,13 @@ export {QueryDuration} from './QueryDuration';
 export {HistoryFilter} from './HistoryFilter';
 export {HistoryPrivateIcon} from './HistoryPrivateIcon';
 export {FieldsSelector} from './FieldsSelector';
+export {HistoryGroupHeader} from './HistoryGroupHeader';
+export {HistoryListEmpty} from './HistoryListEmpty';
+export type {HistoryListEmptyProps} from './HistoryListEmpty';
+export {RowLink} from './RowLink';
+export type {RowLinkProps} from './RowLink';
+export {SearchRowLayout} from './SearchRowLayout';
+export type {SearchRowLayoutProps} from './SearchRowLayout';
 export {MonacoEditor} from './MonacoEditor';
 export type {MonacoEditorConfig} from './MonacoEditor';
 export {

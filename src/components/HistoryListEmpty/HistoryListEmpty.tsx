@@ -7,14 +7,19 @@ import './HistoryListEmpty.scss';
 
 const block = cn('qp-history-list-empty');
 
-export const HistoryListEmpty: FC = () => {
+export type HistoryListEmptyProps = {
+    showFiltersHint?: boolean;
+    className?: string;
+};
+
+export const HistoryListEmpty: FC<HistoryListEmptyProps> = ({showFiltersHint, className}) => {
     return (
-        <Flex alignItems="center" justifyContent="center" className={block()}>
+        <Flex alignItems="center" justifyContent="center" className={block(null, className)}>
             <Flex direction="column" gap={6}>
                 <NoSearchResults height={100} />
                 <Flex direction="column" alignItems="center" gap={1}>
                     <Text variant="subheader-1">{i18n('title_nothing-found')}</Text>
-                    <Text>{i18n('context_try-change-filters')}</Text>
+                    {showFiltersHint && <Text>{i18n('context_try-change-filters')}</Text>}
                 </Flex>
             </Flex>
         </Flex>

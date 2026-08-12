@@ -10,22 +10,27 @@ export type HistoryRowRenderProps = {height: number};
 
 export type QueryHistoryHeader = {header: string} & HistoryRowRenderProps;
 
-export type QueryHistoryRow = {
+export type BaseHistoryRow = {
     id: number;
     title: string;
     query?: string;
+    href?: string;
+} & HistoryRowRenderProps;
+
+export type QueryHistoryRow = BaseHistoryRow & {
     startTime?: QueryHistoryTimestamp;
     endTime?: QueryHistoryTimestamp;
     engine?: string;
     mode?: string;
     isPrivate?: boolean;
     status: QueryStatus;
-    href?: string;
-} & HistoryRowRenderProps;
+};
 
-export type QueryHistoryItem<T extends QueryHistoryRow = QueryHistoryRow> = QueryHistoryHeader | T;
+export type QueryHistoryItem<T extends BaseHistoryRow = BaseHistoryRow> = QueryHistoryHeader | T;
 
-export type QueryHistoryRowAction<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type QueryHistoryRowVariant = 'default' | 'search';
+
+export type QueryHistoryRowAction<T extends BaseHistoryRow = BaseHistoryRow> = {
     text: ReactNode;
     icon?: ReactNode;
     hidden?: boolean;
@@ -49,13 +54,13 @@ export type QueryHistoryFilterConfig = {
     onReset?: () => void;
 };
 
-export type QueryHistoryEditingConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type QueryHistoryEditingConfig<T extends BaseHistoryRow = BaseHistoryRow> = {
     rowId?: T['id'];
     onSubmit?: (item: T, title: string) => void;
     onCancel?: (item: T) => void;
 };
 
-export type QueryHistoryComparisonConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type QueryHistoryComparisonConfig<T extends BaseHistoryRow = BaseHistoryRow> = {
     enabled: boolean;
     comparedRowIds: T['id'][];
     onChange: (item: T, selected: boolean) => void;
@@ -63,18 +68,9 @@ export type QueryHistoryComparisonConfig<T extends QueryHistoryRow = QueryHistor
     onCompare: () => void;
 };
 
-/**
- * Set of field keys that can be toggled via `QueryHistoryVisibleFieldsConfig`:
- * either a real string key of the row (excluding render-only ones) or a
- * computed pseudo-field such as `duration`, which is derived from
- * `startTime`/`endTime` rather than being a real property.
- */
-type RowFieldKey<T extends QueryHistoryRow> = Exclude<
-    keyof T & string,
-    keyof HistoryRowRenderProps
->;
+type RowFieldKey<T extends BaseHistoryRow> = Exclude<keyof T & string, keyof HistoryRowRenderProps>;
 
-export type QueryHistoryFieldKey<T extends QueryHistoryRow = QueryHistoryRow> =
+export type QueryHistoryFieldKey<T extends BaseHistoryRow = BaseHistoryRow> =
     RowFieldKey<T> | 'duration';
 
 export type QueryHistoryFieldOption<K extends string = string> = {
@@ -82,20 +78,21 @@ export type QueryHistoryFieldOption<K extends string = string> = {
     title: ReactNode;
 };
 
-export type QueryHistoryVisibleFieldsConfig<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type QueryHistoryVisibleFieldsConfig<T extends BaseHistoryRow = BaseHistoryRow> = {
     value: QueryHistoryFieldKey<T>[];
     fields: QueryHistoryFieldOption<QueryHistoryFieldKey<T>>[];
     onChange: (value: QueryHistoryFieldKey<T>[]) => void;
 };
 
-export type QueryHistoryEditingRenderData<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type QueryHistoryEditingRenderData<T extends BaseHistoryRow = BaseHistoryRow> = {
     enabled: boolean;
 } & Pick<QueryHistoryEditingConfig<T>, 'onSubmit' | 'onCancel'>;
 
-export type QueryHistoryRowRenderData<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type QueryHistoryRowRenderData<T extends BaseHistoryRow = BaseHistoryRow> = {
     item: QueryHistoryItem<T>;
     index: number;
     isActive: boolean;
+    variant: QueryHistoryRowVariant;
     comparison?: {
         enabled: boolean;
         checked: boolean;

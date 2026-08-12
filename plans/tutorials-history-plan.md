@@ -27,14 +27,22 @@ graph TD
     THR --> TutorialRow
     THR --> TutorialSearchRow
 
-    HistoryRow --> HistoryList
-    HistorySearchRow --> HistoryList
-    TutorialRow --> TutorialList
-    TutorialSearchRow --> TutorialList
+    HistoryRow --> HistoryRowContent
+    HistorySearchRow --> HistoryRowContent
+    TutorialRow --> TutorialRowContent
+    TutorialSearchRow --> TutorialRowContent
 
-    HistoryList --> QueriesHistory
-    TutorialList --> TutorialsHistory
+    HistoryRowContent --> HistoryList
+    HistoryList --> RowsList
+    TutorialRowContent --> TutorialsHistory
+
+    RowsList --> QueriesHistory
+    RowsList --> TutorialsHistory
+    HistoryLayout --> QueriesHistory
+    HistoryLayout --> TutorialsHistory
 ```
+
+Список один — [`RowsList`](../src/modules/RowsList/RowsList.tsx): он владеет виртуализацией, высотами строк и пустым состоянием, а разметку строки получает через `renderRow`. [`HistoryList`](../src/modules/HistoryList/HistoryList.tsx) — тонкая обёртка над ним с query-строками по умолчанию. Каркас виджета (logo/actions, title, header, footer) вынесен в [`HistoryLayout`](../src/modules/HistoryLayout/HistoryLayout.tsx).
 
 ## Чек-лист реализации
 
@@ -45,7 +53,7 @@ graph TD
 5. **Общие Monaco-хелперы** — вынести [`fitQueryToVisibleLines`](src/modules/HistorySearchRow/helpers/fitQueryToVisibleLines.ts:3), [`resolveMonacoLanguage`](src/modules/HistorySearchRow/helpers/resolveMonacoLanguage.ts:3), [`MONACO_CONFIG`](src/modules/HistorySearchRow/monacoConfig.ts:5) из `src/modules/HistorySearchRow/*` в `src/helpers/`, обновить импорт в `HistorySearchRow.tsx`.
 6. **TutorialRow** — доработать [`src/modules/TutorialRow/TutorialRow.tsx`](src/modules/TutorialRow/TutorialRow.tsx:9): принимать `item: TutorialHistoryRow`, поддержать `href`/`isActive`-стилизацию по аналогии с `HistoryRow` (без статус-иконки, меню, editing, comparison); добавить `TutorialRow.scss` и `.stories.tsx`.
 7. **TutorialSearchRow** — создать `src/modules/TutorialSearchRow/` по аналогии с `HistorySearchRow`: в шапке только `id`+`title`, ниже Monaco-редактор с `query` (реюз общих Monaco-хелперов); добавить scss и `.stories.tsx`.
-8. **TutorialList** — создать `src/modules/TutorialList/`: аналог `HistoryList`, но без `editing`/`comparison`/`getRowActions`/`visibleFields`; внутренний `TutorialRowContent` переключает `HistoryGroupHeader`/`TutorialRow`/`TutorialSearchRow`; реюз промоутнутого `HistoryListEmpty` и общего `prepareRowData`; добавить scss и `.stories.tsx`.
-9. **TutorialsHistory widget** — создать `src/widgets/TutorialsHistory/`: аналог [`QueriesHistory`](src/widgets/QueriesHistory/QueriesHistory.tsx:39), но без `FieldsSelector`/`visibleFields`/`comparison`/`editing`/`getRowActions`; оставить `title`/`logo`/`search`/`filter`/`items`/`selectedRowId`/`onListItemClick`; собственный i18n-кейсет `qp:tutorials-history`; добавить `.stories.tsx`.
+8. **RowsList вместо отдельного TutorialList** — не копировать `HistoryList`, а вынести generic-список в `src/modules/RowsList/` (`T extends BaseHistoryRow`, обязательный `renderRow`, `rowVariant` пробрасывается в `renderRow`); `HistoryList` переписать как обёртку над ним. Строки туториалов переключает `TutorialRowContent`, живущий внутри виджета.
+9. **TutorialsHistory widget** — создать `src/widgets/TutorialsHistory/`: `HistoryLayout` + `RowsList` с `renderRow={TutorialRowContent}`; без `FieldsSelector`/`visibleFields`/`comparison`/`editing`/`getRowActions`; оставить `title`/`logo`/`search`/`filter`/`items`/`selectedRowId`/`onListItemClick`; generic по `T extends TutorialHistoryRow`; i18n-кейсет `qp:tutorials` с ключом `title_tutorials`; добавить `.stories.tsx`.
 10. **Barrel-экспорты** — обновить `src/modules/index.ts`, `src/widgets/index.ts`, `src/components/index.ts`, `src/index.ts`.
 11. **Проверка** — прогнать сборку и Storybook, исправить возможные TS-ошибки после ослабления generic-constraints.

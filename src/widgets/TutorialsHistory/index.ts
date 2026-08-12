@@ -1,4 +1,2 @@
-export {QueriesHistory} from './QueriesHistory';
-export type {QueriesHistoryProps} from './QueriesHistory';
 export {TutorialsHistory} from './TutorialsHistory';
 export type {TutorialsHistoryProps} from './TutorialsHistory';

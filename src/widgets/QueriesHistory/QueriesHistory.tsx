@@ -1,6 +1,5 @@
 import React from 'react';
-import {Flex, Text} from '@gravity-ui/uikit';
-import {HistoryHeader, HistoryList} from '../../modules';
+import {HistoryHeader, HistoryLayout, HistoryList} from '../../modules';
 import i18n from './i18n';
 import {
     QueryHistoryComparisonConfig,
@@ -14,6 +13,7 @@ import {
     QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
 import {FieldsSelector} from '../../components';
+import {getListKey} from '../../helpers/getListKey';
 import {ComparisonActions} from './ComparisonActions';
 import cn from 'bem-cn-lite';
 import './QueriesHistory.scss';
@@ -52,43 +52,45 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
     className,
 }: QueriesHistoryProps<T>) => {
     const showSearchResults = Boolean(search.fullSearch && search.value?.trim());
-
-    const historyListKey = `${showSearchResults ? 'search' : 'default'}:${items
-        .map((item) => ('header' in item ? `h:${item.header}` : `r:${item.id}`))
-        .join(',')}`;
+    const rowVariant = showSearchResults ? 'search' : 'default';
 
     return (
-        <Flex direction="column" gap={1} className={block(null, className)}>
-            <Flex alignItems="center" justifyContent={logo ? 'space-between' : 'flex-end'}>
-                {logo}
-                {visibleFields && <FieldsSelector {...visibleFields} />}
-            </Flex>
-            <Text variant="subheader-1">{title || i18n('title_history')}</Text>
-            <HistoryHeader
-                search={search.value}
-                fullSearch={search.fullSearch}
-                hasClear={search.hasClear}
-                filter={filter}
-                onUpdate={search.onUpdate}
-            />
+        <HistoryLayout
+            className={block(null, className)}
+            title={title || i18n('title_history')}
+            logo={logo}
+            actions={visibleFields && <FieldsSelector {...visibleFields} />}
+            header={
+                <HistoryHeader
+                    search={search.value}
+                    fullSearch={search.fullSearch}
+                    hasClear={search.hasClear}
+                    filter={filter}
+                    onUpdate={search.onUpdate}
+                />
+            }
+            footer={
+                comparison && (
+                    <ComparisonActions
+                        comparison={comparison}
+                        className={block('comparison-actions')}
+                    />
+                )
+            }
+        >
             <HistoryList
-                key={historyListKey}
+                key={getListKey(items, rowVariant)}
                 items={items}
-                rowVariant={showSearchResults ? 'search' : 'default'}
+                rowVariant={rowVariant}
                 selectedRowId={selectedRowId}
                 visibleFields={visibleFields}
                 editing={editing}
                 comparison={comparison}
                 renderRowItem={renderRowItem}
                 getRowActions={getRowActions}
+                showFiltersHint={Boolean(filter)}
                 onItemClick={onListItemClick}
             />
-            {comparison && (
-                <ComparisonActions
-                    comparison={comparison}
-                    className={block('comparison-actions')}
-                />
-            )}
-        </Flex>
+        </HistoryLayout>
     );
 };

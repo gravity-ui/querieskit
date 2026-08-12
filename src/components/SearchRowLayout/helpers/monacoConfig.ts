@@ -1,4 +1,4 @@
-import {MonacoEditorConfig} from '../../components';
+import type {MonacoEditorConfig} from '../../MonacoEditor';
 
 const MONACO_LINE_HEIGHT = 18;
 
