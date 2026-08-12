@@ -1,0 +1,18 @@
+$search-row-height: 110px;
+$search-row-vertical-padding: 4px;
+$search-row-header-height: 20px;
+$search-row-gap: 8px;
+
+.qp-search-row-layout {
+  height: $search-row-height;
+
+  &__content {
+    height: 100%;
+  }
+
+  &__monaco {
+    height: $search-row-height - 2 * $search-row-vertical-padding - $search-row-header-height -
+      $search-row-gap;
+    border: 1px solid var(--g-color-line-generic-accent);
+  }
+}

@@ -1,27 +1,30 @@
 import {
+    BaseHistoryRow,
     QueryHistoryComparisonConfig,
     QueryHistoryEditingConfig,
     QueryHistoryItem,
-    QueryHistoryRow,
     QueryHistoryRowAction,
     QueryHistoryRowRenderData,
+    QueryHistoryRowVariant,
     QueryHistoryVisibleFieldsConfig,
 } from '../../../types/history';
 
-type Props<T extends QueryHistoryRow> = {
+type Props<T extends BaseHistoryRow> = {
     item: QueryHistoryItem<T>;
     isActive: boolean;
     index: number;
+    variant: QueryHistoryRowVariant;
     visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
     editing?: QueryHistoryEditingConfig<T>;
     comparison?: QueryHistoryComparisonConfig<T>;
     getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
 };
 
-export const prepareRowData = <T extends QueryHistoryRow>({
+export const prepareRowData = <T extends BaseHistoryRow>({
     item,
     isActive,
     index,
+    variant,
     visibleFields,
     editing,
     comparison,
@@ -49,6 +52,7 @@ export const prepareRowData = <T extends QueryHistoryRow>({
         item,
         index,
         isActive,
+        variant,
         visibleFields,
         actions,
         editing: editingData,

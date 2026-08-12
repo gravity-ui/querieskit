@@ -3,7 +3,7 @@ import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
 import {Flex, Text} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
 import cn from 'bem-cn-lite';
-import {HistoryPrivateIcon, QueryDuration, QueryStatusIcon} from '../../components';
+import {HistoryPrivateIcon, QueryDuration, QueryStatusIcon, RowLink} from '../../components';
 import {formatTime} from '../../helpers/time';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
 import {HistoryRowTitle} from './HistoryRowTitle';
@@ -11,7 +11,7 @@ import {HistoryRowMenu} from './HistoryRowMenu';
 
 export type Props<T extends QueryHistoryRow> = {
     item: T;
-} & Omit<QueryHistoryRowRenderData<T>, 'item'>;
+} & Omit<QueryHistoryRowRenderData<T>, 'item' | 'variant'>;
 
 const block = cn('qp-history-row');
 
@@ -27,12 +27,14 @@ export const HistoryRow = <T extends QueryHistoryRow>({
     const isEditing = Boolean(editing?.enabled);
     const isComparisonMode = Boolean(comparison?.enabled);
     const isChecked = Boolean(comparison?.checked);
-    const linkMode = Boolean(item.href && !isEditing && !isComparisonMode);
     const showMenu = isActive && Boolean(actions?.length) && !isComparisonMode;
 
-    const Wrap = linkMode ? 'a' : 'div';
     return (
-        <Wrap href={href} className={block({[status]: true, compared: isChecked})}>
+        <RowLink
+            href={href}
+            disabled={isEditing || isComparisonMode}
+            className={block({[status]: true, compared: isChecked})}
+        >
             <QueryStatusIcon status={status} />
             <Flex direction="column" gap={1} className={block('right-column')}>
                 <Flex justifyContent="space-between" className={block('header')}>
@@ -64,6 +66,6 @@ export const HistoryRow = <T extends QueryHistoryRow>({
                     </Flex>
                 </div>
             </Flex>
-        </Wrap>
+        </RowLink>
     );
 };
