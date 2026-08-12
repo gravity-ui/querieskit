@@ -10,6 +10,7 @@ import {TutorialHistoryRow} from '../../types/tutorial';
 import {getListKey} from '../../helpers/getListKey';
 import {TutorialRowContent} from './TutorialRowContent';
 import cn from 'bem-cn-lite';
+import './TutorialsHistory.scss';
 
 export type TutorialsHistoryProps<T extends TutorialHistoryRow = TutorialHistoryRow> = {
     className?: string;

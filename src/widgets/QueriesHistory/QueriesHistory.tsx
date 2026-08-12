@@ -62,6 +62,7 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
             actions={visibleFields && <FieldsSelector {...visibleFields} />}
             header={
                 <HistoryHeader
+                    className={block('header')}
                     search={search.value}
                     fullSearch={search.fullSearch}
                     hasClear={search.hasClear}
