@@ -1,10 +1,2 @@
 export {Dashboard} from './Dashboard';
-export type {
-    DashboardGrid,
-    DashboardItem,
-    DashboardItemAppearance,
-    DashboardItemContent,
-    DashboardItemRenderProps,
-    DashboardLayoutItem,
-    DashboardProps,
-} from './types';
+export type {DashboardItem, DashboardItemAppearance, DashboardProps} from './types';

@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Chart, type ChartData} from '@gravity-ui/charts';
-import {Flex, Text} from '@gravity-ui/uikit';
+import {Button, Flex, Text} from '@gravity-ui/uikit';
 import type {Meta, StoryObj} from '@storybook/react';
 
-import type {DashboardItem} from './types';
 import {Dashboard} from './Dashboard';
 
 import './Dashboard.stories.scss';
@@ -42,32 +41,12 @@ const latencyChart: ChartData = {
     },
 };
 
-function createItems(): DashboardItem[] {
-    return [
-        {
-            id: 'errors',
-            x: 0,
-            y: 0,
-            width: 4,
-            height: 4,
-            contentPadding: false,
-            content: <Chart data={errorsChart} />,
-        },
-        {
-            id: 'latency',
-            x: 0,
-            y: 4,
-            width: 2,
-            height: 4,
-            contentPadding: false,
-            content: <Chart data={latencyChart} />,
-        },
+function DashboardStory() {
+    const [items, setItems] = React.useState([
+        {id: 'errors', content: <Chart data={errorsChart} />},
+        {id: 'latency', content: <Chart data={latencyChart} />},
         {
             id: 'summary',
-            x: 2,
-            y: 4,
-            width: 2,
-            height: 2,
             content: (
                 <Flex direction="column" gap={1}>
                     <Text variant="display-3">98.7%</Text>
@@ -75,17 +54,27 @@ function createItems(): DashboardItem[] {
                 </Flex>
             ),
         },
-    ];
-}
+    ]);
 
-function DashboardStory() {
-    const [items, setItems] = useState(createItems);
-
-    console.log('items :>> ', items);
+    const handleAddItem = () => {
+        setItems((prevItems) => {
+            return [
+                ...prevItems,
+                {id: `latency-${prevItems.length}`, content: <Chart data={latencyChart} />},
+            ];
+        });
+    };
 
     return (
         <div className="qp-dashboard-story">
-            <Dashboard ariaLabel="Query charts" items={items} onItemsChange={setItems} />
+            <Button onClick={handleAddItem}>Add chart</Button>
+
+            <Dashboard
+                items={items}
+                onLayoutChange={(payload) => {
+                    console.log('payload :>> ', payload);
+                }}
+            />
         </div>
     );
 }

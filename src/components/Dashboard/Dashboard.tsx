@@ -1,65 +1,36 @@
-import React, {useCallback, useMemo, useRef} from 'react';
-import type {Config, ConfigItem, DashKitGroup, ReactGridLayoutProps} from '@gravity-ui/dashkit';
+import React, {useMemo} from 'react';
+import type {Config} from '@gravity-ui/dashkit';
+import type {DashboardProps} from './types';
+import {Flex} from '@gravity-ui/uikit';
+import {DRAG_HANDLE_CLASSNAME, DashPlate} from './internal/DashPlate';
+import {DashboardProvider} from './internal/DashboardProvider';
 import {DashKit} from '@gravity-ui/dashkit';
-import {DashPlate} from './DashPlate';
+import {useLayoutState} from './hooks/useLayoutState';
+import {useGridState} from './hooks/useGridState';
+import {useDashboardConfig} from './hooks/useDashboardConfig';
 import cn from 'bem-cn-lite';
-
-import type {DashboardItem, DashboardLayoutItem, DashboardProps} from './types';
 
 import './Dashboard.scss';
 
 const block = cn('qp-dashboard');
 const DASHBOARD_PLUGIN_TYPE = 'querieskit-dashboard-item';
 
-const DEFAULT_GRID: DashboardProps['grid'] = {
-    cols: 4,
-    rowHeight: 64,
-    gap: 8,
-    compactType: 'vertical',
-};
-
-function createConfig(items: readonly DashboardItem[], counter: number, columns: number): Config {
-    return {
-        salt: 'querieskit-dashboard',
-        counter,
-        aliases: {},
-        connections: [],
-        items: items.map(({id}) => ({
-            id,
-            type: DASHBOARD_PLUGIN_TYPE,
-            namespace: 'default',
-            data: {},
-        })),
-        layout: items.map(({id, x, y, width, height}) => ({
-            i: id,
-            x,
-            y,
-            w: width ?? columns,
-            h: height,
-        })),
-    };
-}
-
 export const Dashboard = ({
     items,
-    grid,
+    layout: customerLayoutState,
+    grid: customerGridState,
     focusable = false,
     className,
-    onItemsChange,
     onLayoutChange,
-    onItemFocus,
-    onItemBlur,
 }: DashboardProps) => {
-    const gridProperties: ReactGridLayoutProps = useMemo(() => {
-        const gap = grid?.gap ?? DEFAULT_GRID.gap;
+    const {gridProps, gridGroups} = useGridState(customerGridState);
+    const {layout, setLayout} = useLayoutState(items, gridProps.cols, customerLayoutState);
+    const config = useDashboardConfig(items, layout);
 
-        return {
-            containerPadding: [0, 0],
-            margin: typeof gap === 'number' ? [gap, gap] : gap,
-            ...DEFAULT_GRID,
-            ...grid,
-        };
-    }, [grid]);
+    const handleChange = ({config: nextConfig}: {config: Config}) => {
+        setLayout(nextConfig.layout);
+        onLayoutChange?.(nextConfig.layout);
+    };
 
     useMemo(() => {
         DashKit.reloadPlugins({
@@ -69,68 +40,19 @@ export const Dashboard = ({
         });
     }, []);
 
-    const itemsById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
-
-    const counterRef = useRef(items.length);
-    counterRef.current = Math.max(counterRef.current, items.length);
-
-    const config = useMemo(
-        () => createConfig(items, counterRef.current, gridProperties.columns),
-        [items, gridProperties.columns],
-    );
-
-    const groups = useMemo<DashKitGroup[]>(
-        () => [{gridProperties: () => gridProperties}],
-        [gridProperties],
-    );
-
-    const context = useMemo(() => ({dashboardItems: itemsById}), [itemsById]);
-
-    const handleChange = ({config: nextConfig}: {config: Config}) => {
-        const nextItems: DashboardItem[] = [];
-        const nextLayout: DashboardLayoutItem[] = [];
-
-        for (const {i, x, y, w, h} of nextConfig.layout) {
-            const item = itemsById.get(i);
-            if (!item) continue;
-            nextItems.push({...item, x, y, width: w, height: h});
-            nextLayout.push({id: i, x, y, width: w, height: h});
-        }
-
-        onItemsChange?.(nextItems);
-        onLayoutChange?.(nextLayout);
-    };
-
-    const getItem = useCallback(({id}: ConfigItem) => itemsById.get(id), [itemsById]);
-
-    const handleItemFocus = (item: ConfigItem) => {
-        const dashboardItem = getItem(item);
-        if (dashboardItem) {
-            onItemFocus?.(dashboardItem);
-        }
-    };
-
-    const handleItemBlur = (item: ConfigItem) => {
-        const dashboardItem = getItem(item);
-        if (dashboardItem) {
-            onItemBlur?.(dashboardItem);
-        }
-    };
-
     return (
-        <div className={block(null, className)}>
-            <DashKit
-                config={config}
-                groups={groups}
-                editMode
-                noOverlay
-                draggableHandleClassName={block('draggable-handle')}
-                focusable={focusable}
-                context={context}
-                onChange={handleChange}
-                onItemFocus={handleItemFocus}
-                onItemBlur={handleItemBlur}
-            />
-        </div>
+        <Flex width="100%" height="100%" className={block(null, className)}>
+            <DashboardProvider items={items}>
+                <DashKit
+                    config={config}
+                    groups={gridGroups}
+                    editMode
+                    noOverlay
+                    draggableHandleClassName={DRAG_HANDLE_CLASSNAME}
+                    focusable={focusable}
+                    onChange={handleChange}
+                />
+            </DashboardProvider>
+        </Flex>
     );
 };
