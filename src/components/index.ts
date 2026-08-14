@@ -10,6 +10,8 @@ export {RowLink} from './RowLink';
 export type {RowLinkProps} from './RowLink';
 export {SearchRowLayout} from './SearchRowLayout';
 export type {SearchRowLayoutProps} from './SearchRowLayout';
+export {SearchWithButtons} from './SearchWithButtons';
+export type {SearchWithButtonsProps} from './SearchWithButtons';
 export {MonacoEditor} from './MonacoEditor';
 export type {MonacoEditorConfig} from './MonacoEditor';
 export {
