@@ -200,7 +200,9 @@ export const DashboardCharts = ({
                         axisVariants={['linear', 'datetime', 'logarithmic']}
                         formProps={{
                             labels: {
-                                submitLabel: draftChart.id ? 'Save' : 'Add chart',
+                                submitLabel: draftChart.id
+                                    ? i18n('action_save-chart')
+                                    : i18n('action_add-chart'),
                             },
                         }}
                         {...chartEditorProps}

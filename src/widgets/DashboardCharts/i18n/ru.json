@@ -1,5 +1,6 @@
 {
   "action_add-chart": "Добавить график",
+  "action_save-chart": "Сохранить",
   "context_no-charts": "Графиков пока нет",
   "context_add-first-chart": "Добавьте график, чтобы начать собирать дашборд"
 }
