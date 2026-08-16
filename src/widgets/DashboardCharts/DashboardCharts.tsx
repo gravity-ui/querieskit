@@ -1,215 +1,206 @@
-import React, {useMemo, useState} from 'react';
-import {Chart} from '@gravity-ui/charts';
-import type {ConfigLayout} from '@gravity-ui/dashkit';
-import {Flex, Modal, Text} from '@gravity-ui/uikit';
+import React, {useCallback, useMemo, useState} from 'react';
+import {ChartData, ChartSeries} from '@gravity-ui/charts';
+import {Flex, Modal} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-
-import {
-    AddChartButton,
-    DEFAULT_ADD_CHART_BUTTON_OPTIONS,
-    Dashboard,
-    type DefaultAddChartButtonValue,
-} from '../../components';
-import {ChartEditor} from '../../modules';
-import type {
-    DashboardChart,
-    DashboardChartEditorValues,
-    DashboardChartOption,
-    DashboardChartsProps,
-} from '../../types/dashboardCharts';
+import {ChartEditor, ChartEditorProps} from '../../modules';
+import {AddChartButton, Chart, Dashboard, DashboardProps} from '../../components';
+import type {DashboardChartsProps, DashboardItem} from './types';
+import {EmptyDashboardPlaceholder} from './internal/EmptyDashboardPlaceholder';
 import i18n from './i18n';
 
 import './DashboardCharts.scss';
+import {ConfigLayout} from '@gravity-ui/dashkit';
 
 const block = cn('qp-dashboard-charts');
 
-const DEFAULT_EDITOR_VALUES: DashboardChartEditorValues = {
-    x: '',
-    axisType: 'category',
-    chartTitle: '',
-    xTitle: '',
-    yTitle: '',
-    showLegend: false,
-};
-
-type Draft<TCategory extends string> = {
-    category: TCategory;
-    values: DashboardChartEditorValues;
-};
-
-export const DashboardCharts = <TCategory extends string = DefaultAddChartButtonValue>({
-    charts: controlledCharts,
-    defaultCharts = [],
-    chartOptions = DEFAULT_ADD_CHART_BUTTON_OPTIONS as readonly DashboardChartOption<TCategory>[],
-    getChartData,
-    getDefaultEditorValues,
-    xOptions,
-    axisTypeOptions,
-    editorLabels,
-    editorEmptyDataLabel,
-    layout: controlledLayout,
-    defaultLayout = [],
-    grid,
-    addChartText,
+export const DashboardCharts = ({
+    chartItems: customerChartsItems,
+    chartsLayout: customerChartsLayout,
+    dataSource,
     emptyTitle,
     emptyDescription,
-    disabled,
-    className,
-    onChartsChange,
-    onChartAdd,
+    chartEditorProps,
+    dashboardProps,
+    onItemsChange,
     onLayoutChange,
-}: DashboardChartsProps<TCategory>) => {
-    const [innerCharts, setInnerCharts] =
-        useState<readonly DashboardChart<TCategory>[]>(defaultCharts);
-    const [innerLayout, setInnerLayout] = useState(defaultLayout);
-    const [draft, setDraft] = useState<Draft<TCategory> | null>(null);
+    className,
+    gap = 1,
+}: DashboardChartsProps) => {
+    const [chartItems, setChartItems] = useState<DashboardItem[]>(customerChartsItems ?? []);
 
-    const charts = controlledCharts ?? innerCharts;
-    const layout = controlledLayout ?? innerLayout;
-
-    const resolveEditorValues = (
-        category: TCategory,
-        fallback: DashboardChartEditorValues,
-    ): DashboardChartEditorValues => getDefaultEditorValues?.(category) ?? fallback;
-
-    const categoryOptions = useMemo(
-        () =>
-            chartOptions
-                .filter(({hidden}) => !hidden)
-                .map(({value, text, editorContent, disabled: optionDisabled}) => ({
-                    value,
-                    content: editorContent ?? text,
-                    disabled: optionDisabled,
-                })),
-        [chartOptions],
+    const [chartsLayout, setChartsLayout] = useState<DashboardProps['layout']>(
+        customerChartsLayout ?? [],
     );
+
+    const [draftChart, setDraftChart] = useState<{
+        id?: string;
+        chartSeries: ChartEditorProps['chartSeriesMap'];
+        formValues: ChartEditorProps['formValues'];
+    } | null>(null);
+
+    const allowedCharts = useMemo(() => Object.keys(dataSource), [dataSource]);
+
+    const handleChartSelect = (chartType: string) => {
+        const chartSeries = dataSource[chartType as ChartSeries['type']];
+
+        if (chartSeries) {
+            const dataIds = Object.keys(chartSeries);
+
+            setDraftChart({
+                chartSeries,
+                formValues: {
+                    dataIds: dataIds.length ? [dataIds[0]] : [],
+                    axisType: 'linear',
+                },
+            });
+        }
+    };
+
+    const handleCancelDraft = () => {
+        setDraftChart(null);
+    };
+
+    const handleSubmitChart = (chart: ChartData) => {
+        if (!draftChart) return;
+
+        const newChart = {
+            id: draftChart.id ?? crypto.randomUUID().replace('-', ''),
+            chartData: chart,
+        };
+
+        const actualChartItems = draftChart.id
+            ? chartItems.map((ch) => (ch.id === newChart.id ? newChart : ch))
+            : [...chartItems, newChart];
+
+        setDraftChart(null);
+        setChartItems(actualChartItems);
+        onItemsChange?.(actualChartItems);
+    };
+
+    const handleEditChart = useCallback(
+        (id: string, chart: DashboardItem['chartData']) => {
+            const chartType = chart.series.data[0].type;
+            const chartSeries = dataSource[chartType];
+
+            if (!chartSeries) return;
+
+            const selectedDataIds = chart.series.data.map(({custom}) => custom.dataId) as string[];
+
+            setDraftChart({
+                id,
+                chartSeries,
+                formValues: {
+                    dataIds: selectedDataIds,
+                    chartTitle: chart.title?.text,
+                    xTitle: chart.xAxis?.title?.text,
+                    yTitle: chart.yAxis?.[0].title?.text,
+                    showLegend: chart?.legend?.enabled,
+                    axisType: chart.xAxis?.type,
+                    axisCategories: chart.xAxis?.categories,
+                },
+            });
+        },
+        [dataSource],
+    );
+
+    const handleDeleteChart = useCallback(
+        (id: string) => {
+            const newChartItems = chartItems.filter((item) => item.id !== id);
+            const newChartsLayout = chartsLayout?.filter(({i}) => i !== id) ?? [];
+
+            setChartItems(newChartItems);
+            setChartsLayout(newChartsLayout);
+
+            onItemsChange?.(newChartItems);
+            onLayoutChange?.(newChartsLayout);
+        },
+        [chartItems, chartsLayout, onItemsChange, onLayoutChange],
+    );
+
+    const handleLayoutChange = (patchedLayout: ConfigLayout[]) => {
+        setChartsLayout(patchedLayout);
+        onLayoutChange?.(patchedLayout);
+    };
 
     const dashboardItems = useMemo(
         () =>
-            charts.map(({id, data}) => ({
+            chartItems.map(({id, chartData}) => ({
                 id,
-                content: <Chart data={data} />,
+                content: (
+                    <Chart
+                        key={id}
+                        data={chartData}
+                        controlsVisibility="hover"
+                        onPencilEdit={() => handleEditChart(id, chartData)}
+                        actions={[{text: 'delete', onClick: () => handleDeleteChart(id)}]}
+                    />
+                ),
             })),
-        [charts],
+        [chartItems, handleEditChart, handleDeleteChart],
     );
-
-    const previewData = useMemo(
-        () => (draft ? getChartData(draft.category, draft.values) : undefined),
-        [draft, getChartData],
-    );
-
-    const handleChartSelect = (category: TCategory) => {
-        setDraft({
-            category,
-            values: resolveEditorValues(category, {...DEFAULT_EDITOR_VALUES}),
-        });
-    };
-
-    const handleLayoutChange = (nextLayout: ConfigLayout[]) => {
-        if (controlledLayout === undefined) {
-            setInnerLayout(nextLayout);
-        }
-        onLayoutChange?.(nextLayout);
-    };
-
-    const handleSubmit = () => {
-        if (!draft || !previewData) {
-            return;
-        }
-
-        const chart: DashboardChart<TCategory> = {
-            id: crypto.randomUUID(),
-            category: draft.category,
-            values: draft.values,
-            data: previewData,
-        };
-        const nextCharts = [...charts, chart];
-
-        if (controlledCharts === undefined) {
-            setInnerCharts(nextCharts);
-        }
-        onChartsChange?.(nextCharts);
-        onChartAdd?.(chart);
-        setDraft(null);
-    };
-
-    const resolvedEmptyTitle = emptyTitle === undefined ? i18n('context_no-charts') : emptyTitle;
-    const resolvedEmptyDescription =
-        emptyDescription === undefined ? i18n('context_add-first-chart') : emptyDescription;
 
     return (
-        <Flex
-            as="section"
-            direction="column"
-            width="100%"
-            height="100%"
-            className={block(null, className)}
-        >
-            <div className={block('actions')}>
-                <AddChartButton<TCategory>
-                    text={addChartText ?? i18n('action_add-chart')}
-                    options={chartOptions}
+        <React.Fragment>
+            <Flex
+                as="section"
+                direction="column"
+                width="100%"
+                height="100%"
+                gap={gap}
+                className={block(null, className)}
+            >
+                <AddChartButton
+                    text={i18n('action_add-chart')}
+                    options={allowedCharts.map((chartType) => ({
+                        value: chartType,
+                        text: chartType,
+                    }))}
                     onSelect={handleChartSelect}
-                    disabled={disabled}
+                    disabled={allowedCharts.length === 0}
                 />
-            </div>
-            <div className={block('content')}>
-                {charts.length > 0 ? (
+
+                {chartItems ? (
                     <Dashboard
                         items={dashboardItems}
-                        layout={layout}
-                        grid={grid}
-                        className={block('dashboard')}
+                        layout={chartsLayout}
                         onLayoutChange={handleLayoutChange}
+                        className={block('dashboard')}
+                        {...dashboardProps}
                     />
                 ) : (
-                    <Flex direction="column" centerContent gap={1} className={block('empty')}>
-                        {resolvedEmptyTitle !== null && (
-                            <Text variant="subheader-2">{resolvedEmptyTitle}</Text>
-                        )}
-                        {resolvedEmptyDescription !== null && (
-                            <Text color="secondary">{resolvedEmptyDescription}</Text>
-                        )}
-                    </Flex>
+                    <EmptyDashboardPlaceholder
+                        emptyTitle={emptyTitle}
+                        emptyDescription={emptyDescription}
+                    />
                 )}
-            </div>
+            </Flex>
+
             <Modal
-                open={Boolean(draft)}
-                onClose={() => setDraft(null)}
+                open={Boolean(draftChart)}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDraftChart(null);
+                    }
+                }}
                 contentOverflow="auto"
                 contentClassName={block('modal')}
-                aria-label={editorLabels?.formTitle ?? i18n('action_add-chart')}
             >
-                {draft && (
-                    <ChartEditor<TCategory>
-                        data={previewData}
-                        emptyDataLabel={editorEmptyDataLabel}
-                        className={block('editor')}
-                        chartFormProps={{
-                            category: draft.category,
-                            categoryOptions,
-                            onCategoryChange: (category) =>
-                                setDraft((current) =>
-                                    current
-                                        ? {
-                                              category,
-                                              values: resolveEditorValues(category, current.values),
-                                          }
-                                        : current,
-                                ),
-                            formValues: draft.values,
-                            onFormValuesChange: (values) =>
-                                setDraft((current) => (current ? {...current, values} : current)),
-                            xOptions,
-                            axisTypeOptions,
-                            labels: editorLabels,
-                            disabled,
-                            onCancel: () => setDraft(null),
-                            onSubmit: handleSubmit,
+                {draftChart && (
+                    <ChartEditor
+                        chartSeriesMap={draftChart.chartSeries}
+                        formValues={draftChart.formValues}
+                        onSubmit={handleSubmitChart}
+                        onCancel={handleCancelDraft}
+                        axisVariants={['linear', 'datetime', 'logarithmic']}
+                        formProps={{
+                            labels: {
+                                submitLabel: draftChart.id ? 'Save' : 'Add chart',
+                            },
                         }}
+                        {...chartEditorProps}
                     />
                 )}
             </Modal>
-        </Flex>
+        </React.Fragment>
     );
 };

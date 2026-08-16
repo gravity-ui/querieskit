@@ -1,0 +1,35 @@
+[19:06:30.882] [INFO] storybook v10.5.0
+[19:06:32.002] [DEBUG] Getting package.json info for /Users/vtrumpel/Desktop/querieskit/package.json...
+[19:06:32.007] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
+[19:06:32.125] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
+[19:06:32.309] [INFO] Starting...
+[19:06:32.318] [DEBUG] readDependencyManifest: could not resolve "@gravity-ui/eslint-config"
+[19:06:32.362] [DEBUG] Starting preview..
+[19:06:32.378] [DEBUG] Using tsconfig paths for react-docgen
+[19:06:32.381] [WARN] 🚨 Unable to index ./src/modules/ChartEditor/story/ChartEditor.stories.tsx:
+  SyntaxError: JSX attributes must only be assigned a non-empty expression. (140:27)
+    at constructor (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:12164:21)
+    at Parser.raise (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:16357:71)
+    at Parser.jsxParseAttributeValue (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15003:205)
+    at Parser.jsxParseAttribute (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15029:350)
+    at Parser.jsxParseOpeningElementAfterName (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15038:32)
+    at Parser.jsxParseOpeningElementAfterName (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:18526:22)
+    at Parser.jsxParseOpeningElementAt (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15033:124)
+    at Parser.jsxParseElementAt (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15046:85)
+    at Parser.jsxParseElement (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15080:34)
+    at Parser.parseExprAtom (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/_node-chunks/chunk-3I7UZF4L.js:15089:39)
+[19:06:32.383] [ERROR] Failed to build the preview
+[19:06:32.386] [ERROR] Error: Unable to index ./src/modules/ChartEditor/story/ChartEditor.stories.tsx
+    at _StoryIndexGenerator.getIndexAndStats (file://./node_modules/storybook/dist/core-server/index.js:19416:15)
+    at async _StoryIndexGenerator.getIndex (file://./node_modules/storybook/dist/core-server/index.js:19405:13)
+    at async BasicMinimalPluginContext.config (file://./node_modules/@storybook/builder-vite/dist/_node-chunks/chunk-V5EZ2MHW.js:188:19)
+    at async runConfigHook (file://./node_modules/vite/dist/node/chunks/node.js:36207:15)
+    at async resolveConfig (file://./node_modules/vite/dist/node/chunks/node.js:35642:11)
+    at async _createServer (file://./node_modules/vite/dist/node/chunks/node.js:25777:65)
+    at async Module.start (file://./node_modules/@storybook/builder-vite/dist/index.js:1621:17)
+    at async storybookDevServer (file://./node_modules/storybook/dist/core-server/index.js:11225:59)
+    at async buildOrThrow (file://./node_modules/storybook/dist/core-server/index.js:8331:12)
+    at async buildDevStandalone (file://./node_modules/storybook/dist/core-server/index.js:11990:41)
+[19:06:32.386] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[19:06:32.387] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?

@@ -7,14 +7,15 @@ export type ChartEditorOption<TValue extends string = string> = {
     disabled?: boolean;
 };
 
-export type ChartEditorFormValues = {
-    x: string;
+export type ChartEditorFormValues = Partial<{
+    dataIds: string[];
     axisType: ChartAxisType;
+    axisCategories: string[];
     chartTitle: string;
     xTitle: string;
     yTitle: string;
     showLegend: boolean;
-};
+}>;
 
 export type ChartEditorLabels = Partial<{
     formTitle: string;
@@ -30,17 +31,14 @@ export type ChartEditorLabels = Partial<{
     submitLabel: string;
 }>;
 
-export type ChartEditorFormProps<TCategory extends string = string> = {
-    category: TCategory;
-    categoryOptions: ChartEditorOption<TCategory>[];
-    onCategoryChange: (category: TCategory) => void;
+export type ChartEditorFormProps = {
+    dataIds?: string[];
+    axisVariants?: ChartAxisType[];
     formValues: ChartEditorFormValues;
-    onFormValuesChange: (values: ChartEditorFormValues) => void;
-    xOptions?: ChartEditorOption[];
-    axisTypeOptions?: ChartEditorOption[];
     labels?: ChartEditorLabels;
     disabled?: boolean;
     className?: string;
+    onFormValuesChange?: (values: ChartEditorFormValues) => void;
     onCancel?: () => void;
     onSubmit?: () => void;
 };

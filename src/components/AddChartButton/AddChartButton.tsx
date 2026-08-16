@@ -26,7 +26,7 @@ const block = cn('qp-add-chart-button');
 export type AddChartButtonOption<TValue extends string = string> = {
     value: TValue;
     text: ReactNode;
-    icon: IconData;
+    icon?: IconData;
     disabled?: boolean;
     hidden?: boolean;
 };
@@ -85,7 +85,7 @@ export const AddChartButton = <TValue extends string = DefaultAddChartButtonValu
         () =>
             options.map(({value, text: optionText, icon, disabled: optionDisabled, hidden}) => ({
                 text: optionText,
-                iconStart: <Icon data={icon} size={16} className={block('option-icon')} />,
+                iconStart: icon && <Icon data={icon} size={16} className={block('option-icon')} />,
                 disabled: optionDisabled,
                 hidden,
                 action: () => onSelect(value),

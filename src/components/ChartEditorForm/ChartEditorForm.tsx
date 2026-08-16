@@ -1,143 +1,98 @@
-import React from 'react';
+import React, {useMemo} from 'react';
+import type {ChartEditorFormProps, ChartEditorFormValues} from './types';
 import {Button, Flex, Select, Switch, Text, TextInput} from '@gravity-ui/uikit';
+import {Field} from './internal/Field';
+import {resolveLabels} from './helpers/resolveLabels';
+import {ChartAxisType} from '@gravity-ui/charts';
 import cn from 'bem-cn-lite';
-
-import type {
-    ChartEditorFormProps,
-    ChartEditorFormValues,
-    ChartEditorLabels,
-    ChartEditorOption,
-} from './types';
-import i18n from './i18n';
-
 import './ChartEditorForm.scss';
 
 const block = cn('qp-chart-editor-form');
 
-const DEFAULT_AXIS_TYPE_OPTIONS: ChartEditorOption[] = [
-    {value: 'category', content: 'category'},
-    {value: 'linear', content: 'linear'},
-    {value: 'datetime', content: 'datetime'},
-    {value: 'logarithmic', content: 'logarithmic'},
-];
-
-const resolveLabels = (labels: ChartEditorLabels | undefined) => ({
-    data: labels?.data ?? i18n('field_data'),
-    x: labels?.x ?? i18n('field_x'),
-    axisType: labels?.axisType ?? i18n('field_axis-type'),
-    chartTitle: labels?.chartTitle ?? i18n('field_chart-title'),
-    xTitle: labels?.xTitle ?? i18n('field_x-title'),
-    yTitle: labels?.yTitle ?? i18n('field_y-title'),
-    showLegend: labels?.showLegend ?? i18n('field_show-legend'),
-    formTitle: labels?.formTitle ?? i18n('title_form'),
-    cancel: labels?.cancelLabel ?? i18n('button_cancel'),
-    submit: labels?.submitLabel ?? i18n('button_submit'),
-});
-
-const Field = ({label, children}: {label: React.ReactNode; children: React.ReactNode}) => (
-    <Flex direction="column" gap={1}>
-        <Text variant="body-1" color="secondary">
-            {label}
-        </Text>
-        {children}
-    </Flex>
-);
-
-export function ChartEditorForm<TCategory extends string>({
-    category,
-    categoryOptions,
-    onCategoryChange,
+export function ChartEditorForm({
+    dataIds,
+    axisVariants,
+    labels,
+    className,
     formValues,
     onFormValuesChange,
-    xOptions = [],
-    axisTypeOptions = DEFAULT_AXIS_TYPE_OPTIONS,
-    labels,
     disabled,
-    className,
     onCancel,
     onSubmit,
-}: ChartEditorFormProps<TCategory>) {
+}: ChartEditorFormProps) {
     const updateFormValues = (patch: Partial<ChartEditorFormValues>) => {
-        onFormValuesChange({...formValues, ...patch});
+        onFormValuesChange?.({...formValues, ...patch});
     };
 
-    const handleCategoryUpdate = ([next]: string[]) => {
-        if (!next || !categoryOptions.some((option) => option.value === next)) {
-            return;
-        }
-        onCategoryChange(next as TCategory);
-    };
+    const axisOptions = useMemo(
+        () => axisVariants?.map((axisType) => ({value: axisType, children: axisType})),
+        [axisVariants],
+    );
 
-    const handleAxisTypeUpdate = ([next]: string[]) => {
-        if (!next || !axisTypeOptions.some((option) => option.value === next)) {
-            return;
-        }
-        updateFormValues({axisType: next as ChartEditorFormValues['axisType']});
-    };
+    const dataIdsOptions = useMemo(
+        () => dataIds?.map((dataId) => ({value: dataId, children: dataId})),
+        [dataIds],
+    );
 
-    const resolved = resolveLabels(labels);
+    const resolvedLables = resolveLabels(labels);
+
+    const needShowDataIdsSelector = dataIdsOptions?.length && dataIdsOptions?.length > 1;
 
     return (
         <Flex as="aside" direction="column" gap={3} className={block(null, className)}>
             <Text as="h2" variant="subheader-2" className={block('title')}>
-                {resolved.formTitle}
+                {resolvedLables.formTitle}
             </Text>
 
             <Flex direction="column" gap={3} className={block('fields')}>
-                <Field label={resolved.data}>
-                    <Select
-                        aria-label={resolved.data}
-                        options={categoryOptions}
-                        value={[category]}
-                        onUpdate={handleCategoryUpdate}
+                {needShowDataIdsSelector && (
+                    <Field label={resolvedLables.data}>
+                        <Select
+                            multiple
+                            aria-label={resolvedLables.data}
+                            options={dataIdsOptions}
+                            value={formValues.dataIds}
+                            onUpdate={(pathDataIds) => updateFormValues({dataIds: pathDataIds})}
+                            disabled={disabled}
+                            width="max"
+                        />
+                    </Field>
+                )}
+
+                <Field label={resolvedLables.axisType}>
+                    <Select<ChartAxisType>
+                        aria-label={resolvedLables.axisType}
+                        options={axisOptions}
+                        value={formValues.axisType ? [formValues.axisType] : []}
+                        onUpdate={(axisType) =>
+                            updateFormValues({axisType: axisType[0] as ChartAxisType})
+                        }
                         disabled={disabled}
                         width="max"
                     />
                 </Field>
 
-                <Field label={resolved.x}>
-                    <Select
-                        aria-label={resolved.x}
-                        options={xOptions}
-                        value={formValues.x ? [formValues.x] : []}
-                        onUpdate={([x = '']) => updateFormValues({x})}
-                        disabled={disabled}
-                        width="max"
-                    />
-                </Field>
-
-                <Field label={resolved.axisType}>
-                    <Select
-                        aria-label={resolved.axisType}
-                        options={axisTypeOptions}
-                        value={[formValues.axisType]}
-                        onUpdate={handleAxisTypeUpdate}
-                        disabled={disabled}
-                        width="max"
-                    />
-                </Field>
-
-                <Field label={resolved.chartTitle}>
+                <Field label={resolvedLables.chartTitle}>
                     <TextInput
-                        aria-label={resolved.chartTitle}
+                        aria-label={resolvedLables.chartTitle}
                         value={formValues.chartTitle}
                         onUpdate={(chartTitle) => updateFormValues({chartTitle})}
                         disabled={disabled}
                     />
                 </Field>
 
-                <Field label={resolved.xTitle}>
+                <Field label={resolvedLables.xTitle}>
                     <TextInput
-                        aria-label={resolved.xTitle}
+                        aria-label={resolvedLables.xTitle}
                         value={formValues.xTitle}
                         onUpdate={(xTitle) => updateFormValues({xTitle})}
                         disabled={disabled}
                     />
                 </Field>
 
-                <Field label={resolved.yTitle}>
+                <Field label={resolvedLables.yTitle}>
                     <TextInput
-                        aria-label={resolved.yTitle}
+                        aria-label={resolvedLables.yTitle}
                         value={formValues.yTitle}
                         onUpdate={(yTitle) => updateFormValues({yTitle})}
                         disabled={disabled}
@@ -145,19 +100,19 @@ export function ChartEditorForm<TCategory extends string>({
                 </Field>
 
                 <Switch
-                    checked={formValues.showLegend}
+                    checked={Boolean(formValues.showLegend)}
                     onUpdate={(showLegend) => updateFormValues({showLegend})}
                     disabled={disabled}
-                    content={resolved.showLegend}
+                    content={resolvedLables.showLegend}
                 />
             </Flex>
 
             <Flex gap={2} justifyContent="flex-end" className={block('actions')}>
                 <Button view="flat" onClick={onCancel} disabled={disabled}>
-                    {resolved.cancel}
+                    {resolvedLables.cancel}
                 </Button>
                 <Button view="action" onClick={onSubmit} disabled={disabled}>
-                    {resolved.submit}
+                    {resolvedLables.submit}
                 </Button>
             </Flex>
         </Flex>
