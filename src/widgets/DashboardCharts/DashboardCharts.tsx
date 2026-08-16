@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {ChartData, ChartSeries} from '@gravity-ui/charts';
+
 import {Flex, Modal} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {ChartEditor, ChartEditorProps} from '../../modules';
@@ -7,6 +8,7 @@ import {AddChartButton, Chart, Dashboard, DashboardProps} from '../../components
 import type {DashboardChartsProps, DashboardItem} from './types';
 import {EmptyDashboardPlaceholder} from './internal/EmptyDashboardPlaceholder';
 import i18n from './i18n';
+import {CHART_TYPE_ICONS} from './helpers/chartTypeIcons';
 
 import './DashboardCharts.scss';
 import {ConfigLayout} from '@gravity-ui/dashkit';
@@ -38,10 +40,13 @@ export const DashboardCharts = ({
         formValues: ChartEditorProps['formValues'];
     } | null>(null);
 
-    const allowedCharts = useMemo(() => Object.keys(dataSource), [dataSource]);
+    const allowedCharts = useMemo(
+        () => Object.keys(dataSource) as ChartSeries['type'][],
+        [dataSource],
+    );
 
-    const handleChartSelect = (chartType: string) => {
-        const chartSeries = dataSource[chartType as ChartSeries['type']];
+    const handleChartSelect = (chartType: ChartSeries['type']) => {
+        const chartSeries = dataSource[chartType];
 
         if (chartSeries) {
             const dataIds = Object.keys(chartSeries);
@@ -154,6 +159,7 @@ export const DashboardCharts = ({
                     options={allowedCharts.map((chartType) => ({
                         value: chartType,
                         text: chartType,
+                        icon: CHART_TYPE_ICONS[chartType],
                     }))}
                     onSelect={handleChartSelect}
                     disabled={allowedCharts.length === 0}
