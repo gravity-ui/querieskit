@@ -1,11 +1,11 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
     type ChartRef,
     Chart as GravityChart,
     type ChartProps as GravityChartProps,
 } from '@gravity-ui/charts';
 import {ChevronsCollapseUpRight, ChevronsExpandUpRight, Ellipsis, Pencil} from '@gravity-ui/icons';
-import {Button, DropdownMenu, type DropdownMenuItem, Icon} from '@gravity-ui/uikit';
+import {Button, DropdownMenu, type DropdownMenuItem, Icon, Portal} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
 import i18n from './i18n';
@@ -36,23 +36,8 @@ export const Chart = React.forwardRef<ChartRef, ChartProps>(function ChartCompon
     const containerRef = useRef<HTMLDivElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    useEffect(() => {
-        const handleFullscreenChange = () => {
-            setIsFullscreen(document.fullscreenElement === containerRef.current);
-        };
-
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
-
-        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    }, []);
-
     const handleFullscreenToggle = useCallback(() => {
-        if (document.fullscreenElement === containerRef.current) {
-            document.exitFullscreen().catch(() => undefined);
-            return;
-        }
-
-        containerRef.current?.requestFullscreen().catch(() => undefined);
+        setIsFullscreen((value) => !value);
     }, []);
 
     const menuItems = useMemo(
@@ -72,62 +57,64 @@ export const Chart = React.forwardRef<ChartRef, ChartProps>(function ChartCompon
         : i18n('action_enter-fullscreen');
 
     return (
-        <div ref={containerRef} className={block(null, className)}>
-            <div className={block('controls', {visibility: controlsVisibility})}>
-                <Button
-                    type="button"
-                    view="flat-secondary"
-                    size="s"
-                    aria-label={fullscreenLabel}
-                    title={fullscreenLabel}
-                    onClick={handleFullscreenToggle}
-                >
-                    <Icon
-                        data={isFullscreen ? ChevronsCollapseUpRight : ChevronsExpandUpRight}
-                        size={16}
-                    />
-                </Button>
-
-                {onPencilEdit && (
+        <Portal container={containerRef.current?.ownerDocument.body} disablePortal={!isFullscreen}>
+            <div ref={containerRef} className={block({fullscreen: isFullscreen}, className)}>
+                <div className={block('controls', {visibility: controlsVisibility})}>
                     <Button
                         type="button"
                         view="flat-secondary"
                         size="s"
-                        aria-label={i18n('action_edit-chart')}
-                        title={i18n('action_edit-chart')}
-                        onClick={onPencilEdit}
+                        aria-label={fullscreenLabel}
+                        title={fullscreenLabel}
+                        onClick={handleFullscreenToggle}
                     >
-                        <Icon data={Pencil} size={16} />
+                        <Icon
+                            data={isFullscreen ? ChevronsCollapseUpRight : ChevronsExpandUpRight}
+                            size={16}
+                        />
                     </Button>
-                )}
 
-                {hasVisibleActions && (
-                    <DropdownMenu
-                        items={menuItems}
-                        size="s"
-                        popupProps={{
-                            container: isFullscreen
-                                ? (containerRef.current ?? undefined)
-                                : undefined,
-                        }}
-                        renderSwitcher={(switcherProps) => (
-                            <Button
-                                {...switcherProps}
-                                type="button"
-                                view="flat"
-                                size="s"
-                                aria-label={i18n('action_open-chart-menu')}
-                                title={i18n('action_open-chart-menu')}
-                                aria-haspopup="menu"
-                            >
-                                <Icon data={Ellipsis} size={16} />
-                            </Button>
-                        )}
-                    />
-                )}
+                    {onPencilEdit && (
+                        <Button
+                            type="button"
+                            view="flat-secondary"
+                            size="s"
+                            aria-label={i18n('action_edit-chart')}
+                            title={i18n('action_edit-chart')}
+                            onClick={onPencilEdit}
+                        >
+                            <Icon data={Pencil} size={16} />
+                        </Button>
+                    )}
+
+                    {hasVisibleActions && (
+                        <DropdownMenu
+                            items={menuItems}
+                            size="s"
+                            popupProps={{
+                                container: isFullscreen
+                                    ? containerRef.current?.ownerDocument.body
+                                    : undefined,
+                            }}
+                            renderSwitcher={(switcherProps) => (
+                                <Button
+                                    {...switcherProps}
+                                    type="button"
+                                    view="flat"
+                                    size="s"
+                                    aria-label={i18n('action_open-chart-menu')}
+                                    title={i18n('action_open-chart-menu')}
+                                    aria-haspopup="menu"
+                                >
+                                    <Icon data={Ellipsis} size={16} />
+                                </Button>
+                            )}
+                        />
+                    )}
+                </div>
+
+                <GravityChart {...chartProps} ref={ref} />
             </div>
-
-            <GravityChart {...chartProps} ref={ref} />
-        </div>
+        </Portal>
     );
 });

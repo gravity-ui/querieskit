@@ -6,9 +6,12 @@
     height: 100%;
     background: var(--g-color-base-background);
 
-    &:fullscreen {
+    &_fullscreen {
         width: 100vw;
         height: 100vh;
+        z-index: var(--z-index-overlay, 1000);
+        position: fixed;
+        inset: 0;
     }
 
     &__controls {
