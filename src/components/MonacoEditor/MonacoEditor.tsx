@@ -2,6 +2,8 @@ import React, {FC, useEffect, useRef} from 'react';
 // @ts-ignore monaco-editor ships its own types but the default resolution
 // doesn't pick them up for this deep import path in this project setup.
 import * as monaco from 'monaco-editor/editor/editor.api';
+import './monaco-yql-languages/monaco.contribution';
+import {MONACO_THEME_BY_UI, MonacoThemeName, YT_LIGHT_MONACO_THEME} from './MonacoEditorThemes';
 
 export type MonacoEditorConfig = Omit<monaco.editor.IStandaloneEditorConstructionOptions, 'theme'>;
 
@@ -9,14 +11,23 @@ type Props = {
     value: string;
     readOnly?: boolean;
     language?: string;
+    theme?: string;
     onClick?: (e: monaco.editor.IEditorMouseEvent) => void;
     monacoConfig?: MonacoEditorConfig;
     className?: string;
 };
 
+const resolveTheme = (theme?: string): MonacoThemeName => {
+    if (!theme) {
+        return YT_LIGHT_MONACO_THEME;
+    }
+    return (MONACO_THEME_BY_UI[theme] ?? theme) as MonacoThemeName;
+};
+
 export const MonacoEditor: FC<Props> = ({
     value,
     language,
+    theme,
     readOnly,
     onClick,
     monacoConfig,
@@ -49,6 +60,7 @@ export const MonacoEditor: FC<Props> = ({
             lineNumbers: 'on',
             suggestOnTriggerCharacters: true,
             wordBasedSuggestions: 'off',
+            theme: resolveTheme(theme),
             ...monacoConfig,
         });
         editorRef.current = editorInstance;
@@ -82,6 +94,11 @@ export const MonacoEditor: FC<Props> = ({
             monaco.editor.setModelLanguage(model, language);
         }
     }, [language]);
+
+    // Keep the editor theme in sync with the `theme` prop.
+    useEffect(() => {
+        monaco.editor.setTheme(resolveTheme(theme));
+    }, [theme]);
 
     // Re-apply options (e.g. `readOnly`, `monacoConfig`) when they change.
     useEffect(() => {

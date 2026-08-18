@@ -79,7 +79,7 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
 ];
 
 type VisibleFields = QueryHistoryVisibleFieldsConfig<QueryHistoryRow>['fields'];
-const activeFields: QueryHistoryFieldKey[] = [
+const activeFields: QueryHistoryFieldKey<QueryHistoryRow>[] = [
     'duration',
     'mode',
     'startTime',
@@ -142,7 +142,8 @@ type Story = StoryObj<typeof QueriesHistory>;
 const DefaultStory = () => {
     const [items, setItems] = useState([...BASE_ITEMS]);
     const [search, setSearch] = useState({value: '', fullSearch: false});
-    const [visibleFields, setVisibleFields] = useState<QueryHistoryFieldKey[]>(activeFields);
+    const [visibleFields, setVisibleFields] =
+        useState<QueryHistoryFieldKey<QueryHistoryRow>[]>(activeFields);
     const [compareMode, setCompareMode] = useState(false);
     const [comparedRows, setComparedRows] = useState<number[]>([]);
     const [editingId, setEditingId] = useState<number | undefined>(undefined);

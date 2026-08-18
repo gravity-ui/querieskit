@@ -1,0 +1,10 @@
+.qp-search-with-buttons {
+  &__input {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &__inner-buttons {
+    margin-right: 4px;
+  }
+}

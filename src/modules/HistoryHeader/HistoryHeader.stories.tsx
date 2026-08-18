@@ -27,19 +27,6 @@ const DefaultStory = () => {
     );
 };
 
-const WithValueStory = () => {
-    const [search, setSearch] = useState({value: 'Query 1', fullSearch: false});
-
-    return (
-        <HistoryHeader
-            search={search.value}
-            fullSearch={search.fullSearch}
-            hasClear={true}
-            onUpdate={setSearch}
-        />
-    );
-};
-
 const FullSearchStory = () => {
     const [search, setSearch] = useState({value: 'users', fullSearch: true});
 
@@ -55,9 +42,6 @@ const FullSearchStory = () => {
 
 /** Empty header with a search field */
 export const Default: Story = {render: () => <DefaultStory />};
-
-/** Search field with a prefilled value */
-export const WithValue: Story = {render: () => <WithValueStory />};
 
 /** Full-text search is active (button is highlighted) */
 export const FullSearchActive: Story = {render: () => <FullSearchStory />};

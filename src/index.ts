@@ -11,3 +11,4 @@ export type {
     DashboardChartsProps,
 } from './types/dashboardCharts';
 export * from './types/history';
+export * from './types/tutorial';

@@ -12,6 +12,7 @@ import {ProgressQueryStatuses} from '../../constants/query';
 
 type Props = {
     status: QueryStatus;
+    className?: string;
 };
 
 const STATUS_ICONS: Record<QueryStatus, IconData> = {
@@ -24,7 +25,7 @@ const STATUS_ICONS: Record<QueryStatus, IconData> = {
 
 const block = cn('qp-query-status-icon');
 
-export const QueryStatusIcon: FC<Props> = ({status}) => {
+export const QueryStatusIcon: FC<Props> = ({status, className}) => {
     if (ProgressQueryStatuses.includes(status)) {
         return <Spin size="xs" />;
     }
@@ -32,5 +33,5 @@ export const QueryStatusIcon: FC<Props> = ({status}) => {
     const statusIcon = STATUS_ICONS[status];
     if (!statusIcon) return <>{status}</>;
 
-    return <Icon data={statusIcon} size={16} className={block({[status]: true})} />;
+    return <Icon data={statusIcon} size={16} className={block({[status]: true}, className)} />;
 };

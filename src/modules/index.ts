@@ -1,5 +1,14 @@
 export {HistoryHeader} from './HistoryHeader';
+export {HistoryLayout} from './HistoryLayout';
+export type {HistoryLayoutProps} from './HistoryLayout';
+export {RowsList} from './RowsList';
+export type {RowsListProps} from './RowsList';
 export {HistoryRow} from './HistoryRow';
 export {HistoryList} from './HistoryList';
+export type {HistoryListProps} from './HistoryList';
 export {HistorySearchRow} from './HistorySearchRow';
 export * from './ChartEditor';
+export {TutorialRow} from './TutorialRow';
+export type {TutorialRowProps} from './TutorialRow';
+export {TutorialSearchRow} from './TutorialSearchRow';
+export type {TutorialSearchRowProps} from './TutorialSearchRow';

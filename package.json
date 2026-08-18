@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/querieskit",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Query page component library",
   "main": "build/index.js",
   "scripts": {
@@ -8,9 +8,9 @@
     "lint": "eslint",
     "lint:all": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006 --no-open",
-    "build-storybook": "sb build",
+    "build-storybook": "storybook build",
     "test": "echo \"No tests\" && exit 0",
-    "prepublishOnly": "npm run typecheck && npm run build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",

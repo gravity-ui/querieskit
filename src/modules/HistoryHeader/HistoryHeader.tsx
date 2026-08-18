@@ -1,7 +1,6 @@
-import React, {FC} from 'react';
-import {Flex} from '@gravity-ui/uikit';
-import {HistorySearch} from './internal/HistorySearch';
-import {HistoryFilter} from '../../components/HistoryFilter';
+import React, {FC, useEffect, useState} from 'react';
+import {FullSearchToggleButton} from './internal/FullSearchToggleButton';
+import {HistoryFilter, SearchWithButtons} from '../../components';
 import {QueryHistoryFilterConfig} from '../../types/history';
 
 type Props = {
@@ -10,18 +9,50 @@ type Props = {
     hasClear?: boolean;
     filter?: QueryHistoryFilterConfig;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
+    className?: string;
 };
 
-export const HistoryHeader: FC<Props> = ({search, fullSearch, hasClear, filter, onUpdate}) => {
+export const HistoryHeader: FC<Props> = ({
+    search,
+    fullSearch,
+    hasClear,
+    filter,
+    onUpdate,
+    className,
+}) => {
+    const [searchValue, setSearchValue] = useState(search || '');
+    const [isFullSearch, setFullSearch] = useState(fullSearch || false);
+
+    useEffect(() => {
+        setSearchValue(search || '');
+        setFullSearch(fullSearch || false);
+    }, [search, fullSearch]);
+
+    const handleOnUpdate = (newValue: string) => {
+        setSearchValue(newValue);
+        onUpdate({value: newValue, fullSearch: isFullSearch});
+    };
+
+    const handleModeChange = () => {
+        const newValue = !isFullSearch;
+        setFullSearch(newValue);
+        onUpdate({value: searchValue, fullSearch: newValue});
+    };
+
     return (
-        <Flex gap={1}>
-            <HistorySearch
-                value={search}
-                fullSearch={fullSearch}
-                hasClear={hasClear}
-                onUpdate={onUpdate}
-            />
-            {filter && <HistoryFilter {...filter} />}
-        </Flex>
+        <SearchWithButtons
+            className={className}
+            value={searchValue}
+            hasClear={hasClear}
+            onUpdate={handleOnUpdate}
+            innerButtons={[
+                <FullSearchToggleButton
+                    key="full-search"
+                    active={isFullSearch}
+                    onClick={handleModeChange}
+                />,
+            ]}
+            endButtons={filter ? [<HistoryFilter key="filter" {...filter} />] : undefined}
+        />
     );
 };
