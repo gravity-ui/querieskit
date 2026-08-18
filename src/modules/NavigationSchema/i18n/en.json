@@ -1,0 +1,9 @@
+{
+    "title_column-name": "Name",
+    "title_column-type": "Type",
+    "title_column-sort-order": "Sort order",
+    "title_column-required": "Required",
+    "value_sort-ascending": "Ascending",
+    "value_sort-descending": "Descending",
+    "value_empty": "—"
+}

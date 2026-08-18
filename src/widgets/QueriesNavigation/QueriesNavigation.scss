@@ -1,0 +1,7 @@
+.qp-queries-navigation {
+  &__empty,
+  &__error {
+    padding: var(--g-spacing-2);
+    text-align: center;
+  }
+}

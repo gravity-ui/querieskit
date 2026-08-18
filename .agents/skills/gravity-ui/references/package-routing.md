@@ -340,13 +340,13 @@ A library for rendering whole web pages or page sections from declarative JSON/Y
 - Data-driven pages: render a `content` config of typed blocks with `PageConstructor` wrapped in `PageConstructorProvider`.
 - Marketing, landing, and documentation pages assembled from prebuilt blocks (headers, media, cards, etc.).
 - Server-side YFM processing of block text via the `@gravity-ui/page-constructor/server` utilities (`contentTransformer`, `fullTransform`).
-- Reusing just the responsive grid (`Grid`/`Row`/`Col`) or `Navigation` component standalone.
+- Reusing just the responsive grid (`Grid`/`Row`/`Col`) or `QueriesNavigation` component standalone.
 
 #### When not to use
 
 - General application UI (buttons, forms, modals) — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).
 - Editing Markdown/YFM content — use [`@gravity-ui/markdown-editor`](https://github.com/gravity-ui/markdown-editor).
-- App navigation shells (aside header) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation); this package's `Navigation` is a page-level top nav.
+- App navigation shells (aside header) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation); this package's `QueriesNavigation` is a page-level top nav.
 
 ## Page-constructor-builder — `@gravity-ui/page-constructor-builder`
 

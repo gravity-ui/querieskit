@@ -1,0 +1,9 @@
+{
+    "title_column-name": "Имя",
+    "title_column-type": "Тип",
+    "title_column-sort-order": "Сортировка",
+    "title_column-required": "Обязательное",
+    "value_sort-ascending": "По возрастанию",
+    "value_sort-descending": "По убыванию",
+    "value_empty": "—"
+}

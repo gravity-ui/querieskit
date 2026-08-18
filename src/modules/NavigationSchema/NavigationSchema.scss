@@ -1,0 +1,24 @@
+.qp-navigation-schema {
+  --data-table-border-color: var(--g-color-line-generic);
+
+  min-width: 0;
+
+  &__error {
+    display: block;
+  }
+
+  &__table {
+    overflow-x: auto;
+  }
+
+  .data-table__row,
+  .data-table__head {
+    height: 40px;
+  }
+
+  .data-table__th,
+  .data-table__td {
+    border-width: 0 0 1px;
+    vertical-align: middle;
+  }
+}
