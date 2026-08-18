@@ -1,0 +1,25 @@
+.qp-navigation-meta {
+  &__error {
+    display: block;
+  }
+
+  &__group-title {
+    display: block;
+    margin-bottom: var(--g-spacing-2);
+  }
+
+  &__group-body {
+    width: 100%;
+    display: grid;
+    grid-gap: 12px;
+    grid-template-columns: 128px 1fr;
+  }
+
+  &__skeleton-row {
+    height: 24px;
+  }
+
+  &__empty {
+    height: 100%;
+  }
+}

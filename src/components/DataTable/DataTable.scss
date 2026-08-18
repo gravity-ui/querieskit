@@ -1,0 +1,35 @@
+.qp-data-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__empty {
+    flex: 1;
+  }
+
+  &__tr_empty {
+    .qp-data-table__td_empty {
+      border-bottom: 1px solid var(--g-color-line-generic);
+    }
+  }
+
+  &__content_empty {
+    display: flex;
+
+    &.qp-data-table__content_align_right {
+      justify-content: flex-end;
+    }
+
+    &.qp-data-table__content_align_center {
+      justify-content: center;
+    }
+  }
+
+  &__no-data-placeholder {
+    width: 100%;
+    max-width: 120px;
+    height: var(--g-text-body-1-line-height);
+    border-radius: 4px;
+    background-color: var(--g-color-base-generic);
+  }
+}
