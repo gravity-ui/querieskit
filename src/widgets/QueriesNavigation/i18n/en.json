@@ -1,0 +1,10 @@
+{
+    "title_name": "Title",
+    "alert_load-error": "Failed to load data",
+    "field_search-placeholder": "Search",
+    "tab_schema": "Schema",
+    "tab_preview": "Preview",
+    "tab_meta": "Meta",
+    "tab_view": "View",
+    "field_detail-search-placeholder": "Search"
+}
