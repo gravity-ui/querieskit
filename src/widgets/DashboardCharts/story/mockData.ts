@@ -1,9 +1,9 @@
 import type {ChartData, ChartSeries} from '@gravity-ui/charts';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
+import type {ChartEditorProps} from '../../../modules';
 
 import type {DashboardChartsProps} from '../types';
 
-type ChartSeriesMap = Record<string, ChartSeries<{dataId: string}>>;
 type DashboardChartItem = NonNullable<DashboardChartsProps['chartItems']>[number];
 
 const hour = 60 * 60 * 1000;
@@ -13,11 +13,12 @@ const timeSeriesStart = Date.UTC(2026, 7, 10);
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const services = ['Query API', 'Scheduler', 'Metadata', 'Storage', 'Monitoring'];
 
-export const lineSeriesMap: ChartSeriesMap = {
+export const lineSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-rate-current': {
         type: 'line',
         name: 'Current week',
         custom: {dataId: 'query-rate-current'},
+        seriesId: 'query-rate-current',
         marker: {enabled: true},
         data: [620, 710, 680, 790, 860, 740, 810].map((y, index) => ({
             x: timeSeriesStart + index * day,
@@ -28,6 +29,7 @@ export const lineSeriesMap: ChartSeriesMap = {
         type: 'line',
         name: 'Previous week',
         custom: {dataId: 'query-rate-previous'},
+        seriesId: 'query-rate-current',
         dashStyle: 'Dash',
         marker: {enabled: false},
         data: [580, 640, 650, 700, 760, 720, 750].map((y, index) => ({
@@ -37,11 +39,12 @@ export const lineSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const areaSeriesMap: ChartSeriesMap = {
+export const areaSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     interactive: {
         type: 'area',
         name: 'Interactive',
         custom: {dataId: 'interactive'},
+        seriesId: 'interactive',
         stacking: 'normal',
         stackId: 'workload',
         data: [210, 245, 230, 285, 310, 275, 320].map((y, x) => ({x, y})),
@@ -49,7 +52,7 @@ export const areaSeriesMap: ChartSeriesMap = {
     scheduled: {
         type: 'area',
         name: 'Scheduled',
-        custom: {dataId: 'scheduled'},
+        seriesId: 'scheduled',
         stacking: 'normal',
         stackId: 'workload',
         data: [140, 155, 170, 165, 190, 205, 215].map((y, x) => ({x, y})),
@@ -57,46 +60,47 @@ export const areaSeriesMap: ChartSeriesMap = {
     background: {
         type: 'area',
         name: 'Background',
-        custom: {dataId: 'background'},
+        seriesId: 'background',
         stacking: 'normal',
         stackId: 'workload',
         data: [70, 82, 76, 95, 88, 102, 110].map((y, x) => ({x, y})),
     },
 };
 
-export const columnSeriesMap: ChartSeriesMap = {
+export const columnSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     compiled: {
         type: 'bar-x',
         name: 'Compiled',
-        custom: {dataId: 'compiled'},
+        seriesId: 'compiled',
         borderRadius: 3,
         data: [480, 560, 610, 590, 680, 720, 650].map((y, x) => ({x, y})),
     },
     cached: {
         type: 'bar-x',
         name: 'Cached',
-        custom: {dataId: 'cached'},
+        seriesId: 'cached',
         borderRadius: 3,
         data: [260, 310, 350, 380, 420, 460, 440].map((y, x) => ({x, y})),
     },
 };
 
-export const horizontalBarSeriesMap: ChartSeriesMap = {
+export const horizontalBarSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     completed: {
         type: 'bar-y',
         name: 'Completed',
-        custom: {dataId: 'completed'},
+        seriesId: 'completed',
         borderRadius: 3,
         dataLabels: {enabled: true},
         data: [94, 86, 78, 71, 63].map((x, y) => ({x, y})),
     },
 };
 
-export const scatterSeriesMap: ChartSeriesMap = {
+export const scatterSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     cached: {
         type: 'scatter',
         name: 'Cached queries',
         custom: {dataId: 'cached'},
+        seriesId: 'cached',
         data: [
             {x: 8, y: 46, radius: 5},
             {x: 16, y: 62, radius: 6},
@@ -110,6 +114,7 @@ export const scatterSeriesMap: ChartSeriesMap = {
         type: 'scatter',
         name: 'Uncached queries',
         custom: {dataId: 'uncached'},
+        seriesId: 'uncached',
         symbolType: 'square',
         data: [
             {x: 10, y: 95, radius: 5},
@@ -122,10 +127,11 @@ export const scatterSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const pieSeriesMap: ChartSeriesMap = {
+export const pieSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-origins': {
         type: 'pie',
         custom: {dataId: 'query-origins'},
+        seriesId: 'query-origins',
         innerRadius: '55%',
         dataLabels: {enabled: true},
         data: [
@@ -137,11 +143,12 @@ export const pieSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const treemapSeriesMap: ChartSeriesMap = {
+export const treemapSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     storage: {
         type: 'treemap',
         name: 'Storage',
         custom: {dataId: 'storage'},
+        seriesId: 'storage',
         layoutAlgorithm: 'squarify',
         dataLabels: {enabled: true},
         data: [
@@ -155,11 +162,12 @@ export const treemapSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const waterfallSeriesMap: ChartSeriesMap = {
+export const waterfallSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'monthly-cost': {
         type: 'waterfall',
         name: 'Monthly cost',
         custom: {dataId: 'monthly-cost'},
+        seriesId: 'monthly-cost',
         dataLabels: {enabled: true},
         data: [
             {x: 0, y: 120, label: 'Baseline'},
@@ -172,11 +180,12 @@ export const waterfallSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const sankeySeriesMap: ChartSeriesMap = {
+export const sankeySeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-flow': {
         type: 'sankey',
         name: 'Query flow',
         custom: {dataId: 'query-flow'},
+        seriesId: 'query-flow',
         data: [
             {name: 'Console', links: [{name: 'Parser', value: 44}]},
             {name: 'API', links: [{name: 'Parser', value: 36}]},
@@ -202,11 +211,12 @@ const radarCategories = [
     {key: 'Throughput', maxValue: 100},
 ];
 
-export const radarSeriesMap: ChartSeriesMap = {
+export const radarSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     interactive: {
         type: 'radar',
         name: 'Interactive',
         custom: {dataId: 'interactive'},
+        seriesId: 'interactive',
         categories: radarCategories,
         data: [72, 64, 45, 88, 76].map((value) => ({value})),
     },
@@ -214,16 +224,18 @@ export const radarSeriesMap: ChartSeriesMap = {
         type: 'radar',
         name: 'Batch',
         custom: {dataId: 'batch'},
+        seriesId: 'batch',
         categories: radarCategories,
         data: [86, 91, 82, 48, 94].map((value) => ({value})),
     },
 };
 
-export const heatmapSeriesMap: ChartSeriesMap = {
+export const heatmapSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     activity: {
         type: 'heatmap',
         name: 'Query activity',
         custom: {dataId: 'activity'},
+        seriesId: 'activity',
         dataLabels: {enabled: true},
         data: weekdays.flatMap((_, y) =>
             [0, 1, 2, 3, 4, 5].map((x) => ({
@@ -235,11 +247,12 @@ export const heatmapSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const funnelSeriesMap: ChartSeriesMap = {
+export const funnelSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     optimization: {
         type: 'funnel',
         name: 'Optimization',
         custom: {dataId: 'optimization'},
+        seriesId: 'optimization',
         shape: 'rectangle',
         dataLabels: {enabled: true, inside: true},
         data: [
@@ -252,11 +265,12 @@ export const funnelSeriesMap: ChartSeriesMap = {
     },
 };
 
-export const xRangeSeriesMap: ChartSeriesMap = {
+export const xRangeSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     stages: {
         type: 'x-range',
         name: 'Execution stages',
         custom: {dataId: 'stages'},
+        seriesId: 'stages',
         borderRadius: 3,
         dataLabels: {enabled: true},
         data: [

@@ -1,17 +1,16 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {ChartData, ChartSeries} from '@gravity-ui/charts';
-
+import {ChartSeries} from '@gravity-ui/charts';
 import {Flex, Modal} from '@gravity-ui/uikit';
-import cn from 'bem-cn-lite';
 import {ChartEditor, ChartEditorProps} from '../../modules';
 import {AddChartButton, Chart, Dashboard, DashboardProps} from '../../components';
+import {ChartData} from '../../modules/ChartEditor/types';
 import type {DashboardChartsProps, DashboardItem} from './types';
 import {EmptyDashboardPlaceholder} from './internal/EmptyDashboardPlaceholder';
-import i18n from './i18n';
 import {CHART_TYPE_ICONS} from './helpers/chartTypeIcons';
-
-import './DashboardCharts.scss';
 import {ConfigLayout} from '@gravity-ui/dashkit';
+import i18n from './i18n';
+import cn from 'bem-cn-lite';
+import './DashboardCharts.scss';
 
 const block = cn('qp-dashboard-charts');
 
@@ -69,7 +68,7 @@ export const DashboardCharts = ({
         if (!draftChart) return;
 
         const newChart = {
-            id: draftChart.id ?? crypto.randomUUID().replace('-', ''),
+            id: draftChart.id ?? crypto.randomUUID().replace(/-/g, ''),
             chartData: chart,
         };
 
@@ -89,7 +88,7 @@ export const DashboardCharts = ({
 
             if (!chartSeries) return;
 
-            const selectedDataIds = chart.series.data.map(({custom}) => custom.dataId) as string[];
+            const selectedDataIds = chart.series.data.map((s) => s.seriesId);
 
             setDraftChart({
                 id,
@@ -137,7 +136,12 @@ export const DashboardCharts = ({
                         data={chartData}
                         controlsVisibility="hover"
                         onPencilEdit={() => handleEditChart(id, chartData)}
-                        actions={[{text: 'delete', onClick: () => handleDeleteChart(id)}]}
+                        actions={[
+                            {
+                                text: i18n('action_delete-chart'),
+                                onClick: () => handleDeleteChart(id),
+                            },
+                        ]}
                     />
                 ),
             })),
@@ -165,7 +169,7 @@ export const DashboardCharts = ({
                     disabled={allowedCharts.length === 0}
                 />
 
-                {chartItems ? (
+                {chartItems.length > 0 ? (
                     <Dashboard
                         items={dashboardItems}
                         layout={chartsLayout}

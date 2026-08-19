@@ -19,8 +19,8 @@ export const EmptyDashboardPlaceholder = ({
 
     return (
         <Flex direction="column" centerContent gap={1} className={block('empty')}>
-            {resolvedEmptyTitle ?? <Text variant="subheader-2">{resolvedEmptyTitle}</Text>}
-            {resolvedEmptyDescription ?? <Text color="secondary">{resolvedEmptyDescription}</Text>}
+            <Text variant="subheader-2">{resolvedEmptyTitle}</Text>
+            <Text color="secondary">{resolvedEmptyDescription}</Text>
         </Flex>
     );
 };

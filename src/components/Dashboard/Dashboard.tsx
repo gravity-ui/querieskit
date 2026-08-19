@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import type {Config} from '@gravity-ui/dashkit';
 import type {DashboardProps} from './types';
 import {Flex} from '@gravity-ui/uikit';
@@ -14,6 +14,12 @@ import './Dashboard.scss';
 
 const block = cn('qp-dashboard');
 const DASHBOARD_PLUGIN_TYPE = 'querieskit-dashboard-item';
+
+DashKit.reloadPlugins({
+    type: DASHBOARD_PLUGIN_TYPE,
+    renderer: DashPlate,
+    defaultLayout: {minW: 1, minH: 1},
+});
 
 export const Dashboard = ({
     items,
@@ -31,14 +37,6 @@ export const Dashboard = ({
         setLayout(nextConfig.layout);
         onLayoutChange?.(nextConfig.layout);
     };
-
-    useMemo(() => {
-        DashKit.reloadPlugins({
-            type: DASHBOARD_PLUGIN_TYPE,
-            renderer: DashPlate,
-            defaultLayout: {minW: 1, minH: 1},
-        });
-    }, []);
 
     return (
         <Flex width="100%" height="100%" className={block(null, className)}>

@@ -1,6 +1,7 @@
 {
   "action_add-chart": "Add chart",
   "action_save-chart": "Save",
+  "action_delete-chart": "Delete",
   "context_no-charts": "No charts yet",
   "context_add-first-chart": "Add a chart to start building your dashboard"
 }
