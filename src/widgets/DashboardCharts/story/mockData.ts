@@ -17,7 +17,6 @@ export const lineSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-rate-current': {
         type: 'line',
         name: 'Current week',
-        custom: {dataId: 'query-rate-current'},
         seriesId: 'query-rate-current',
         marker: {enabled: true},
         data: [620, 710, 680, 790, 860, 740, 810].map((y, index) => ({
@@ -28,8 +27,7 @@ export const lineSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-rate-previous': {
         type: 'line',
         name: 'Previous week',
-        custom: {dataId: 'query-rate-previous'},
-        seriesId: 'query-rate-current',
+        seriesId: 'query-rate-previous',
         dashStyle: 'Dash',
         marker: {enabled: false},
         data: [580, 640, 650, 700, 760, 720, 750].map((y, index) => ({
@@ -43,7 +41,6 @@ export const areaSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     interactive: {
         type: 'area',
         name: 'Interactive',
-        custom: {dataId: 'interactive'},
         seriesId: 'interactive',
         stacking: 'normal',
         stackId: 'workload',
@@ -99,7 +96,6 @@ export const scatterSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     cached: {
         type: 'scatter',
         name: 'Cached queries',
-        custom: {dataId: 'cached'},
         seriesId: 'cached',
         data: [
             {x: 8, y: 46, radius: 5},
@@ -113,7 +109,6 @@ export const scatterSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     uncached: {
         type: 'scatter',
         name: 'Uncached queries',
-        custom: {dataId: 'uncached'},
         seriesId: 'uncached',
         symbolType: 'square',
         data: [
@@ -130,7 +125,6 @@ export const scatterSeriesMap: ChartEditorProps['chartSeriesMap'] = {
 export const pieSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-origins': {
         type: 'pie',
-        custom: {dataId: 'query-origins'},
         seriesId: 'query-origins',
         innerRadius: '55%',
         dataLabels: {enabled: true},
@@ -147,7 +141,6 @@ export const treemapSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     storage: {
         type: 'treemap',
         name: 'Storage',
-        custom: {dataId: 'storage'},
         seriesId: 'storage',
         layoutAlgorithm: 'squarify',
         dataLabels: {enabled: true},
@@ -166,7 +159,6 @@ export const waterfallSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'monthly-cost': {
         type: 'waterfall',
         name: 'Monthly cost',
-        custom: {dataId: 'monthly-cost'},
         seriesId: 'monthly-cost',
         dataLabels: {enabled: true},
         data: [
@@ -184,7 +176,6 @@ export const sankeySeriesMap: ChartEditorProps['chartSeriesMap'] = {
     'query-flow': {
         type: 'sankey',
         name: 'Query flow',
-        custom: {dataId: 'query-flow'},
         seriesId: 'query-flow',
         data: [
             {name: 'Console', links: [{name: 'Parser', value: 44}]},
@@ -215,7 +206,6 @@ export const radarSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     interactive: {
         type: 'radar',
         name: 'Interactive',
-        custom: {dataId: 'interactive'},
         seriesId: 'interactive',
         categories: radarCategories,
         data: [72, 64, 45, 88, 76].map((value) => ({value})),
@@ -223,7 +213,6 @@ export const radarSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     batch: {
         type: 'radar',
         name: 'Batch',
-        custom: {dataId: 'batch'},
         seriesId: 'batch',
         categories: radarCategories,
         data: [86, 91, 82, 48, 94].map((value) => ({value})),
@@ -234,7 +223,6 @@ export const heatmapSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     activity: {
         type: 'heatmap',
         name: 'Query activity',
-        custom: {dataId: 'activity'},
         seriesId: 'activity',
         dataLabels: {enabled: true},
         data: weekdays.flatMap((_, y) =>
@@ -251,7 +239,6 @@ export const funnelSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     optimization: {
         type: 'funnel',
         name: 'Optimization',
-        custom: {dataId: 'optimization'},
         seriesId: 'optimization',
         shape: 'rectangle',
         dataLabels: {enabled: true, inside: true},
@@ -269,7 +256,6 @@ export const xRangeSeriesMap: ChartEditorProps['chartSeriesMap'] = {
     stages: {
         type: 'x-range',
         name: 'Execution stages',
-        custom: {dataId: 'stages'},
         seriesId: 'stages',
         borderRadius: 3,
         dataLabels: {enabled: true},

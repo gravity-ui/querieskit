@@ -17,11 +17,6 @@
         overflow: hidden;
     }
 
-    &__editor {
-        min-width: 720px;
-        min-height: 440px;
-    }
-
     &__empty {
         min-height: 320px;
         border: 1px dashed var(--g-color-line-generic);
