@@ -1,7 +1,7 @@
-import type {ChartData, ChartSeries} from '@gravity-ui/charts';
+import type {ChartData} from '@gravity-ui/charts';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
 import type {ChartEditorProps} from '../../../modules';
-
+import type {ChartSeries} from '../../../modules/ChartEditor/types';
 import type {DashboardChartsProps} from '../types';
 
 type DashboardChartItem = NonNullable<DashboardChartsProps['chartItems']>[number];
@@ -324,7 +324,7 @@ export const allChartTypesDataSource: DashboardChartsProps['dataSource'] = {
 function createChartItem(
     id: string,
     title: string,
-    series: ChartSeries<{dataId: string}>[],
+    series: ChartSeries[],
     options: Omit<ChartData<{dataId: string}>, 'series' | 'title'> = {},
 ): DashboardChartItem {
     return {

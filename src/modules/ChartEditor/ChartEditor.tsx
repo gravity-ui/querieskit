@@ -1,11 +1,11 @@
 import React, {useMemo, useState} from 'react';
-import {Chart, ChartData, ChartSeries} from '@gravity-ui/charts';
+import {Chart} from '@gravity-ui/charts';
 import {Box, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
 import {ChartEditorForm} from '../../components/ChartEditorForm';
 import type {ChartEditorFormProps} from '../../components/ChartEditorForm';
-import type {ChartEditorProps} from './types';
+import type {ChartData, ChartEditorProps, ChartSeries} from './types';
 import i18n from './i18n';
 
 import './ChartEditor.scss';

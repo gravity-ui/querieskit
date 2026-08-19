@@ -1,4 +1,5 @@
-import type {ChartAxisType, ChartSeries} from '@gravity-ui/charts';
+import type {ChartAxisType} from '@gravity-ui/charts';
+import type {ChartSeries} from '../types';
 
 type ChartSeriesMap = Record<string, ChartSeries>;
 
@@ -32,6 +33,7 @@ export const lineSeriesMap: ChartSeriesMap = {
     'Response time': {
         type: 'line',
         name: 'Response time',
+        seriesId: 'response-time',
         data: aLineCords,
         marker: {enabled: false},
     },
@@ -41,12 +43,14 @@ export const multiLineSeriesMap: ChartSeriesMap = {
     'Current week': {
         type: 'line',
         name: 'Current week',
+        seriesId: 'current-week',
         data: [42, 48, 45, 61, 58, 72, 68].map((y, x) => ({x: x + 1, y})),
         marker: {enabled: true},
     },
     'Previous week': {
         type: 'line',
         name: 'Previous week',
+        seriesId: 'previous-week',
         data: [38, 43, 49, 52, 55, 60, 63].map((y, x) => ({x: x + 1, y})),
         dashStyle: 'Dash',
         marker: {enabled: true},
@@ -54,6 +58,7 @@ export const multiLineSeriesMap: ChartSeriesMap = {
     Target: {
         type: 'line',
         name: 'Target',
+        seriesId: 'target',
         data: [50, 50, 50, 55, 55, 65, 65].map((y, x) => ({x: x + 1, y})),
         dashStyle: 'Dot',
         marker: {enabled: false},
@@ -67,6 +72,7 @@ export const timeSeriesMap: ChartSeriesMap = {
     'Requests per minute': {
         type: 'area',
         name: 'Requests per minute',
+        seriesId: 'requests-per-minute',
         data: [120, 180, 165, 240, 310, 285, 360, 330, 390, 350, 300, 260].map((y, index) => ({
             x: timeSeriesStart + index * hour,
             y,
@@ -81,6 +87,7 @@ export const stackedAreaSeriesMap: ChartSeriesMap = {
         name: 'Organic',
         stacking: 'normal',
         stackId: 'traffic',
+        seriesId: 'Organic',
         data: [180, 210, 195, 240, 265, 290, 310].map((y, x) => ({x: x + 1, y})),
     },
     Advertising: {
@@ -88,6 +95,7 @@ export const stackedAreaSeriesMap: ChartSeriesMap = {
         name: 'Advertising',
         stacking: 'normal',
         stackId: 'traffic',
+        seriesId: 'Advertising',
         data: [80, 95, 120, 110, 140, 155, 170].map((y, x) => ({x: x + 1, y})),
     },
     Referrals: {
@@ -95,6 +103,7 @@ export const stackedAreaSeriesMap: ChartSeriesMap = {
         name: 'Referrals',
         stacking: 'normal',
         stackId: 'traffic',
+        seriesId: 'Referrals',
         data: [45, 52, 48, 65, 72, 68, 84].map((y, x) => ({x: x + 1, y})),
     },
 };
@@ -105,6 +114,7 @@ export const groupedColumnsSeriesMap: ChartSeriesMap = {
         name: 'Desktop',
         borderRadius: 3,
         dataLabels: {enabled: true},
+        seriesId: 'Desktop',
         data: [420, 510, 590, 640, 710, 760].map((y, x) => ({x: x + 1, y})),
     },
     Mobile: {
@@ -112,6 +122,7 @@ export const groupedColumnsSeriesMap: ChartSeriesMap = {
         name: 'Mobile',
         borderRadius: 3,
         dataLabels: {enabled: true},
+        seriesId: 'Mobile',
         data: [310, 390, 460, 520, 610, 690].map((y, x) => ({x: x + 1, y})),
     },
 };
@@ -122,6 +133,7 @@ export const horizontalBarsSeriesMap: ChartSeriesMap = {
         name: 'Completed tasks',
         borderRadius: 3,
         dataLabels: {enabled: true},
+        seriesId: 'Completed-tasks',
         data: [92, 78, 67, 54, 41].map((x, y) => ({x, y: y + 1})),
     },
 };
@@ -138,6 +150,7 @@ export const scatterSeriesMap: ChartSeriesMap = {
             {x: 46, y: 210, radius: 6},
             {x: 58, y: 245, radius: 8},
         ],
+        seriesId: 'Cached-queries',
     },
     'Uncached queries': {
         type: 'scatter',
@@ -151,6 +164,7 @@ export const scatterSeriesMap: ChartSeriesMap = {
             {x: 49, y: 410, radius: 7},
             {x: 62, y: 490, radius: 9},
         ],
+        seriesId: 'Uncached-queries',
     },
 };
 
@@ -165,6 +179,7 @@ export const donutSeriesMap: ChartSeriesMap = {
             {name: 'Referrals', value: 18, label: '18%'},
             {name: 'Social', value: 13, label: '13%'},
         ],
+        seriesId: 'Traffic-sources',
     },
 };
 
@@ -174,6 +189,7 @@ export const mixedSeriesMap: ChartSeriesMap = {
         name: 'Orders',
         borderRadius: 3,
         data: [34, 46, 41, 55, 62, 68, 74].map((y, x) => ({x: x + 1, y})),
+        seriesId: 'Orders',
     },
     Plan: {
         type: 'line',
@@ -182,6 +198,7 @@ export const mixedSeriesMap: ChartSeriesMap = {
         lineWidth: 2,
         marker: {enabled: true},
         data: [40, 44, 48, 52, 60, 66, 72].map((y, x) => ({x: x + 1, y})),
+        seriesId: 'Plan',
     },
 };
 
@@ -190,6 +207,7 @@ export const logarithmicSeriesMap: ChartSeriesMap = {
         type: 'line',
         name: 'Execution time',
         marker: {enabled: true},
+        seriesId: 'Execution-time',
         data: [
             {x: 1, y: 18},
             {x: 10, y: 32},
