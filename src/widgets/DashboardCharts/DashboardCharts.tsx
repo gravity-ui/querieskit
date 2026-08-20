@@ -27,7 +27,11 @@ export const DashboardCharts = ({
     className,
     gap = 1,
 }: DashboardChartsProps) => {
-    const [chartItems, setChartItems] = useState<DashboardItem[]>(customerChartsItems ?? []);
+    const [innerChartItems, setInnerChartItems] = useState<DashboardItem[]>(
+        customerChartsItems ?? [],
+    );
+
+    const chartItems = customerChartsItems ?? innerChartItems;
 
     const [draftChart, setDraftChart] = useState<{
         id?: string;
@@ -73,7 +77,7 @@ export const DashboardCharts = ({
             : [...chartItems, newChart];
 
         setDraftChart(null);
-        setChartItems(actualChartItems);
+        setInnerChartItems(actualChartItems);
         onItemsChange?.(actualChartItems);
     };
 
@@ -107,7 +111,7 @@ export const DashboardCharts = ({
         (id: string) => {
             const newChartItems = chartItems.filter((item) => item.id !== id);
 
-            setChartItems(newChartItems);
+            setInnerChartItems(newChartItems);
 
             onItemsChange?.(newChartItems);
         },
