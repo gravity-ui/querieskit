@@ -1,0 +1,25 @@
+.qp-breadcrumbs {
+    $self: &;
+
+    min-width: 0;
+
+    &__list {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__path-editor {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__edit-button {
+        display: none;
+    }
+
+    &:hover {
+        #{$self}__edit-button {
+            display: block;
+        }
+    }
+}

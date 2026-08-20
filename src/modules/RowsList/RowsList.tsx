@@ -1,5 +1,4 @@
 import React from 'react';
-import {List} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {
     BaseHistoryRow,
@@ -11,7 +10,7 @@ import {
     QueryHistoryRowVariant,
     QueryHistoryVisibleFieldsConfig,
 } from '../../types/history';
-import {HistoryListEmpty} from '../../components';
+import {EmptyContent, LazyList} from '../../components';
 import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../../constants/row';
 import './RowsList.scss';
@@ -59,18 +58,19 @@ export const RowsList = <T extends BaseHistoryRow>({
     };
 
     if (!items.length) {
-        return <HistoryListEmpty showFiltersHint={showFiltersHint} className={className} />;
+        return (
+            <EmptyContent
+                variant={showFiltersHint ? 'nothing-found' : 'no-files'}
+                className={className}
+            />
+        );
     }
 
     return (
-        <List
+        <LazyList<QueryHistoryItem<T>>
             className={block(null, className)}
-            filterable={false}
             items={items}
             itemHeight={getItemHeight}
-            itemsHeight={(listItems) =>
-                listItems.reduce((totalHeight, item) => totalHeight + getItemHeight(item), 0)
-            }
             renderItem={(item, isActive, index) =>
                 renderRow(
                     prepareRowData({

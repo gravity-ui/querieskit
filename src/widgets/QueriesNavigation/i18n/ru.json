@@ -1,0 +1,10 @@
+{
+    "title_name": "Название",
+    "alert_load-error": "Не удалось загрузить данные",
+    "field_search-placeholder": "Поиск",
+    "tab_schema": "Схема",
+    "tab_preview": "Превью",
+    "tab_meta": "Мета",
+    "tab_view": "Просмотр",
+    "field_detail-search-placeholder": "Поиск"
+}

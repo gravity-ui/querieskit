@@ -1,0 +1,12 @@
+.qp-navigation-detail {
+  min-width: 0;
+
+  &__tabs {
+    overflow-x: auto;
+  }
+
+  &__content {
+    min-width: 0;
+    overflow: auto;
+  }
+}

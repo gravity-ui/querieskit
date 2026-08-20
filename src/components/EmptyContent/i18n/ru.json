@@ -1,4 +1,6 @@
 {
     "title_nothing-found": "Ничего не найдено",
+    "title_no-files": "Нет файлов",
+    "title_no-clusters": "Нет кластеров",
     "context_try-change-filters": "Попробуйте изменить фильтры"
 }
