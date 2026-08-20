@@ -1,0 +1,18 @@
+.qp-dashboard-story {
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: var(--g-spacing-4);
+    background: var(--g-color-base-background);
+
+    &__header {
+        margin-bottom: var(--g-spacing-4);
+    }
+
+    &__dashboard {
+        width: 100%;
+
+        &_narrow {
+            max-width: 520px;
+        }
+    }
+}

@@ -14,6 +14,22 @@ export {SearchWithButtons} from './SearchWithButtons';
 export type {SearchWithButtonsProps} from './SearchWithButtons';
 export {MonacoEditor} from './MonacoEditor';
 export type {MonacoEditorConfig} from './MonacoEditor';
+export {AddChartButton, DEFAULT_ADD_CHART_BUTTON_OPTIONS} from './AddChartButton';
+export type {
+    AddChartButtonOption,
+    AddChartButtonProps,
+    DefaultAddChartButtonValue,
+} from './AddChartButton';
+export {ChartEditorForm} from './ChartEditorForm';
+export type {
+    ChartEditorFormProps,
+    ChartEditorFormValues,
+    ChartEditorLabels,
+    ChartEditorOption,
+} from './ChartEditorForm';
+export * from './Dashboard';
+export {Chart} from './Chart';
+export type {ChartAction, ChartProps} from './Chart';
 export {
     MonacoLanguage,
     YT_DARK_HC_MONACO_THEME,

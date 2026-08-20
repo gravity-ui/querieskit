@@ -7,6 +7,7 @@ export {HistoryRow} from './HistoryRow';
 export {HistoryList} from './HistoryList';
 export type {HistoryListProps} from './HistoryList';
 export {HistorySearchRow} from './HistorySearchRow';
+export * from './ChartEditor';
 export {TutorialRow} from './TutorialRow';
 export type {TutorialRowProps} from './TutorialRow';
 export {TutorialSearchRow} from './TutorialSearchRow';

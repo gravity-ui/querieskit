@@ -1,0 +1,7 @@
+{
+  "action_add-chart": "Добавить график",
+  "action_save-chart": "Сохранить",
+  "action_delete-chart": "Удалить",
+  "context_no-charts": "Графиков пока нет",
+  "context_add-first-chart": "Добавьте график, чтобы начать собирать дашборд"
+}
