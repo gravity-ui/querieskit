@@ -3,14 +3,14 @@ import type {ConfigLayout, ReactGridLayoutProps} from '@gravity-ui/dashkit';
 
 export type DashboardItemAppearance = 'card' | 'plain';
 
-export type DashboardItem = {
+export type DashboardRenderItem = {
     id: string;
     content: ReactNode;
 };
 
 export type DashboardProps = {
-    items: DashboardItem[];
-    layout?: ConfigLayout[];
+    items: DashboardRenderItem[];
+    defaultLayout?: ConfigLayout[];
     grid?: ReactGridLayoutProps;
     focusable?: boolean;
     className?: string;

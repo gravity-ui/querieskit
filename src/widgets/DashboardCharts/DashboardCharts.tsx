@@ -2,7 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {ChartSeries} from '@gravity-ui/charts';
 import {Flex, Modal} from '@gravity-ui/uikit';
 import {ChartEditor, ChartEditorProps} from '../../modules';
-import {AddChartButton, Chart, Dashboard, DashboardProps} from '../../components';
+import {AddChartButton, Chart, Dashboard} from '../../components';
 import {ChartData} from '../../modules/ChartEditor/types';
 import type {DashboardChartsProps, DashboardItem} from './types';
 import {EmptyDashboardPlaceholder} from './internal/EmptyDashboardPlaceholder';
@@ -16,7 +16,7 @@ const block = cn('qp-dashboard-charts');
 
 export const DashboardCharts = ({
     chartItems: customerChartsItems,
-    chartsLayout: customerChartsLayout,
+    defaultLayout,
     dataSource,
     emptyTitle,
     emptyDescription,
@@ -28,10 +28,6 @@ export const DashboardCharts = ({
     gap = 1,
 }: DashboardChartsProps) => {
     const [chartItems, setChartItems] = useState<DashboardItem[]>(customerChartsItems ?? []);
-
-    const [chartsLayout, setChartsLayout] = useState<DashboardProps['layout']>(
-        customerChartsLayout ?? [],
-    );
 
     const [draftChart, setDraftChart] = useState<{
         id?: string;
@@ -110,19 +106,15 @@ export const DashboardCharts = ({
     const handleDeleteChart = useCallback(
         (id: string) => {
             const newChartItems = chartItems.filter((item) => item.id !== id);
-            const newChartsLayout = chartsLayout?.filter(({i}) => i !== id) ?? [];
 
             setChartItems(newChartItems);
-            setChartsLayout(newChartsLayout);
 
             onItemsChange?.(newChartItems);
-            onLayoutChange?.(newChartsLayout);
         },
-        [chartItems, chartsLayout, onItemsChange, onLayoutChange],
+        [chartItems, onItemsChange],
     );
 
     const handleLayoutChange = (patchedLayout: ConfigLayout[]) => {
-        setChartsLayout(patchedLayout);
         onLayoutChange?.(patchedLayout);
     };
 
@@ -172,7 +164,7 @@ export const DashboardCharts = ({
                 {chartItems.length > 0 ? (
                     <Dashboard
                         items={dashboardItems}
-                        layout={chartsLayout}
+                        defaultLayout={defaultLayout}
                         onLayoutChange={handleLayoutChange}
                         className={block('dashboard')}
                         {...dashboardProps}

@@ -23,7 +23,7 @@ export type DashboardChartsProps = {
     dashboardProps?: Pick<DashboardProps, 'grid' | 'focusable' | 'className'>;
 
     chartItems?: DashboardItem[];
-    chartsLayout?: ConfigLayout[];
+    defaultLayout?: DashboardProps['defaultLayout'];
 
     onItemsChange?: (items: DashboardItem[]) => void;
     onLayoutChange?: (layout: ConfigLayout[]) => void;

@@ -5,8 +5,6 @@ import {Flex} from '@gravity-ui/uikit';
 import {DRAG_HANDLE_CLASSNAME, DashPlate} from './internal/DashPlate';
 import {DashboardProvider} from './internal/DashboardProvider';
 import {DashKit} from '@gravity-ui/dashkit';
-import {useLayoutState} from './hooks/useLayoutState';
-import {useGridState} from './hooks/useGridState';
 import {useDashboardConfig} from './hooks/useDashboardConfig';
 import cn from 'bem-cn-lite';
 
@@ -23,18 +21,15 @@ DashKit.reloadPlugins({
 
 export const Dashboard = ({
     items,
-    layout: customerLayoutState,
+    defaultLayout,
     grid: customerGridState,
     focusable = false,
     className,
     onLayoutChange,
 }: DashboardProps) => {
-    const {gridProps, gridGroups} = useGridState(customerGridState);
-    const {layout, setLayout} = useLayoutState(items, gridProps.cols, customerLayoutState);
-    const config = useDashboardConfig(items, layout);
+    const {config, gridGroups} = useDashboardConfig(items, customerGridState, defaultLayout);
 
     const handleChange = ({config: nextConfig}: {config: Config}) => {
-        setLayout(nextConfig.layout);
         onLayoutChange?.(nextConfig.layout);
     };
 
