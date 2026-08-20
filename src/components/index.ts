@@ -27,8 +27,7 @@ export type {
     ChartEditorLabels,
     ChartEditorOption,
 } from './ChartEditorForm';
-export {Dashboard} from './Dashboard';
-export type {DashboardItem, DashboardItemAppearance, DashboardProps} from './Dashboard';
+export * from './Dashboard';
 export {Chart} from './Chart';
 export type {ChartAction, ChartProps} from './Chart';
 export {

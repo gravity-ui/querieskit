@@ -52,7 +52,7 @@ export const CommonCharts: Story = {
     args: {
         dataSource: commonChartsDataSource,
         chartItems: commonChartItems,
-        chartsLayout: commonChartsLayout,
+        defaultLayout: commonChartsLayout,
         dashboardProps: {
             grid: {cols: 6, rowHeight: 72, gap: 12, compactType: 'vertical'},
             focusable: true,
@@ -68,7 +68,7 @@ export const AdvancedCharts: Story = {
     args: {
         dataSource: advancedChartsDataSource,
         chartItems: advancedChartItems,
-        chartsLayout: advancedChartsLayout,
+        defaultLayout: advancedChartsLayout,
         dashboardProps: {
             grid: {cols: 8, rowHeight: 72, gap: 12, compactType: 'vertical'},
             focusable: true,

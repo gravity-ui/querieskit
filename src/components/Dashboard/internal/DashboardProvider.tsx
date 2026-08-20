@@ -1,15 +1,15 @@
 import React, {createContext, useContext, useMemo} from 'react';
-import type {DashboardItem} from '../types';
+import type {DashboardRenderItem} from '../types';
 
 type DashboardContextValue = {
-    items: DashboardItem[];
-    getItem: (id: string) => DashboardItem | undefined;
+    items: DashboardRenderItem[];
+    getItem: (id: string) => DashboardRenderItem | undefined;
 };
 
 const DashboardContext = createContext<DashboardContextValue | null>(null);
 
 type DashboardProviderProps = {
-    items: DashboardItem[];
+    items: DashboardRenderItem[];
     children: React.ReactNode;
 };
 

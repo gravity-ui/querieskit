@@ -6,7 +6,7 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
 
 import {Dashboard} from './Dashboard';
-import type {DashboardItem} from './types';
+import type {DashboardRenderItem} from './types';
 
 import './Dashboard.stories.scss';
 
@@ -44,7 +44,7 @@ const latencyChart: ChartData = {
     },
 };
 
-const baseItems: DashboardItem[] = [
+const baseItems: DashboardRenderItem[] = [
     {id: 'errors', content: <Chart data={errorsChart} />},
     {id: 'latency', content: <Chart data={latencyChart} />},
     {
@@ -58,7 +58,7 @@ const baseItems: DashboardItem[] = [
     },
 ];
 
-const operationalItems: DashboardItem[] = [
+const operationalItems: DashboardRenderItem[] = [
     ...baseItems,
     {
         id: 'requests',
@@ -190,7 +190,7 @@ function ControlledLayoutStory() {
         >
             <Dashboard
                 items={operationalItems}
-                layout={layout}
+                defaultLayout={layout}
                 onLayoutChange={(nextLayout) => {
                     setLayout(nextLayout);
                     action('onLayoutChange')(nextLayout);
