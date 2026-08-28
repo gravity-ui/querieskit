@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.1.0](https://github.com/gravity-ui/querieskit/compare/v1.0.4...v1.1.0) (2026-08-28)
+
+
+### Features
+
+* add icons for new graphs ([0252880](https://github.com/gravity-ui/querieskit/commit/0252880ff89c2c3d1edfc725308785212fdf380d))
+* add possible control chartItems state outside DashboardCharts ([a3e2884](https://github.com/gravity-ui/querieskit/commit/a3e288435bc474652b80a2da65c3b4639aaf5c3e))
+* init DashboardCharts ([1d166a8](https://github.com/gravity-ui/querieskit/commit/1d166a8d106ae03e6005acea254f1572a42ebc36))
+* init DashboardCharts ([806147a](https://github.com/gravity-ui/querieskit/commit/806147aefe39220f37fed27e95821e1a680e5f57))
+* refactor component Dashboard ([42eceff](https://github.com/gravity-ui/querieskit/commit/42ecefff63e054d2048f882f732c1382a9086e1f))
+* **UI:** add common search component [YTFRONT-5935] ([a21c39e](https://github.com/gravity-ui/querieskit/commit/a21c39e5ea4373bc871db1d50803da2dc53223ea))
+* **UI:** navigation [YTFRONT-5935] ([cd83b36](https://github.com/gravity-ui/querieskit/commit/cd83b36377f3dce6fae1c62dc1377411b45620c7))
+
+
+### Bug Fixes
+
+* fix i18n in DashboardCharts ([9ebc11a](https://github.com/gravity-ui/querieskit/commit/9ebc11ad1b11825908b197d7caf7cb4ccaf6dca2))
+* fix opening chart ([9988324](https://github.com/gravity-ui/querieskit/commit/99883243d6102222555a6bfb29164bff3df6d2ad))
+* fix TS types errors ([bd9cff7](https://github.com/gravity-ui/querieskit/commit/bd9cff7f33924dcea598967df8eb6b36b3e5c1f7))
+* fix types ([2b23ff7](https://github.com/gravity-ui/querieskit/commit/2b23ff7f4c79f320c9222311e5b15fcd448f2958))
+* **History:** wrong paddings [YTFRONT-5935] ([fb1b815](https://github.com/gravity-ui/querieskit/commit/fb1b815f7bda61d66de5393c67ad7565df344946))
+
 ## [1.0.4](https://github.com/gravity-ui/querieskit/compare/v1.0.3...v1.0.4) (2026-08-12)
 
 
