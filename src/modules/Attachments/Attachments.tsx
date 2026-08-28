@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
-import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider} from '@gravity-ui/uikit';
+import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider, Text} from '@gravity-ui/uikit';
 import {AttachmentList, AttachmentListPlaceholder, EditAttachmentItem} from '../../components';
 import {createUuid} from '../../helpers/createUuid';
+import {isObjectEqual} from '../../helpers/isObjectEqual';
+import {omitKeys} from '../../helpers/omitKeys';
 import {Plus} from '@gravity-ui/icons';
 import type {
     AttachmentItemProps,
@@ -49,31 +51,90 @@ export const Attachments = ({
     const attachList = customerAttachments ?? innerAttachList;
     const deletedAttachList = customerDeletedAttachments ?? innerDeletedAttachList;
 
+    const getDefaultValuesForLink = (linkId: string) => {
+        const currentLink = attachList.find((a) => a.id === linkId);
+        return {
+            name: currentLink?.name ?? '',
+            link: currentLink?.link ?? '',
+            token: currentLink?.token ?? '',
+        };
+    };
+
     const handleAddEmptyFile = () => {
         const id = createUuid();
 
+        const patchAttachList = [...innerAttachList, {id, name: ''}];
+
+        setInnerAttachList(patchAttachList);
         setWasAddedIds([...wasAddedIds, id]);
-        setInnerAttachList([...innerAttachList, {id, name: ''}]);
         setEditingIds([...editingIds, id]);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: deletedAttachList,
+        });
     };
 
     const handleAddEmptyLink = () => {
         const id = createUuid();
 
+        const patchAttachList = [...innerAttachList, {id, name: '', token: '', link: ''}];
+
+        setInnerAttachList(patchAttachList);
         setWasAddedIds([...wasAddedIds, id]);
-        setInnerAttachList([...innerAttachList, {id, name: '', token: '', link: ''}]);
         setEditingIds([...editingIds, id]);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: deletedAttachList,
+        });
     };
 
     const handleAcceptFile = (fileId: string, fileName: string) => {
+        const patchedFile = attachList.find((a) => a.id === fileId);
+        if (!patchedFile) return;
+
+        const patchEditingIds = editingIds.filter((id) => id !== fileId);
         const patchAttachList = attachList.map((attach) => {
             if (attach.id === fileId) return {...attach, name: fileName};
             return attach;
         });
-        const patchEditingIds = editingIds.filter((id) => id !== fileId);
 
-        setInnerAttachList(patchAttachList);
+        const isNewItem = wasAddedIds.includes(fileId);
+
+        const patchedWasEditedIds =
+            patchedFile.name === fileName || isNewItem ? wasEdited : [...wasEdited, fileId];
+
+        setWasEditedIds(patchedWasEditedIds);
         setEditingIds(patchEditingIds);
+        setInnerAttachList(patchAttachList);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: deletedAttachList,
+        });
+    };
+
+    const handleAcceptLink = (linkId: string, link: EditLinkValues) => {
+        const patchedLink = attachList.find((a) => a.id === linkId);
+        if (!patchedLink) return;
+
+        const patchEditingIds = editingIds.filter((id) => id !== linkId);
+        const patchAttachList = attachList.map((attach) => {
+            if (attach.id === linkId) return {...attach, ...link};
+            return attach;
+        });
+
+        const isNewItem = wasAddedIds.includes(linkId);
+
+        const patchedWasEditedIds =
+            isNewItem || isObjectEqual(omitKeys(patchedLink, ['id']), link)
+                ? wasEdited
+                : [...wasEdited, linkId];
+
+        setWasEditedIds(patchedWasEditedIds);
+        setEditingIds(patchEditingIds);
+        setInnerAttachList(patchAttachList);
 
         onChange?.({
             attachments: patchAttachList,
@@ -83,20 +144,7 @@ export const Attachments = ({
 
     const handleCancelEditFile = (fileId: string) => {
         const patchEditingIds = editingIds.filter((id) => id !== fileId);
-        const pathAttachList = attachList.filter((attach) => Boolean(attach.name));
-
-        setInnerAttachList(pathAttachList);
-        setEditingIds(patchEditingIds);
-    };
-
-    const handleAcceptLink = (linkId: string, link: EditLinkValues) => {
-        const patchAttachList = attachList.map((attach) => {
-            if (attach.id === linkId) {
-                return {...attach, ...link};
-            }
-            return attach;
-        });
-        const patchEditingIds = editingIds.filter((id) => id !== linkId);
+        const patchAttachList = attachList.filter((attach) => Boolean(attach.name));
 
         setInnerAttachList(patchAttachList);
         setEditingIds(patchEditingIds);
@@ -109,12 +157,8 @@ export const Attachments = ({
 
     const handleEdit = (editAttachId: string) => {
         const patchEditingIds = [...editingIds, editAttachId];
-        const patchWasEditedIds = wasAddedIds.includes(editAttachId)
-            ? wasEdited
-            : [...wasEdited, editAttachId];
 
         setEditingIds(patchEditingIds);
-        setWasEditedIds(patchWasEditedIds);
     };
 
     const handleDelete = (attachId: string) => {
@@ -164,21 +208,22 @@ export const Attachments = ({
         });
     };
 
-    const getDefaultValuesForLink = (linkId: string) => {
-        const currentLink = attachList.find((a) => a.id === linkId);
-        return {
-            name: currentLink?.name ?? '',
-            link: currentLink?.link ?? '',
-            token: currentLink?.token ?? '',
-        };
-    };
-
     return (
         <Flex className={block()} direction="column" width="100%" height="100%">
             <TabProvider value={currentTab} onUpdate={(tab) => setCurrentTab(tab as TabVariants)}>
                 <TabList>
-                    <Tab value="Current" content="Current 0"></Tab>
-                    <Tab value="Deleted" content="Deleted 0"></Tab>
+                    <Tab className={block('tab')} value="Current">
+                        <Text variant="body-1">Current</Text>
+                        <Text color="hint" variant="body-1">
+                            {attachList.length}
+                        </Text>
+                    </Tab>
+                    <Tab className={block('tab')} value="Deleted">
+                        <Text variant="body-1">Deleted</Text>
+                        <Text color="hint" variant="body-1">
+                            {deletedAttachList.length}
+                        </Text>
+                    </Tab>
                 </TabList>
 
                 <TabPanel className={block('panel')} value="Current">
