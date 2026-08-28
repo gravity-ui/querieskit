@@ -2,12 +2,12 @@
   .g-list__item_selected:hover {
     background-color: var(--g-color-base-selection-hover);
   }
-}
 
-.qp-lazy-list__sentinel {
-  height: 1px;
-}
+  &__sentinel {
+    height: 1px;
+  }
 
-.qp-lazy-list__spinner {
-  height: 100%;
+  &__spinner {
+    height: 100%;
+  }
 }
