@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider, Text} from '@gravity-ui/uikit';
 import {AttachmentList, AttachmentListPlaceholder, EditAttachmentItem} from '../../components';
 import {createUuid} from '../../helpers/createUuid';
 import {isObjectEqual} from '../../helpers/isObjectEqual';
-import {omitKeys} from '../../helpers/omitKeys';
 import {Plus} from '@gravity-ui/icons';
 import type {
     AttachmentItemProps,
@@ -16,9 +15,9 @@ import './Attachments.scss';
 
 type TabVariants = 'Current' | 'Deleted';
 
-type AttachItem = AttachmentItemProps['attachment'] & {token?: string};
+export type AttachItem = AttachmentItemProps['attachment'] & {token?: string};
 
-type AttachmentsProps = {
+export type AttachmentsProps = {
     tokens?: {value: string; title: string}[];
     placeholderProps?: Omit<AttachmentListPlaceholderProps, 'onAddFile' | 'onAddLink'>;
     attachmentListProps?: Pick<AttachmentListProps, 'className'>;
@@ -51,6 +50,8 @@ export const Attachments = ({
     const attachList = customerAttachments ?? innerAttachList;
     const deletedAttachList = customerDeletedAttachments ?? innerDeletedAttachList;
 
+    const oldAttachList = useRef(attachList);
+
     const getDefaultValuesForLink = (linkId: string) => {
         const currentLink = attachList.find((a) => a.id === linkId);
         return {
@@ -58,6 +59,18 @@ export const Attachments = ({
             link: currentLink?.link ?? '',
             token: currentLink?.token ?? '',
         };
+    };
+
+    const handleUpdateEditedState = (attachId: string, newAttach: AttachItem) => {
+        const patchAttach = oldAttachList.current.find((a) => a.id === attachId);
+        if (!patchAttach) return;
+        const isNewAttach = wasAddedIds.includes(attachId);
+        if (isNewAttach) return;
+        if (isObjectEqual(patchAttach, newAttach)) {
+            setWasEditedIds(wasEdited.filter((id) => id !== attachId));
+            return;
+        }
+        setWasEditedIds([...wasEdited, attachId]);
     };
 
     const handleAddEmptyFile = () => {
@@ -100,12 +113,6 @@ export const Attachments = ({
             return attach;
         });
 
-        const isNewItem = wasAddedIds.includes(fileId);
-
-        const patchedWasEditedIds =
-            patchedFile.name === fileName || isNewItem ? wasEdited : [...wasEdited, fileId];
-
-        setWasEditedIds(patchedWasEditedIds);
         setEditingIds(patchEditingIds);
         setInnerAttachList(patchAttachList);
 
@@ -113,6 +120,8 @@ export const Attachments = ({
             attachments: patchAttachList,
             deletedAttachments: deletedAttachList,
         });
+
+        handleUpdateEditedState(fileId, {id: fileId, name: fileName});
     };
 
     const handleAcceptLink = (linkId: string, link: EditLinkValues) => {
@@ -125,14 +134,6 @@ export const Attachments = ({
             return attach;
         });
 
-        const isNewItem = wasAddedIds.includes(linkId);
-
-        const patchedWasEditedIds =
-            isNewItem || isObjectEqual(omitKeys(patchedLink, ['id']), link)
-                ? wasEdited
-                : [...wasEdited, linkId];
-
-        setWasEditedIds(patchedWasEditedIds);
         setEditingIds(patchEditingIds);
         setInnerAttachList(patchAttachList);
 
@@ -140,6 +141,8 @@ export const Attachments = ({
             attachments: patchAttachList,
             deletedAttachments: deletedAttachList,
         });
+
+        handleUpdateEditedState(linkId, {id: linkId, ...link});
     };
 
     const handleCancelEditFile = (fileId: string) => {
