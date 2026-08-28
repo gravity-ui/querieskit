@@ -28,11 +28,7 @@ export const NavigationItemsListHeader: FC<NavigationItemsListHeaderProps> = ({
     className,
 }) => {
     if (!onSortUpdate) {
-        return (
-            <Flex alignItems="center" className={block(null, className)}>
-                <Text>{titleLabel}</Text>
-            </Flex>
-        );
+        return null;
     }
 
     const handleClick = () => {
