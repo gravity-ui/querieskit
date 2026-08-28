@@ -1,0 +1,9 @@
+.file-item {
+    &_isAdded {
+        background-color: var(--g-color-base-positive-light);
+    }
+
+    &_isEdit {
+        background-color: var(--g-color-base-info-light);
+    }
+}

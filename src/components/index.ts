@@ -39,3 +39,5 @@ export {
     MONACO_THEME_BY_UI,
 } from './MonacoEditor';
 export type {MonacoThemeName} from './MonacoEditor';
+export {FileList} from './FileList';
+export type {FileListProps} from './FileList';
