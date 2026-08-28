@@ -1,5 +1,5 @@
-import {AbbrQl, AbbrSql, FileCode, LogoNodejs, LogoPython} from '@gravity-ui/icons';
-import {LogoCPlusPlus, TableIcon} from '../../Icons';
+import {AbbrQl, AbbrSql, FileCode, LayoutList, LogoNodejs, LogoPython} from '@gravity-ui/icons';
+import {LogoCPlusPlus} from '../../Icons';
 
 const iconMatcher = {
     js: LogoNodejs,
@@ -7,15 +7,15 @@ const iconMatcher = {
     sql: AbbrSql,
     yql: AbbrSql,
     py: LogoPython,
-    csv: TableIcon,
-    xls: TableIcon,
-    xlsx: TableIcon,
+    csv: LayoutList,
+    xls: LayoutList,
+    xlsx: LayoutList,
     cpp: LogoCPlusPlus,
     unknown: FileCode,
 } as const;
 
-export const getFileExtension = (filePath: string) => {
-    const name = filePath.split('/').pop();
+export const getAttachmentExtension = (attachmentName: string) => {
+    const name = attachmentName.split('/').pop();
 
     if (name === undefined) return 'unknown';
 
@@ -30,7 +30,7 @@ export const getFileExtension = (filePath: string) => {
     return 'unknown';
 };
 
-export const getFileIcon = (filePath: string) => {
-    const extension = getFileExtension(filePath);
+export const getAttachmentIcon = (attachmentName: string) => {
+    const extension = getAttachmentExtension(attachmentName);
     return iconMatcher[extension];
 };

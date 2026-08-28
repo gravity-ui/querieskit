@@ -39,7 +39,7 @@ export {
     MONACO_THEME_BY_UI,
 } from './MonacoEditor';
 export type {MonacoThemeName} from './MonacoEditor';
-export {FileList} from './FileList';
-export type {FileListProps} from './FileList';
-export {PlaceholderContainer} from './FileListPlaceholder';
-export type {PlaceholderContainerProps} from './FileListPlaceholder';
+export {AttachmentList} from './AttachmentList';
+export type {AttachmentListProps} from './AttachmentList';
+export {AttachmentListPlaceholder} from './AttachmentListPlaceholder';
+export type {AttachmentListPlaceholderProps} from './AttachmentListPlaceholder';

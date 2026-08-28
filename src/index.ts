@@ -3,4 +3,3 @@ export * from './modules';
 export * from './widgets';
 export * from './types/history';
 export * from './types/tutorial';
-export type {PlaceholderContainerProps} from './types/placeholderContainer';

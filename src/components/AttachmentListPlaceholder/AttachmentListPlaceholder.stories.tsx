@@ -1,10 +1,10 @@
 import React from 'react';
-import {FileListPlaceholder} from './FileListPlaceholder';
+import {AttachmentListPlaceholder} from './AttachmentListPlaceholder';
 import type {Meta, StoryObj} from '@storybook/react';
 
 const meta = {
-    title: 'Components/FileListPlaceholder',
-    component: FileListPlaceholder,
+    title: 'Components/AttachmentListPlaceholder',
+    component: AttachmentListPlaceholder,
     tags: ['autodocs'],
     parameters: {
         layout: 'centered',
@@ -21,7 +21,7 @@ const meta = {
         description: 'Add attachment for use in the request',
         linkForDoc: '#attachments-help',
     },
-} satisfies Meta<typeof FileListPlaceholder>;
+} satisfies Meta<typeof AttachmentListPlaceholder>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

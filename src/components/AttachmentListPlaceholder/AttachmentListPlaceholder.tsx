@@ -4,9 +4,9 @@ import {Plus} from '@gravity-ui/icons';
 import cn from 'bem-cn-lite';
 import image from './assets/empty-attachments.svg';
 import i18n from './i18n';
-import './FileListPlaceholder.scss';
+import './AttachmentListPlaceholder.scss';
 
-export type FileListPlaceholderProps = {
+export type AttachmentListPlaceholderProps = {
     title?: ReactNode;
     description?: ReactNode;
     linkForDoc?: string;
@@ -17,9 +17,9 @@ export type FileListPlaceholderProps = {
     qa?: string;
 };
 
-const block = cn('qp-placeholder-container');
+const block = cn('qp-attachment-list-placeholder');
 
-export const FileListPlaceholder = ({
+export const AttachmentListPlaceholder = ({
     title: customerTitle,
     description: customerDescription,
     linkForDoc,
@@ -28,10 +28,10 @@ export const FileListPlaceholder = ({
     onAddFile,
     onAddLink,
     qa,
-}: FileListPlaceholderProps) => {
+}: AttachmentListPlaceholderProps) => {
     const title = customerTitle ?? i18n('title_no-attachments');
     const description = customerDescription ?? i18n('context_add-attachment-for-request');
-    const linkText = customerLinkText ?? i18n('action_attached-files-help');
+    const linkText = customerLinkText ?? i18n('action_attachments-help');
 
     return (
         <Flex
@@ -44,7 +44,7 @@ export const FileListPlaceholder = ({
             className={block(null, className)}
             data-qa={qa}
         >
-            <img src={`${image}`} alt="empty-files-image" />
+            <img src={`${image}`} alt="empty-attachments-image" />
 
             <Flex gap={1} direction="column" alignItems="center">
                 <Text variant="subheader-1">{title}</Text>
