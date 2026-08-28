@@ -3,8 +3,12 @@ import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider} from '@gravity-
 import {AttachmentList, AttachmentListPlaceholder, EditAttachmentItem} from '../../components';
 import {createUuid} from '../../helpers/createUuid';
 import {Plus} from '@gravity-ui/icons';
-import type {AttachmentListPlaceholderProps} from '../../components';
-import type {AttachmentItemProps, EditLinkValues} from '../../components/AttachmentList';
+import type {
+    AttachmentItemProps,
+    AttachmentListPlaceholderProps,
+    AttachmentListProps,
+    EditLinkValues,
+} from '../../components';
 import cn from 'bem-cn-lite';
 import './Attachments.scss';
 
@@ -15,22 +19,35 @@ type AttachItem = AttachmentItemProps['attachment'] & {token?: string};
 type AttachmentsProps = {
     tokens?: {value: string; title: string}[];
     placeholderProps?: Omit<AttachmentListPlaceholderProps, 'onAddFile' | 'onAddLink'>;
+    attachmentListProps?: Pick<AttachmentListProps, 'className'>;
+    attachments?: AttachItem[];
+    deletedAttachments?: AttachItem[];
+    onChange?: (payload: {attachments: AttachItem[]; deletedAttachments: AttachItem[]}) => void;
 };
 
 const block = cn('qp-attachments');
 
-export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
+export const Attachments = ({
+    tokens,
+    placeholderProps,
+    attachmentListProps,
+    onChange,
+    attachments: customerAttachments,
+    deletedAttachments: customerDeletedAttachments,
+}: AttachmentsProps) => {
     const [currentTab, setCurrentTab] = useState<'Current' | 'Deleted'>('Current');
 
-    const [innerAttachList, setInnerAttachList] = useState<AttachItem[]>([]);
-    const [innerDeletedAttachList, setInnerDeletedAttachList] = useState<AttachItem[]>([]);
+    const [innerAttachList, setInnerAttachList] = useState<AttachItem[]>(customerAttachments ?? []);
+    const [innerDeletedAttachList, setInnerDeletedAttachList] = useState<AttachItem[]>(
+        customerDeletedAttachments ?? [],
+    );
 
     const [editingIds, setEditingIds] = useState<string[]>([]);
     const [wasAddedIds, setWasAddedIds] = useState<string[]>([]);
     const [wasEdited, setWasEditedIds] = useState<string[]>([]);
 
-    const attachList = innerAttachList;
-    const deletedAttachList = innerDeletedAttachList;
+    const attachList = customerAttachments ?? innerAttachList;
+    const deletedAttachList = customerDeletedAttachments ?? innerDeletedAttachList;
 
     const handleAddEmptyFile = () => {
         const id = createUuid();
@@ -57,6 +74,11 @@ export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
 
         setInnerAttachList(patchAttachList);
         setEditingIds(patchEditingIds);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: deletedAttachList,
+        });
     };
 
     const handleCancelEditFile = (fileId: string) => {
@@ -78,6 +100,11 @@ export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
 
         setInnerAttachList(patchAttachList);
         setEditingIds(patchEditingIds);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: deletedAttachList,
+        });
     };
 
     const handleEdit = (editAttachId: string) => {
@@ -100,11 +127,24 @@ export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
 
         setInnerAttachList(patchAttachList);
         setInnerDeletedAttachList(patchDeletedAttachList);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: patchDeletedAttachList,
+        });
     };
 
     const handleDeleteAll = () => {
-        setInnerDeletedAttachList([...attachList]);
-        setInnerAttachList([]);
+        const patchAttachList: never[] = [];
+        const patchDeletedAttachList = [...attachList];
+
+        setInnerAttachList(patchAttachList);
+        setInnerDeletedAttachList(patchDeletedAttachList);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: patchDeletedAttachList,
+        });
     };
 
     const handleRevertDelete = (attachId: string) => {
@@ -117,6 +157,11 @@ export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
 
         setInnerAttachList(patchAttachList);
         setInnerDeletedAttachList(patchDeletedAttachList);
+
+        onChange?.({
+            attachments: patchAttachList,
+            deletedAttachments: patchDeletedAttachList,
+        });
     };
 
     const getDefaultValuesForLink = (linkId: string) => {
@@ -140,6 +185,7 @@ export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
                     <Flex spacing={{pt: 3}} direction="column" width="100%" height="100%">
                         {innerAttachList.length ? (
                             <AttachmentList
+                                {...attachmentListProps}
                                 attachments={attachList}
                                 wasAddedIds={wasAddedIds}
                                 wasEditedIds={wasEdited}
@@ -209,6 +255,7 @@ export const Attachments = ({tokens, placeholderProps}: AttachmentsProps) => {
                 <TabPanel className={block('panel')} value="Deleted">
                     <Flex spacing={{pt: 3}} width="100%" height="100%">
                         <AttachmentList
+                            {...attachmentListProps}
                             isDeleted
                             attachments={deletedAttachList}
                             onRevert={(attach) => handleRevertDelete(attach.id)}
