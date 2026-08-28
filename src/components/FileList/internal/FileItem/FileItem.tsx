@@ -1,12 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import {Button, Flex, Icon, Text} from '@gravity-ui/uikit';
-import {Pencil, TrashBin} from '@gravity-ui/icons';
+import {Link, Pencil, TrashBin} from '@gravity-ui/icons';
 import {getFileIcon} from '../../helpers/getIconByFilePath';
 import cn from 'bem-cn-lite';
 import './FileItem.scss';
 
 export type FileItemProps = {
-    file: {id: string; name: string};
+    file: {id: string; name: string; isLink?: boolean};
     isEdit?: boolean;
     isAdded?: boolean;
     onEdit?: (file: FileItemProps['file']) => void;
@@ -18,7 +18,10 @@ const block = cn('file-item');
 export const FileItem = ({file, isAdded, isEdit, onEdit, onDelete}: FileItemProps) => {
     const [isHovered, setIsHovered] = useState(false);
 
-    const fileIcon = useMemo(() => getFileIcon(file.name), [file.name]);
+    const fileIcon = useMemo(() => {
+        if (file.isLink) return Link;
+        return getFileIcon(file.name);
+    }, [file.name, file.isLink]);
 
     return (
         <Flex

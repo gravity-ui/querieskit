@@ -15,6 +15,7 @@ const files: FileListProps['files'] = [
     {id: 'ql', name: 'analytics.ql'},
     {id: 'yql', name: 'events.yql'},
     {id: 'sql', name: 'report.sql'},
+    {id: 'link', name: 'link/to/file.cpp', isLink: true},
 ];
 
 const meta = {

@@ -41,3 +41,5 @@ export {
 export type {MonacoThemeName} from './MonacoEditor';
 export {FileList} from './FileList';
 export type {FileListProps} from './FileList';
+export {PlaceholderContainer} from './FileListPlaceholder';
+export type {PlaceholderContainerProps} from './FileListPlaceholder';
