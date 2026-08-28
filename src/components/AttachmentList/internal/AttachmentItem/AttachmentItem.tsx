@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {Button, Flex, Icon, Text} from '@gravity-ui/uikit';
-import {Link, Pencil, TrashBin} from '@gravity-ui/icons';
+import {ArrowRotateLeft, Link, Pencil, TrashBin} from '@gravity-ui/icons';
 import {getAttachmentIcon} from '../../helpers/getIconByAttachmentName';
 import cn from 'bem-cn-lite';
 import './AttachmentItem.scss';
@@ -11,6 +11,8 @@ export type AttachmentItemProps = {
     wasAdded?: boolean;
     onEdit?: (attachment: AttachmentItemProps['attachment']) => void;
     onDelete?: (attachment: AttachmentItemProps['attachment']) => void;
+    onRevert?: (attachment: AttachmentItemProps['attachment']) => void;
+    isDeleted?: boolean;
 };
 
 const block = cn('attachment-item');
@@ -21,6 +23,8 @@ export const AttachmentItem = ({
     wasEdited,
     onEdit,
     onDelete,
+    onRevert,
+    isDeleted,
 }: AttachmentItemProps) => {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -47,7 +51,7 @@ export const AttachmentItem = ({
                 </Text>
             </Flex>
 
-            {isHovered && (
+            {isHovered && !isDeleted && (
                 <Flex gap={1} className={block('actions')}>
                     <Button size="s" view="flat" onClick={() => onEdit?.(attachment)}>
                         <Icon data={Pencil} />
@@ -55,6 +59,14 @@ export const AttachmentItem = ({
 
                     <Button size="s" view="flat" onClick={() => onDelete?.(attachment)}>
                         <Icon data={TrashBin} />
+                    </Button>
+                </Flex>
+            )}
+
+            {isHovered && isDeleted && (
+                <Flex gap={1} className={block('actions')}>
+                    <Button size="s" view="flat" onClick={() => onRevert?.(attachment)}>
+                        <Icon data={ArrowRotateLeft} />
                     </Button>
                 </Flex>
             )}

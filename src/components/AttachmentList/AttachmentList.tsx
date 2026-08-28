@@ -8,6 +8,7 @@ export type AttachmentListProps = Omit<ListProps, 'items' | 'selectedItemIndex' 
     className?: string;
     onDelete?: (attachment: AttachmentItemProps['attachment']) => void;
     onEdit?: (attachment: AttachmentItemProps['attachment']) => void;
+    onRevert?: (attachment: AttachmentItemProps['attachment']) => void;
 
     renderEditForm?: (attachment: AttachmentItemProps['attachment']) => ReactNode;
 
@@ -15,17 +16,21 @@ export type AttachmentListProps = Omit<ListProps, 'items' | 'selectedItemIndex' 
     wasEditedIds?: string[];
 
     editingIds?: string[];
+
+    isDeleted?: boolean;
 };
 
 export const AttachmentList = ({
     attachments,
     onEdit,
     onDelete,
+    onRevert,
     wasAddedIds,
     wasEditedIds,
     editingIds,
     renderEditForm,
     className,
+    isDeleted,
     ...listProps
 }: AttachmentListProps) => {
     const addedIdsSet = useMemo(() => new Set(wasAddedIds), [wasAddedIds]);
@@ -49,7 +54,9 @@ export const AttachmentList = ({
                             wasAdded={addedIdsSet.has(attachment.id)}
                             wasEdited={editedIdsSet.has(attachment.id)}
                             onEdit={onEdit}
+                            onRevert={onRevert}
                             onDelete={onDelete}
+                            isDeleted={isDeleted}
                         />
                     );
                 }}

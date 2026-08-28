@@ -17,6 +17,7 @@ export type EditLinkItemProps = {
     onChange?: (pathedValues: EditLinkValues) => void;
     tokens?: {value: string; title: string}[];
     values?: EditLinkValues;
+    defaultValues?: EditLinkValues;
 };
 
 export const EditLinkItem = ({
@@ -28,12 +29,14 @@ export const EditLinkItem = ({
     onChange,
     tokens,
     values: customerValues,
+    defaultValues,
 }: EditLinkItemProps) => {
     const [innerValues, setInnerValues] = useState<EditLinkValues>({
         link: '',
         token: '',
         name: '',
         ...customerValues,
+        ...(defaultValues ?? {}),
     });
 
     const linkLabel = cutomerLinkLabel ?? 'Link:';
@@ -53,6 +56,13 @@ export const EditLinkItem = ({
         onAccept?.(values);
     };
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleAccept();
+        }
+    };
+
     return (
         <Flex width="100%" spacing={{px: 4, py: 3}} direction="column" gap={2}>
             <TextArea
@@ -60,12 +70,14 @@ export const EditLinkItem = ({
                 minRows={3}
                 maxRows={5}
                 hasClear
-                placeholder="Link:"
+                placeholder={linkLabel}
+                onKeyDown={handleKeyDown}
                 onUpdate={(v) => handleUpdate('link', v)}
             />
 
             {tokens && (
                 <Select
+                    filterable
                     value={[values.token]}
                     label={tokenLabel}
                     onUpdate={(v) => handleUpdate('token', v[0])}
@@ -84,6 +96,7 @@ export const EditLinkItem = ({
                 value={values.name}
                 label={nameLabel}
                 hasClear
+                onKeyDown={handleKeyDown}
                 onUpdate={(v) => handleUpdate('name', v)}
             />
 

@@ -5,6 +5,7 @@ import {Check, Xmark} from '@gravity-ui/icons';
 export type EditFileItemProps = {
     fileName?: string;
     fileLabel?: string;
+    defaultFileName?: string;
     onChangeFileName?: (fileName: string) => void;
     onAccept?: (newFileName: string) => void;
     onCancel?: () => void;
@@ -13,11 +14,14 @@ export type EditFileItemProps = {
 export const FileEdit = ({
     fileLabel: customerFileLabel,
     fileName: customerFileName,
+    defaultFileName,
     onChangeFileName,
     onAccept,
     onCancel,
 }: EditFileItemProps) => {
-    const [innerFileName, setInnerFileName] = useState<string>(customerFileName ?? '');
+    const [innerFileName, setInnerFileName] = useState<string>(
+        defaultFileName ?? customerFileName ?? '',
+    );
 
     const label = customerFileLabel ?? 'Name:';
 
@@ -32,9 +36,22 @@ export const FileEdit = ({
         onAccept?.(fileName);
     };
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleAccept();
+        }
+    };
+
     return (
         <Flex spacing={{px: 4}} width="100%" gap={2}>
-            <TextInput autoFocus label={label} value={fileName} onUpdate={handleChangeFileName} />
+            <TextInput
+                autoFocus
+                label={label}
+                value={fileName}
+                onKeyDown={handleKeyDown}
+                onUpdate={handleChangeFileName}
+            />
 
             <Button view="flat" onClick={handleAccept}>
                 <Icon data={Check} />

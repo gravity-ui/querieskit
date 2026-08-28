@@ -1,0 +1,35 @@
+[21:36:01.857] [INFO] storybook v10.5.0
+[21:36:02.347] [DEBUG] Getting package.json info for /Users/vtrumpel/Desktop/querieskit/package.json...
+[21:36:02.352] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
+[21:36:02.414] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
+[21:36:02.728] [INFO] Starting...
+[21:36:02.740] [DEBUG] readDependencyManifest: could not resolve "@gravity-ui/eslint-config"
+[21:36:02.785] [DEBUG] Starting preview..
+[21:36:02.803] [DEBUG] Using tsconfig paths for react-docgen
+[21:36:02.808] [WARN] 🚨 Unable to index ./src/components/AttachmentList/AttachmentList.stories.tsx,./src/modules/Attachments/Attachments.stories.tsx:
+  Error: Duplicate stories with id: components-attachmentlist--default
+    at _StoryIndexGenerator.chooseDuplicate (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/core-server/index.js:19362:13)
+    at file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/core-server/index.js:19421:52
+    at Array.forEach (<anonymous>)
+    at _StoryIndexGenerator.getIndexAndStats (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/core-server/index.js:19418:23)
+    at async _StoryIndexGenerator.getIndex (file:///Users/vtrumpel/Desktop/querieskit/node_modules/storybook/dist/core-server/index.js:19405:13)
+    at async BasicMinimalPluginContext.config (file:///Users/vtrumpel/Desktop/querieskit/node_modules/@storybook/builder-vite/dist/_node-chunks/chunk-V5EZ2MHW.js:188:19)
+    at async runConfigHook (file:///Users/vtrumpel/Desktop/querieskit/node_modules/vite/dist/node/chunks/node.js:36207:15)
+    at async resolveConfig (file:///Users/vtrumpel/Desktop/querieskit/node_modules/vite/dist/node/chunks/node.js:35642:11)
+    at async _createServer (file:///Users/vtrumpel/Desktop/querieskit/node_modules/vite/dist/node/chunks/node.js:25777:65)
+    at async Module.start (file:///Users/vtrumpel/Desktop/querieskit/node_modules/@storybook/builder-vite/dist/index.js:1621:17)
+[21:36:02.810] [ERROR] Failed to build the preview
+[21:36:02.811] [ERROR] Error: Unable to index ./src/components/AttachmentList/AttachmentList.stories.tsx,./src/modules/Attachments/Attachments.stories.tsx
+    at _StoryIndexGenerator.getIndexAndStats (file://./node_modules/storybook/dist/core-server/index.js:19426:15)
+    at async _StoryIndexGenerator.getIndex (file://./node_modules/storybook/dist/core-server/index.js:19405:13)
+    at async BasicMinimalPluginContext.config (file://./node_modules/@storybook/builder-vite/dist/_node-chunks/chunk-V5EZ2MHW.js:188:19)
+    at async runConfigHook (file://./node_modules/vite/dist/node/chunks/node.js:36207:15)
+    at async resolveConfig (file://./node_modules/vite/dist/node/chunks/node.js:35642:11)
+    at async _createServer (file://./node_modules/vite/dist/node/chunks/node.js:25777:65)
+    at async Module.start (file://./node_modules/@storybook/builder-vite/dist/index.js:1621:17)
+    at async storybookDevServer (file://./node_modules/storybook/dist/core-server/index.js:11225:59)
+    at async buildOrThrow (file://./node_modules/storybook/dist/core-server/index.js:8331:12)
+    at async buildDevStandalone (file://./node_modules/storybook/dist/core-server/index.js:11990:41)
+[21:36:02.811] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[21:36:02.812] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
