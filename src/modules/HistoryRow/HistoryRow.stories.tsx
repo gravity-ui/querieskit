@@ -1,7 +1,8 @@
 import React from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {HistoryRow} from './HistoryRow';
-import {QueryHistoryRow, QueryHistoryRowAction} from '../../types/history';
+import {QueryListRowAction} from '../../types/queryList';
+import {QueryHistoryRow} from '../../types/history';
 
 const now = Date.now();
 const min = 60 * 1000;
@@ -19,7 +20,7 @@ const makeRow = (overrides: Partial<QueryHistoryRow>): QueryHistoryRow => ({
     ...overrides,
 });
 
-const defaultActions: Array<QueryHistoryRowAction<QueryHistoryRow>> = [
+const defaultActions: Array<QueryListRowAction<QueryHistoryRow>> = [
     {text: 'Run again', onClick: (row) => alert(`Run: ${row.title}`)},
     {text: 'Copy', onClick: (row) => alert(`Copy: ${row.title}`)},
     {text: 'Delete', onClick: (row) => alert(`Delete: ${row.title}`)},

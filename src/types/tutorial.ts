@@ -1,3 +1,3 @@
-import {BaseHistoryRow} from './history';
+import {QueryListRow} from './queryList';
 
-export type TutorialHistoryRow = BaseHistoryRow;
+export type TutorialHistoryRow = QueryListRow;

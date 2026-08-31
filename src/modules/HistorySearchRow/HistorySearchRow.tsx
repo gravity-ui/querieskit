@@ -1,6 +1,7 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
+import {QueryListRowRenderData} from '../../types/queryList';
+import {QueryHistoryRow} from '../../types/history';
 import {
     HistoryPrivateIcon,
     QueryDuration,
@@ -17,7 +18,7 @@ const block = cn('qp-history-search-row');
 
 export type Props<T extends QueryHistoryRow> = {
     item: T;
-} & Omit<QueryHistoryRowRenderData<T>, 'item' | 'variant'>;
+} & Omit<QueryListRowRenderData<T>, 'item' | 'variant'>;
 
 export const HistorySearchRow = <T extends QueryHistoryRow>({
     item,

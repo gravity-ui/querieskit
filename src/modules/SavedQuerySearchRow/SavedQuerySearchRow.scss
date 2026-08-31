@@ -1,0 +1,15 @@
+.qp-saved-query-search-row {
+  &__header {
+    min-width: 0;
+    width: 100%;
+  }
+
+  &__title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__fixed-metadata {
+    flex-shrink: 0;
+  }
+}

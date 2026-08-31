@@ -1,0 +1,20 @@
+.qp-saved-query-row {
+  height: 100%;
+
+  &_compared {
+    background-color: var(--g-color-base-utility-light);
+  }
+
+  &__content {
+    min-width: 0;
+  }
+
+  &__header {
+    height: 20px;
+    min-width: 0;
+  }
+
+  &__metadata {
+    min-width: 0;
+  }
+}

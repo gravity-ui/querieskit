@@ -1,17 +1,23 @@
 import React from 'react';
-import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
+import {QueryListRowRenderData} from '../../types/queryList';
+import {QueryHistoryRow} from '../../types/history';
 import {Flex, Text} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
 import cn from 'bem-cn-lite';
-import {HistoryPrivateIcon, QueryDuration, QueryStatusIcon, RowLink} from '../../components';
+import {
+    EditableRowTitle,
+    HistoryPrivateIcon,
+    QueryDuration,
+    QueryStatusIcon,
+    RowActionsMenu,
+    RowLink,
+} from '../../components';
 import {formatTime} from '../../helpers/time';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
-import {HistoryRowTitle} from './HistoryRowTitle';
-import {HistoryRowMenu} from './HistoryRowMenu';
 
 export type Props<T extends QueryHistoryRow> = {
     item: T;
-} & Omit<QueryHistoryRowRenderData<T>, 'item' | 'variant'>;
+} & Omit<QueryListRowRenderData<T>, 'item' | 'variant'>;
 
 const block = cn('qp-history-row');
 
@@ -38,8 +44,8 @@ export const HistoryRow = <T extends QueryHistoryRow>({
             <QueryStatusIcon status={status} />
             <Flex direction="column" gap={1} className={block('right-column')}>
                 <Flex justifyContent="space-between" className={block('header')}>
-                    <HistoryRowTitle item={item} editing={editing} />
-                    {showMenu && <HistoryRowMenu item={item} actions={actions} />}
+                    <EditableRowTitle item={item} editing={editing} />
+                    {showMenu && <RowActionsMenu item={item} actions={actions} />}
                 </Flex>
                 <div className={block('data')}>
                     {isFieldVisible(visibleFields, 'duration') && startTime && (

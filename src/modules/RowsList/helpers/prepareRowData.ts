@@ -1,26 +1,26 @@
 import {
-    BaseHistoryRow,
-    QueryHistoryComparisonConfig,
-    QueryHistoryEditingConfig,
-    QueryHistoryItem,
-    QueryHistoryRowAction,
-    QueryHistoryRowRenderData,
-    QueryHistoryRowVariant,
-    QueryHistoryVisibleFieldsConfig,
-} from '../../../types/history';
+    QueryListComparisonConfig,
+    QueryListEditingConfig,
+    QueryListItem,
+    QueryListRow,
+    QueryListRowAction,
+    QueryListRowRenderData,
+    QueryListRowVariant,
+    QueryListVisibleFieldsConfig,
+} from '../../../types/queryList';
 
-type Props<T extends BaseHistoryRow> = {
-    item: QueryHistoryItem<T>;
+type Props<T extends QueryListRow> = {
+    item: QueryListItem<T>;
     isActive: boolean;
     index: number;
-    variant: QueryHistoryRowVariant;
-    visibleFields?: QueryHistoryVisibleFieldsConfig<T>;
-    editing?: QueryHistoryEditingConfig<T>;
-    comparison?: QueryHistoryComparisonConfig<T>;
-    getRowActions?: (item: T) => QueryHistoryRowAction<T>[];
+    variant: QueryListRowVariant;
+    visibleFields?: QueryListVisibleFieldsConfig<T>;
+    editing?: QueryListEditingConfig<T>;
+    comparison?: QueryListComparisonConfig<T>;
+    getRowActions?: (item: T) => QueryListRowAction<T>[];
 };
 
-export const prepareRowData = <T extends BaseHistoryRow>({
+export const prepareRowData = <T extends QueryListRow>({
     item,
     isActive,
     index,
@@ -29,7 +29,7 @@ export const prepareRowData = <T extends BaseHistoryRow>({
     editing,
     comparison,
     getRowActions,
-}: Props<T>): QueryHistoryRowRenderData<T> => {
+}: Props<T>): QueryListRowRenderData<T> => {
     const isRow = !('header' in item);
     const actions = isRow && getRowActions ? getRowActions(item) : undefined;
     const editingData =
