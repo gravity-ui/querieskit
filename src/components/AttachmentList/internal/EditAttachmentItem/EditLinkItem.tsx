@@ -1,15 +1,5 @@
-import React, {useId, useRef, useState} from 'react';
-import {
-    Box,
-    Button,
-    Flex,
-    Icon,
-    Select,
-    Text,
-    TextArea,
-    TextInput,
-    useLayoutEffect,
-} from '@gravity-ui/uikit';
+import React, {useId, useState} from 'react';
+import {Box, Button, Flex, Icon, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
 import {useLabelRef} from '../../hooks/useLabelRef';
 import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
