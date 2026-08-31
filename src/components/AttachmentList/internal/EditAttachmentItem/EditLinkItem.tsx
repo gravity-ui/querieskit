@@ -1,6 +1,17 @@
-import React, {useRef, useState} from 'react';
-import {Box, Button, Flex, Icon, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
+import React, {useId, useRef, useState} from 'react';
+import {
+    Box,
+    Button,
+    Flex,
+    Icon,
+    Select,
+    Text,
+    TextArea,
+    TextInput,
+    useLayoutEffect,
+} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
+import {useLabelRef} from '../../hooks/useLabelRef';
 import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
 import cn from 'bem-cn-lite';
 
@@ -47,13 +58,15 @@ export const EditLinkItem = ({
         ...(defaultValues ?? {}),
     });
 
-    const labelRef = useRef<HTMLLabelElement>(null);
+    const linkInputId = useId();
 
     const linkLabel = cutomerLinkLabel ?? i18n('field_link');
     const tokenLabel = customerTokenLabel ?? i18n('field_token');
     const nameLabel = customeNameLabel ?? i18n('field_name');
 
     const values = customerValues ?? innerValues;
+
+    const {labelRef, labelWidth} = useLabelRef(linkLabel);
 
     const handleUpdate = (key: string, patcValue: string) => {
         const newValues: EditLinkValues = {...values, [key]: patcValue};
@@ -94,14 +107,14 @@ export const EditLinkItem = ({
                 <Text
                     ref={labelRef}
                     as="label"
-                    htmlFor="attachment-link"
+                    htmlFor={linkInputId}
                     className={block('link-field-label')}
                 >
                     {linkLabel}
                 </Text>
 
                 <TextArea
-                    id="attachment-link"
+                    id={linkInputId}
                     value={values.link}
                     minRows={3}
                     maxRows={5}
@@ -112,7 +125,7 @@ export const EditLinkItem = ({
                     controlProps={{
                         onScroll: handleLinkScroll,
                         style: {
-                            textIndent: Number(labelRef.current?.clientWidth) + 2,
+                            textIndent: labelWidth ? labelWidth + 2 : undefined,
                         },
                     }}
                 />
