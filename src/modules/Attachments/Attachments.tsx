@@ -11,6 +11,9 @@ import type {
     EditLinkValues,
 } from '../../components';
 import cn from 'bem-cn-lite';
+
+import i18n from './i18n';
+
 import './Attachments.scss';
 
 type TabVariants = 'Current' | 'Deleted';
@@ -284,16 +287,16 @@ export const Attachments = ({
                             <Flex gap={2}>
                                 <Button onClick={handleAddEmptyFile}>
                                     <Icon data={Plus} />
-                                    File
+                                    {i18n('action_add-file')}
                                 </Button>
 
                                 <Button view="outlined" onClick={handleAddEmptyLink}>
                                     <Icon data={Plus} />
-                                    Link
+                                    {i18n('action_add-link')}
                                 </Button>
 
                                 <Button view="flat" onClick={handleDeleteAll}>
-                                    Remove all
+                                    {i18n('action_remove-all')}
                                 </Button>
                             </Flex>
                         )}

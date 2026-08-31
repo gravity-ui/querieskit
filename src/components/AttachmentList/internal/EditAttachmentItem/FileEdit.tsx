@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import {Button, Flex, Icon, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
 
+import i18n from '../../i18n';
+
 export type EditFileItemProps = {
     fileName?: string;
     fileLabel?: string;
@@ -23,7 +25,7 @@ export const FileEdit = ({
         defaultFileName ?? customerFileName ?? '',
     );
 
-    const label = customerFileLabel ?? 'Name:';
+    const label = customerFileLabel ?? i18n('field_name');
 
     const fileName = customerFileName ?? innerFileName;
 

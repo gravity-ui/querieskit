@@ -1,0 +1,9 @@
+.edit-link-item {
+    &__link-field-label {
+        position: absolute;
+        z-index: 1;
+        inset-block-start: var(--g-spacing-1);
+        inset-inline-start: var(--g-spacing-2);
+        font-weight: 600;
+    }
+}

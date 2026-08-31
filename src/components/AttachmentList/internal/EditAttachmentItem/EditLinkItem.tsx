@@ -1,6 +1,11 @@
-import React, {useState} from 'react';
-import {Button, Flex, Icon, Select, TextArea, TextInput} from '@gravity-ui/uikit';
+import React, {useRef, useState} from 'react';
+import {Box, Button, Flex, Icon, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
+import cn from 'bem-cn-lite';
+
+import i18n from '../../i18n';
+
+import './EditLinkItem.scss';
 
 export type EditLinkValues = {
     link: string;
@@ -19,6 +24,8 @@ export type EditLinkItemProps = {
     values?: EditLinkValues;
     defaultValues?: EditLinkValues;
 };
+
+const block = cn('edit-link-item');
 
 export const EditLinkItem = ({
     linkLabel: cutomerLinkLabel,
@@ -39,9 +46,11 @@ export const EditLinkItem = ({
         ...(defaultValues ?? {}),
     });
 
-    const linkLabel = cutomerLinkLabel ?? 'Link:';
-    const tokenLabel = customerTokenLabel ?? 'Token:';
-    const nameLabel = customeNameLabel ?? 'Name:';
+    const labelRef = useRef<HTMLLabelElement>(null);
+
+    const linkLabel = cutomerLinkLabel ?? i18n('field_link');
+    const tokenLabel = customerTokenLabel ?? i18n('field_token');
+    const nameLabel = customeNameLabel ?? i18n('field_name');
 
     const values = customerValues ?? innerValues;
 
@@ -64,16 +73,32 @@ export const EditLinkItem = ({
     };
 
     return (
-        <Flex width="100%" spacing={{px: 4, py: 3}} direction="column" gap={2}>
-            <TextArea
-                value={values.link}
-                minRows={3}
-                maxRows={5}
-                hasClear
-                placeholder={linkLabel}
-                onKeyDown={handleKeyDown}
-                onUpdate={(v) => handleUpdate('link', v)}
-            />
+        <Flex className={block()} width="100%" spacing={{px: 4, py: 3}} direction="column" gap={2}>
+            <Box className={block('link-field-container')} position="relative">
+                <Text
+                    ref={labelRef}
+                    as="label"
+                    htmlFor="attachment-link"
+                    className={block('link-field-label')}
+                >
+                    {linkLabel}
+                </Text>
+
+                <TextArea
+                    id="attachment-link"
+                    value={values.link}
+                    minRows={3}
+                    maxRows={5}
+                    hasClear
+                    onKeyDown={handleKeyDown}
+                    onUpdate={(v) => handleUpdate('link', v)}
+                    controlProps={{
+                        style: {
+                            textIndent: Number(labelRef.current?.clientWidth) + 2,
+                        },
+                    }}
+                />
+            </Box>
 
             {tokens && (
                 <Select
@@ -103,11 +128,11 @@ export const EditLinkItem = ({
             <Flex gap={2}>
                 <Button view="flat" onClick={handleAccept}>
                     <Icon data={Check} />
-                    Save
+                    {i18n('action_save')}
                 </Button>
                 <Button view="flat" onClick={onCancel}>
                     <Icon data={Xmark} />
-                    Cancel
+                    {i18n('action_cancel')}
                 </Button>
             </Flex>
         </Flex>
