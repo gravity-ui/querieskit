@@ -1,7 +1,9 @@
 export * from './components';
 export * from './modules';
 export * from './widgets';
+export * from './types/queryList';
 export * from './types/history';
+export type {SavedQuery} from './types/savedQueries';
 export * from './types/tutorial';
 export * from './types/navigation';
 export * from './types/pathEditor';

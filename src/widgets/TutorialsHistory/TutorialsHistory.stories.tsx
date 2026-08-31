@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {TutorialsHistory} from './TutorialsHistory';
-import {QueryHistoryFilterConfig, QueryHistoryItem} from '../../types/history';
+import {QueryListFilterConfig, QueryListItem} from '../../types/queryList';
 import {TutorialHistoryRow} from '../../types/tutorial';
 import {action} from 'storybook/actions';
 
@@ -12,7 +12,7 @@ SELECT
     "test_task" AS task_id,
     SUBSTRING("test", 1, 1) AS truncated_char`;
 
-const filterFields: QueryHistoryFilterConfig['fields'] = [
+const filterFields: QueryListFilterConfig['fields'] = [
     {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
     {id: 'range', type: 'rangeDatePicker', title: 'Period'},
     {
@@ -30,7 +30,7 @@ const filterFields: QueryHistoryFilterConfig['fields'] = [
 const logFilterApply = action('onFilterApply');
 const logFilterReset = action('onFilterReset');
 
-const BASE_ITEMS: QueryHistoryItem<TutorialHistoryRow>[] = [
+const BASE_ITEMS: QueryListItem<TutorialHistoryRow>[] = [
     {
         id: 1,
         title: 'Getting started with YQL',

@@ -1,13 +1,13 @@
 import React from 'react';
-import {QueryHistoryRow, QueryHistoryRowRenderData} from '../../types/history';
-import {HistoryGroupHeader} from '../../components';
-import {HistoryRow} from '../HistoryRow';
-import {HistorySearchRow} from '../HistorySearchRow';
+import {HistoryGroupHeader} from '../../../components';
+import {HistoryRow, HistorySearchRow} from '../../../modules';
+import {QueryListRowRenderData} from '../../../types/queryList';
+import {QueryHistoryRow} from '../../../types/history';
 
 export const HistoryRowContent = <T extends QueryHistoryRow>({
     variant,
     ...data
-}: QueryHistoryRowRenderData<T>) => {
+}: QueryListRowRenderData<T>) => {
     const {item} = data;
 
     if ('header' in item) {

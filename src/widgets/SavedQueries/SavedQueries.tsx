@@ -1,7 +1,6 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
 import {QueriesList} from '../../modules';
-import i18n from './i18n';
 import {
     QueryListComparisonConfig,
     QueryListEditingConfig,
@@ -12,11 +11,12 @@ import {
     QueryListSearchConfig,
     QueryListVisibleFieldsConfig,
 } from '../../types/queryList';
-import {QueryHistoryRow} from '../../types/history';
-import {HistoryRowContent} from './internal/HistoryRowContent';
-import './QueriesHistory.scss';
+import {SavedQuery} from '../../types/savedQueries';
+import i18n from './i18n';
+import {SavedQueryRowContent} from './SavedQueryRowContent';
+import './SavedQueries.scss';
 
-export type QueriesHistoryProps<T extends QueryHistoryRow = QueryHistoryRow> = {
+export type SavedQueriesProps<T extends SavedQuery = SavedQuery> = {
     className?: string;
     title?: string;
     logo?: React.ReactNode;
@@ -27,14 +27,15 @@ export type QueriesHistoryProps<T extends QueryHistoryRow = QueryHistoryRow> = {
     editing?: QueryListEditingConfig<T>;
     comparison?: QueryListComparisonConfig<T>;
     visibleFields?: QueryListVisibleFieldsConfig<T>;
+    renderAuthor?: (item: T) => React.ReactNode;
     renderRowItem?: (data: QueryListRowRenderData<T>) => React.ReactNode;
     getRowActions?: (item: T) => QueryListRowAction<T>[];
     onListItemClick?: (item: QueryListItem<T>) => void;
 };
 
-const block = cn('qp-query-history');
+const block = cn('qp-saved-queries');
 
-export const QueriesHistory = <T extends QueryHistoryRow>({
+export const SavedQueries = <T extends SavedQuery>({
     title,
     logo,
     search,
@@ -44,15 +45,16 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
     editing,
     comparison,
     visibleFields,
+    renderAuthor,
     renderRowItem,
     getRowActions,
     onListItemClick,
     className,
-}: QueriesHistoryProps<T>) => {
+}: SavedQueriesProps<T>) => {
     return (
         <QueriesList
             className={block(null, className)}
-            title={title || i18n('title_history')}
+            title={title || i18n('title_saved')}
             logo={logo}
             search={search}
             filter={filter}
@@ -63,7 +65,11 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
             comparison={comparison}
             getRowActions={getRowActions}
             renderRow={(data) =>
-                renderRowItem ? renderRowItem(data) : <HistoryRowContent {...data} />
+                renderRowItem ? (
+                    renderRowItem(data)
+                ) : (
+                    <SavedQueryRowContent {...data} renderAuthor={renderAuthor} />
+                )
             }
             onListItemClick={onListItemClick}
         />

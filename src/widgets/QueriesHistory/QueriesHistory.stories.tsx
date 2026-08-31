@@ -2,12 +2,12 @@ import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {QueriesHistory} from './QueriesHistory';
 import {
-    QueryHistoryFieldKey,
-    QueryHistoryFilterConfig,
-    QueryHistoryItem,
-    QueryHistoryRow,
-    QueryHistoryVisibleFieldsConfig,
-} from '../../types/history';
+    QueryListFieldKey,
+    QueryListFilterConfig,
+    QueryListItem,
+    QueryListVisibleFieldsConfig,
+} from '../../types/queryList';
+import {QueryHistoryRow} from '../../types/history';
 import {action} from 'storybook/actions';
 
 const now = Date.now();
@@ -20,7 +20,7 @@ SELECT
     "test_task" AS task_id,
     SUBSTRING("test", 1, 1) AS truncated_char`;
 
-const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
+const BASE_ITEMS: QueryListItem<QueryHistoryRow>[] = [
     {header: 'Today', height: 28},
     {
         id: 1,
@@ -78,8 +78,8 @@ const BASE_ITEMS: QueryHistoryItem<QueryHistoryRow>[] = [
     },
 ];
 
-type VisibleFields = QueryHistoryVisibleFieldsConfig<QueryHistoryRow>['fields'];
-const activeFields: QueryHistoryFieldKey<QueryHistoryRow>[] = [
+type VisibleFields = QueryListVisibleFieldsConfig<QueryHistoryRow>['fields'];
+const activeFields: QueryListFieldKey<QueryHistoryRow>[] = [
     'duration',
     'mode',
     'startTime',
@@ -109,7 +109,7 @@ const fields: VisibleFields = [
     },
 ];
 
-const filterFields: QueryHistoryFilterConfig['fields'] = [
+const filterFields: QueryListFilterConfig['fields'] = [
     {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
     {id: 'range', type: 'rangeDatePicker', title: 'Period'},
     {
@@ -143,7 +143,7 @@ const DefaultStory = () => {
     const [items, setItems] = useState([...BASE_ITEMS]);
     const [search, setSearch] = useState({value: '', fullSearch: false});
     const [visibleFields, setVisibleFields] =
-        useState<QueryHistoryFieldKey<QueryHistoryRow>[]>(activeFields);
+        useState<QueryListFieldKey<QueryHistoryRow>[]>(activeFields);
     const [compareMode, setCompareMode] = useState(false);
     const [comparedRows, setComparedRows] = useState<number[]>([]);
     const [editingId, setEditingId] = useState<number | undefined>(undefined);

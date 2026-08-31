@@ -1,11 +1,7 @@
 import React from 'react';
 import {HistoryHeader, HistoryLayout, RowsList} from '../../modules';
 import i18n from './i18n';
-import {
-    QueryHistoryFilterConfig,
-    QueryHistoryItem,
-    QueryHistorySearchConfig,
-} from '../../types/history';
+import {QueryListFilterConfig, QueryListItem, QueryListSearchConfig} from '../../types/queryList';
 import {TutorialHistoryRow} from '../../types/tutorial';
 import {getListKey} from '../../helpers/getListKey';
 import {TutorialRowContent} from './TutorialRowContent';
@@ -16,11 +12,11 @@ export type TutorialsHistoryProps<T extends TutorialHistoryRow = TutorialHistory
     className?: string;
     title?: string;
     logo?: React.ReactNode;
-    search: QueryHistorySearchConfig;
-    filter?: QueryHistoryFilterConfig;
-    items: QueryHistoryItem<T>[];
+    search: QueryListSearchConfig;
+    filter?: QueryListFilterConfig;
+    items: QueryListItem<T>[];
     selectedRowId?: T['id'];
-    onListItemClick?: (item: QueryHistoryItem<T>) => void;
+    onListItemClick?: (item: QueryListItem<T>) => void;
 };
 
 const block = cn('qp-tutorials-history');

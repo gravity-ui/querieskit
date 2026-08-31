@@ -1,13 +1,13 @@
 import React, {FC, useEffect, useState} from 'react';
 import {FullSearchToggleButton} from './internal/FullSearchToggleButton';
 import {HistoryFilter, SearchWithButtons} from '../../components';
-import {QueryHistoryFilterConfig} from '../../types/history';
+import {QueryListFilterConfig} from '../../types/queryList';
 
 type Props = {
     search?: string;
     fullSearch?: boolean;
     hasClear?: boolean;
-    filter?: QueryHistoryFilterConfig;
+    filter?: QueryListFilterConfig;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
     className?: string;
 };

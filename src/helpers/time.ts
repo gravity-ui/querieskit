@@ -20,6 +20,10 @@ export const formatTimeCanonical = (ts: Date) => {
     return dateTimeParse(ts)?.format('DD.MM.YYYY, HH:mm');
 };
 
+export const formatDateCanonical = (ts: Date) => {
+    return dateTimeParse(ts)?.format('DD.MM.YYYY');
+};
+
 export const getTimestampFromDate = (date: Date) => {
     return dateTimeParse(date)?.valueOf();
 };

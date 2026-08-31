@@ -1,19 +1,21 @@
-import React, {KeyboardEvent, useState} from 'react';
-import {QueryHistoryEditingRenderData, QueryHistoryRow} from '../../types/history';
+import React, {KeyboardEvent, useEffect, useState} from 'react';
 import {Text, TextInput} from '@gravity-ui/uikit';
-import './HistoryRow.scss';
+import {QueryListEditingRenderData, QueryListRow} from '../../types/queryList';
 
-export type Props<T extends QueryHistoryRow> = {
+export type EditableRowTitleProps<T extends QueryListRow = QueryListRow> = {
     item: T;
-    editing?: QueryHistoryEditingRenderData<T>;
+    editing?: QueryListEditingRenderData<T>;
 };
 
-export const HistoryRowTitle = <T extends QueryHistoryRow>({item, editing}: Props<T>) => {
+export const EditableRowTitle = <T extends QueryListRow>({
+    item,
+    editing,
+}: EditableRowTitleProps<T>) => {
     const [title, setTitle] = useState(item.title);
     const isEditing = Boolean(editing?.enabled);
     const isTitleEmpty = !title.trim();
 
-    React.useEffect(() => {
+    useEffect(() => {
         setTitle(item.title);
     }, [item.id, item.title]);
 
@@ -61,9 +63,5 @@ export const HistoryRowTitle = <T extends QueryHistoryRow>({item, editing}: Prop
         );
     }
 
-    return (
-        <Text variant="subheader-1" ellipsis>
-            {item.title}
-        </Text>
-    );
+    return <Text ellipsis>{item.title}</Text>;
 };
