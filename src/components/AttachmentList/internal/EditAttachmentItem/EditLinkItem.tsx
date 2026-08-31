@@ -66,15 +66,21 @@ export const EditLinkItem = ({
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleAccept();
         }
     };
 
+    const handleLinkScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
+        if (labelRef.current) {
+            labelRef.current.style.transform = `translateY(-${event.currentTarget.scrollTop}px)`;
+        }
+    };
+
     return (
         <Flex className={block()} width="100%" spacing={{px: 4, py: 3}} direction="column" gap={2}>
-            <Box className={block('link-field-container')} position="relative">
+            <Box overflow="hidden" className={block('link-field-container')} position="relative">
                 <Text
                     ref={labelRef}
                     as="label"
@@ -93,6 +99,7 @@ export const EditLinkItem = ({
                     onKeyDown={handleKeyDown}
                     onUpdate={(v) => handleUpdate('link', v)}
                     controlProps={{
+                        onScroll: handleLinkScroll,
                         style: {
                             textIndent: Number(labelRef.current?.clientWidth) + 2,
                         },
