@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/gravity-ui/querieskit/compare/v1.1.0...v1.2.0) (2026-08-31)
+
+
+### Features
+
+* **UI:** saved queries [YTFRONT-5935] ([6d7094e](https://github.com/gravity-ui/querieskit/commit/6d7094ee8916a85c04f564972d43537f01295c4b))
+
+
+### Bug Fixes
+
+* **UI:** navigation [YTFRONT-5935] ([b00c29f](https://github.com/gravity-ui/querieskit/commit/b00c29f0f45dc1e324a84bbf80c0c5e9d7e94a5d))
+
 ## [1.1.0](https://github.com/gravity-ui/querieskit/compare/v1.0.4...v1.1.0) (2026-08-28)
 
 
