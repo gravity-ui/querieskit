@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Flex, Icon, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
+import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
 
 import i18n from '../../i18n';
 
@@ -38,20 +39,22 @@ export const FileEdit = ({
         onAccept?.(fileName);
     };
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            handleAccept();
-        }
+    const handleCancel = () => {
+        onCancel?.();
     };
 
+    const {handleEditorKeyDown, handleInputKeyDown} = useKeyDownFormControl(
+        handleAccept,
+        handleCancel,
+    );
+
     return (
-        <Flex spacing={{px: 4}} width="100%" gap={2}>
+        <Flex onKeyDown={handleEditorKeyDown} spacing={{px: 4}} width="100%" gap={2}>
             <TextInput
                 autoFocus
                 label={label}
                 value={fileName}
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleInputKeyDown}
                 onUpdate={handleChangeFileName}
             />
 

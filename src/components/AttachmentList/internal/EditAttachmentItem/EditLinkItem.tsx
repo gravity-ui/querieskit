@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {Box, Button, Flex, Icon, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
+import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
 import cn from 'bem-cn-lite';
 
 import i18n from '../../i18n';
@@ -65,11 +66,8 @@ export const EditLinkItem = ({
         onAccept?.(values);
     };
 
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            handleAccept();
-        }
+    const handleCancel = () => {
+        onCancel?.();
     };
 
     const handleLinkScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
@@ -78,8 +76,20 @@ export const EditLinkItem = ({
         }
     };
 
+    const {handleEditorKeyDown, handleInputKeyDown} = useKeyDownFormControl(
+        handleAccept,
+        handleCancel,
+    );
+
     return (
-        <Flex className={block()} width="100%" spacing={{px: 4, py: 3}} direction="column" gap={2}>
+        <Flex
+            onKeyDown={handleEditorKeyDown}
+            className={block()}
+            width="100%"
+            spacing={{px: 4, py: 3}}
+            direction="column"
+            gap={2}
+        >
             <Box overflow="hidden" className={block('link-field-container')} position="relative">
                 <Text
                     ref={labelRef}
@@ -96,7 +106,8 @@ export const EditLinkItem = ({
                     minRows={3}
                     maxRows={5}
                     hasClear
-                    onKeyDown={handleKeyDown}
+                    autoFocus
+                    onKeyDown={handleInputKeyDown}
                     onUpdate={(v) => handleUpdate('link', v)}
                     controlProps={{
                         onScroll: handleLinkScroll,
@@ -128,7 +139,7 @@ export const EditLinkItem = ({
                 value={values.name}
                 label={nameLabel}
                 hasClear
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleInputKeyDown}
                 onUpdate={(v) => handleUpdate('name', v)}
             />
 
