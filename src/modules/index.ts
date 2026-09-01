@@ -28,6 +28,19 @@ export {NavigationDetail} from './NavigationDetail';
 export type {NavigationDetailProps} from './NavigationDetail';
 export {NavigationSchema, buildSchemaColumns, filterSchema} from './NavigationSchema';
 export type {NavigationSchemaProps, NavigationSchemaViewConfig} from './NavigationSchema';
+export {QueryStatistics} from './QueryStatistics';
+export type {
+    QueryStatisticsColumn,
+    QueryStatisticsColumnConfig,
+    QueryStatisticsExtraColumn,
+    QueryStatisticsExtraColumnContext,
+    QueryStatisticsFormatValueContext,
+    QueryStatisticsGroup,
+    QueryStatisticsItem,
+    QueryStatisticsMetric,
+    QueryStatisticsProps,
+    QueryStatisticsValues,
+} from './QueryStatistics';
 export {NavigationPreview, buildPreviewColumns, filterPreviewRows} from './NavigationPreview';
 export type {NavigationPreviewProps, NavigationPreviewViewConfig} from './NavigationPreview';
 export {NavigationMeta, buildMetaGroups} from './NavigationMeta';

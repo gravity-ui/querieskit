@@ -8,3 +8,4 @@ export * from './types/tutorial';
 export * from './types/navigation';
 export * from './types/pathEditor';
 export * from './types/errorTree';
+export * from './types/queryStatistics';
