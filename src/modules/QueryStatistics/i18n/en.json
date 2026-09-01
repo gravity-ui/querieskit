@@ -1,0 +1,16 @@
+{
+  "action_collapse-all": "Collapse all",
+  "action_collapse-group": "Collapse group",
+  "action_expand-all": "Expand all",
+  "action_expand-group": "Expand group",
+  "field_avg": "Avg",
+  "field_count": "Count",
+  "field_description": "Description",
+  "field_last": "Last",
+  "field_max": "Max",
+  "field_metric": "Metric",
+  "field_min": "Min",
+  "field_search": "Search",
+  "field_sum": "Sum",
+  "field_unit": "Unit"
+}

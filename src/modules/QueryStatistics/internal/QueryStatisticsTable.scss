@@ -1,0 +1,8 @@
+.qp-query-statistics-table { max-width: 100%; overflow-x: auto;
+    &_fixed { overflow: visible; }
+    .qp-data-table { min-width: 55rem; }
+    &__metric-column,
+    &__value-column { border: 0; border-block-end: 1px solid var(--g-color-line-generic); }
+    &__metric-column { min-width: 19rem; }
+    &__value-column { min-width: 8rem; }
+}

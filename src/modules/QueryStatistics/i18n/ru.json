@@ -1,0 +1,16 @@
+{
+  "action_collapse-all": "Свернуть все",
+  "action_collapse-group": "Свернуть группу",
+  "action_expand-all": "Развернуть все",
+  "action_expand-group": "Развернуть группу",
+  "field_avg": "Среднее",
+  "field_count": "Количество",
+  "field_description": "Описание",
+  "field_last": "Последнее",
+  "field_max": "Максимум",
+  "field_metric": "Метрика",
+  "field_min": "Минимум",
+  "field_search": "Поиск",
+  "field_sum": "Сумма",
+  "field_unit": "Единица измерения"
+}

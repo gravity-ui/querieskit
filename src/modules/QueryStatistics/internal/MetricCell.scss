@@ -1,0 +1,12 @@
+.qp-query-statistics-metric-cell {
+    &__indent { display: inline-flex; flex-shrink: 0; }
+    &__indent-step { width: var(--g-spacing-10); flex-shrink: 0; }
+    &__row-button,
+    &__row-icon,
+    &__info-icon { flex-shrink: 0; }
+    &__name { min-width: 0; white-space: nowrap; }
+    &__info-icon { margin-inline-start: var(--g-spacing-1); color: var(--g-color-text-secondary); vertical-align: text-bottom; }
+    &__tooltip { display: grid; gap: var(--g-spacing-2); max-width: 24rem; }
+    &__tooltip-row { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--g-spacing-2); }
+    &__tooltip-label { color: var(--g-color-text-secondary); }
+}
