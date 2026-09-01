@@ -1,0 +1,11 @@
+{
+  "field_attributes": "Attributes",
+  "field_code": "Code",
+  "action_show-all": "Show all",
+  "action_show-parent": "Show parent",
+  "context_intermediate-messages": {
+    "one": "{{count}} intermediate message",
+    "other": "{{count}} intermediate messages"
+  },
+  "context_attributes-unavailable": "Attributes cannot be displayed"
+}

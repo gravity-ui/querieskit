@@ -1,0 +1,13 @@
+.qp-error-tree {
+    &__intermediate {
+        margin-block-end: var(--g-spacing-2);
+    }
+
+    &__intermediate-summary {
+        min-inline-size: 0;
+    }
+
+    &__intermediate-details {
+        padding-inline-start: var(--g-spacing-7);
+    }
+}

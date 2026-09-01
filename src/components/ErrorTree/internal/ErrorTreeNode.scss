@@ -1,0 +1,95 @@
+.qp-error-tree {
+    &__node {
+        margin-block-end: var(--g-spacing-2);
+    }
+
+    &__summary,
+    &__line {
+        min-inline-size: 0;
+    }
+
+    &__expand-button {
+        flex: 0 0 auto;
+    }
+
+    &__expand-placeholder {
+        flex: 0 0 28px;
+    }
+
+    &__line {
+        flex: 1 1 auto;
+        min-inline-size: 0;
+        padding-block: 2px;
+    }
+
+    &__severity-icon {
+        flex: 0 0 auto;
+
+        &_error {
+            color: var(--g-color-text-danger);
+        }
+
+        &_warning {
+            color: var(--g-color-text-warning);
+        }
+
+        &_info {
+            color: var(--g-color-text-info);
+        }
+    }
+
+    &__attributes-button,
+    &__show-parent {
+        flex: 0 0 auto;
+    }
+
+    &__position {
+        flex: 0 0 auto;
+        padding-block: 4px;
+        color: var(--g-color-text-secondary);
+        font-family: var(--g-font-family-monospace);
+    }
+
+    &__message,
+    &__message-button {
+        flex: 1 1 auto;
+        min-inline-size: 0;
+        overflow: hidden;
+        padding-block: 4px;
+        color: var(--g-color-text-primary);
+        font-family: var(--g-font-family-monospace);
+        font-size: var(--g-text-code-2-font-size);
+        line-height: var(--g-text-code-2-line-height);
+        text-align: start;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__message-button {
+        justify-content: flex-start;
+    }
+
+    &__code {
+        flex: 0 0 auto;
+        padding-block: 4px;
+        color: var(--g-color-text-complementary);
+    }
+
+    &__attributes {
+        margin-block-start: var(--g-spacing-1);
+        margin-inline-start: 28px;
+        overflow: auto;
+    }
+
+    &__attributes-content {
+        margin: 0;
+        padding: var(--g-spacing-2);
+        border-radius: var(--g-border-radius-s);
+        background: var(--g-color-base-generic-ultralight);
+        color: var(--g-color-text-primary);
+        font-family: var(--g-font-family-monospace);
+        font-size: var(--g-text-code-2-font-size);
+        line-height: var(--g-text-code-2-line-height);
+        white-space: pre-wrap;
+    }
+}
