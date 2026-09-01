@@ -53,64 +53,64 @@ const defaultActions: NavigationHeaderAction[] = [
 
 const CLUSTERS: NavigationCluster[] = [
     {
-        id: 'arnold',
-        title: 'Arnold',
+        id: 'northstar',
+        title: 'Northstar',
         color: 'white',
         backgroundColor: 'rgba(218, 68, 83, 1)',
         description: 'Production',
     },
     {
-        id: 'freud',
-        title: 'Freud',
+        id: 'cedar',
+        title: 'Cedar',
         color: 'white',
         backgroundColor: 'rgba(127, 130, 133, 1)',
         description: 'Production',
     },
     {
-        id: 'hahn',
-        title: 'Hahn',
+        id: 'sequoia',
+        title: 'Sequoia',
         color: 'white',
         backgroundColor: 'rgba(215, 112, 173, 1)',
         description: 'Production',
     },
     {
-        id: 'yp-sas-test',
-        title: 'YP-Sas-Test',
+        id: 'pioneer-test',
+        title: 'Pioneer-Test',
         color: 'white',
         backgroundColor: 'rgba(150, 122, 220, 1)',
         description: 'Testing',
     },
     {
-        id: 'zeno',
-        title: 'Zeno',
+        id: 'orbit',
+        title: 'Orbit',
         color: 'white',
         backgroundColor: 'rgba(233, 87, 63, 1)',
         description: 'Production',
     },
     {
-        id: 'ada',
-        title: 'Ada',
+        id: 'lighthouse',
+        title: 'Lighthouse',
         color: 'white',
         backgroundColor: 'rgba(67, 68, 69, 1)',
         description: 'Production',
     },
     {
-        id: 'arnold-gnd',
-        title: 'Arnold-GND',
+        id: 'northstar-gnd',
+        title: 'Northstar-GND',
         color: 'white',
         backgroundColor: 'rgba(140, 193, 82, 1)',
         description: 'tesdting',
     },
     {
-        id: 'deimos',
-        title: 'Deimos',
+        id: 'harbor',
+        title: 'Harbor',
         color: 'white',
         backgroundColor: 'rgba(55, 188, 155, 1)',
         description: 'Production',
     },
     {
-        id: 'freud-gnd',
-        title: 'Freud-GND',
+        id: 'cedar-gnd',
+        title: 'Cedar-GND',
         color: 'white',
         backgroundColor: 'rgba(140, 193, 82, 1)',
         description: 'Prestable',
@@ -129,18 +129,27 @@ const ITEM_NAMES: Array<Pick<NavigationItem, 'title' | 'kind' | 'hasChildren' | 
 const getPathDepth = (path: string | undefined): number =>
     (path ?? '').split('/').filter(Boolean).length;
 
-const getItemsForPath = (path: string | undefined): NavigationItem[] => {
+const getItemsForPath = (
+    path: string | undefined,
+    sort: NavigationSortOrder = 'asc',
+): NavigationItem[] => {
     if (getPathDepth(path) > 1) {
         return [];
     }
 
-    return ITEM_NAMES.map(({title, kind, hasChildren, disabled}) => ({
-        path: `${path ?? ''}/${title}`,
-        title,
-        kind,
-        hasChildren,
-        disabled,
-    }));
+    return [...ITEM_NAMES]
+        .sort(({title: leftTitle}, {title: rightTitle}) =>
+            sort === 'asc'
+                ? leftTitle.localeCompare(rightTitle)
+                : rightTitle.localeCompare(leftTitle),
+        )
+        .map(({title, kind, hasChildren, disabled}) => ({
+            path: `${path ?? ''}/${title}`,
+            title,
+            kind,
+            hasChildren,
+            disabled,
+        }));
 };
 
 export default meta;
@@ -190,7 +199,7 @@ const useLocationState = (initial: NavigationLocation) => {
 const useNavigationStoryState = (initial: NavigationLocation) => {
     const {location, onUpdate} = useLocationState(initial);
     const [sort, setSort] = useState<NavigationSortOrder>('asc');
-    const items = getItemsForPath(location.path);
+    const items = getItemsForPath(location.path, sort);
 
     return {location, onUpdate, sort, setSort, items};
 };
@@ -257,7 +266,7 @@ const LoadingStory = () => {
 };
 
 const EmptyStory = () => {
-    const {location, onUpdate} = useLocationState({cluster: 'arnold', path: '/home/empty'});
+    const {location, onUpdate} = useLocationState({cluster: 'northstar', path: '/home/empty'});
 
     return (
         <div style={{width: 300, height: 500}}>
@@ -272,7 +281,7 @@ const EmptyStory = () => {
 };
 
 const EmptySearchStory = () => {
-    const {location, onUpdate} = useLocationState({cluster: 'arnold', path: '/home'});
+    const {location, onUpdate} = useLocationState({cluster: 'northstar', path: '/home'});
     const [search, setSearch] = useState('no-such-item');
 
     return (
@@ -312,8 +321,8 @@ const CUSTOM_CLUSTERS: CustomCluster[] = CLUSTERS.map((cluster) => ({
     env: cluster.description ?? 'Unknown',
 }));
 
-const getCustomItemsForPath = (path: string | undefined): CustomItem[] =>
-    getItemsForPath(path).map((item, index) => ({
+const getCustomItemsForPath = (path: string | undefined, sort: NavigationSortOrder): CustomItem[] =>
+    getItemsForPath(path, sort).map((item, index) => ({
         ...item,
         owner: index % 2 === 0 ? 'robot' : 'user',
     }));
@@ -329,7 +338,7 @@ const CustomRowsStory = () => {
                 header={{actions: defaultActions, onLoadSuggestions: mockLoadPathSuggestions}}
                 onUpdate={onUpdate}
                 clusters={CUSTOM_CLUSTERS}
-                items={getCustomItemsForPath(location.path)}
+                items={getCustomItemsForPath(location.path, sort)}
                 sort={{value: sort, onUpdate: setSort}}
                 renderClusterItem={({cluster}) => (
                     <Flex alignItems="center" gap={2} style={{width: '100%', padding: '0 8px'}}>
@@ -359,7 +368,7 @@ const CustomRowsStory = () => {
 };
 
 const CustomDetailResolverStory = () => {
-    const {location, onUpdate} = useLocationState({cluster: 'arnold', path: '/home'});
+    const {location, onUpdate} = useLocationState({cluster: 'northstar', path: '/home'});
     const [openedItem, setOpenedItem] = useState<NavigationItem | undefined>(undefined);
 
     const resolveDetail = createNavigationDetailResolver({
