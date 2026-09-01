@@ -7,3 +7,4 @@ export type {SavedQuery} from './types/savedQueries';
 export * from './types/tutorial';
 export * from './types/navigation';
 export * from './types/pathEditor';
+export * from './types/errorTree';

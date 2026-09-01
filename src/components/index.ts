@@ -55,6 +55,7 @@ export type {
 export * from './Dashboard';
 export {Chart} from './Chart';
 export type {ChartAction, ChartProps} from './Chart';
+export {ErrorTree} from './ErrorTree';
 export {
     MonacoLanguage,
     YT_DARK_HC_MONACO_THEME,

@@ -1,0 +1,13 @@
+{
+  "field_attributes": "Атрибуты",
+  "field_code": "Код",
+  "action_show-all": "Показать все",
+  "action_show-parent": "Показать родителя",
+  "context_intermediate-messages": {
+    "one": "{{count}} промежуточное сообщение",
+    "few": "{{count}} промежуточных сообщения",
+    "many": "{{count}} промежуточных сообщений",
+    "other": "{{count}} промежуточного сообщения"
+  },
+  "context_attributes-unavailable": "Не удалось показать атрибуты"
+}
