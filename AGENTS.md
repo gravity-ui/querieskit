@@ -91,6 +91,18 @@ Violating this order (e.g. importing a widget inside a module) is not allowed â€
 
 Public types that are part of the props contract of components/modules/widgets must live in `src/types` and be re-exported via `src/index.ts` if the library consumer needs them to type their own data (e.g. `QueryHistoryRow`, `QueryHistoryItem`).
 
+## Styles
+
+Every component/module/widget that needs styles owns an eponymous `.scss` file next to its `.tsx` file and imports that stylesheet itself. A parent stylesheet must not define a child's BEM block or act as the shared loading point for child styles.
+
+- Internal appearance and layout belong to the component's own stylesheet.
+- External positioning relative to a parent or siblings belongs to the parent. When a parent needs to apply such styles directly to a child, the child accepts `className` and merges it with its root BEM class; the parent passes its own BEM element, e.g. `className={block('child')}`.
+- Prefer `Flex` from `@gravity-ui/uikit` for flexbox layouts when its props can express the required behavior. Use props such as `direction`, `gap`, and `alignItems` instead of duplicating them with `display: flex` in SCSS.
+- Prefer container layout such as `Flex` with `gap` when it expresses the relationship; do not add a child class solely to duplicate container spacing. Keep flex rules in SCSS only when the `Flex` API cannot express the required selectors or behavior.
+- Do not copy the current legacy patterns where `ClustersList.scss` defines `ClusterRow` styles or `NavigationItemsList.scss` defines `NavigationItemRow` styles. These are existing violations, not examples to follow.
+
+For the full ownership rules, examples, and review checklist, see [`plans/styles-rules.md`](plans/styles-rules.md).
+
 ## i18n
 
 Every widget/module/component with its own reusable scenario keeps its localization in an `i18n/` subfolder (`en.json`, `ru.json`, `dicts.ts`, `index.ts`), registers its keyset via [`addI18Keysets`](src/i18n/index.ts:11) with a name like `` `qp:widget-name` ``, and uses the typed `t`/`i18n(...)` function â€” see the example in [`QueriesHistory`](src/widgets/QueriesHistory/i18n/index.ts:1).
