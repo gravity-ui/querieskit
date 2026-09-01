@@ -186,7 +186,7 @@ export const Attachments = ({
 
     const handleDeleteAll = () => {
         const patchAttachList: never[] = [];
-        const patchDeletedAttachList = [...attachList];
+        const patchDeletedAttachList = [...deletedAttachList, ...attachList];
 
         setInnerAttachList(patchAttachList);
         setInnerDeletedAttachList(patchDeletedAttachList);

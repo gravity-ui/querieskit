@@ -1,8 +1,9 @@
-import React, {useId, useState} from 'react';
+import React, {useId, useRef, useState} from 'react';
 import {Box, Button, Flex, Icon, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
 import {useLabelRef} from '../../hooks/useLabelRef';
 import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
+import {ObjectLinkValidator, objectLinkValidator} from '../../helpers/objectLinkValidator';
 import cn from 'bem-cn-lite';
 
 import i18n from '../../i18n';
@@ -10,6 +11,12 @@ import i18n from '../../i18n';
 import './EditLinkItem.scss';
 
 export type EditLinkValues = {
+    link: string;
+    token: string;
+    name: string;
+};
+
+type EditLinkErrors = {
     link: string;
     token: string;
     name: string;
@@ -25,6 +32,7 @@ export type EditLinkItemProps = {
     tokens?: {value: string; title: string}[];
     values?: EditLinkValues;
     defaultValues?: EditLinkValues;
+    validator?: ObjectLinkValidator;
 };
 
 const block = cn('edit-link-item');
@@ -38,6 +46,7 @@ export const EditLinkItem = ({
     onChange,
     tokens,
     values: customerValues,
+    validator = objectLinkValidator,
     defaultValues,
 }: EditLinkItemProps) => {
     const [innerValues, setInnerValues] = useState<EditLinkValues>({
@@ -47,6 +56,8 @@ export const EditLinkItem = ({
         ...customerValues,
         ...(defaultValues ?? {}),
     });
+
+    const [errors, setErrors] = useState<Partial<EditLinkErrors> | null>(null);
 
     const linkInputId = useId();
 
@@ -58,14 +69,31 @@ export const EditLinkItem = ({
 
     const {labelRef, labelWidth} = useLabelRef(linkLabel);
 
+    const wasSubmittedRef = useRef(false);
+
+    const isTokenRequired = tokens && tokens?.length > 0;
+
     const handleUpdate = (key: string, patcValue: string) => {
         const newValues: EditLinkValues = {...values, [key]: patcValue};
+
+        if (errors || wasSubmittedRef.current) {
+            setErrors(validator(newValues, isTokenRequired));
+        }
 
         setInnerValues(newValues);
         onChange?.(newValues);
     };
 
     const handleAccept = () => {
+        const validResult = validator(values, isTokenRequired);
+
+        wasSubmittedRef.current = true;
+
+        if (validResult) {
+            setErrors(validResult);
+            return;
+        }
+
         onAccept?.(values);
     };
 
@@ -110,6 +138,8 @@ export const EditLinkItem = ({
                     maxRows={5}
                     hasClear
                     autoFocus
+                    error={errors?.link}
+                    errorMessage={errors?.link}
                     onKeyDown={handleInputKeyDown}
                     onUpdate={(v) => handleUpdate('link', v)}
                     controlProps={{
@@ -126,6 +156,8 @@ export const EditLinkItem = ({
                     filterable
                     value={[values.token]}
                     label={tokenLabel}
+                    errorMessage={errors?.token}
+                    validationState={errors?.token ? 'invalid' : undefined}
                     onUpdate={(v) => handleUpdate('token', v[0])}
                 >
                     {tokens.map((token) => (
@@ -142,6 +174,7 @@ export const EditLinkItem = ({
                 value={values.name}
                 label={nameLabel}
                 hasClear
+                error={errors?.name}
                 onKeyDown={handleInputKeyDown}
                 onUpdate={(v) => handleUpdate('name', v)}
             />

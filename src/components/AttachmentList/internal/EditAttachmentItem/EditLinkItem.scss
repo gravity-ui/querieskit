@@ -1,9 +1,21 @@
 .edit-link-item {
+    &__link-field-container {
+        padding: 1px;
+    }
+
     &__link-field-label {
         position: absolute;
         z-index: 1;
-        inset-block-start: var(--g-spacing-1);
+        inset-block-start: calc(var(--g-spacing-1) + 1px);
         inset-inline-start: var(--g-spacing-2);
         font-weight: 600;
+    }
+
+    .g-select {
+        padding: 1px;
+    }
+
+    .g-text-input {
+        padding: 1px;
     }
 }
