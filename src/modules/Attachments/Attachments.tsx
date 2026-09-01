@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider, Text} from '@gravity-ui/uikit';
 import {AttachmentList, AttachmentListPlaceholder, EditAttachmentItem} from '../../components';
 import {createUuid} from '../../helpers/createUuid';
@@ -18,7 +18,7 @@ import './Attachments.scss';
 
 type TabVariants = 'Current' | 'Deleted';
 
-export type AttachItem = AttachmentItemProps['attachment'] & {token?: string};
+export type AttachItem = AttachmentItemProps['attachment'] & {token?: string; isNew?: boolean};
 
 export type AttachmentsProps = {
     tokens?: {value: string; title: string}[];
@@ -53,6 +53,8 @@ export const Attachments = ({
     const attachList = customerAttachments ?? innerAttachList;
     const deletedAttachList = customerDeletedAttachments ?? innerDeletedAttachList;
 
+    const attachCount = useMemo(() => attachList.filter((a) => !a.isNew).length, [attachList]);
+
     const oldAttachList = useRef(attachList);
 
     const getDefaultValuesForLink = (linkId: string) => {
@@ -79,7 +81,10 @@ export const Attachments = ({
     const handleAddEmptyFile = () => {
         const id = createUuid();
 
-        const patchAttachList = [...innerAttachList, {id, name: ''}];
+        const patchAttachList = [
+            ...attachList.filter((a) => !a.isNew),
+            {id, name: '', isNew: true},
+        ];
 
         setInnerAttachList(patchAttachList);
         setWasAddedIds([...wasAddedIds, id]);
@@ -94,7 +99,10 @@ export const Attachments = ({
     const handleAddEmptyLink = () => {
         const id = createUuid();
 
-        const patchAttachList = [...innerAttachList, {id, name: '', token: '', link: ''}];
+        const patchAttachList = [
+            ...attachList.filter((a) => !a.isNew),
+            {id, name: '', token: '', link: '', isNew: true},
+        ];
 
         setInnerAttachList(patchAttachList);
         setWasAddedIds([...wasAddedIds, id]);
@@ -112,7 +120,7 @@ export const Attachments = ({
 
         const patchEditingIds = editingIds.filter((id) => id !== fileId);
         const patchAttachList = attachList.map((attach) => {
-            if (attach.id === fileId) return {...attach, name: fileName};
+            if (attach.id === fileId) return {id: fileId, name: fileName};
             return attach;
         });
 
@@ -133,7 +141,7 @@ export const Attachments = ({
 
         const patchEditingIds = editingIds.filter((id) => id !== linkId);
         const patchAttachList = attachList.map((attach) => {
-            if (attach.id === linkId) return {...attach, ...link};
+            if (attach.id === linkId) return {id: linkId, ...link};
             return attach;
         });
 
@@ -186,7 +194,10 @@ export const Attachments = ({
 
     const handleDeleteAll = () => {
         const patchAttachList: never[] = [];
-        const patchDeletedAttachList = [...deletedAttachList, ...attachList];
+        const patchDeletedAttachList = [
+            ...deletedAttachList,
+            ...attachList.filter((a) => !a.isNew),
+        ];
 
         setInnerAttachList(patchAttachList);
         setInnerDeletedAttachList(patchDeletedAttachList);
@@ -221,7 +232,7 @@ export const Attachments = ({
                     <Tab className={block('tab')} value="Current">
                         <Text variant="body-1">Current</Text>
                         <Text color="hint" variant="body-1">
-                            {attachList.length}
+                            {attachCount}
                         </Text>
                     </Tab>
                     <Tab className={block('tab')} value="Deleted">
@@ -283,7 +294,7 @@ export const Attachments = ({
                                 {...placeholderProps}
                             />
                         )}
-                        {Boolean(innerAttachList.length) && (
+                        {Boolean(attachList.length) && (
                             <Flex gap={2}>
                                 <Button onClick={handleAddEmptyFile}>
                                     <Icon data={Plus} />
