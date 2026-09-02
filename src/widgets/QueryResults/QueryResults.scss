@@ -1,0 +1,25 @@
+.qp-query-results {
+    min-width: 0;
+
+    &__toolbar {
+        min-width: 0;
+    }
+
+    &__views,
+    &__rows-info,
+    &__actions {
+        flex-shrink: 0;
+    }
+
+    &__toolbar-content {
+        min-width: 0;
+    }
+
+    &__actions {
+        margin-left: auto;
+    }
+
+    &__content {
+        min-width: 0;
+    }
+}

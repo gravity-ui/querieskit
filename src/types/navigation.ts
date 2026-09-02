@@ -1,4 +1,5 @@
 import {ReactNode} from 'react';
+import type {QueryResultColumn, QueryResultFormatterSettings} from './queryResults';
 import type {LoadPathSuggestions} from './pathEditor';
 
 export type NavigationLocation = {
@@ -103,11 +104,20 @@ export type NavigationCellValue = ReactNode;
 
 export type NavigationPreviewRow = Record<string, NavigationCellValue>;
 
+export type NavigationPreviewColumn<TRow extends NavigationPreviewRow = NavigationPreviewRow> =
+    string | QueryResultColumn<TRow>;
+
 export type NavigationPreviewConfig<TRow extends NavigationPreviewRow = NavigationPreviewRow> =
     NavigationAsyncConfig & {
-        columns: string[];
+        columns: Array<NavigationPreviewColumn<TRow>>;
         rows: TRow[];
     };
+
+export type NavigationPreviewFormatterConfig = {
+    /** Applied when every displayed preview column declares a YQL type. */
+    formatterSettings?: QueryResultFormatterSettings;
+    maxVisibleLines?: number;
+};
 
 export type NavigationViewRow = NavigationPreviewRow;
 

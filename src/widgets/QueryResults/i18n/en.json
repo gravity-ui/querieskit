@@ -1,0 +1,10 @@
+{
+  "tab_result": "Full result",
+  "tab_schema": "Schema",
+  "field_name": "Name",
+  "field_type": "Type",
+  "context_rows-info": {
+    "one": "{{visible}} of {{total}} row",
+    "other": "{{visible}} of {{total}} rows"
+  }
+}

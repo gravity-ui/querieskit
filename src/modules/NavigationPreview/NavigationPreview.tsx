@@ -1,9 +1,15 @@
 import React, {useMemo} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {type Column, DataTable, FieldsSearchToolbar} from '../../components';
+import {type Column, DataTable, FieldsSearchToolbar, QueryResultsTable} from '../../components';
 import {useVisibleColumns} from '../../helpers/useVisibleColumns';
-import type {NavigationPreviewConfig, NavigationPreviewRow} from '../../types/navigation';
+import type {
+    NavigationPreviewColumn,
+    NavigationPreviewConfig,
+    NavigationPreviewFormatterConfig,
+    NavigationPreviewRow,
+} from '../../types/navigation';
+import type {QueryResultColumn} from '../../types/queryResults';
 import {buildPreviewColumns} from './helpers/buildPreviewColumns';
 import {filterPreviewRows} from './helpers/filterPreviewRows';
 import i18n from './i18n';
@@ -12,7 +18,7 @@ import './NavigationPreview.scss';
 const block = cn('qp-navigation-preview');
 
 export type NavigationPreviewViewConfig<TRow extends NavigationPreviewRow = NavigationPreviewRow> =
-    {
+    NavigationPreviewFormatterConfig & {
         tableColumns?: Array<Column<TRow>>;
         extraColumns?: Array<Column<TRow>>;
     };
@@ -31,6 +37,16 @@ export type NavigationPreviewProps<TRow extends NavigationPreviewRow = Navigatio
     className?: string;
 };
 
+function getColumnName<TRow extends NavigationPreviewRow>(column: NavigationPreviewColumn<TRow>) {
+    return typeof column === 'string' ? column : column.name;
+}
+
+function isQueryResultColumn<TRow extends NavigationPreviewRow>(
+    column: NavigationPreviewColumn<TRow>,
+): column is QueryResultColumn<TRow> {
+    return typeof column !== 'string';
+}
+
 export function NavigationPreview<TRow extends NavigationPreviewRow = NavigationPreviewRow>({
     data,
     view,
@@ -45,18 +61,29 @@ export function NavigationPreview<TRow extends NavigationPreviewRow = Navigation
     className,
 }: NavigationPreviewProps<TRow>) {
     const {columns, rows, loading, loaded, errorContent} = data;
-    const {tableColumns, extraColumns} = view ?? {};
+    const {tableColumns, extraColumns, formatterSettings, maxVisibleLines} = view ?? {};
+    const columnNames = useMemo(() => columns.map(getColumnName), [columns]);
 
-    const [activeVisibleColumns, handleVisibleColumnsChange] = useVisibleColumns(columns, {
+    const [activeVisibleColumns, handleVisibleColumnsChange] = useVisibleColumns(columnNames, {
         value: visibleColumns,
         onChange: onVisibleColumnsChange,
         defaultValue: defaultVisibleColumns,
     });
 
-    const displayedColumnNames = useMemo(
-        () => columns.filter((column) => activeVisibleColumns.includes(column)),
+    const displayedColumns = useMemo(
+        () => columns.filter((column) => activeVisibleColumns.includes(getColumnName(column))),
         [columns, activeVisibleColumns],
     );
+    const displayedColumnNames = useMemo(
+        () => displayedColumns.map(getColumnName),
+        [displayedColumns],
+    );
+    const typedColumns = useMemo(
+        () => displayedColumns.filter(isQueryResultColumn),
+        [displayedColumns],
+    );
+    const canUseQueryResultsTable =
+        !tableColumns && !extraColumns?.length && typedColumns.length === displayedColumns.length;
 
     const resolvedColumns = useMemo(() => {
         if (tableColumns) {
@@ -66,7 +93,11 @@ export function NavigationPreview<TRow extends NavigationPreviewRow = Navigation
     }, [tableColumns, extraColumns, displayedColumnNames]);
 
     const fieldsOptions = useMemo(
-        () => columns.map((column) => ({id: column, title: column})),
+        () =>
+            columns.map((column) => ({
+                id: getColumnName(column),
+                title: typeof column === 'string' ? column : (column.header ?? column.name),
+            })),
         [columns],
     );
 
@@ -96,15 +127,29 @@ export function NavigationPreview<TRow extends NavigationPreviewRow = Navigation
                     hideFieldsSelector={hideFieldsSelector}
                 />
             )}
-            <DataTable<TRow>
-                columns={resolvedColumns}
-                data={filteredRows}
-                loading={loading}
-                loaded={loaded}
-                emptyVariant={search ? 'nothing-found' : 'no-data'}
-                settings={{displayIndices: false}}
-                className={block('table')}
-            />
+            {canUseQueryResultsTable ? (
+                <QueryResultsTable<TRow>
+                    columns={typedColumns}
+                    rows={filteredRows}
+                    loading={loading}
+                    loaded={loaded}
+                    formatterSettings={formatterSettings}
+                    maxVisibleLines={maxVisibleLines}
+                    emptyVariant={search ? 'nothing-found' : 'no-data'}
+                    displayIndices={false}
+                    className={block('table')}
+                />
+            ) : (
+                <DataTable<TRow>
+                    columns={resolvedColumns}
+                    data={filteredRows}
+                    loading={loading}
+                    loaded={loaded}
+                    emptyVariant={search ? 'nothing-found' : 'no-data'}
+                    settings={{displayIndices: false}}
+                    className={block('table')}
+                />
+            )}
         </Flex>
     );
 }
