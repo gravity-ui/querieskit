@@ -1,3 +1,5 @@
+import i18n from '../i18n';
+
 const DEFAULT_MAX_LENGTH = 256;
 
 export type Validator = (value: unknown) => string | null;
@@ -7,15 +9,15 @@ export const stringRequiredValidator: Validator = (
     maxLength: number = DEFAULT_MAX_LENGTH,
 ) => {
     if (typeof value !== 'string') {
-        return 'Value must be string';
+        return i18n('alert_value-must-be-string');
     }
 
     if (!value.trim()) {
-        return 'Required field';
+        return i18n('alert_required-field');
     }
 
     if (value.length > maxLength) {
-        return `Max length is ${maxLength}`;
+        return i18n('alert_max-length', {maxLength});
     }
 
     return null;
