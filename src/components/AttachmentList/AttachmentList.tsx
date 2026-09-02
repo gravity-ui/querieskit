@@ -3,7 +3,7 @@ import {Flex, List, ListProps} from '@gravity-ui/uikit';
 import {AttachmentItem, AttachmentItemProps} from './internal/AttachmentItem/AttachmentItem';
 import './AttachmentList.scss';
 
-export type AttachmentListProps = Omit<ListProps, 'items' | 'selectedItemIndex' | 'virtialized'> & {
+export type AttachmentListProps = Omit<ListProps, 'items' | 'selectedItemIndex' | 'virtualized'> & {
     attachments: AttachmentItemProps['attachment'][];
     className?: string;
     onDelete?: (attachment: AttachmentItemProps['attachment']) => void;

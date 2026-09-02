@@ -55,7 +55,7 @@ export const Attachments = ({
 
     const attachCount = useMemo(() => attachList.filter((a) => !a.isNew).length, [attachList]);
 
-    const oldAttachList = useRef(attachList);
+    const defaultAttachList = useRef(attachList);
 
     const getDefaultValuesForLink = (linkId: string) => {
         const currentLink = attachList.find((a) => a.id === linkId);
@@ -66,15 +66,16 @@ export const Attachments = ({
         };
     };
 
-    const handleUpdateEditedState = (attachId: string, newAttach: AttachItem) => {
-        const patchAttach = oldAttachList.current.find((a) => a.id === attachId);
-        if (!patchAttach) return;
-        const isNewAttach = wasAddedIds.includes(attachId);
-        if (isNewAttach) return;
-        if (isObjectEqual(patchAttach, newAttach)) {
+    const runAfterAttachAdded = (attachId: string, newAttach: AttachItem) => {
+        const editedAttach = defaultAttachList.current.find((a) => a.id === attachId);
+
+        if (!editedAttach) return;
+
+        if (isObjectEqual(editedAttach, newAttach)) {
             setWasEditedIds(wasEdited.filter((id) => id !== attachId));
             return;
         }
+
         setWasEditedIds([...wasEdited, attachId]);
     };
 
@@ -132,7 +133,7 @@ export const Attachments = ({
             deletedAttachments: deletedAttachList,
         });
 
-        handleUpdateEditedState(fileId, {id: fileId, name: fileName});
+        runAfterAttachAdded(fileId, {id: fileId, name: fileName});
     };
 
     const handleAcceptLink = (linkId: string, link: EditLinkValues) => {
@@ -153,12 +154,17 @@ export const Attachments = ({
             deletedAttachments: deletedAttachList,
         });
 
-        handleUpdateEditedState(linkId, {id: linkId, ...link});
+        runAfterAttachAdded(linkId, {id: linkId, ...link});
     };
 
-    const handleCancelEditFile = (fileId: string) => {
+    const handleCancelEdit = (fileId: string) => {
         const patchEditingIds = editingIds.filter((id) => id !== fileId);
-        const patchAttachList = attachList.filter((attach) => Boolean(attach.name));
+        const patchAttachList = attachList.filter((a) => !a.isNew);
+
+        const wasItNewAttach = attachList.some((a) => a.isNew);
+        if (wasItNewAttach) {
+            setWasAddedIds(wasAddedIds.filter((id) => id !== fileId));
+        }
 
         setInnerAttachList(patchAttachList);
         setEditingIds(patchEditingIds);
@@ -245,7 +251,7 @@ export const Attachments = ({
 
                 <TabPanel className={block('panel')} value="Current">
                     <Flex spacing={{pt: 3}} direction="column" width="100%" height="100%">
-                        {innerAttachList.length ? (
+                        {attachList.length ? (
                             <AttachmentList
                                 {...attachmentListProps}
                                 attachments={attachList}
@@ -270,7 +276,7 @@ export const Attachments = ({
                                                 }
                                                 defaultValues={defaultLinkValues}
                                                 tokens={tokens}
-                                                onCancel={() => handleCancelEditFile(attach.id)}
+                                                onCancel={() => handleCancelEdit(attach.id)}
                                             />
                                         );
                                     }
@@ -282,7 +288,7 @@ export const Attachments = ({
                                             onAccept={(pathName) =>
                                                 handleAcceptFile(attach.id, pathName)
                                             }
-                                            onCancel={() => handleCancelEditFile(attach.id)}
+                                            onCancel={() => handleCancelEdit(attach.id)}
                                         />
                                     );
                                 }}

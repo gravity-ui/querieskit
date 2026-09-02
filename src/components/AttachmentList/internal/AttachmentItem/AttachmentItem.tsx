@@ -15,7 +15,7 @@ export type AttachmentItemProps = {
     isDeleted?: boolean;
 };
 
-const block = cn('attachment-item');
+const block = cn('qp-attachment-item');
 
 export const AttachmentItem = ({
     attachment,
