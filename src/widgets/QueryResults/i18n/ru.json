@@ -1,0 +1,12 @@
+{
+  "tab_result": "Результат",
+  "tab_schema": "Схема",
+  "field_name": "Название",
+  "field_type": "Тип",
+  "context_rows-info": {
+    "one": "{{visible}} из {{total}} строки",
+    "few": "{{visible}} из {{total}} строк",
+    "many": "{{visible}} из {{total}} строк",
+    "other": "{{visible}} из {{total}} строки"
+  }
+}

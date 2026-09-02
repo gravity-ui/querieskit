@@ -3,7 +3,7 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {Icon, Label} from '@gravity-ui/uikit';
 import LockIcon from '@gravity-ui/icons/svgs/lock.svg';
 import {NavigationPreview} from '..';
-import type {NavigationPreviewRow} from '../../../types/navigation';
+import type {NavigationPreviewColumn, NavigationPreviewRow} from '../../../types/navigation';
 import {PREVIEW_COLUMNS, PREVIEW_ROWS} from './mockData';
 
 const meta: Meta<typeof NavigationPreview> = {
@@ -65,6 +65,31 @@ export const Empty: Story = {
 export const Error: Story = {
     args: {
         data: {columns: [], rows: [], errorContent: 'Failed to load table preview'},
+    },
+};
+
+const TYPED_COLUMNS: Array<NavigationPreviewColumn<NavigationPreviewRow>> = [
+    {name: 'id', type: ['DataType', 'Uint64']},
+    {name: 'tags', type: ['ListType', ['DataType', 'Utf8']]},
+    {
+        name: 'details',
+        type: [
+            'StructType',
+            [
+                ['name', ['DataType', 'Utf8']],
+                ['score', ['DataType', 'Double']],
+            ],
+        ],
+    },
+];
+
+const TYPED_ROWS: NavigationPreviewRow[] = [
+    {id: 1, tags: ['primary', 'preview'], details: ['Result', 42.5]},
+];
+
+export const TypedValues: Story = {
+    args: {
+        data: {columns: TYPED_COLUMNS, rows: TYPED_ROWS, loaded: true},
     },
 };
 

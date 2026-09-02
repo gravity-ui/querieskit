@@ -1,135 +1,94 @@
 ---
 name: code-review-checklist
-description: Applies the Code Review Checklist (logical bugs, edge cases, security, performance) when reviewing code, checking logic, or hunting bugs. Use on any request for code review, проверку логики, поиск багов, or bug hunting in code.
+description: Review code changes from supplied diffs, local working-tree changes, or GitHub PRs, validating correctness, React state, edge cases, security, performance, and compatibility against full code context. Use for code review, diff review, logic checks, and bug hunting.
 ---
 
-# **Code Review Checklist**
+# Code Review Checklist
 
-## **Logical Bugs Checklist**
+Review changes in two passes: find plausible risks, then validate each risk against the full code context. Report only confirmed, actionable findings.
 
-### **Control Flow**
+## Boundaries
 
-- All branches are reachable and necessary
-- No dead code paths
-- Loop conditions terminate correctly
-- Switch/case has default or is exhaustive
-- Early returns don't skip necessary cleanup
-- Conditional logic matches the intent (off-by-one, inverted conditions)
+- Code review is read-only unless the user separately asks for implementation.
+- Do not edit the reviewed code, create review-report files, or run commands that rewrite source files.
+- Do not publish PR comments, replies, or review decisions without an explicit request.
+- Return the review directly in the response, using the language of the user's request.
 
-### **Null & Undefined Handling**
+## Determine the Review Source
 
-- Null checks before dereferencing
-- Optional chaining used where appropriate
-- Default values for missing fields
-- No assumptions about object shape without validation
+Use the source named by the user. Do not ask them to reproduce a diff that is already available.
 
-### **Error Handling**
+- **Supplied diff or diff file:** treat it as the authoritative change set. When the repository is available, use it only to read the full files and related context.
+- **Local repository:** inspect status first. Unless the user narrows the scope, include staged changes, unstaged changes, and untracked files. If branch or committed changes are requested, compare the requested branch range as a separate layer.
+- **GitHub PR:** use the `github-pr-review` skill to obtain PR metadata, diff, and existing comments, then apply this skill as the analysis core. Preserve that skill's statuses when validating existing comments.
 
-- Errors caught at appropriate level
-- No swallowed errors (empty catch blocks)
-- Error propagation preserves context
-- Graceful degradation on failure
-- Resource cleanup in finally blocks
+An empty result from one diff layer does not prove there are no local changes; reconcile the review scope with repository status.
 
-### **Concurrency & Race Conditions**
+## Build Context Before Judging
 
-- Shared mutable state is protected
-- No race conditions in async code
-- Locks/mutexes used correctly where needed
-- Callbacks don't cause interleaving issues
-- Atomicity of compound operations guaranteed
+1. Read the repository's `AGENTS.md` and any instructions that apply to the changed paths.
+2. Build an internal change map in dependency order:
+   types and helpers → components → modules → widgets → public exports and integration.
+3. Read every changed source file in full when it is available, not only its diff hunks. If only the diff is available, state the resulting context limitation.
+4. Follow relevant types, callers, callees, consumers, state owners, and public contracts when the finding depends on them.
+5. Infer the intended behavior from code, tests, types, and the user's request. Call out a missing requirement as uncertainty, not as a confirmed bug.
 
-### **State Management**
+For this repository, apply conditional guidance without duplicating it here:
 
-- State transitions are valid and complete
-- No stale state after updates
-- State not mutated directly (where immutable pattern expected)
-- Derived state recomputed when dependencies change
-- No state leaks between independent operations
+- For SCSS or layout changes, read `plans/styles-rules.md`.
+- For localization changes, read `plans/i18n-rules.md`.
+- Check the `components → modules → widgets` dependency direction, mandatory unit and level barrel exports, and placement of consumer-facing public types described in `AGENTS.md`.
+- Treat documented legacy violations as anti-examples, not patterns to copy.
 
-### **Data Flow**
+## Two-Pass Review
 
-- Data transformations preserve invariants
-- No data loss in type conversions
-- Array/object mutations don't affect unexpected references
-- Input validation at boundaries
-- Output consistency with input constraints
+### Pass 1: Find Candidate Risks
 
-## **Edge Cases Checklist**
+Look for code whose correctness depends on a non-obvious condition, including:
 
-### **Boundary Conditions**
+- inverted, incomplete, unreachable, or off-by-one control flow;
+- invalid state transitions, direct mutation, stale closures, stale derived state, or incorrect React effect dependencies and cleanup;
+- nullish values, empty collections, Unicode, dates and time zones, size limits, and other realistic boundaries;
+- lost errors, incomplete failure paths, async races, interleaving, or cleanup leaks;
+- transformations that lose data or rely on an unvalidated shape or invariant;
+- broken request/response, component props, or public API contracts;
+- unsafe HTML or URLs, leaked secrets, or missing validation at trust boundaries;
+- unnecessary work in render or hot paths, retained listeners/resources, or avoidable large allocations;
+- breaking exports, incorrect abstraction-level imports, misplaced styles, or incomplete i18n changes.
 
-- Empty collections handled
-- Zero / negative values handled
-- Maximum values don't overflow
-- String length edge cases (empty, very long, unicode)
-- Date/time edge cases (timezones, leap years, midnight)
+Do not turn formatting preferences, speculative possibilities, or generic best practices into findings without a concrete failure mode.
 
-### **Resource Management**
+### Pass 2: Validate Every Candidate
 
-- File handles closed after use
-- Network connections properly terminated
-- Database connections returned to pool
-- Event listeners removed when no longer needed
-- Temporary resources cleaned up
+For each candidate:
 
-### **Integration Points**
+1. Re-read the entire containing file and the relevant surrounding flow.
+2. Verify the triggering input, state, or execution path is reachable.
+3. Check whether types, callers, guards, framework behavior, or tests already preserve the invariant.
+4. State the observable consequence and affected consumer.
+5. Remove the candidate if the concern is disproved or remains purely speculative.
 
-- API contracts honored (request/response shapes)
-- External service failures handled gracefully
-- Backward compatibility maintained for public interfaces
-- Breaking changes identified and documented
-- Migration paths exist for schema changes
+Run relevant read-only checks when they materially increase confidence. Distinguish confirmed defects from test or verification gaps.
 
-## **Security Checklist**
+## Severity
 
-### **Input Validation**
+- **High:** security exposure, data loss, crash in a primary flow, or an unintended breaking public API change.
+- **Medium:** incorrect behavior in a realistic supported scenario, including significant state, error-handling, or integration failures.
+- **Low:** a limited edge-case defect or concrete maintainability problem likely to cause incorrect behavior later.
 
-- All user inputs are validated
-- Input sanitization applied where needed
-- Type checking enforced
-- Boundary conditions handled
+Do not report style-only nits. Order findings from highest to lowest severity.
 
-### **SQL Injection**
+## Response Format
 
-- Parameterized queries used
-- No string concatenation for SQL
-- ORM methods used correctly
+Lead with confirmed findings. For each finding include:
 
-### **XSS (Cross-Site Scripting)**
+- **Location:** `path/to/file:line`
+- **Severity:** `High`, `Medium`, or `Low`
+- **Finding:** concise description of the defect
+- **Condition:** input or execution path that triggers it
+- **Impact:** observable consequence
+- **Recommendation:** specific fix or mitigation
 
-- Output encoding applied
-- No `dangerouslySetInnerHTML` without sanitization
-- URL parameters validated
+For existing PR comments, also include **Status** using the vocabulary required by `github-pr-review`.
 
-### **Authentication & Authorization**
-
-- Proper authentication checks
-- Authorization verified for each endpoint
-- Session management secure
-
-### **Secrets & Credentials**
-
-- No hardcoded secrets
-- Environment variables used for sensitive data
-- No credentials in logs
-
-## **Performance Checklist**
-
-### **Database**
-
-- N+1 queries avoided
-- Proper indexes exist
-- Query optimization applied
-
-### **Memory**
-
-- No memory leaks
-- Large objects handled efficiently
-- Caching used where appropriate
-
-### **Algorithms**
-
-- Appropriate data structures used
-- Time complexity acceptable
-- No nested loops that could be optimized
+After findings, mention only material test or verification gaps. If there are no confirmed findings, say so explicitly and do not invent issues to fill the response.

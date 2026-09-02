@@ -1,5 +1,7 @@
 export {DataTable} from './DataTable';
 export type {DataTableProps, Column} from './DataTable';
+export {QueryResultsTable, formatQueryResultType} from './QueryResultsTable';
+export type {QueryResultsTableProps} from './QueryResultsTable';
 export {QueryStatusIcon} from './QueryStatusIcon';
 export {QueryDuration} from './QueryDuration';
 export {LazyList} from './LazyList';

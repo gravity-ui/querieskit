@@ -13,3 +13,13 @@ declare module '*.svg' {
     const ReactComponent: FC<React.SVGProps<SVGSVGElement>>;
     export default ReactComponent;
 }
+
+declare module '@gravity-ui/unipika' {
+    type UnipikaSettings = Record<string, unknown>;
+
+    type Unipika = {
+        formatFromYQL(data: [unknown, unknown], settings?: UnipikaSettings): string;
+    };
+
+    export default function createUnipika(settings?: UnipikaSettings): Unipika;
+}

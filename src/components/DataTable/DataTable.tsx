@@ -3,6 +3,7 @@ import BaseDataTable, {
     DataTableProps as BaseDataTableProps,
     Column,
 } from '@gravity-ui/react-data-table';
+import {Skeleton} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
 import {EmptyContent, EmptyContentVariant} from '../EmptyContent';
@@ -22,11 +23,22 @@ export type DataTableProps<T> = {
     emptyVariant?: EmptyContentVariant;
 } & Omit<BaseDataTableProps<T>, 'theme'>;
 
-function renderEmptyCell(key: string, align?: Column<unknown>['align']) {
+function getSkeletonWidth(rowIndex: number, columnIndex: number) {
+    const widths = [72, 120, 180, 96];
+
+    return widths[(rowIndex + columnIndex) % widths.length];
+}
+
+function renderEmptyCell(
+    key: string,
+    rowIndex: number,
+    columnIndex: number,
+    align?: Column<unknown>['align'],
+) {
     return (
         <td key={key} className={block('td', {empty: true})}>
             <div className={block('content', {empty: true, align})}>
-                <div className={block('no-data-placeholder')} />
+                <Skeleton variant="text" width={getSkeletonWidth(rowIndex, columnIndex)} />
             </div>
         </td>
     );
@@ -35,8 +47,15 @@ function renderEmptyCell(key: string, align?: Column<unknown>['align']) {
 function renderLoadingSkeleton<T>(columns: Array<Column<T>>, displayIndices: boolean) {
     return Array.from({length: SKELETON_ROWS_COUNT}, (_, index) => (
         <tr key={index} className={block('tr', {empty: true})}>
-            {displayIndices && renderEmptyCell('__index')}
-            {columns.map((column) => renderEmptyCell(column.name, column.align))}
+            {displayIndices && renderEmptyCell('__index', index, 0)}
+            {columns.map((column, columnIndex) =>
+                renderEmptyCell(
+                    column.name,
+                    index,
+                    columnIndex + Number(displayIndices),
+                    column.align,
+                ),
+            )}
         </tr>
     ));
 }
