@@ -1,0 +1,10 @@
+{
+  "field_link": "Ссылка:",
+  "field_token": "Токен:",
+  "field_name": "Имя:",
+  "action_save": "Сохранить",
+  "action_cancel": "Отменить",
+  "alert_value-must-be-string": "Значение должно быть строкой",
+  "alert_required-field": "Обязательное поле",
+  "alert_max-length": "Максимальная длина — {{maxLength}}"
+}

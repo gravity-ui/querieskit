@@ -16,6 +16,7 @@ export type {SavedQueryRowProps} from './SavedQueryRow';
 export {SavedQuerySearchRow} from './SavedQuerySearchRow';
 export type {SavedQuerySearchRowProps} from './SavedQuerySearchRow';
 export * from './ChartEditor';
+export * from './Attachments';
 export {TutorialRow} from './TutorialRow';
 export type {TutorialRowProps} from './TutorialRow';
 export {TutorialSearchRow} from './TutorialSearchRow';

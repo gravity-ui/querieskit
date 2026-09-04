@@ -1,0 +1,23 @@
+.qp-attachment-item {
+    &__info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__actions {
+        flex-shrink: 0;
+    }
+
+    &__attachment-name {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &_wasAdded {
+        background-color: var(--g-color-base-positive-light);
+    }
+
+    &_wasEdited {
+        background-color: var(--g-color-base-info-light);
+    }
+}

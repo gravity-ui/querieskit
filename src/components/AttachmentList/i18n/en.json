@@ -1,0 +1,10 @@
+{
+  "field_link": "Link:",
+  "field_token": "Token:",
+  "field_name": "Name:",
+  "action_save": "Save",
+  "action_cancel": "Cancel",
+  "alert_value-must-be-string": "Value must be a string",
+  "alert_required-field": "Required field",
+  "alert_max-length": "Maximum length is {{maxLength}}"
+}

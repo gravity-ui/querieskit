@@ -1,0 +1,10 @@
+.qp-attachments {
+    &__panel {
+        flex: 1;
+    }
+
+    &__tab .g-tab__title {
+        display: flex;
+        gap: var(--g-spacing-2)
+    }
+}

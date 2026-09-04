@@ -67,3 +67,5 @@ export {
     MONACO_THEME_BY_UI,
 } from './MonacoEditor';
 export type {MonacoThemeName} from './MonacoEditor';
+export * from './AttachmentList';
+export * from './AttachmentListPlaceholder';
