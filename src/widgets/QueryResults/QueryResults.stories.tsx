@@ -1,6 +1,14 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {Button, Flex, Link} from '@gravity-ui/uikit';
+import {
+    ArrowDownToLine,
+    ArrowUpFromLine,
+    ArrowUpRightFromSquare,
+    DatabaseArrowRight,
+    Gear,
+    LayoutColumns,
+} from '@gravity-ui/icons';
+import {Button, Flex, Icon, Link} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryResults} from './QueryResults';
 import type {QueryResultColumn, QueryResultsView} from '../../types/queryResults';
@@ -75,25 +83,47 @@ type Story = StoryObj<typeof QueryResults<Row>>;
 
 export const Default: Story = {
     args: {
-        title: '.Body Result',
         columns,
         rows,
         totalRows: 6,
         toolbarContent: (
             <Flex gap={2} alignItems="center">
                 <Link href="#">markov: `tmp/yql/mbobelyuk/result`</Link>
-                <Button view="flat" size="s" onClick={action('insert')}>
+                <Button view="flat-secondary" size="s" onClick={action('insert')}>
+                    <Icon data={DatabaseArrowRight} size={16} />
                     Insert
+                </Button>
+                <Button view="flat-secondary" size="s" onClick={action('go-to-yt')}>
+                    Go to YT
+                    <Icon data={ArrowUpRightFromSquare} size={16} />
                 </Button>
             </Flex>
         ),
         actions: (
-            <Flex gap={1}>
-                <Button view="flat" size="s" onClick={action('export')}>
+            <Flex gap={1} alignItems="center">
+                <Button view="flat-secondary" size="s" onClick={action('export')}>
+                    <Icon data={ArrowUpFromLine} size={16} />
                     Export
                 </Button>
-                <Button view="flat" size="s" onClick={action('download')}>
+                <Button view="flat-secondary" size="s" onClick={action('download')}>
+                    <Icon data={ArrowDownToLine} size={16} />
                     Download
+                </Button>
+                <Button
+                    view="flat-secondary"
+                    size="s"
+                    aria-label="Configure columns"
+                    onClick={action('configure-columns')}
+                >
+                    <Icon data={LayoutColumns} size={16} />
+                </Button>
+                <Button
+                    view="flat-secondary"
+                    size="s"
+                    aria-label="Settings"
+                    onClick={action('settings')}
+                >
+                    <Icon data={Gear} size={16} />
                 </Button>
             </Flex>
         ),

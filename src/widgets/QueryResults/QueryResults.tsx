@@ -94,7 +94,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                 <SegmentedRadioGroup
                     value={view}
                     onUpdate={handleViewChange}
-                    width="max"
+                    width="auto"
                     size="s"
                     className={block('views')}
                 >
