@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.3.0](https://github.com/gravity-ui/querieskit/compare/v1.2.0...v1.3.0) (2026-09-04)
+
+
+### Features
+
+* add i18n translate ([fadb155](https://github.com/gravity-ui/querieskit/commit/fadb155dccb64da5a57a0def2c886bf75204150b))
+* add validation for forms ([227e2ee](https://github.com/gravity-ui/querieskit/commit/227e2eea391645b9763e83ccf7982f363c4da4a1))
+* **UI:** add result table [YTFRONT-5935] ([508bcdb](https://github.com/gravity-ui/querieskit/commit/508bcdb8a77530a4a6f0c4504c43f8d9480813aa))
+* **UI:** add static table [YTFRONT-5935] ([065e8f1](https://github.com/gravity-ui/querieskit/commit/065e8f15557ea16a8d1ca8ca9bd0d90fae8ba76e))
+* **UI:** error tree [YTFRONT-5935] ([50b20da](https://github.com/gravity-ui/querieskit/commit/50b20da21d02649a70fa0746933ab70c397b0eb3))
+
+
+### Bug Fixes
+
+* fix control of adding new attachments ([b5a0985](https://github.com/gravity-ui/querieskit/commit/b5a0985c2b1b5621c72347addcdcfd296bb4826f))
+* **QueryResult:** change colors [YTFRONT-5935] ([58c1550](https://github.com/gravity-ui/querieskit/commit/58c1550e0e14f9e03c270850577127c0ede59b01))
+
 ## [1.2.0](https://github.com/gravity-ui/querieskit/compare/v1.1.0...v1.2.0) (2026-08-31)
 
 
