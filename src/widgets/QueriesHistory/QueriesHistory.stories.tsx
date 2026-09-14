@@ -98,7 +98,7 @@ const BASE_ITEMS: QueryListItem<QueryHistoryRow>[] = [
         height: 52,
     },
     {
-        id: 7,
+        id: 8,
         title: 'Query 7',
         status: 'draft',
         engine: 'YQL',

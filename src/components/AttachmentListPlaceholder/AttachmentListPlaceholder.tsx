@@ -44,7 +44,7 @@ export const AttachmentListPlaceholder = ({
             className={block(null, className)}
             data-qa={qa}
         >
-            <Folder height={100} />
+            <Folder height={100} width={100} />
 
             <Flex gap={1} direction="column" alignItems="center">
                 <Text variant="subheader-1">{title}</Text>

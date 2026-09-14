@@ -33,7 +33,7 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
                         {actions}
                     </Flex>
                 )}
-                {title && <Text variant="subheader-1">{title}</Text>}
+                {title !== null && <Text variant="subheader-1">{title}</Text>}
                 {header}
             </Flex>
             {children}
