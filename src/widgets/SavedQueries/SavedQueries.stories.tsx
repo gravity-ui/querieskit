@@ -86,8 +86,8 @@ const SavedQueriesStory = () => {
         'engine',
         'author',
     ]);
-    const [comparedRowIds, setComparedRowIds] = useState<number[]>([]);
-    const [editingRowId, setEditingRowId] = useState<number>();
+    const [comparedRowIds, setComparedRowIds] = useState<(number | string)[]>([]);
+    const [editingRowId, setEditingRowId] = useState<number | string>();
 
     const filteredItems = useMemo(() => {
         if (!search.value) return items;

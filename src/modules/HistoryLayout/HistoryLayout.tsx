@@ -6,7 +6,7 @@ import './HistoryLayout.scss';
 const block = cn('qp-history-layout');
 
 export type HistoryLayoutProps = {
-    title: ReactNode;
+    title?: ReactNode;
     logo?: ReactNode;
     actions?: ReactNode;
     header?: ReactNode;
@@ -33,7 +33,7 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
                         {actions}
                     </Flex>
                 )}
-                <Text variant="subheader-1">{title}</Text>
+                {title && <Text variant="subheader-1">{title}</Text>}
                 {header}
             </Flex>
             {children}

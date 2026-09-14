@@ -1,7 +1,6 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
 import {QueriesList} from '../../modules';
-import i18n from './i18n';
 import {
     QueryListComparisonConfig,
     QueryListEditingConfig,
@@ -52,7 +51,7 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
     return (
         <QueriesList
             className={block(null, className)}
-            title={title || i18n('title_history')}
+            title={title}
             logo={logo}
             search={search}
             filter={filter}

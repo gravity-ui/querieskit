@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
+import {SegmentedRadioGroup} from '@gravity-ui/uikit';
 import {QueriesHistory} from './QueriesHistory';
 import {
     QueryListFieldKey,
@@ -76,6 +77,36 @@ const BASE_ITEMS: QueryListItem<QueryHistoryRow>[] = [
         query: QUERY,
         height: 52,
     },
+    {
+        id: 6,
+        title: 'Query 6',
+        status: 'draft',
+        engine: 'YQL',
+        mode: 'Test',
+        startTime: now - 30 * 60 * min,
+        query: QUERY,
+        height: 52,
+    },
+    {
+        id: 7,
+        title: 'Query 7',
+        status: 'draft',
+        engine: 'YQL',
+        mode: 'Test',
+        startTime: now - 30 * 60 * min,
+        query: QUERY,
+        height: 52,
+    },
+    {
+        id: 7,
+        title: 'Query 7',
+        status: 'draft',
+        engine: 'YQL',
+        mode: 'Test',
+        startTime: now - 30 * 60 * min,
+        query: QUERY,
+        height: 52,
+    },
 ];
 
 type VisibleFields = QueryListVisibleFieldsConfig<QueryHistoryRow>['fields'];
@@ -136,6 +167,17 @@ const meta: Meta<typeof QueriesHistory> = {
     },
 };
 
+const operationFilterOptions = [
+    {
+        value: 'My',
+        content: 'My',
+    },
+    {
+        value: 'All',
+        content: 'All',
+    },
+];
+
 export default meta;
 type Story = StoryObj<typeof QueriesHistory>;
 
@@ -145,8 +187,8 @@ const DefaultStory = () => {
     const [visibleFields, setVisibleFields] =
         useState<QueryListFieldKey<QueryHistoryRow>[]>(activeFields);
     const [compareMode, setCompareMode] = useState(false);
-    const [comparedRows, setComparedRows] = useState<number[]>([]);
-    const [editingId, setEditingId] = useState<number | undefined>(undefined);
+    const [comparedRows, setComparedRows] = useState<(number | string)[]>([]);
+    const [editingId, setEditingId] = useState<number | string | undefined>(undefined);
 
     const handleCompareChange = (item: QueryHistoryRow, selected: boolean) => {
         const result = selected
@@ -272,5 +314,33 @@ const EmptyStory = () => {
     );
 };
 
+const WithHeaderStory = () => {
+    const [search, setSearch] = useState({value: '', fullSearch: false});
+    const [visibleFields, setVisibleFields] =
+        useState<QueryListFieldKey<QueryHistoryRow>[]>(activeFields);
+
+    return (
+        <div style={{width: 300, height: 500}}>
+            <QueriesHistory
+                items={BASE_ITEMS}
+                logo={<SegmentedRadioGroup options={operationFilterOptions} />}
+                visibleFields={{value: visibleFields, fields, onChange: setVisibleFields}}
+                filter={{
+                    fields: filterFields,
+                    onApply: logFilterApply,
+                    onReset: logFilterReset('reset'),
+                }}
+                search={{
+                    value: search.value,
+                    fullSearch: search.fullSearch,
+                    hasClear: true,
+                    onUpdate: setSearch,
+                }}
+            />
+        </div>
+    );
+};
+
 export const Default: Story = {render: () => <DefaultStory />};
 export const Empty: Story = {render: () => <EmptyStory />};
+export const WithHeader: Story = {render: () => <WithHeaderStory />};

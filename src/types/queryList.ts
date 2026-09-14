@@ -9,7 +9,7 @@ export type QueryListRowRenderProps = {height: number};
 export type QueryListHeader = {header: string} & QueryListRowRenderProps;
 
 export type QueryListRow = {
-    id: number;
+    id: number | string;
     title: string;
     query?: string;
     href?: string;

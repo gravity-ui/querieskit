@@ -1,4 +1,7 @@
 .qp-rows-list {
+  height: 100%;
+  overflow: auto;
+
   .g-list__item_selected:hover {
     background-color: var(--g-color-base-selection-hover);
   }
