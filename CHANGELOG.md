@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1](https://github.com/gravity-ui/querieskit/compare/v1.3.0...v1.3.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* fix folder width ([dd6e5b2](https://github.com/gravity-ui/querieskit/commit/dd6e5b27d742726de38993d50a58484555de7292))
+* fix imports in attachments, import from package, change api of queryhistory ([83d81b3](https://github.com/gravity-ui/querieskit/commit/83d81b362216133a603a5768d2fda59de6e252af))
+* fix title in mock data ([af3ecd1](https://github.com/gravity-ui/querieskit/commit/af3ecd18d4628609e1d73657f28ee5edf1977761))
+
 ## [1.3.0](https://github.com/gravity-ui/querieskit/compare/v1.2.0...v1.3.0) (2026-09-04)
 
 
