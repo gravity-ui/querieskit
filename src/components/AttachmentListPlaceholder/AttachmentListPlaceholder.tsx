@@ -1,8 +1,8 @@
 import React, {ReactNode} from 'react';
 import {Button, Flex, Icon, Link, Text} from '@gravity-ui/uikit';
+import {Folder} from '@gravity-ui/illustrations';
 import {Plus} from '@gravity-ui/icons';
 import cn from 'bem-cn-lite';
-import image from './assets/empty-attachments.svg';
 import i18n from './i18n';
 import './AttachmentListPlaceholder.scss';
 
@@ -44,7 +44,7 @@ export const AttachmentListPlaceholder = ({
             className={block(null, className)}
             data-qa={qa}
         >
-            <img src={`${image}`} alt="empty-attachments-image" />
+            <Folder height={100} width={100} />
 
             <Flex gap={1} direction="column" alignItems="center">
                 <Text variant="subheader-1">{title}</Text>
