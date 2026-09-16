@@ -30,6 +30,8 @@ export type {NavigationDetailProps} from './NavigationDetail';
 export {NavigationSchema, buildSchemaColumns, filterSchema} from './NavigationSchema';
 export type {NavigationSchemaProps, NavigationSchemaViewConfig} from './NavigationSchema';
 export {QueryStatistics} from './QueryStatistics';
+export {QueryProgress} from './QueryProgress';
+export type {QueryProgressProps, QueryProgressView} from './QueryProgress';
 export type {
     QueryStatisticsColumn,
     QueryStatisticsColumnConfig,

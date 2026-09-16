@@ -69,3 +69,5 @@ export {
 export type {MonacoThemeName} from './MonacoEditor';
 export * from './AttachmentList';
 export * from './AttachmentListPlaceholder';
+export {QueryGraph} from './QueryGraph';
+export type {QueryGraphProps} from './QueryGraph';

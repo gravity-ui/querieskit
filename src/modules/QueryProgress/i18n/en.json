@@ -1,0 +1,11 @@
+{
+  "tab_graph": "Graph",
+  "tab_timeline": "Timeline",
+  "context_timeline-unavailable": "Timeline is not available yet",
+  "status_not-started": "Not started",
+  "status_waiting": "Waiting",
+  "status_running": "Running",
+  "status_completed": "Completed",
+  "status_failed": "Failed",
+  "status_aborted": "Aborted"
+}
