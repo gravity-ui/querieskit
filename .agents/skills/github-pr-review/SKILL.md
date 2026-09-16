@@ -1,24 +1,30 @@
 ---
 name: github-pr-review
-description: Reviews GitHub Pull Requests, analyzes diffs, and validates existing review comments for relevance. Use when the user provides a GitHub PR URL, asks to review a PR, поревьювить PR, проверить PR, or check whether existing review comments are still relevant.
+description: Reviews GitHub Pull Requests, analyzes diffs, and validates existing review comments for relevance. Use when the user provides a GitHub PR URL, asks to review a PR, or check whether existing review comments are still relevant.
 ---
 
-# GitHub PR Review & Validation Rule
+# GitHub PR Review and Comment Validation
 
-## Работа со ссылкой на PR
-Когда предоставлена ссылка на GitHub PR:
-1. **Анализ изменений**: Изучи diff и файлы, затронутые в PR.
-2. **Применение чек-листа**: Используй критерии из skill `code-review-checklist` (Logical Bugs, Edge Cases, Security, Performance) для анализа входящего кода. Сначала прочитай `.agents/skills/code-review-checklist/SKILL.md`.
+## Reviewing a PR
 
-## Проверка существующих замечаний (Comments Validation)
-Если в PR уже есть комментарии/замечания от других ревьюеров:
-1. **Релевантность**: Проверь, актуально ли ещё замечание. Если код уже исправлен в последних коммитах — отметь это.
-2. **Объективность**: Сверь замечание с текущим чек-листом. Если замечание противоречит стандартам проекта или чек-листу, укажи на это.
+When a GitHub PR URL is provided:
 
-## Формат ответа
-Для каждого замечания (нового или существующего из PR) используй формат:
-- **Локация**: [Файл : Строка]
-- **Статус**: (Новое / Подтверждено / Исправлено / Неактуально)
-- **Критичность**: (High / Medium / Low)
-- **Суть**: Краткое описание проблемы согласно чек-листу.
-- **Рекомендация**: Конкретный пример исправленного кода.
+1. **Analyze the changes:** Inspect the diff and every file modified by the PR.
+2. **Apply the checklist:** Evaluate the incoming code using the `code-review-checklist` skill's criteria (logical bugs, edge cases, security, and performance). Read `.agents/skills/code-review-checklist/SKILL.md` first.
+
+## Validating Existing Comments
+
+If the PR already contains comments from other reviewers:
+
+1. **Relevance:** Determine whether each comment still applies. Mark it if the issue has already been fixed in newer commits.
+2. **Validity:** Check each comment against the current checklist. Point out any comment that conflicts with the project's standards or the checklist.
+
+## Response Format
+
+Use the following format for every finding, whether new or an existing PR comment:
+
+- **Location:** [File : Line]
+- **Status:** (New / Confirmed / Fixed / Outdated)
+- **Severity:** (High / Medium / Low)
+- **Issue:** A concise description of the problem based on the checklist.
+- **Recommendation:** A concrete example of the corrected code.
