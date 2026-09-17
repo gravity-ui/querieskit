@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/gravity-ui/querieskit/compare/v1.3.2...v1.4.0) (2026-09-17)
+
+
+### Features
+
+* extend QueriesHistory integration API ([4a2986b](https://github.com/gravity-ui/querieskit/commit/4a2986b9fb2814a7ffe0a9464b0f2aaa240587de))
+
 ## [1.3.2](https://github.com/gravity-ui/querieskit/compare/v1.3.1...v1.3.2) (2026-09-17)
 
 
