@@ -36,7 +36,9 @@
     "lint:all": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "test": "echo \"No tests\" && exit 0",
+    "test": "npm run test:timezones && npm run test:components",
+    "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
+    "test:components": "vitest run tests/components",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -65,13 +67,15 @@
     "@typescript-eslint/parser": "^8.64.0",
     "eslint": "^9.39.5",
     "eslint-import-resolver-typescript": "^4.4.5",
+    "jsdom": "^26.1.0",
     "prettier": "^3.9.5",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "storybook": "^10.5.0",
     "typescript": "^6.0.3",
     "vite": "^8.1.5",
-    "vite-plugin-svgr": "^5.2.0"
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "@gravity-ui/icons": ">=2.0.0",

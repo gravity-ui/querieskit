@@ -31,6 +31,12 @@ export const AllStatuses: Story = {
             <QueryDuration status="completed" startTime={fiveMinutesAgo} endTime={now} />
             <QueryDuration status="failed" startTime={oneHourAgo} endTime={now} />
             <QueryDuration status="aborted" startTime={fiveMinutesAgo} endTime={now} />
+            <QueryDuration
+                status="completed"
+                startTime={now - (27 * 60 + 15) * 60 * 1000}
+                endTime={now}
+            />
+            <QueryDuration status="completed" startTime={fiveMinutesAgo} />
             {/* Live timer */}
             <QueryDuration status="running" startTime={fiveMinutesAgo} />
             {/* Always --:-- */}

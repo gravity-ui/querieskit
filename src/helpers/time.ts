@@ -1,4 +1,4 @@
-import {DateTime, dateTime, dateTimeParse} from '@gravity-ui/date-utils';
+import {DateTime, dateTimeParse} from '@gravity-ui/date-utils';
 
 type Date = DateTime | string | number | undefined;
 
@@ -7,13 +7,19 @@ export const formatTime = (date: Date) => {
 };
 
 export const durationDates = (date1: Date, date2: Date) => {
-    if (!date1 && !date2) return '--:--';
+    if (date1 === undefined || date2 === undefined) return '--:--';
 
-    const start = dateTimeParse(date1) || dateTime();
-    const end = dateTimeParse(date2) || dateTime();
-    const diff = end?.diff(start);
+    const start = dateTimeParse(date1);
+    const end = dateTimeParse(date2);
 
-    return dateTimeParse(diff)?.format('HH:mm');
+    if (!start || !end) return '--:--';
+
+    const diffMs = Math.max(0, end.valueOf() - start.valueOf());
+    const totalMinutes = Math.floor(diffMs / 60_000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
 export const formatTimeCanonical = (ts: Date) => {
