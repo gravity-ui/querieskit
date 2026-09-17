@@ -4,10 +4,9 @@ import {AttachmentItem, AttachmentItemProps} from './internal/AttachmentItem/Att
 import {isInteractiveTarget} from './helpers/isInteractiveTarget';
 import './AttachmentList.scss';
 
-export type AttachmentListProps = Omit<
-    ListProps<AttachmentItemProps['attachment']>,
-    'items' | 'selectedItemIndex' | 'virtualized'
-> & {
+export type AttachmentListProps<
+    T extends AttachmentItemProps['attachment'] = AttachmentItemProps['attachment'],
+> = Omit<ListProps<T>, 'items' | 'selectedItemIndex' | 'virtualized'> & {
     attachments: AttachmentItemProps['attachment'][];
     className?: string;
     onDelete?: (attachment: AttachmentItemProps['attachment']) => void;

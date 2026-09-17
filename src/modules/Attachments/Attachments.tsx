@@ -26,7 +26,7 @@ export type AttachmentsProps = {
     attachmentListProps?: Pick<AttachmentListProps, 'className'>;
     attachments?: AttachItem[];
     deletedAttachments?: AttachItem[];
-    onItemClick?: AttachmentListProps['onItemClick'];
+    onItemClick?: AttachmentListProps<AttachItem>['onItemClick'];
     onChange?: (payload: {attachments: AttachItem[]; deletedAttachments: AttachItem[]}) => void;
 };
 
