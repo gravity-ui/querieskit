@@ -6,6 +6,7 @@ import {QueryListFilterConfig} from '../../types/queryList';
 type Props = {
     search?: string;
     fullSearch?: boolean;
+    fullSearchAvailable?: boolean;
     hasClear?: boolean;
     filter?: QueryListFilterConfig;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
@@ -15,22 +16,23 @@ type Props = {
 export const HistoryHeader: FC<Props> = ({
     search,
     fullSearch,
+    fullSearchAvailable = true,
     hasClear,
     filter,
     onUpdate,
     className,
 }) => {
     const [searchValue, setSearchValue] = useState(search || '');
-    const [isFullSearch, setFullSearch] = useState(fullSearch || false);
+    const [isFullSearch, setFullSearch] = useState(fullSearchAvailable && Boolean(fullSearch));
 
     useEffect(() => {
         setSearchValue(search || '');
-        setFullSearch(fullSearch || false);
-    }, [search, fullSearch]);
+        setFullSearch(fullSearchAvailable && Boolean(fullSearch));
+    }, [search, fullSearch, fullSearchAvailable]);
 
     const handleOnUpdate = (newValue: string) => {
         setSearchValue(newValue);
-        onUpdate({value: newValue, fullSearch: isFullSearch});
+        onUpdate({value: newValue, fullSearch: fullSearchAvailable && isFullSearch});
     };
 
     const handleModeChange = () => {
@@ -45,13 +47,17 @@ export const HistoryHeader: FC<Props> = ({
             value={searchValue}
             hasClear={hasClear}
             onUpdate={handleOnUpdate}
-            innerButtons={[
-                <FullSearchToggleButton
-                    key="full-search"
-                    active={isFullSearch}
-                    onClick={handleModeChange}
-                />,
-            ]}
+            innerButtons={
+                fullSearchAvailable
+                    ? [
+                          <FullSearchToggleButton
+                              key="full-search"
+                              active={isFullSearch}
+                              onClick={handleModeChange}
+                          />,
+                      ]
+                    : undefined
+            }
             endButtons={filter ? [<HistoryFilter key="filter" {...filter} />] : undefined}
         />
     );

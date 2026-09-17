@@ -3,6 +3,7 @@ import {Flex} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../MonacoEditor';
 import {RowLink} from '../RowLink';
+import {QueryListLinkRenderer} from '../../types/queryList';
 import {fitQueryToVisibleLines} from './helpers/fitQueryToVisibleLines';
 import {MONACO_CONFIG} from './helpers/monacoConfig';
 import './SearchRowLayout.scss';
@@ -15,6 +16,7 @@ export type SearchRowLayoutProps = {
     language: string;
     href?: string;
     disabled?: boolean;
+    renderLink?: QueryListLinkRenderer;
     className?: string;
 };
 
@@ -24,10 +26,16 @@ export const SearchRowLayout: FC<SearchRowLayoutProps> = ({
     language,
     href,
     disabled,
+    renderLink,
     className,
 }) => {
     return (
-        <RowLink href={href} disabled={disabled} className={block(null, className)}>
+        <RowLink
+            href={href}
+            disabled={disabled}
+            renderLink={renderLink}
+            className={block(null, className)}
+        >
             <Flex direction="column" gap={2} className={block('content')}>
                 <Flex gap={2} alignItems="center">
                     {header}

@@ -1,23 +1,36 @@
-import React, {FC, ReactNode} from 'react';
+import React, {FC} from 'react';
 import cn from 'bem-cn-lite';
+import {QueryListLinkRenderer} from '../../types/queryList';
 import './RowLink.scss';
 
 const block = cn('qp-row-link');
 
-export type RowLinkProps = {
+export type RowLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'href'> & {
     href?: string;
     disabled?: boolean;
-    className?: string;
-    children: ReactNode;
+    renderLink?: QueryListLinkRenderer;
 };
 
-export const RowLink: FC<RowLinkProps> = ({href, disabled, className, children}) => {
+export const RowLink: FC<RowLinkProps> = ({
+    href,
+    disabled,
+    renderLink,
+    className,
+    children,
+    ...linkProps
+}) => {
     const isLink = Boolean(href) && !disabled;
-    const Wrap = isLink ? 'a' : 'div';
 
-    return (
-        <Wrap href={isLink ? href : undefined} className={block(null, className)}>
-            {children}
-        </Wrap>
-    );
+    if (!isLink) {
+        return <div className={block(null, className)}>{children}</div>;
+    }
+
+    const props: React.ComponentPropsWithoutRef<'a'> = {
+        ...linkProps,
+        href,
+        className: block(null, className),
+        children,
+    };
+
+    return renderLink ? renderLink(props) : <a {...props} />;
 };

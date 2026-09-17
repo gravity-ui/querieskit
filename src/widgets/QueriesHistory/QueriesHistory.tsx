@@ -6,6 +6,7 @@ import {
     QueryListEditingConfig,
     QueryListFilterConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListRowAction,
     QueryListRowRenderData,
     QueryListSearchConfig,
@@ -29,6 +30,10 @@ export type QueriesHistoryProps<T extends QueryHistoryRow = QueryHistoryRow> = {
     renderRowItem?: (data: QueryListRowRenderData<T>) => React.ReactNode;
     getRowActions?: (item: T) => QueryListRowAction<T>[];
     onListItemClick?: (item: QueryListItem<T>) => void;
+    hasMore?: boolean;
+    loading?: boolean;
+    onLoadMore?: () => void;
+    renderLink?: QueryListLinkRenderer;
 };
 
 const block = cn('qp-query-history');
@@ -46,6 +51,10 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
     renderRowItem,
     getRowActions,
     onListItemClick,
+    hasMore,
+    loading,
+    onLoadMore,
+    renderLink,
     className,
 }: QueriesHistoryProps<T>) => {
     return (
@@ -65,6 +74,10 @@ export const QueriesHistory = <T extends QueryHistoryRow>({
                 renderRowItem ? renderRowItem(data) : <HistoryRowContent {...data} />
             }
             onListItemClick={onListItemClick}
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={onLoadMore}
+            renderLink={renderLink}
         />
     );
 };

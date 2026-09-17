@@ -31,7 +31,10 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
     onListItemClick,
     className,
 }: TutorialsHistoryProps<T>) => {
-    const showSearchResults = Boolean(search.fullSearch && search.value?.trim());
+    const fullSearchAvailable = search.fullSearchAvailable !== false;
+    const showSearchResults = Boolean(
+        fullSearchAvailable && search.fullSearch && search.value?.trim(),
+    );
     const rowVariant = showSearchResults ? 'search' : 'default';
 
     return (
@@ -43,6 +46,7 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
                 <HistoryHeader
                     search={search.value}
                     fullSearch={search.fullSearch}
+                    fullSearchAvailable={fullSearchAvailable}
                     hasClear={search.hasClear}
                     filter={filter}
                     onUpdate={search.onUpdate}

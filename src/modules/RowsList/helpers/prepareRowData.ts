@@ -2,6 +2,7 @@ import {
     QueryListComparisonConfig,
     QueryListEditingConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListRow,
     QueryListRowAction,
     QueryListRowRenderData,
@@ -18,6 +19,7 @@ type Props<T extends QueryListRow> = {
     editing?: QueryListEditingConfig<T>;
     comparison?: QueryListComparisonConfig<T>;
     getRowActions?: (item: T) => QueryListRowAction<T>[];
+    renderLink?: QueryListLinkRenderer;
 };
 
 export const prepareRowData = <T extends QueryListRow>({
@@ -29,6 +31,7 @@ export const prepareRowData = <T extends QueryListRow>({
     editing,
     comparison,
     getRowActions,
+    renderLink,
 }: Props<T>): QueryListRowRenderData<T> => {
     const isRow = !('header' in item);
     const actions = isRow && getRowActions ? getRowActions(item) : undefined;
@@ -57,5 +60,6 @@ export const prepareRowData = <T extends QueryListRow>({
         actions,
         editing: editingData,
         comparison: comparisonData,
+        renderLink,
     };
 };

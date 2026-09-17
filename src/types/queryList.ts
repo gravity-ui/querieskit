@@ -1,4 +1,4 @@
-import {ReactNode} from 'react';
+import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
 import {RegisteredFormFields} from './forms';
 
 /** ISO 8601 date string or Unix timestamp in milliseconds. */
@@ -19,6 +19,8 @@ export type QueryListItem<T extends QueryListRow = QueryListRow> = QueryListHead
 
 export type QueryListRowVariant = 'default' | 'search';
 
+export type QueryListLinkRenderer = (props: ComponentPropsWithoutRef<'a'>) => ReactElement;
+
 export type QueryListRowAction<T extends QueryListRow = QueryListRow> = {
     text: ReactNode;
     icon?: ReactNode;
@@ -31,6 +33,7 @@ export type QueryListRowAction<T extends QueryListRow = QueryListRow> = {
 export type QueryListSearchConfig = {
     value?: string;
     fullSearch?: boolean;
+    fullSearchAvailable?: boolean;
     hasClear?: boolean;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
 };
@@ -89,4 +92,5 @@ export type QueryListRowRenderData<T extends QueryListRow = QueryListRow> = {
     visibleFields?: QueryListVisibleFieldsConfig<T>;
     actions?: QueryListRowAction<T>[];
     editing?: QueryListEditingRenderData<T>;
+    renderLink?: QueryListLinkRenderer;
 };

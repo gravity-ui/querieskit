@@ -4,6 +4,7 @@ import {
     QueryListComparisonConfig,
     QueryListEditingConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListRow,
     QueryListRowAction,
     QueryListRowRenderData,
@@ -27,6 +28,10 @@ export type RowsListProps<T extends QueryListRow> = {
     getRowActions?: (item: T) => QueryListRowAction<T>[];
     renderRow: (data: QueryListRowRenderData<T>) => React.ReactNode;
     showFiltersHint?: boolean;
+    hasMore?: boolean;
+    loading?: boolean;
+    onLoadMore?: () => void;
+    renderLink?: QueryListLinkRenderer;
     className?: string;
     onItemClick?: (item: QueryListItem<T>, index: number) => void;
 };
@@ -41,6 +46,10 @@ export const RowsList = <T extends QueryListRow>({
     getRowActions,
     renderRow,
     showFiltersHint,
+    hasMore,
+    loading,
+    onLoadMore,
+    renderLink,
     className,
     onItemClick,
 }: RowsListProps<T>) => {
@@ -61,15 +70,6 @@ export const RowsList = <T extends QueryListRow>({
         comparison.onChange(item, !selected);
     };
 
-    if (!items.length) {
-        return (
-            <EmptyContent
-                variant={showFiltersHint ? 'nothing-found' : 'no-files'}
-                className={className}
-            />
-        );
-    }
-
     return (
         <LazyList<QueryListItem<T>>
             className={block(null, className)}
@@ -86,10 +86,20 @@ export const RowsList = <T extends QueryListRow>({
                         editing,
                         comparison,
                         getRowActions,
+                        renderLink,
                     }),
                 )
             }
             selectedItemIndex={selectedItemIndex}
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={onLoadMore}
+            emptyContent={
+                <EmptyContent
+                    variant={showFiltersHint ? 'nothing-found' : 'no-files'}
+                    className={className}
+                />
+            }
             onItemClick={handleItemClick}
         />
     );
