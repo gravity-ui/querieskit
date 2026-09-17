@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/gravity-ui/querieskit/compare/v1.3.1...v1.3.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* fix onItemClick prop in Attachments, fix paddings ([af4198f](https://github.com/gravity-ui/querieskit/commit/af4198f1109755e0aace9e2e752db85fcf7dc070))
+* fix types and add const ([2a53be6](https://github.com/gravity-ui/querieskit/commit/2a53be6ae71f87f0937bccd1a78a6ce83e811caf))
+
 ## [1.3.1](https://github.com/gravity-ui/querieskit/compare/v1.3.0...v1.3.1) (2026-09-15)
 
 
