@@ -64,6 +64,7 @@ export const Default: Story = {
             linkForDoc: '#attachments-help',
             linkText: 'About attachments',
         },
+        onItemClick: console.info,
     },
 };
 
@@ -71,6 +72,7 @@ export const Default: Story = {
 export const WithAttachments: Story = {
     args: {
         attachments,
+        onItemClick: console.info,
     },
 };
 
@@ -79,6 +81,7 @@ export const WithDeletedAttachments: Story = {
     args: {
         attachments,
         deletedAttachments,
+        onItemClick: console.info,
     },
 };
 
@@ -93,6 +96,7 @@ const ControlledAttachments = (props: AttachmentsProps) => {
             {...props}
             attachments={currentAttachments}
             deletedAttachments={currentDeletedAttachments}
+            onItemClick={console.info}
             onChange={(payload) => {
                 setCurrentAttachments(payload.attachments);
                 setCurrentDeletedAttachments(payload.deletedAttachments);
