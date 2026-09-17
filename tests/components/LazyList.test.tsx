@@ -12,7 +12,9 @@ vi.mock('@gravity-ui/uikit', async () => {
     const ReactModule = await import('react');
 
     return {
-        Flex: ({children}: React.HTMLAttributes<HTMLDivElement>) => <div>{children}</div>,
+        Flex: ({children, width}: React.HTMLAttributes<HTMLDivElement> & {width?: string}) => (
+            <div data-width={width}>{children}</div>
+        ),
         Loader: () => <div data-testid="loader" />,
         Spin: () => <div data-testid="spin" />,
         List: ReactModule.forwardRef(
@@ -126,6 +128,7 @@ describe('LazyList loading indicator', () => {
         expect(container.querySelector('[data-testid="item-1"]')).not.toBeNull();
         const loader = container.querySelector('[data-testid="loader"]');
         expect(loader).not.toBeNull();
+        expect(loader?.parentElement?.getAttribute('data-width')).toBe('100%');
         expect(loader?.closest('[data-row-height]')?.getAttribute('data-row-height')).toBe('40');
     });
 
