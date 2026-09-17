@@ -115,7 +115,44 @@ const LINK_ITEMS = BASE_ITEMS.map((item) =>
     'id' in item ? {...item, href: `/queries/${item.id}`} : item,
 );
 
-const PAGINATION_PAGES = [LINK_ITEMS.slice(0, 3), LINK_ITEMS.slice(3, 6), LINK_ITEMS.slice(6)];
+const PAGINATION_PAGES = [LINK_ITEMS.slice(0, 6), LINK_ITEMS.slice(6)];
+
+const NARROW_HISTORY_START = Date.UTC(2024, 0, 15, 12, 0, 0);
+const NARROW_HISTORY_ITEMS: QueryListItem<QueryHistoryRow>[] = [
+    {
+        id: 'five-minutes',
+        title: 'Five-minute query',
+        status: 'completed',
+        engine: 'YQL',
+        mode: 'Test',
+        isPrivate: false,
+        startTime: NARROW_HISTORY_START,
+        endTime: NARROW_HISTORY_START + 5 * min,
+        height: 52,
+    },
+    {
+        id: 'three-hours',
+        title: 'Three-hour query',
+        status: 'completed',
+        engine: 'YQL',
+        mode: 'Test',
+        isPrivate: true,
+        startTime: NARROW_HISTORY_START,
+        endTime: NARROW_HISTORY_START + 190 * min,
+        height: 52,
+    },
+    {
+        id: 'twenty-seven-hours',
+        title: 'Twenty-seven-hour query',
+        status: 'completed',
+        engine: 'YQL',
+        mode: 'Test',
+        isPrivate: false,
+        startTime: NARROW_HISTORY_START,
+        endTime: NARROW_HISTORY_START + 1_635 * min,
+        height: 52,
+    },
+];
 
 type VisibleFields = QueryListVisibleFieldsConfig<QueryHistoryRow>['fields'];
 const activeFields: QueryListFieldKey<QueryHistoryRow>[] = [
@@ -393,7 +430,7 @@ const PaginatedStory = () => {
             setItems((currentItems) => [...currentItems, ...nextPage]);
             setPage((currentPage) => currentPage + 1);
             setLoading(false);
-        }, 700);
+        }, 1500);
     };
 
     return (
@@ -468,6 +505,17 @@ const CustomRowRendererStory = () => (
     </div>
 );
 
+const NarrowDurationStory = () => (
+    <div style={{width: 300, height: 300}}>
+        <QueriesHistory
+            title="Duration examples"
+            items={NARROW_HISTORY_ITEMS}
+            visibleFields={{value: activeFields, fields, onChange: action('onVisibleFieldsChange')}}
+            search={{onUpdate: action('onSearchUpdate')}}
+        />
+    </div>
+);
+
 export const Default: Story = {render: () => <DefaultStory />};
 export const Empty: Story = {render: () => <EmptyStory />};
 export const InitialLoading: Story = {
@@ -486,6 +534,24 @@ export const InitialLoading: Story = {
     ],
 };
 export const Paginated: Story = {render: () => <PaginatedStory />};
+export const LoadingMore: Story = {
+    args: {
+        title: 'Loading next page',
+        items: LINK_ITEMS.slice(0, 3),
+        loading: true,
+        hasMore: true,
+        onLoadMore: action('onLoadMore'),
+        search: {onUpdate: action('onSearchUpdate')},
+    },
+    decorators: [
+        (StoryComponent) => (
+            <div style={{width: 300, height: 300}}>
+                <StoryComponent />
+            </div>
+        ),
+    ],
+};
+export const NarrowDuration: Story = {render: () => <NarrowDurationStory />};
 export const FullSearchUnavailable: Story = {
     render: () => <FullSearchUnavailableStory />,
 };
