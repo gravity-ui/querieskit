@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/gravity-ui/querieskit/compare/v1.4.0...v1.5.0) (2026-09-17)
+
+
+### Features
+
+* show loader while loading more [YTFRONT-5935] ([055b108](https://github.com/gravity-ui/querieskit/commit/055b1086f1212e72b6c07022109bae9b5fff65bd))
+
+
+### Bug Fixes
+
+* center load more indicator ([aaf0154](https://github.com/gravity-ui/querieskit/commit/aaf015405b4e95cf300447631e4398af68b05f91))
+* correct query duration calculation [YTFRONT-5935] ([a47c186](https://github.com/gravity-ui/querieskit/commit/a47c1868345ac1546b1b4f85e2c7e78287365692))
+
 ## [1.4.0](https://github.com/gravity-ui/querieskit/compare/v1.3.2...v1.4.0) (2026-09-17)
 
 
