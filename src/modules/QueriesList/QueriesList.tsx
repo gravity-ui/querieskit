@@ -1,12 +1,13 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
 import {FieldsSelector} from '../../components';
-import {getListKey} from '../../helpers/getListKey';
+import {useListKey} from '../../helpers/useListKey';
 import {
     QueryListComparisonConfig,
     QueryListEditingConfig,
     QueryListFilterConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListRow,
     QueryListRowAction,
     QueryListRowRenderData,
@@ -35,6 +36,10 @@ export type QueriesListProps<T extends QueryListRow> = {
     getRowActions?: (item: T) => QueryListRowAction<T>[];
     renderRow: (data: QueryListRowRenderData<T>) => React.ReactNode;
     onListItemClick?: (item: QueryListItem<T>) => void;
+    hasMore?: boolean;
+    loading?: boolean;
+    onLoadMore?: () => void;
+    renderLink?: QueryListLinkRenderer;
 };
 
 export const QueriesList = <T extends QueryListRow>({
@@ -50,10 +55,18 @@ export const QueriesList = <T extends QueryListRow>({
     getRowActions,
     renderRow,
     onListItemClick,
+    hasMore,
+    loading,
+    onLoadMore,
+    renderLink,
     className,
 }: QueriesListProps<T>) => {
-    const showSearchResults = Boolean(search.fullSearch && search.value?.trim());
+    const fullSearchAvailable = search.fullSearchAvailable !== false;
+    const showSearchResults = Boolean(
+        fullSearchAvailable && search.fullSearch && search.value?.trim(),
+    );
     const rowVariant = showSearchResults ? 'search' : 'default';
+    const listKey = useListKey(items, rowVariant, Boolean(onLoadMore));
 
     return (
         <HistoryLayout
@@ -66,6 +79,7 @@ export const QueriesList = <T extends QueryListRow>({
                     className={block('header')}
                     search={search.value}
                     fullSearch={search.fullSearch}
+                    fullSearchAvailable={fullSearchAvailable}
                     hasClear={search.hasClear}
                     filter={filter}
                     onUpdate={search.onUpdate}
@@ -81,7 +95,7 @@ export const QueriesList = <T extends QueryListRow>({
             }
         >
             <RowsList
-                key={getListKey(items, rowVariant)}
+                key={listKey}
                 items={items}
                 rowVariant={rowVariant}
                 selectedRowId={selectedRowId}
@@ -91,6 +105,10 @@ export const QueriesList = <T extends QueryListRow>({
                 getRowActions={getRowActions}
                 renderRow={renderRow}
                 showFiltersHint={Boolean(filter)}
+                hasMore={hasMore}
+                loading={loading}
+                onLoadMore={onLoadMore}
+                renderLink={renderLink}
                 onItemClick={onListItemClick}
             />
         </HistoryLayout>

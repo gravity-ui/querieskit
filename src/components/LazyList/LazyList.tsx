@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useLayoutEffect, useMemo, useRef} from 'react';
 import {List} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {useLoadMoreSentinel} from '../../helpers/useLoadMoreSentinel';
@@ -46,7 +46,9 @@ export const LazyList = <T extends object>({
     isEmpty,
     className,
 }: LazyListProps<T>) => {
-    const sentinelRef = useLoadMoreSentinel(hasMore, onLoadMore);
+    const listRef = useRef<List<LazyListRow<T>>>(null);
+    const previousItemsLengthRef = useRef(items.length);
+    const sentinelRef = useLoadMoreSentinel(hasMore, onLoadMore, loading, items.length);
 
     const rows: LazyListRow<T>[] = useMemo(
         () => (hasMore ? [...items, {__sentinel: true}] : items),
@@ -55,6 +57,18 @@ export const LazyList = <T extends object>({
 
     const getRowHeight = (row: LazyListRow<T>) =>
         isSentinelRow(row) ? SENTINEL_ROW_HEIGHT : itemHeight(row);
+
+    useLayoutEffect(() => {
+        const previousItemsLength = previousItemsLengthRef.current;
+
+        if (previousItemsLength !== items.length) {
+            listRef.current?.refContainer.current?.resetAfterIndex(
+                Math.min(previousItemsLength, items.length),
+                true,
+            );
+            previousItemsLengthRef.current = items.length;
+        }
+    }, [items.length]);
 
     if (error) {
         return <React.Fragment>{error}</React.Fragment>;
@@ -72,6 +86,7 @@ export const LazyList = <T extends object>({
 
     return (
         <List<LazyListRow<T>>
+            ref={listRef}
             className={block(null, className)}
             filterable={filterable}
             items={rows}

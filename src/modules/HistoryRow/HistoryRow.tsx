@@ -28,6 +28,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
     comparison,
     editing,
     visibleFields,
+    renderLink,
 }: Props<T>) => {
     const {href, status, mode, startTime, endTime, engine, isPrivate} = item;
     const isEditing = Boolean(editing?.enabled);
@@ -39,6 +40,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
         <RowLink
             href={href}
             disabled={isEditing || isComparisonMode}
+            renderLink={renderLink}
             className={block({[status]: true, compared: isChecked})}
         >
             <QueryStatusIcon status={status} />

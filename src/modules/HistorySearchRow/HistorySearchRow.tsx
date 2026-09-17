@@ -25,6 +25,7 @@ export const HistorySearchRow = <T extends QueryHistoryRow>({
     visibleFields,
     editing,
     comparison,
+    renderLink,
 }: Props<T>) => {
     const {href, status, startTime, endTime, engine, mode, isPrivate, query} = item;
 
@@ -34,6 +35,7 @@ export const HistorySearchRow = <T extends QueryHistoryRow>({
             language={resolveMonacoLanguage(engine)}
             href={href}
             disabled={Boolean(editing?.enabled) || Boolean(comparison?.enabled)}
+            renderLink={renderLink}
             className={block()}
             header={
                 <Flex gap={2} alignItems="center" className={block('header')}>

@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {SegmentedRadioGroup} from '@gravity-ui/uikit';
+import {SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
+import {HistoryGroupHeader, RowLink} from '../../components';
 import {QueriesHistory} from './QueriesHistory';
 import {
     QueryListFieldKey,
     QueryListFilterConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListVisibleFieldsConfig,
 } from '../../types/queryList';
 import {QueryHistoryRow} from '../../types/history';
@@ -109,6 +111,12 @@ const BASE_ITEMS: QueryListItem<QueryHistoryRow>[] = [
     },
 ];
 
+const LINK_ITEMS = BASE_ITEMS.map((item) =>
+    'id' in item ? {...item, href: `/queries/${item.id}`} : item,
+);
+
+const PAGINATION_PAGES = [LINK_ITEMS.slice(0, 3), LINK_ITEMS.slice(3, 6), LINK_ITEMS.slice(6)];
+
 type VisibleFields = QueryListVisibleFieldsConfig<QueryHistoryRow>['fields'];
 const activeFields: QueryListFieldKey<QueryHistoryRow>[] = [
     'duration',
@@ -158,6 +166,30 @@ const filterFields: QueryListFilterConfig['fields'] = [
 const logFilterApply = action('onFilterApply');
 const logFilterReset = action('onFilterReset');
 
+const renderRouterLink: QueryListLinkRenderer = ({onClick, ...props}) => (
+    <a
+        {...props}
+        data-router-link
+        onClick={(event) => {
+            onClick?.(event);
+
+            if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+            action('routerNavigate')(props.href);
+        }}
+    />
+);
+
 const meta: Meta<typeof QueriesHistory> = {
     title: 'Widgets/QueriesHistory',
     component: QueriesHistory,
@@ -182,7 +214,7 @@ export default meta;
 type Story = StoryObj<typeof QueriesHistory>;
 
 const DefaultStory = () => {
-    const [items, setItems] = useState([...BASE_ITEMS]);
+    const [items, setItems] = useState([...LINK_ITEMS]);
     const [search, setSearch] = useState({value: '', fullSearch: false});
     const [visibleFields, setVisibleFields] =
         useState<QueryListFieldKey<QueryHistoryRow>[]>(activeFields);
@@ -226,11 +258,11 @@ const DefaultStory = () => {
         setSearch(data);
 
         if (!data.value) {
-            setItems(BASE_ITEMS);
+            setItems(LINK_ITEMS);
             return;
         }
 
-        const newItems = BASE_ITEMS.filter((item) => {
+        const newItems = LINK_ITEMS.filter((item) => {
             if (!('id' in item)) return false;
 
             const title = item.title.toLowerCase();
@@ -290,6 +322,7 @@ const DefaultStory = () => {
                     onSubmit: handleEditSubmit,
                     onCancel: handleEditCancel,
                 }}
+                renderLink={renderRouterLink}
             />
         </div>
     );
@@ -341,6 +374,121 @@ const WithHeaderStory = () => {
     );
 };
 
+const PaginatedStory = () => {
+    const [items, setItems] = useState<QueryListItem<QueryHistoryRow>[]>(PAGINATION_PAGES[0]);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+    const handleLoadMore = () => {
+        const nextPage = PAGINATION_PAGES[page];
+
+        if (loading || !nextPage) {
+            return;
+        }
+
+        action('onLoadMore')(page);
+        setLoading(true);
+
+        window.setTimeout(() => {
+            setItems((currentItems) => [...currentItems, ...nextPage]);
+            setPage((currentPage) => currentPage + 1);
+            setLoading(false);
+        }, 700);
+    };
+
+    return (
+        <div style={{width: 300, height: 300}}>
+            <QueriesHistory
+                title="Paginated history"
+                items={items}
+                selectedRowId={2}
+                loading={loading}
+                hasMore={page < PAGINATION_PAGES.length}
+                onLoadMore={handleLoadMore}
+                search={{onUpdate: action('onSearchUpdate')}}
+            />
+        </div>
+    );
+};
+
+const FullSearchUnavailableStory = () => {
+    const [search, setSearch] = useState({value: 'Query', fullSearch: true});
+
+    return (
+        <div style={{width: 300, height: 500}}>
+            <QueriesHistory
+                title="Basic search only"
+                items={LINK_ITEMS}
+                search={{
+                    ...search,
+                    fullSearchAvailable: false,
+                    hasClear: true,
+                    onUpdate: (data) => {
+                        action('onSearchUpdate')(data);
+                        setSearch(data);
+                    },
+                }}
+            />
+        </div>
+    );
+};
+
+const RouterLinksStory = () => {
+    const [search, setSearch] = useState({value: '', fullSearch: false});
+
+    return (
+        <div style={{width: 500, height: 500}}>
+            <QueriesHistory
+                title="Router links"
+                items={LINK_ITEMS}
+                renderLink={renderRouterLink}
+                search={{...search, hasClear: true, onUpdate: setSearch}}
+            />
+        </div>
+    );
+};
+
+const CustomRowRendererStory = () => (
+    <div style={{width: 300, height: 300}}>
+        <QueriesHistory
+            title="Custom row renderer"
+            items={LINK_ITEMS.slice(0, 3)}
+            renderLink={renderRouterLink}
+            renderRowItem={({item, renderLink}) =>
+                'header' in item ? (
+                    <HistoryGroupHeader title={item.header} />
+                ) : (
+                    <RowLink href={item.href} renderLink={renderLink}>
+                        <Text>{item.title}</Text>
+                    </RowLink>
+                )
+            }
+            search={{onUpdate: action('onSearchUpdate')}}
+        />
+    </div>
+);
+
 export const Default: Story = {render: () => <DefaultStory />};
 export const Empty: Story = {render: () => <EmptyStory />};
+export const InitialLoading: Story = {
+    args: {
+        title: 'Loading history',
+        items: [],
+        loading: true,
+        search: {onUpdate: action('onSearchUpdate')},
+    },
+    decorators: [
+        (StoryComponent) => (
+            <div style={{width: 300, height: 500}}>
+                <StoryComponent />
+            </div>
+        ),
+    ],
+};
+export const Paginated: Story = {render: () => <PaginatedStory />};
+export const FullSearchUnavailable: Story = {
+    render: () => <FullSearchUnavailableStory />,
+};
+export const RouterLinks: Story = {render: () => <RouterLinksStory />};
+export const CustomRowRenderer: Story = {render: () => <CustomRowRendererStory />};
 export const WithHeader: Story = {render: () => <WithHeaderStory />};
