@@ -5,6 +5,10 @@
 
   &__sentinel {
     height: 1px;
+
+    &_loading {
+      height: 40px;
+    }
   }
 
   &__spinner {

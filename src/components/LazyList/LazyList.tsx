@@ -1,5 +1,5 @@
 import React, {useLayoutEffect, useMemo, useRef} from 'react';
-import {List} from '@gravity-ui/uikit';
+import {Flex, List, Loader} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {useLoadMoreSentinel} from '../../helpers/useLoadMoreSentinel';
 import {ListSpinner} from '../ListSpinner';
@@ -8,6 +8,7 @@ import './LazyList.scss';
 const block = cn('qp-lazy-list');
 
 const SENTINEL_ROW_HEIGHT = 1;
+const LOADING_ROW_HEIGHT = 40;
 
 type SentinelRow = {__sentinel: true};
 type LazyListRow<T> = T | SentinelRow;
@@ -47,28 +48,37 @@ export const LazyList = <T extends object>({
     className,
 }: LazyListProps<T>) => {
     const listRef = useRef<List<LazyListRow<T>>>(null);
-    const previousItemsLengthRef = useRef(items.length);
+    const previousListStateRef = useRef({itemsLength: items.length, loading, hasMore});
     const sentinelRef = useLoadMoreSentinel(hasMore, onLoadMore, loading, items.length);
 
     const rows: LazyListRow<T>[] = useMemo(
-        () => (hasMore ? [...items, {__sentinel: true}] : items),
-        [items, hasMore],
+        () => (hasMore || loading ? [...items, {__sentinel: true}] : items),
+        [items, hasMore, loading],
     );
 
-    const getRowHeight = (row: LazyListRow<T>) =>
-        isSentinelRow(row) ? SENTINEL_ROW_HEIGHT : itemHeight(row);
+    const getRowHeight = (row: LazyListRow<T>) => {
+        if (isSentinelRow(row)) {
+            return loading ? LOADING_ROW_HEIGHT : SENTINEL_ROW_HEIGHT;
+        }
+
+        return itemHeight(row);
+    };
 
     useLayoutEffect(() => {
-        const previousItemsLength = previousItemsLengthRef.current;
+        const previousListState = previousListStateRef.current;
+        const listStateChanged =
+            previousListState.itemsLength !== items.length ||
+            previousListState.loading !== loading ||
+            previousListState.hasMore !== hasMore;
 
-        if (previousItemsLength !== items.length) {
+        if (listStateChanged) {
             listRef.current?.refContainer.current?.resetAfterIndex(
-                Math.min(previousItemsLength, items.length),
+                Math.min(previousListState.itemsLength, items.length),
                 true,
             );
-            previousItemsLengthRef.current = items.length;
+            previousListStateRef.current = {itemsLength: items.length, loading, hasMore};
         }
-    }, [items.length]);
+    }, [hasMore, items.length, loading]);
 
     if (error) {
         return <React.Fragment>{error}</React.Fragment>;
@@ -96,7 +106,16 @@ export const LazyList = <T extends object>({
             }
             renderItem={(row, isActive, index) =>
                 isSentinelRow(row) ? (
-                    <div ref={sentinelRef} className={block('sentinel')} />
+                    <div
+                        ref={sentinelRef}
+                        className={block('sentinel', {loading: Boolean(loading)})}
+                    >
+                        {loading && (
+                            <Flex alignItems="center" justifyContent="center" height="100%">
+                                <Loader />
+                            </Flex>
+                        )}
+                    </div>
                 ) : (
                     renderItem(row, isActive, index)
                 )
