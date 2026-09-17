@@ -7,4 +7,9 @@
         display: flex;
         gap: var(--g-spacing-2)
     }
+
+    &__tab-list {
+        padding-left: var(--g-spacing-4);
+        padding-right: var(--g-spacing-4);
+    }
 }

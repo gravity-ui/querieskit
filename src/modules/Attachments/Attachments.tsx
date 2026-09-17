@@ -26,6 +26,7 @@ export type AttachmentsProps = {
     attachmentListProps?: Pick<AttachmentListProps, 'className'>;
     attachments?: AttachItem[];
     deletedAttachments?: AttachItem[];
+    onItemClick?: AttachmentListProps<AttachItem>['onItemClick'];
     onChange?: (payload: {attachments: AttachItem[]; deletedAttachments: AttachItem[]}) => void;
 };
 
@@ -36,6 +37,7 @@ export const Attachments = ({
     placeholderProps,
     attachmentListProps,
     onChange,
+    onItemClick,
     attachments: customerAttachments,
     deletedAttachments: customerDeletedAttachments,
 }: AttachmentsProps) => {
@@ -234,7 +236,7 @@ export const Attachments = ({
     return (
         <Flex className={block()} direction="column" width="100%" height="100%">
             <TabProvider value={currentTab} onUpdate={(tab) => setCurrentTab(tab as TabVariants)}>
-                <TabList>
+                <TabList className={block('tab-list')}>
                     <Tab className={block('tab')} value="Current">
                         <Text variant="body-1">Current</Text>
                         <Text color="hint" variant="body-1">
@@ -260,6 +262,7 @@ export const Attachments = ({
                                 editingIds={editingIds}
                                 onEdit={(attach) => handleEdit(attach.id)}
                                 onDelete={(attach) => handleDelete(attach.id)}
+                                onItemClick={onItemClick}
                                 renderEditForm={(attach) => {
                                     const isLink = typeof attach.link === 'string';
 
@@ -301,7 +304,7 @@ export const Attachments = ({
                             />
                         )}
                         {Boolean(attachList.length) && (
-                            <Flex gap={2}>
+                            <Flex spacing={{px: 4}} gap={2}>
                                 <Button onClick={handleAddEmptyFile}>
                                     <Icon data={Plus} />
                                     {i18n('action_add-file')}
@@ -327,6 +330,7 @@ export const Attachments = ({
                             isDeleted
                             attachments={deletedAttachList}
                             onRevert={(attach) => handleRevertDelete(attach.id)}
+                            onItemClick={onItemClick}
                         />
                     </Flex>
                 </TabPanel>

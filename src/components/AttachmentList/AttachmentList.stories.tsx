@@ -83,6 +83,7 @@ const InteractiveAttachmentList = (props: AttachmentListProps) => {
                 );
                 setEditedIds((current) => current.filter((id) => id !== attachment.id));
             }}
+            onItemClick={console.info}
             onEdit={(attachment) => {
                 props.onEdit?.(attachment);
                 setEditedIds((current) =>
@@ -149,6 +150,7 @@ const EditableAttachmentList = (props: AttachmentListProps) => {
                     setDraftLink({...draftLink, name: attachment.name, link: attachment.link});
                 }
             }}
+            onItemClick={console.info}
             renderEditForm={(attachment) => {
                 const isLink = typeof attachment.link === 'string';
 
@@ -199,6 +201,7 @@ const SortableAttachmentList = (props: AttachmentListProps) => {
         <AttachmentList
             {...props}
             attachments={orderedAttachments}
+            onItemClick={console.info}
             onSortEnd={({oldIndex, newIndex}) => {
                 props.onSortEnd?.({oldIndex, newIndex});
                 setOrderedAttachments((current) => {
