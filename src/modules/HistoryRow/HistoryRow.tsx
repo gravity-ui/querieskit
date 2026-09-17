@@ -50,7 +50,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
                     {showMenu && <RowActionsMenu item={item} actions={actions} />}
                 </Flex>
                 <div className={block('data')}>
-                    {isFieldVisible(visibleFields, 'duration') && startTime && (
+                    {isFieldVisible(visibleFields, 'duration') && startTime !== undefined && (
                         <QueryDuration
                             className={block('duration')}
                             status={status}
@@ -62,7 +62,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
                         {isFieldVisible(visibleFields, 'mode') && mode && (
                             <Text color="complementary">{mode}</Text>
                         )}
-                        {isFieldVisible(visibleFields, 'startTime') && startTime && (
+                        {isFieldVisible(visibleFields, 'startTime') && startTime !== undefined && (
                             <Text color="complementary">{formatTime(startTime)}</Text>
                         )}
                         {isFieldVisible(visibleFields, 'engine') && engine && (
