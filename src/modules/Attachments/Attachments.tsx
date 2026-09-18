@@ -1,5 +1,15 @@
 import React, {useMemo, useRef, useState} from 'react';
-import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider, Text} from '@gravity-ui/uikit';
+import {
+    Box,
+    Button,
+    Flex,
+    Icon,
+    Tab,
+    TabList,
+    TabPanel,
+    TabProvider,
+    Text,
+} from '@gravity-ui/uikit';
 import {AttachmentList, AttachmentListPlaceholder, EditAttachmentItem} from '../../components';
 import {createUuid} from '../../helpers/createUuid';
 import {isObjectEqual} from '../../helpers/isObjectEqual';
@@ -234,7 +244,7 @@ export const Attachments = ({
     };
 
     return (
-        <Flex className={block()} direction="column" width="100%" height="100%">
+        <Box className={block()} height="100%" overflow="hidden">
             <TabProvider value={currentTab} onUpdate={(tab) => setCurrentTab(tab as TabVariants)}>
                 <TabList className={block('tab-list')}>
                     <Tab className={block('tab')} value="Current">
@@ -252,7 +262,7 @@ export const Attachments = ({
                 </TabList>
 
                 <TabPanel className={block('panel')} value="Current">
-                    <Flex spacing={{pt: 3}} direction="column" width="100%" height="100%">
+                    <Flex spacing={{py: 3}} direction="column" width="100%" height="100%" gap={3}>
                         {attachList.length ? (
                             <AttachmentList
                                 {...attachmentListProps}
@@ -335,6 +345,6 @@ export const Attachments = ({
                     </Flex>
                 </TabPanel>
             </TabProvider>
-        </Flex>
+        </Box>
     );
 };

@@ -53,7 +53,7 @@ export const AttachmentList = ({
     };
 
     return (
-        <Flex className={className} width="100%" height="100%">
+        <Flex className={className} width="100%" height="100%" overflow="auto">
             <List<AttachmentListProps['attachments'][number]>
                 filterable={false}
                 virtualized={false}
