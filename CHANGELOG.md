@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/gravity-ui/querieskit/compare/v1.5.0...v1.5.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* fix scroll attachment list ([58a8417](https://github.com/gravity-ui/querieskit/commit/58a84178c2c0940225baa225651eae574b6b33fd))
+
 ## [1.5.0](https://github.com/gravity-ui/querieskit/compare/v1.4.0...v1.5.0) (2026-09-17)
 
 
