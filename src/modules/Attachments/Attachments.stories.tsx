@@ -17,6 +17,79 @@ const attachments: Attachment[] = [
     },
 ];
 
+const attachmentsLongList: Attachment[] = [
+    {id: 'readme', name: 'README.md'},
+    {id: 'query', name: 'daily-report.sql'},
+    {id: 'schema', name: 'schema.json'},
+    {id: 'changelog', name: 'CHANGELOG.md'},
+    {id: 'weekly-report', name: 'weekly-report.sql'},
+    {id: 'monthly-report', name: 'monthly-report.sql'},
+    {id: 'data-export', name: 'data-export.csv'},
+    {id: 'users-dump', name: 'users-dump.csv'},
+    {id: 'metrics', name: 'metrics.tsv'},
+    {id: 'notes', name: 'notes.txt'},
+    {
+        id: 'documentation',
+        name: 'Query documentation',
+        link: 'https://example.com/docs/query',
+        token: 'documentation-token',
+    },
+    {
+        id: 'dashboard',
+        name: 'Main dashboard',
+        link: 'https://example.com/dashboards/main',
+        token: 'dashboard-token',
+    },
+    {
+        id: 'runbook',
+        name: 'Incident runbook',
+        link: 'https://example.com/docs/runbook',
+        token: 'documentation-token',
+    },
+    {
+        id: 'api-reference',
+        name: 'API reference',
+        link: 'https://example.com/docs/api',
+        token: 'documentation-token',
+    },
+    {
+        id: 'grafana',
+        name: 'Grafana board',
+        link: 'https://example.com/grafana/board',
+        token: 'dashboard-token',
+    },
+    {
+        id: 'kibana',
+        name: 'Kibana logs',
+        link: 'https://example.com/kibana/logs',
+        token: 'dashboard-token',
+    },
+    {
+        id: 'wiki',
+        name: 'Team wiki',
+        link: 'https://example.com/wiki/team',
+        token: 'documentation-token',
+    },
+    {
+        id: 'design-doc',
+        name: 'Design document',
+        link: 'https://example.com/docs/design',
+        token: 'documentation-token',
+    },
+    {
+        id: 'roadmap',
+        name: 'Product roadmap',
+        link: 'https://example.com/roadmap',
+        token: 'documentation-token',
+    },
+    {
+        id: 'analytics',
+        name: 'Analytics dashboard',
+        link: 'https://example.com/dashboards/analytics',
+        token: 'dashboard-token',
+    },
+];
+
 const deletedAttachments: Attachment[] = [
     {id: 'archive', name: 'archive.csv'},
     {
@@ -41,7 +114,7 @@ const meta = {
     },
     decorators: [
         (Story) => (
-            <div style={{height: 500, width: 322}}>
+            <div style={{height: 500, width: 322, overflow: 'hidden'}}>
                 <Story />
             </div>
         ),
@@ -72,6 +145,7 @@ export const Default: Story = {
 export const WithAttachments: Story = {
     args: {
         attachments,
+        deletedAttachments: [],
         onItemClick: console.info,
     },
 };
@@ -81,6 +155,14 @@ export const WithDeletedAttachments: Story = {
     args: {
         attachments,
         deletedAttachments,
+        onItemClick: console.info,
+    },
+};
+
+export const WithLongList: Story = {
+    args: {
+        attachments: attachmentsLongList,
+        deletedAttachments: [],
         onItemClick: console.info,
     },
 };

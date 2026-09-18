@@ -1,6 +1,12 @@
 .qp-attachments {
+    display: flex;
+    flex-direction: column;
+    
     &__panel {
-        flex: 1;
+        flex: 1 1 0;
+        min-height: 0;
+        max-height: 100%;
+        overflow: hidden;
     }
 
     &__tab .g-tab__title {
@@ -11,5 +17,11 @@
     &__tab-list {
         padding-left: var(--g-spacing-4);
         padding-right: var(--g-spacing-4);
+        flex-shrink: 0;
+    }
+
+    &__list {
+        min-height: 0;
+        overflow-y: auto;
     }
 }
