@@ -1,6 +1,7 @@
 import React, {FC, useEffect, useState} from 'react';
 import {FullSearchToggleButton} from './internal/FullSearchToggleButton';
-import {HistoryFilter, SearchWithButtons} from '../../components';
+import {HistoryFilter} from '../../components/HistoryFilter';
+import {SearchWithButtons} from '../../components/SearchWithButtons';
 import {QueryListFilterConfig} from '../../types/queryList';
 
 type Props = {

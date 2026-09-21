@@ -77,6 +77,23 @@ widgets/
 
 Violating this order (e.g. importing a widget inside a module) is not allowed — it breaks the readability of the abstraction levels.
 
+### Internal imports and tree-shaking
+
+- In production code under `src`, import concrete units through their own entrypoints, e.g. `../../modules/QueriesList` or `../../components/FieldsSelector`.
+- Do not import from paths resolving to `src/components/index.ts`, `src/modules/index.ts`, `src/widgets/index.ts`, or `src/index.ts`. This includes explicit `/index` paths, aliases, and self-imports from `@gravity-ui/querieskit`.
+- Use `import type` for type-only dependencies, importing from the relevant file in `src/types` or a concrete unit entrypoint. The same restriction on common barrels applies to type imports.
+- Preserve public barrels and their re-exports: the root entrypoint may re-export the level barrels, and level barrels may re-export units. Consumer-facing examples, stories, and tests may use public barrels to exercise the public API.
+- When changing imports or adding dependencies, check that the affected production dependency chain does not introduce common barrel imports. Existing legacy imports are not examples to copy; unrelated units do not need to be migrated as part of the same change.
+
+Common barrel imports broaden the dependency graph and can pull unrelated units and their generated polyfills into consumer builds. Direct unit imports complement the package's `sideEffects` configuration.
+
+```ts
+// Internal production imports
+import {QueriesList} from '../../modules/QueriesList';
+import {FieldsSelector} from '../../components/FieldsSelector';
+import type {QueryHistoryRow} from '../../types/history';
+```
+
 ## Naming
 
 - `components` / `modules` / `widgets` are fixed level names. Do not use `blocks` (conflicts with the project's BEM terminology, see `bem-cn-lite`), and do not use `compositions` or `features` (less conventional / do not match the meaning of the entities).
@@ -123,7 +140,7 @@ When adding a new widget to the library:
 1. Determine which parts are standalone `components`, which are `modules`, and what belongs only to the `widget` itself.
 2. Do not move internal details into `components` without a real standalone usage scenario.
 3. Create/update `index.ts` at every affected level.
-4. Make sure imports flow in a single direction only: `widgets → modules → components`.
+4. Make sure imports flow in a single direction only: `widgets → modules → components`, and internal imports use concrete units rather than common barrels.
 5. Verify the build and Storybook after the changes.
 
 For a detailed example of applying these rules to the existing `QueriesHistory` widget, see [`plans/queries-history-structure.md`](plans/queries-history-structure.md).

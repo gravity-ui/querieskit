@@ -1,7 +1,8 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
-import {NavigationCluster, RenderNavigationCluster} from '../../types/navigation';
-import {ClusterRow, LazyList} from '../../components';
+import type {NavigationCluster, RenderNavigationCluster} from '../../types/navigation';
+import {ClusterRow} from '../../components/ClusterRow';
+import {LazyList} from '../../components/LazyList';
 import {NAVIGATION_ROW_HEIGHT} from '../../constants/row';
 import './ClustersList.scss';
 

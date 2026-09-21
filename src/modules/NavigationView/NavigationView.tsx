@@ -1,7 +1,9 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {type Column, EmptyContent, SkeletonRows} from '../../components';
+import type {Column} from '../../components/DataTable';
+import {EmptyContent} from '../../components/EmptyContent';
+import {SkeletonRows} from '../../components/SkeletonRows';
 import type {NavigationViewConfig, NavigationViewRow} from '../../types/navigation';
 import {NavigationViewSectionItem} from './internal/NavigationViewSectionItem';
 import './NavigationView.scss';

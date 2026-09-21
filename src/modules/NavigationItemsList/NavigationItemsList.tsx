@@ -1,7 +1,12 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
-import {NavigationItem, NavigationSortOrder, RenderNavigationItem} from '../../types/navigation';
-import {LazyList, NavigationItemRow} from '../../components';
+import type {
+    NavigationItem,
+    NavigationSortOrder,
+    RenderNavigationItem,
+} from '../../types/navigation';
+import {LazyList} from '../../components/LazyList';
+import {NavigationItemRow} from '../../components/NavigationItemRow';
 import {NavigationItemsListHeader} from './internal/NavigationItemsListHeader';
 import {NavigationItemsListEmptyState} from './internal/NavigationItemsListEmptyState';
 import {useParentRow} from './internal/useParentRow';

@@ -1,8 +1,8 @@
 import React from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {NavigationItem, RenderNavigationItem} from '../../../types/navigation';
-import {NavigationItemRow} from '../../../components';
+import type {NavigationItem, RenderNavigationItem} from '../../../types/navigation';
+import {NavigationItemRow} from '../../../components/NavigationItemRow';
 
 const block = cn('qp-navigation-items-list');
 

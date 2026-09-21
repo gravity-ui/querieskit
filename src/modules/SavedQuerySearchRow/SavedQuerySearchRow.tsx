@@ -1,10 +1,11 @@
 import React from 'react';
 import {Avatar, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {MonacoLanguage, SearchRowLayout} from '../../components';
+import {MonacoLanguage} from '../../components/MonacoEditor';
+import {SearchRowLayout} from '../../components/SearchRowLayout';
 import {formatDateCanonical} from '../../helpers/time';
-import {QueryListRowRenderData} from '../../types/queryList';
-import {SavedQuery} from '../../types/savedQueries';
+import type {QueryListRowRenderData} from '../../types/queryList';
+import type {SavedQuery} from '../../types/savedQueries';
 import './SavedQuerySearchRow.scss';
 
 const block = cn('qp-saved-query-search-row');

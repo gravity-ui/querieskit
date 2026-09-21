@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {TutorialHistoryRow} from '../../types/tutorial';
-import {RowLink} from '../../components';
+import type {TutorialHistoryRow} from '../../types/tutorial';
+import {RowLink} from '../../components/RowLink';
 import cn from 'bem-cn-lite';
 import './TutorialRow.scss';
 

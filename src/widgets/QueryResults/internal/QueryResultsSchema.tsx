@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
 import type {Column} from '@gravity-ui/react-data-table';
-import {DataTable, formatQueryResultType} from '../../../components';
+import {DataTable} from '../../../components/DataTable';
+import {formatQueryResultType} from '../../../components/QueryResultsTable';
 import type {QueryResultColumn} from '../../../types/queryResults';
 import i18n from '../i18n';
 

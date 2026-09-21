@@ -1,8 +1,12 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {ClustersList, NavigationDetail, NavigationHeader, NavigationItemsList} from '../../modules';
-import {EmptyContent, SearchWithButtons} from '../../components';
-import {
+import {ClustersList} from '../../modules/ClustersList';
+import {NavigationDetail} from '../../modules/NavigationDetail';
+import {NavigationHeader} from '../../modules/NavigationHeader';
+import {NavigationItemsList} from '../../modules/NavigationItemsList';
+import {EmptyContent} from '../../components/EmptyContent';
+import {SearchWithButtons} from '../../components/SearchWithButtons';
+import type {
     NavigationCluster,
     NavigationDetailConfig,
     NavigationDetailPanelConfig,

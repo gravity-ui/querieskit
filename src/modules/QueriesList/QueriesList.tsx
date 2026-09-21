@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
-import {FieldsSelector} from '../../components';
+import {FieldsSelector} from '../../components/FieldsSelector';
 import {useListKey} from '../../helpers/useListKey';
 import {
     QueryListComparisonConfig,

@@ -1,7 +1,9 @@
 import React, {useMemo} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {type Column, DataTable, FieldsSearchToolbar} from '../../components';
+import type {Column} from '../../components/DataTable';
+import {DataTable} from '../../components/DataTable';
+import {FieldsSearchToolbar} from '../../components/FieldsSearchToolbar';
 import {useVisibleColumns} from '../../helpers/useVisibleColumns';
 import type {NavigationSchemaColumn, NavigationSchemaConfig} from '../../types/navigation';
 import {buildSchemaColumns} from './helpers/buildSchemaColumns';

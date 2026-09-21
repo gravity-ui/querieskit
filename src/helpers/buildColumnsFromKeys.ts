@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import type {Column} from '../components';
+import type {Column} from '../components/DataTable';
 import {isEmptyValue} from './isEmptyValue';
 
 export function buildColumnsFromKeys<TRow extends Record<string, unknown>>(

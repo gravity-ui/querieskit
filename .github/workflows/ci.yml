@@ -23,3 +23,6 @@ jobs:
 
             - name: Check TypeScript types
               run: npx tsc --noEmit
+
+            - name: Build and check widget tree-shaking
+              run: npm run test:tree-shaking

@@ -1,8 +1,9 @@
 import React from 'react';
-import {QueryListRowRenderData} from '../../types/queryList';
-import {TutorialHistoryRow} from '../../types/tutorial';
-import {HistoryGroupHeader} from '../../components';
-import {TutorialRow, TutorialSearchRow} from '../../modules';
+import type {QueryListRowRenderData} from '../../types/queryList';
+import type {TutorialHistoryRow} from '../../types/tutorial';
+import {HistoryGroupHeader} from '../../components/HistoryGroupHeader';
+import {TutorialRow} from '../../modules/TutorialRow';
+import {TutorialSearchRow} from '../../modules/TutorialSearchRow';
 
 export const TutorialRowContent = <T extends TutorialHistoryRow>({
     item,
