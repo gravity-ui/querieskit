@@ -272,11 +272,13 @@ export class QueryGraphCanvasBlock extends CanvasBlock<QueryGraphBlock> {
         const cameraScale = this.context.graph.cameraService.getCameraScale();
         const fontSize = getScaleAdjustedFontSize(LABEL_FONT_SIZE, cameraScale);
         const labelGap = getScaleAdjustedFontSize(LABEL_GAP, cameraScale);
+        // Keep the available screen width stable, just like the label's font size.
+        const maxWidth = getScaleAdjustedFontSize(width * LABEL_MAX_WIDTH_RATIO, cameraScale);
         context.fillStyle = cssValue('--g-color-text-primary', context.canvas);
         context.textAlign = 'center';
         context.textBaseline = 'top';
         context.font = `400 ${fontSize}px ${cssValue('--g-font-family-sans', context.canvas)}`;
-        const fitted = fitCanvasText(context, label, width * LABEL_MAX_WIDTH_RATIO, trimStart);
+        const fitted = fitCanvasText(context, label, maxWidth, trimStart);
         context.fillText(fitted, x + width / 2, y + height + labelGap);
     }
 }
