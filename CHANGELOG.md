@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/gravity-ui/querieskit/compare/v1.5.1...v1.6.0) (2026-09-21)
+
+
+### Features
+
+* **QueriesResult:** add query graph [YTFRONT-5935] ([470874e](https://github.com/gravity-ui/querieskit/commit/470874e182161c0db1bfae559fa5726b877da43a))
+
+
+### Bug Fixes
+
+* improve tree-shaking ([7674363](https://github.com/gravity-ui/querieskit/commit/7674363526f521870de4a9e6fe2d317c0919fcb7))
+
 ## [1.5.1](https://github.com/gravity-ui/querieskit/compare/v1.5.0...v1.5.1) (2026-09-18)
 
 
