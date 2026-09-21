@@ -1,8 +1,14 @@
 import React from 'react';
-import {HistoryHeader, HistoryLayout, RowsList} from '../../modules';
+import {HistoryHeader} from '../../modules/HistoryHeader';
+import {HistoryLayout} from '../../modules/HistoryLayout';
+import {RowsList} from '../../modules/RowsList';
 import i18n from './i18n';
-import {QueryListFilterConfig, QueryListItem, QueryListSearchConfig} from '../../types/queryList';
-import {TutorialHistoryRow} from '../../types/tutorial';
+import type {
+    QueryListFilterConfig,
+    QueryListItem,
+    QueryListSearchConfig,
+} from '../../types/queryList';
+import type {TutorialHistoryRow} from '../../types/tutorial';
 import {getListKey} from '../../helpers/getListKey';
 import {TutorialRowContent} from './TutorialRowContent';
 import cn from 'bem-cn-lite';

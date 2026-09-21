@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
-import {QueriesList} from '../../modules';
+import {QueriesList} from '../../modules/QueriesList';
 import {
     QueryListComparisonConfig,
     QueryListEditingConfig,

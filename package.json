@@ -25,7 +25,67 @@
       "default": "./build/cjs/index.js"
     },
     "./build/*": "./build/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./widgets/QueriesHistory": {
+      "import": {
+        "types": "./build/esm/widgets/QueriesHistory/index.d.ts",
+        "default": "./build/esm/widgets/QueriesHistory/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueriesHistory/index.d.ts",
+        "default": "./build/cjs/widgets/QueriesHistory/index.js"
+      }
+    },
+    "./widgets/SavedQueries": {
+      "import": {
+        "types": "./build/esm/widgets/SavedQueries/index.d.ts",
+        "default": "./build/esm/widgets/SavedQueries/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/SavedQueries/index.d.ts",
+        "default": "./build/cjs/widgets/SavedQueries/index.js"
+      }
+    },
+    "./widgets/TutorialsHistory": {
+      "import": {
+        "types": "./build/esm/widgets/TutorialsHistory/index.d.ts",
+        "default": "./build/esm/widgets/TutorialsHistory/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/TutorialsHistory/index.d.ts",
+        "default": "./build/cjs/widgets/TutorialsHistory/index.js"
+      }
+    },
+    "./widgets/QueriesNavigation": {
+      "import": {
+        "types": "./build/esm/widgets/QueriesNavigation/index.d.ts",
+        "default": "./build/esm/widgets/QueriesNavigation/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueriesNavigation/index.d.ts",
+        "default": "./build/cjs/widgets/QueriesNavigation/index.js"
+      }
+    },
+    "./widgets/QueryResults": {
+      "import": {
+        "types": "./build/esm/widgets/QueryResults/index.d.ts",
+        "default": "./build/esm/widgets/QueryResults/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryResults/index.d.ts",
+        "default": "./build/cjs/widgets/QueryResults/index.js"
+      }
+    },
+    "./widgets/DashboardCharts": {
+      "import": {
+        "types": "./build/esm/widgets/DashboardCharts/index.d.ts",
+        "default": "./build/esm/widgets/DashboardCharts/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/DashboardCharts/index.d.ts",
+        "default": "./build/cjs/widgets/DashboardCharts/index.js"
+      }
+    }
   },
   "files": [
     "build"
@@ -39,7 +99,8 @@
     "test": "npm run test:timezones && npm run test:components",
     "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
     "test:components": "vitest run tests/components",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs"
   },
   "repository": {
     "type": "git",
@@ -76,7 +137,8 @@
     "typescript": "^6.0.3",
     "vite": "^8.1.5",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "esbuild": "^0.28.1"
   },
   "peerDependencies": {
     "@gravity-ui/icons": ">=2.0.0",
@@ -88,12 +150,27 @@
     "@gravity-ui/charts": "^1.57.2",
     "@gravity-ui/dashkit": "^10.4.0",
     "@gravity-ui/date-components": "^3.4.2",
-    "@gravity-ui/graph": "1.7.3",
+    "@gravity-ui/graph": "1.11.3",
     "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/illustrations": "^2.1.1",
     "@gravity-ui/react-data-table": "^2.2.1",
     "@gravity-ui/unipika": "^5.6.3",
     "bem-cn-lite": "^4.1.0",
     "monaco-editor": "^0.56.0"
-  }
+  },
+  "overrides": {
+    "@gravity-ui/graph": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
+  "sideEffects": [
+    "**/*.css",
+    "./build/*/components/MonacoEditor/monaco-yql-languages/monaco.contribution.js",
+    "./build/*/components/MonacoEditor/monaco-yql-languages/clickhouse/clickhouse.contribution.js",
+    "./build/*/components/MonacoEditor/monaco-yql-languages/yql/yql.contribution.js",
+    "./build/*/components/MonacoEditor/monaco-yql-languages/yql_ansi/yql_ansi.contribution.js",
+    "./build/*/components/MonacoEditor/monaco-yql-languages/s-expressions/s-expressions.contribution.js",
+    "./build/*/components/MonacoEditor/monaco-yql-languages/themes/themes.contribution.js"
+  ]
 }

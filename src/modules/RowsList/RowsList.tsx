@@ -11,7 +11,8 @@ import {
     QueryListRowVariant,
     QueryListVisibleFieldsConfig,
 } from '../../types/queryList';
-import {EmptyContent, LazyList} from '../../components';
+import {EmptyContent} from '../../components/EmptyContent';
+import {LazyList} from '../../components/LazyList';
 import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../../constants/row';
 import './RowsList.scss';

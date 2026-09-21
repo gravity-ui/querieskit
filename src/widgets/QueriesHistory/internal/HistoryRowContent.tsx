@@ -1,6 +1,7 @@
 import React from 'react';
-import {HistoryGroupHeader} from '../../../components';
-import {HistoryRow, HistorySearchRow} from '../../../modules';
+import {HistoryGroupHeader} from '../../../components/HistoryGroupHeader';
+import {HistoryRow} from '../../../modules/HistoryRow';
+import {HistorySearchRow} from '../../../modules/HistorySearchRow';
 import {QueryListRowRenderData} from '../../../types/queryList';
 import {QueryHistoryRow} from '../../../types/history';
 

@@ -4,14 +4,12 @@ import {QueryHistoryRow} from '../../types/history';
 import {Flex, Text} from '@gravity-ui/uikit';
 import './HistoryRow.scss';
 import cn from 'bem-cn-lite';
-import {
-    EditableRowTitle,
-    HistoryPrivateIcon,
-    QueryDuration,
-    QueryStatusIcon,
-    RowActionsMenu,
-    RowLink,
-} from '../../components';
+import {EditableRowTitle} from '../../components/EditableRowTitle';
+import {HistoryPrivateIcon} from '../../components/HistoryPrivateIcon';
+import {QueryDuration} from '../../components/QueryDuration';
+import {QueryStatusIcon} from '../../components/QueryStatusIcon';
+import {RowActionsMenu} from '../../components/RowActionsMenu';
+import {RowLink} from '../../components/RowLink';
 import {formatTime} from '../../helpers/time';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
 

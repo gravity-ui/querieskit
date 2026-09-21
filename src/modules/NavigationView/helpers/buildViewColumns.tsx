@@ -1,4 +1,4 @@
-import type {Column} from '../../../components';
+import type {Column} from '../../../components/DataTable';
 import {buildColumnsFromKeys} from '../../../helpers/buildColumnsFromKeys';
 import type {NavigationViewRow} from '../../../types/navigation';
 import type viewI18n from '../i18n';

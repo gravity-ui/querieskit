@@ -1,8 +1,8 @@
 import React, {FC} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import {Breadcrumbs} from '../../components/Breadcrumbs';
-import {NavigationActionButtons} from '../../components';
-import {NavigationHeaderAction, NavigationLocation} from '../../types/navigation';
+import {NavigationActionButtons} from '../../components/NavigationActionButtons';
+import type {NavigationHeaderAction, NavigationLocation} from '../../types/navigation';
 import type {LoadPathSuggestions} from '../../types/pathEditor';
 
 export type NavigationHeaderProps = {

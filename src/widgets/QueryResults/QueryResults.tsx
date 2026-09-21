@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import {Flex, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {QueryResultsTable} from '../../components';
+import {QueryResultsTable} from '../../components/QueryResultsTable';
 import type {
     QueryResultColumn,
     QueryResultFormatterSettings,

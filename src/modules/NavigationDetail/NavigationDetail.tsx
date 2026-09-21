@@ -2,8 +2,8 @@ import React, {useMemo, useState} from 'react';
 import cn from 'bem-cn-lite';
 import {Flex} from '@gravity-ui/uikit';
 import {NavigationHeader} from '../NavigationHeader';
-import {SearchWithButtons} from '../../components';
-import {
+import {SearchWithButtons} from '../../components/SearchWithButtons';
+import type {
     NavigationDetailConfig,
     NavigationHeaderAction,
     NavigationLocation,

@@ -1,4 +1,4 @@
-import {MonacoLanguage} from '../../../components';
+import {MonacoLanguage} from '../../../components/MonacoEditor';
 
 export const resolveMonacoLanguage = (engine?: string) => {
     const normalized = engine?.toLowerCase();

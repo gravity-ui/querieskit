@@ -1,8 +1,9 @@
 import React from 'react';
-import {HistoryGroupHeader} from '../../components';
-import {SavedQueryRow, SavedQuerySearchRow} from '../../modules';
-import {QueryListRowRenderData} from '../../types/queryList';
-import {SavedQuery} from '../../types/savedQueries';
+import {HistoryGroupHeader} from '../../components/HistoryGroupHeader';
+import {SavedQueryRow} from '../../modules/SavedQueryRow';
+import {SavedQuerySearchRow} from '../../modules/SavedQuerySearchRow';
+import type {QueryListRowRenderData} from '../../types/queryList';
+import type {SavedQuery} from '../../types/savedQueries';
 
 type Props<T extends SavedQuery> = QueryListRowRenderData<T> & {
     renderAuthor?: (item: T) => React.ReactNode;

@@ -1,10 +1,8 @@
 import React from 'react';
-import {
-    NavigationMeta,
-    NavigationPreview,
-    NavigationSchema,
-    NavigationView,
-} from '../../../modules';
+import {NavigationMeta} from '../../../modules/NavigationMeta';
+import {NavigationPreview} from '../../../modules/NavigationPreview';
+import {NavigationSchema} from '../../../modules/NavigationSchema';
+import {NavigationView} from '../../../modules/NavigationView';
 import type {
     NavigationDetailConfig,
     NavigationDetailConfigFactory,

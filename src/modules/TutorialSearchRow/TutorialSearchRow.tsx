@@ -1,7 +1,8 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {TutorialHistoryRow} from '../../types/tutorial';
-import {MonacoLanguage, SearchRowLayout} from '../../components';
+import type {TutorialHistoryRow} from '../../types/tutorial';
+import {MonacoLanguage} from '../../components/MonacoEditor';
+import {SearchRowLayout} from '../../components/SearchRowLayout';
 import './TutorialSearchRow.scss';
 import cn from 'bem-cn-lite';
 

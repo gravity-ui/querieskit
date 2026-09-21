@@ -1,7 +1,9 @@
 import React, {useMemo} from 'react';
 import {Disclosure, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {type Column, DataTable, NavigationActionButtons} from '../../../components';
+import type {Column} from '../../../components/DataTable';
+import {DataTable} from '../../../components/DataTable';
+import {NavigationActionButtons} from '../../../components/NavigationActionButtons';
 import type {NavigationViewRow, NavigationViewSection} from '../../../types/navigation';
 import {buildViewColumns} from '../helpers/buildViewColumns';
 import i18n from '../i18n';

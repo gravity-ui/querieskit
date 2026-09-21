@@ -1,8 +1,8 @@
-import type {DashboardProps} from '../../components';
+import type {DashboardProps} from '../../components/Dashboard';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
 import type {ChartData, ChartSeries} from '../../modules/ChartEditor/types';
-import {ChartEditorProps} from '../../modules';
-import {FlexProps} from '@gravity-ui/uikit';
+import type {ChartEditorProps} from '../../modules/ChartEditor';
+import type {FlexProps} from '@gravity-ui/uikit';
 
 export type DashboardItem = {
     id: string;

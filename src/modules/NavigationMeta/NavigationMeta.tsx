@@ -1,7 +1,8 @@
 import React, {useMemo} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {EmptyContent, SkeletonRows} from '../../components';
+import {EmptyContent} from '../../components/EmptyContent';
+import {SkeletonRows} from '../../components/SkeletonRows';
 import type {NavigationMetaConfig, NavigationMetaItem} from '../../types/navigation';
 import {buildMetaGroups} from './helpers/buildMetaGroups';
 import i18n from './i18n';

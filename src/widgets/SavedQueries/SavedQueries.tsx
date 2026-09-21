@@ -1,7 +1,7 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
-import {QueriesList} from '../../modules';
-import {
+import {QueriesList} from '../../modules/QueriesList';
+import type {
     QueryListComparisonConfig,
     QueryListEditingConfig,
     QueryListFilterConfig,
@@ -11,7 +11,7 @@ import {
     QueryListSearchConfig,
     QueryListVisibleFieldsConfig,
 } from '../../types/queryList';
-import {SavedQuery} from '../../types/savedQueries';
+import type {SavedQuery} from '../../types/savedQueries';
 import i18n from './i18n';
 import {SavedQueryRowContent} from './SavedQueryRowContent';
 import './SavedQueries.scss';

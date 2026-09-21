@@ -3,7 +3,7 @@ import {Flex, Icon, Text} from '@gravity-ui/uikit';
 import ArrowUpIcon from '@gravity-ui/icons/svgs/arrow-up.svg';
 import ArrowDownIcon from '@gravity-ui/icons/svgs/arrow-down.svg';
 import CheckIcon from '@gravity-ui/icons/svgs/check.svg';
-import type {Column} from '../../../components';
+import type {Column} from '../../../components/DataTable';
 import type {NavigationSchemaColumn, NavigationSchemaSortOrder} from '../../../types/navigation';
 import type schemaI18n from '../i18n';
 

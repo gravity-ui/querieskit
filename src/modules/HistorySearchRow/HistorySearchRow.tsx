@@ -2,12 +2,10 @@ import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import {QueryListRowRenderData} from '../../types/queryList';
 import {QueryHistoryRow} from '../../types/history';
-import {
-    HistoryPrivateIcon,
-    QueryDuration,
-    QueryStatusIcon,
-    SearchRowLayout,
-} from '../../components';
+import {HistoryPrivateIcon} from '../../components/HistoryPrivateIcon';
+import {QueryDuration} from '../../components/QueryDuration';
+import {QueryStatusIcon} from '../../components/QueryStatusIcon';
+import {SearchRowLayout} from '../../components/SearchRowLayout';
 import {formatTimeCanonical} from '../../helpers/time';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
 import {resolveMonacoLanguage} from './helpers/resolveMonacoLanguage';
