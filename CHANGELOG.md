@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/gravity-ui/querieskit/compare/v1.7.0...v1.8.0) (2026-09-22)
+
+
+### Features
+
+* extend QueriesNavigation integration API ([531ced5](https://github.com/gravity-ui/querieskit/commit/531ced5e273afe5842d5dd85298ce7824c83129e))
+
 ## [1.7.0](https://github.com/gravity-ui/querieskit/compare/v1.6.0...v1.7.0) (2026-09-22)
 
 
