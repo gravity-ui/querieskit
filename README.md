@@ -133,11 +133,42 @@ function HistoryPanel() {
 
 ### TutorialsHistory
 
-Same layout pattern for tutorial lists — search, optional filters, and selectable rows.
+Tutorial list with search, optional filters, selectable rows, incremental loading, and custom
+link or row rendering.
 
 ```tsx
-import {TutorialsHistory} from '@gravity-ui/querieskit';
+import {TutorialsHistory, type QueryListLinkRenderer} from '@gravity-ui/querieskit';
+
+const renderLink: QueryListLinkRenderer = ({href = '', ...props}) => (
+  <RouterLink {...props} to={href} />
+);
+
+<TutorialsHistory
+  items={tutorials}
+  selectedRowId={selectedTutorialId}
+  hasMore={hasNextPage}
+  loading={isLoading}
+  onLoadMore={loadNextPage}
+  renderLink={renderLink}
+  search={{value: search, onUpdate: updateSearch}}
+/>;
 ```
+
+`renderLink` is used for tutorial rows with a non-empty `href`, including full-text search
+results. Without it, those rows render as regular `<a>` elements; rows without an `href` render
+as `<div>` elements.
+
+Use `renderRowItem` to replace the row contents while retaining the list's navigation and
+selection behavior. It receives the original item, its list index, the current row variant
+(`default` or `search`), keyboard activity as `isActive`, and `renderLink`. Group headers are
+passed to the renderer as items and must be rendered by the consumer. Default rows continue to
+show the tutorial `id`. A custom renderer can omit a long string ID from the visible content
+while keeping it on the item for `selectedRowId` and navigation.
+
+An empty list with `loading` shows the initial spinner. When existing items are present, loading
+the next page shows an inline loader after them. Keep `loading` controlled, including passing
+`false` between requests; the consumer remains responsible for the initial request, filtering,
+and routing.
 
 Browse interactive examples in [Storybook](https://preview.gravity-ui.com/querieskit/).
 
@@ -146,7 +177,7 @@ Browse interactive examples in [Storybook](https://preview.gravity-ui.com/querie
 | Widget | Description |
 | --- | --- |
 | `QueriesHistory` | Query history with search, filters, visible fields, editing, and comparison |
-| `TutorialsHistory` | Tutorials list with search and filters |
+| `TutorialsHistory` | Tutorials list with search, filters, pagination, and custom rendering |
 
 ## Development
 

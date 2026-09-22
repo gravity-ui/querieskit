@@ -1,5 +1,6 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
+import type {QueryListLinkRenderer} from '../../types/queryList';
 import type {TutorialHistoryRow} from '../../types/tutorial';
 import {MonacoLanguage} from '../../components/MonacoEditor';
 import {SearchRowLayout} from '../../components/SearchRowLayout';
@@ -10,10 +11,12 @@ const block = cn('qp-tutorial-search-row');
 
 export type TutorialSearchRowProps<T extends TutorialHistoryRow = TutorialHistoryRow> = {
     item: T;
+    renderLink?: QueryListLinkRenderer;
 };
 
 export const TutorialSearchRow = <T extends TutorialHistoryRow>({
     item,
+    renderLink,
 }: TutorialSearchRowProps<T>) => {
     const {href, id, title, query} = item;
 
@@ -22,6 +25,7 @@ export const TutorialSearchRow = <T extends TutorialHistoryRow>({
             query={query}
             language={MonacoLanguage.YQL}
             href={href}
+            renderLink={renderLink}
             className={block()}
             header={
                 <Flex gap={2} alignItems="center" className={block('header')}>

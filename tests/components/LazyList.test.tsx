@@ -161,4 +161,35 @@ describe('LazyList loading indicator', () => {
         act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
         expect(onLoadMore).toHaveBeenCalledTimes(1);
     });
+
+    it('does not call onLoadMore when there are no more pages', () => {
+        const onLoadMore = vi.fn();
+        renderList({hasMore: false, loading: false, onLoadMore});
+
+        expect(IntersectionObserverMock.instances).toHaveLength(0);
+        expect(onLoadMore).not.toHaveBeenCalled();
+    });
+
+    it('allows another load after items are appended and loading finishes', () => {
+        const onLoadMore = vi.fn();
+        renderList({hasMore: true, loading: false, onLoadMore});
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
+
+        renderList({hasMore: true, loading: true, onLoadMore});
+        renderList({
+            items: [...ITEMS, {id: 2}],
+            hasMore: true,
+            loading: true,
+            onLoadMore,
+        });
+        renderList({
+            items: [...ITEMS, {id: 2}],
+            hasMore: true,
+            loading: false,
+            onLoadMore,
+        });
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
+
+        expect(onLoadMore).toHaveBeenCalledTimes(2);
+    });
 });
