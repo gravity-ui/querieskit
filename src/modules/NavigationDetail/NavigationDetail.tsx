@@ -4,9 +4,11 @@ import {Flex} from '@gravity-ui/uikit';
 import {NavigationHeader} from '../NavigationHeader';
 import {SearchWithButtons} from '../../components/SearchWithButtons';
 import type {
+    GetNavigationBreadcrumbHref,
     NavigationDetailConfig,
     NavigationHeaderAction,
     NavigationLocation,
+    RenderNavigationHeaderActions,
 } from '../../types/navigation';
 import type {LoadPathSuggestions} from '../../types/pathEditor';
 import {NavigationDetailTabs} from './internal/NavigationDetailTabs';
@@ -22,6 +24,8 @@ export type NavigationDetailProps = {
     onUpdate: (location: NavigationLocation) => void;
     onLoadSuggestions?: LoadPathSuggestions;
     actions?: NavigationHeaderAction[];
+    renderActions?: RenderNavigationHeaderActions;
+    getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     activeTab?: string;
     onTabUpdate?: (tab: string) => void;
     search?: string;
@@ -35,6 +39,8 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
     onUpdate,
     onLoadSuggestions,
     actions,
+    renderActions,
+    getBreadcrumbHref,
     activeTab: activeTabProp,
     onTabUpdate,
     search: searchProp,
@@ -93,6 +99,8 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
             <NavigationHeader
                 location={location}
                 actions={mergedActions}
+                renderActions={renderActions}
+                getBreadcrumbHref={getBreadcrumbHref}
                 onUpdate={onUpdate}
                 onLoadSuggestions={onLoadSuggestions}
             />

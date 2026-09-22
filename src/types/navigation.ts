@@ -19,6 +19,17 @@ export type NavigationAction<TArg> = {
 
 export type NavigationHeaderAction = NavigationAction<NavigationLocation>;
 
+export type NavigationHeaderActionsRenderContext = {
+    location: NavigationLocation;
+    actions: NavigationHeaderAction[];
+};
+
+export type RenderNavigationHeaderActions = (
+    context: NavigationHeaderActionsRenderContext,
+) => ReactNode;
+
+export type GetNavigationBreadcrumbHref = (location: NavigationLocation) => string | undefined;
+
 export type NavigationCluster = {
     id: string;
     title: string;
@@ -193,7 +204,13 @@ export type NavigationListStateConfig = {
 
 export type NavigationHeaderConfig = {
     actions?: NavigationHeaderAction[];
+    renderActions?: RenderNavigationHeaderActions;
+    getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     onLoadSuggestions?: LoadPathSuggestions;
+};
+
+export type NavigationParentRowConfig = {
+    showDuringSearch?: boolean;
 };
 
 export type NavigationDetailPanelConfig<TItem extends NavigationItem = NavigationItem> = {

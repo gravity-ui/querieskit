@@ -14,6 +14,7 @@ import type {
     NavigationItem,
     NavigationListStateConfig,
     NavigationLocation,
+    NavigationParentRowConfig,
     NavigationSearchConfig,
     NavigationSortConfig,
     RenderNavigationCluster,
@@ -39,6 +40,7 @@ export type QueriesNavigationProps<
     sort?: NavigationSortConfig;
     listState?: NavigationListStateConfig;
     detail?: NavigationDetailPanelConfig<TItem>;
+    parentRow?: NavigationParentRowConfig;
     renderClusterItem?: RenderNavigationCluster<TCluster>;
     renderNavigationItem?: RenderNavigationItem<TItem>;
     onClusterClick?: (cluster: TCluster) => void;
@@ -65,6 +67,7 @@ export const QueriesNavigation = <
     sort,
     listState,
     detail,
+    parentRow,
     renderClusterItem,
     renderNavigationItem,
     onClusterClick,
@@ -72,7 +75,7 @@ export const QueriesNavigation = <
     className,
 }: QueriesNavigationProps<TItem, TCluster>) => {
     const {loading, error, hasMore, onLoadMore} = listState ?? {};
-    const {actions, onLoadSuggestions} = header ?? {};
+    const {actions, renderActions, getBreadcrumbHref, onLoadSuggestions} = header ?? {};
     const {value: searchValue, onUpdate: onSearchUpdate} = search ?? {};
     const {value: sortValue, onUpdate: onSortUpdate} = sort ?? {};
     const {
@@ -138,6 +141,8 @@ export const QueriesNavigation = <
                 config={body.config}
                 location={{cluster: location.cluster, path: body.item.path}}
                 actions={resolvedDetailActions}
+                renderActions={renderActions}
+                getBreadcrumbHref={getBreadcrumbHref}
                 onUpdate={handleNavigate}
                 onLoadSuggestions={onLoadSuggestions}
                 search={detailSearch}
@@ -154,6 +159,8 @@ export const QueriesNavigation = <
             <NavigationHeader
                 location={location}
                 actions={actions}
+                renderActions={renderActions}
+                getBreadcrumbHref={getBreadcrumbHref}
                 onUpdate={handleNavigate}
                 onLoadSuggestions={onLoadSuggestions}
             />
@@ -180,6 +187,7 @@ export const QueriesNavigation = <
                     items={items}
                     path={location.path}
                     search={searchValue}
+                    parentRow={parentRow}
                     sort={sortValue}
                     onSortUpdate={onSortUpdate}
                     titleLabel={i18n('title_name')}

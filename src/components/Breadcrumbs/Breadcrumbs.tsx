@@ -4,7 +4,7 @@ import FolderTreeIcon from '@gravity-ui/icons/svgs/folder-tree.svg';
 import PencilIcon from '@gravity-ui/icons/svgs/pencil.svg';
 import cn from 'bem-cn-lite';
 import {parsePathSegments} from './helpers/parsePathSegments';
-import {NavigationLocation} from '../../types/navigation';
+import type {GetNavigationBreadcrumbHref, NavigationLocation} from '../../types/navigation';
 import type {LoadPathSuggestions} from '../../types/pathEditor';
 import {PathEditor} from '../PathEditor';
 import i18n from './i18n';
@@ -15,6 +15,7 @@ export type BreadcrumbsProps = {
     hideResetButton?: boolean;
     className?: string;
     onUpdate: (location: NavigationLocation) => void;
+    getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     onLoadSuggestions?: LoadPathSuggestions;
 };
 
@@ -24,6 +25,7 @@ export const Breadcrumbs: FC<BreadcrumbsProps> = ({
     location,
     hideResetButton,
     onUpdate,
+    getBreadcrumbHref,
     onLoadSuggestions,
     className,
 }) => {
@@ -83,16 +85,34 @@ export const Breadcrumbs: FC<BreadcrumbsProps> = ({
                     <GravityBreadcrumbs showRoot className={block('list')} maxItems={3}>
                         {items.map((item, index) => {
                             const isLast = index === items.length - 1;
+                            const itemLocation = {cluster, path: item.path};
+                            const href = getBreadcrumbHref?.(itemLocation);
 
                             return (
                                 <GravityBreadcrumbs.Item
                                     key={item.path ?? 'root'}
-                                    disabled={isLast}
-                                    onClick={
-                                        isLast
-                                            ? undefined
-                                            : () => onUpdate({cluster, path: item.path})
-                                    }
+                                    href={href}
+                                    disabled={isLast && !href}
+                                    onClick={(event) => {
+                                        const isPlainLeftClick =
+                                            event.button === 0 &&
+                                            !event.altKey &&
+                                            !event.ctrlKey &&
+                                            !event.metaKey &&
+                                            !event.shiftKey;
+
+                                        if (href && !isPlainLeftClick) {
+                                            return;
+                                        }
+
+                                        if (href) {
+                                            event.preventDefault();
+                                        }
+
+                                        if (!isLast) {
+                                            onUpdate(itemLocation);
+                                        }
+                                    }}
                                 >
                                     {item.title}
                                 </GravityBreadcrumbs.Item>

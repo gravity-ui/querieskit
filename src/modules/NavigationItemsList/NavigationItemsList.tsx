@@ -2,6 +2,7 @@ import React from 'react';
 import cn from 'bem-cn-lite';
 import type {
     NavigationItem,
+    NavigationParentRowConfig,
     NavigationSortOrder,
     RenderNavigationItem,
 } from '../../types/navigation';
@@ -19,6 +20,7 @@ export type NavigationItemsListProps<T extends NavigationItem = NavigationItem> 
     items: T[];
     path?: string;
     search?: string;
+    parentRow?: NavigationParentRowConfig;
     sort?: NavigationSortOrder;
     onSortUpdate?: (sort: NavigationSortOrder) => void;
     titleLabel: string;
@@ -36,6 +38,7 @@ export const NavigationItemsList = <T extends NavigationItem = NavigationItem>({
     items,
     path,
     search,
+    parentRow: parentRowConfig,
     sort,
     onSortUpdate,
     titleLabel,
@@ -48,7 +51,7 @@ export const NavigationItemsList = <T extends NavigationItem = NavigationItem>({
     onItemClick,
     className,
 }: NavigationItemsListProps<T>) => {
-    const parentRow = useParentRow(path, search);
+    const parentRow = useParentRow(path, search, parentRowConfig?.showDuringSearch);
 
     const rows = (parentRow ? [parentRow as T, ...items] : items) as T[];
 

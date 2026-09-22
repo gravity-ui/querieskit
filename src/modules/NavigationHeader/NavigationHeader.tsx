@@ -2,12 +2,19 @@ import React, {FC} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import {Breadcrumbs} from '../../components/Breadcrumbs';
 import {NavigationActionButtons} from '../../components/NavigationActionButtons';
-import type {NavigationHeaderAction, NavigationLocation} from '../../types/navigation';
+import type {
+    GetNavigationBreadcrumbHref,
+    NavigationHeaderAction,
+    NavigationLocation,
+    RenderNavigationHeaderActions,
+} from '../../types/navigation';
 import type {LoadPathSuggestions} from '../../types/pathEditor';
 
 export type NavigationHeaderProps = {
     location: NavigationLocation;
     actions?: NavigationHeaderAction[];
+    renderActions?: RenderNavigationHeaderActions;
+    getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     onUpdate: (location: NavigationLocation) => void;
     onLoadSuggestions?: LoadPathSuggestions;
     className?: string;
@@ -16,6 +23,8 @@ export type NavigationHeaderProps = {
 export const NavigationHeader: FC<NavigationHeaderProps> = ({
     location,
     actions,
+    renderActions,
+    getBreadcrumbHref,
     onUpdate,
     onLoadSuggestions,
     className,
@@ -25,9 +34,14 @@ export const NavigationHeader: FC<NavigationHeaderProps> = ({
             <Breadcrumbs
                 location={location}
                 onUpdate={onUpdate}
+                getBreadcrumbHref={getBreadcrumbHref}
                 onLoadSuggestions={onLoadSuggestions}
             />
-            <NavigationActionButtons actions={actions} arg={location} />
+            {renderActions ? (
+                renderActions({location, actions: actions ?? []})
+            ) : (
+                <NavigationActionButtons actions={actions} arg={location} />
+            )}
         </Flex>
     );
 };
