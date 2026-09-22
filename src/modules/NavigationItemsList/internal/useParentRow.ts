@@ -5,8 +5,10 @@ import {getParentPath} from '../../../helpers/getParentPath';
 export function useParentRow(
     path: string | undefined,
     search: string | undefined,
+    showDuringSearch = false,
 ): NavigationItem | undefined {
-    const parentPath = path && !search ? getParentPath(path) : undefined;
+    const parentPath =
+        path && path !== '/' && (!search || showDuringSearch) ? getParentPath(path) : undefined;
 
     return useMemo<NavigationItem | undefined>(() => {
         if (!parentPath) {

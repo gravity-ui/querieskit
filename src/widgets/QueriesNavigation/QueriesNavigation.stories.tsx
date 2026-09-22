@@ -17,7 +17,15 @@ import FileArrowRightOutIcon from '@gravity-ui/icons/svgs/file-arrow-right-out.s
 import ArrowUpRightFromSquareIcon from '@gravity-ui/icons/svgs/arrow-up-right-from-square.svg';
 import CodeIcon from '@gravity-ui/icons/svgs/code.svg';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
-import {Flex, Icon, Label, Text} from '@gravity-ui/uikit';
+import {
+    Button,
+    DropdownMenu,
+    type DropdownMenuItem,
+    Flex,
+    Icon,
+    Label,
+    Text,
+} from '@gravity-ui/uikit';
 import {ClusterRow, NavigationItemRow} from '../../components';
 import {SCHEMA_COLUMNS} from '../../modules/NavigationSchema/story/mockData';
 import {PREVIEW_COLUMNS, PREVIEW_ROWS} from '../../modules/NavigationPreview/story/mockData';
@@ -400,6 +408,104 @@ const CustomDetailResolverStory = () => {
     );
 };
 
+const CustomHeaderActionsStory = () => {
+    const {location, onUpdate, items} = useNavigationStoryState({
+        cluster: 'northstar',
+        path: '/home',
+    });
+
+    return (
+        <div style={{width: 420, height: 500}}>
+            <QueriesNavigation
+                location={location}
+                onUpdate={onUpdate}
+                items={items}
+                header={{
+                    actions: defaultActions,
+                    renderActions: ({location: actionLocation, actions}) => {
+                        const menuItems = actions
+                            .filter(({hidden}) => !hidden)
+                            .map<DropdownMenuItem>(({title, disabled, onClick}) => ({
+                                text: title,
+                                disabled,
+                                action: () => onClick(actionLocation),
+                            }));
+                        const href = `/navigation/${actionLocation.cluster}${actionLocation.path ?? ''}`;
+
+                        return (
+                            <Flex gap={1} shrink={0}>
+                                <DropdownMenu
+                                    size="s"
+                                    items={menuItems}
+                                    renderSwitcher={(props) => (
+                                        <Button {...props} view="flat" size="s">
+                                            Favorites
+                                        </Button>
+                                    )}
+                                />
+                                <Button view="flat" size="s" href={href} target="_blank">
+                                    Open
+                                </Button>
+                            </Flex>
+                        );
+                    },
+                }}
+            />
+        </div>
+    );
+};
+
+const LinkedBreadcrumbsStory = () => {
+    const {location, onUpdate, items} = useNavigationStoryState({
+        cluster: 'northstar',
+        path: '/home',
+    });
+    const [openedItem, setOpenedItem] = useState<NavigationItem | undefined>(undefined);
+
+    return (
+        <div style={{width: 420, height: 500}}>
+            <QueriesNavigation
+                location={location}
+                onUpdate={onUpdate}
+                items={items}
+                header={{
+                    actions: defaultActions,
+                    getBreadcrumbHref: ({cluster, path}) =>
+                        cluster ? `/navigation/${cluster}${path ?? ''}` : '/navigation',
+                }}
+                detail={{
+                    openedItem,
+                    onItemOpen: setOpenedItem,
+                    onClose: () => setOpenedItem(undefined),
+                }}
+            />
+        </div>
+    );
+};
+
+const ParentRowDuringSearchStory = () => {
+    const {location, onUpdate} = useLocationState({cluster: 'northstar', path: '/home'});
+    const [search, setSearch] = useState('cluster');
+    const items = getItemsForPath(location.path).filter(({title}) => title.includes(search));
+
+    return (
+        <div style={{width: 340, height: 500}}>
+            <QueriesNavigation
+                location={location}
+                onUpdate={onUpdate}
+                items={items}
+                search={{value: search, onUpdate: setSearch}}
+                parentRow={{showDuringSearch: true}}
+                renderNavigationItem={({item, isParentRow}) => (
+                    <div data-qa={isParentRow ? 'parent-row' : undefined}>
+                        <NavigationItemRow item={item} />
+                    </div>
+                )}
+            />
+        </div>
+    );
+};
+
 export const ClustersToItems: Story = {render: () => <ClustersToItemsStory />};
 export const Loading: Story = {render: () => <LoadingStory />};
 export const Empty: Story = {render: () => <EmptyStory />};
@@ -407,3 +513,6 @@ export const EmptySearch: Story = {render: () => <EmptySearchStory />};
 export const Error: Story = {render: () => <ErrorStory />};
 export const CustomRows: Story = {render: () => <CustomRowsStory />};
 export const CustomDetailResolver: Story = {render: () => <CustomDetailResolverStory />};
+export const CustomHeaderActions: Story = {render: () => <CustomHeaderActionsStory />};
+export const LinkedBreadcrumbs: Story = {render: () => <LinkedBreadcrumbsStory />};
+export const ParentRowDuringSearch: Story = {render: () => <ParentRowDuringSearchStory />};

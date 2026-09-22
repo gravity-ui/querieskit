@@ -172,6 +172,60 @@ and routing.
 
 Browse interactive examples in [Storybook](https://preview.gravity-ui.com/querieskit/).
 
+### QueriesNavigation
+
+`QueriesNavigation` renders cluster and path navigation, an optional detail panel, and
+application-provided header actions. Applications remain responsible for loading data, routing,
+favorites, and item-specific operations.
+
+```tsx
+import {Button, DropdownMenu, Flex} from '@gravity-ui/uikit';
+import {QueriesNavigation} from '@gravity-ui/querieskit';
+
+<QueriesNavigation
+  location={location}
+  onUpdate={setLocation}
+  items={items}
+  search={{value: search, onUpdate: setSearch}}
+  parentRow={{showDuringSearch: true}}
+  header={{
+    actions,
+    getBreadcrumbHref: ({cluster, path}) =>
+      cluster ? `/navigation/${cluster}${path ?? ''}` : '/navigation',
+    renderActions: ({location, actions: headerActions}) => (
+      <Flex gap={1}>
+        <DropdownMenu
+          items={headerActions.map((action) => ({
+            text: action.title,
+            disabled: action.disabled,
+            hidden: action.hidden,
+            action: () => action.onClick(location),
+          }))}
+        />
+        <Button href={`/navigation/${location.cluster}${location.path ?? ''}`} target="_blank">
+          Open
+        </Button>
+      </Flex>
+    ),
+  }}
+/>;
+```
+
+Without `renderActions`, actions keep the standard button rendering. A custom renderer receives
+the unfiltered action array and owns handling of `hidden`, `disabled`, and clicks; returning
+`null` intentionally leaves the action area empty. In a detail panel the array contains the
+panel actions (or header actions when panel actions are absent), followed by actions supplied by
+the resolved detail config.
+
+`getBreadcrumbHref` turns every breadcrumb, including the cluster root and current item, into a
+real link. Plain clicks continue through `onUpdate`, while modified and middle clicks keep native
+browser behavior. URL construction and router integration belong to the application. Breadcrumb
+segments are derived from normalized single-slash paths; the parser does not preserve a Cypress
+`//` prefix.
+
+`parentRow.showDuringSearch` defaults to `false`. Set it to `true` to keep the parent navigation
+row available while search results are filtered, including when the result list is empty.
+
 ## Widgets
 
 | Widget | Description |
