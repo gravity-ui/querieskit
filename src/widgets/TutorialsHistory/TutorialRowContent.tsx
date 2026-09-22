@@ -8,10 +8,15 @@ import {TutorialSearchRow} from '../../modules/TutorialSearchRow';
 export const TutorialRowContent = <T extends TutorialHistoryRow>({
     item,
     variant,
+    renderLink,
 }: QueryListRowRenderData<T>) => {
     if ('header' in item) {
         return <HistoryGroupHeader title={item.header} />;
     }
 
-    return variant === 'search' ? <TutorialSearchRow item={item} /> : <TutorialRow item={item} />;
+    return variant === 'search' ? (
+        <TutorialSearchRow item={item} renderLink={renderLink} />
+    ) : (
+        <TutorialRow item={item} renderLink={renderLink} />
+    );
 };
