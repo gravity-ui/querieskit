@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/gravity-ui/querieskit/compare/v1.6.0...v1.7.0) (2026-09-22)
+
+
+### Features
+
+* extend TutorialsHistory integration API ([6b5bb81](https://github.com/gravity-ui/querieskit/commit/6b5bb8198e937da51d0c26b5b52599b2a7c5c3c7))
+
+
+### Bug Fixes
+
+* **Graph:** text under block ([93de8d9](https://github.com/gravity-ui/querieskit/commit/93de8d93ac148ef430f23b3cb00ab77aceef9a00))
+
 ## [1.6.0](https://github.com/gravity-ui/querieskit/compare/v1.5.1...v1.6.0) (2026-09-21)
 
 
