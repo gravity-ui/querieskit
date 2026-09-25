@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
@@ -6,10 +6,13 @@ import {
     QueryListFieldKey,
     QueryListFilterConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListVisibleFieldsConfig,
 } from '../../types/queryList';
 import {SavedQuery} from '../../types/savedQueries';
 import {SavedQueries} from './SavedQueries';
+import {HistoryGroupHeader} from '../../components/HistoryGroupHeader';
+import {RowLink} from '../../components/RowLink';
 
 const QUERY = `SELECT
     session_id,
@@ -190,3 +193,134 @@ const EmptyStory = () => {
 export const Default: Story = {render: () => <SavedQueriesStory />};
 export const CustomAuthor: Story = {render: () => <CustomAuthorStory />};
 export const Empty: Story = {render: () => <EmptyStory />};
+
+const LINK_ITEMS = BASE_ITEMS.map((item) =>
+    'header' in item ? item : {...item, href: `/saved-queries/${item.id}`},
+);
+
+const renderRouterLink: QueryListLinkRenderer = ({onClick, ...props}) => (
+    <a
+        {...props}
+        data-router-link
+        onClick={(event) => {
+            onClick?.(event);
+            if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+            )
+                return;
+            event.preventDefault();
+            action('routerNavigate')(props.href);
+        }}
+    />
+);
+
+const PAGINATION_ITEMS: QueryListItem<SavedQuery>[] = Array.from({length: 24}, (_, index) => ({
+    ...(BASE_ITEMS[0] as SavedQuery),
+    id: `saved-${index + 1}`,
+    title: `Saved report ${index + 1}`,
+    href: `/saved-queries/saved-${index + 1}`,
+}));
+
+const PaginatedStory = () => {
+    const [count, setCount] = useState(8);
+    const [loading, setLoading] = useState(false);
+    const timeout = useRef<number | undefined>(undefined);
+    useEffect(() => () => window.clearTimeout(timeout.current), []);
+    return (
+        <div style={{width: 360, height: 300}}>
+            <SavedQueries
+                items={PAGINATION_ITEMS.slice(0, count)}
+                selectedRowId="saved-2"
+                loading={loading}
+                hasMore={count < PAGINATION_ITEMS.length}
+                onLoadMore={() => {
+                    if (loading || count >= PAGINATION_ITEMS.length) return;
+                    action('onLoadMore')(count);
+                    setLoading(true);
+                    timeout.current = window.setTimeout(() => {
+                        setCount((current) => current + 8);
+                        setLoading(false);
+                    }, 700);
+                }}
+                renderLink={renderRouterLink}
+                search={{onUpdate: action('onSearchUpdate')}}
+            />
+        </div>
+    );
+};
+
+const RouterLinksStory = () => {
+    const [search, setSearch] = useState({value: 'SELECT', fullSearch: false});
+    return (
+        <div style={{width: 500, height: 500}}>
+            <SavedQueries
+                items={LINK_ITEMS}
+                renderLink={renderRouterLink}
+                search={{...search, hasClear: true, onUpdate: setSearch}}
+            />
+        </div>
+    );
+};
+
+const CustomRowRendererStory = () => {
+    const [search, setSearch] = useState({value: 'SELECT', fullSearch: false});
+    return (
+        <div style={{width: 500, height: 500}}>
+            <SavedQueries
+                items={[{header: 'Saved reports', height: 28}, ...LINK_ITEMS]}
+                renderLink={renderRouterLink}
+                renderRowItem={({item, variant, renderLink}) =>
+                    'header' in item ? (
+                        <HistoryGroupHeader title={item.header} />
+                    ) : (
+                        <RowLink href={item.href} renderLink={renderLink}>
+                            <Text>{item.title}</Text>
+                            {variant === 'search' && <pre>{item.query}</pre>}
+                        </RowLink>
+                    )
+                }
+                search={{...search, hasClear: true, onUpdate: setSearch}}
+            />
+        </div>
+    );
+};
+
+const FullSearchUnavailableStory = () => {
+    const [search, setSearch] = useState({value: 'report', fullSearch: true});
+    return (
+        <div style={{width: 360, height: 300}}>
+            <SavedQueries
+                items={LINK_ITEMS}
+                search={{
+                    ...search,
+                    fullSearchAvailable: false,
+                    hasClear: true,
+                    onUpdate: (data) => {
+                        action('onSearchUpdate')(data);
+                        setSearch(data);
+                    },
+                }}
+            />
+        </div>
+    );
+};
+
+export const InitialLoading: Story = {
+    args: {items: [], loading: true, search: {onUpdate: action('onSearchUpdate')}},
+    decorators: [
+        (StoryComponent) => (
+            <div style={{width: 360, height: 300}}>
+                <StoryComponent />
+            </div>
+        ),
+    ],
+};
+export const Paginated: Story = {render: () => <PaginatedStory />};
+export const RouterLinks: Story = {render: () => <RouterLinksStory />};
+export const CustomRowRenderer: Story = {render: () => <CustomRowRendererStory />};
+export const FullSearchUnavailable: Story = {render: () => <FullSearchUnavailableStory />};

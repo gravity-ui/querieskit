@@ -24,6 +24,7 @@ export const SavedQueryRow = <T extends SavedQuery>({
     editing,
     visibleFields,
     renderAuthor,
+    renderLink,
 }: SavedQueryRowProps<T>) => {
     const {author, engine, href, savedAt} = item;
     const isEditing = Boolean(editing?.enabled);
@@ -39,6 +40,7 @@ export const SavedQueryRow = <T extends SavedQuery>({
     return (
         <RowLink
             href={href}
+            renderLink={renderLink}
             disabled={isEditing || isComparisonMode}
             className={block({compared: isChecked})}
         >

@@ -21,6 +21,7 @@ export const SavedQuerySearchRow = <T extends SavedQuery>({
     editing,
     visibleFields,
     renderAuthor,
+    renderLink,
 }: SavedQuerySearchRowProps<T>) => {
     const {author, engine, href, query, savedAt} = item;
     const authorContent =
@@ -34,6 +35,7 @@ export const SavedQuerySearchRow = <T extends SavedQuery>({
             query={query}
             language={MonacoLanguage.YQL}
             href={href}
+            renderLink={renderLink}
             disabled={Boolean(editing?.enabled) || Boolean(comparison?.enabled)}
             className={block()}
             header={
