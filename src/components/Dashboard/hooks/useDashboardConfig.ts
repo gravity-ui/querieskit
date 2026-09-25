@@ -38,7 +38,7 @@ export const useDashboardConfig = (
     const cols = gridProps.cols;
 
     const layout = useMemo(
-        () => defaultLayout ?? createDefaultLayout(items, cols),
+        () => createDefaultLayout(items, cols, defaultLayout),
         [defaultLayout, items, cols],
     );
 
