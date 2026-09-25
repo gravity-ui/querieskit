@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/gravity-ui/querieskit/compare/v1.8.0...v1.9.0) (2026-09-25)
+
+
+### Features
+
+* extend SavedQueries integration API ([450e538](https://github.com/gravity-ui/querieskit/commit/450e5385f5c5e295ed9b396e05a381a6916197ea))
+
 ## [1.8.0](https://github.com/gravity-ui/querieskit/compare/v1.7.0...v1.8.0) (2026-09-22)
 
 
