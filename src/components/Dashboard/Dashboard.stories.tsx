@@ -216,6 +216,53 @@ function NarrowGridStory() {
     );
 }
 
+function DynamicAddItemsStory() {
+    const [layout, setLayout] = React.useState([{i: 'errors', x: 0, y: 0, w: 2, h: 3}]);
+    const [items, setItems] = React.useState(operationalItems);
+
+    const handleAddItem = () => {
+        setItems((currentItems) => {
+            const itemNumber = currentItems.length + 1;
+
+            return [
+                ...currentItems,
+                {
+                    id: `metric-${itemNumber}`,
+                    content: (
+                        <Flex direction="column" gap={1}>
+                            <Text variant="display-3">{itemNumber * 128}</Text>
+                            <Text color="secondary">Dynamically added metric #{itemNumber}</Text>
+                        </Flex>
+                    ),
+                },
+            ];
+        });
+    };
+
+    return (
+        <StoryFrame
+            title="Controlled layout"
+            description="Switch presets, then drag or resize a card: every change is saved back to the controlled layout."
+            actions={
+                <>
+                    <Button selected={layout === balancedLayout} onClick={handleAddItem}>
+                        Add item
+                    </Button>
+                </>
+            }
+        >
+            <Dashboard
+                items={items}
+                defaultLayout={layout}
+                onLayoutChange={(nextLayout) => {
+                    setLayout(nextLayout);
+                    action('onLayoutChange')(nextLayout);
+                }}
+            />
+        </StoryFrame>
+    );
+}
+
 const meta: Meta<typeof Dashboard> = {
     title: 'Components/Dashboard',
     component: Dashboard,
@@ -246,3 +293,5 @@ export const ControlledLayout: Story = {render: () => <ControlledLayoutStory />}
 
 /** Grid columns, row height, gaps and compaction can be adapted to the host container. */
 export const CustomGrid: Story = {render: () => <NarrowGridStory />};
+
+export const AddItems: Story = {render: () => <DynamicAddItemsStory />};
