@@ -131,6 +131,44 @@ function HistoryPanel() {
 }
 ```
 
+### SavedQueries
+
+Saved queries with search, filters, editable titles, comparison, configurable metadata,
+custom author rendering, incremental loading, and custom links or rows.
+
+```tsx
+import {SavedQueries, type QueryListLinkRenderer} from '@gravity-ui/querieskit';
+
+const renderLink: QueryListLinkRenderer = ({href = '', ...props}) => (
+  <RouterLink {...props} to={href} />
+);
+
+<SavedQueries
+  items={savedQueries}
+  selectedRowId={selectedQueryId}
+  hasMore={hasNextPage}
+  loading={isLoading}
+  onLoadMore={loadNextPage}
+  renderLink={renderLink}
+  search={{value: search, onUpdate: updateSearch}}
+/>;
+```
+
+An empty list with `loading` shows the initial spinner; loading with existing items shows an
+inline loader after them. Appending a page preserves the list instance and scroll position.
+Keep `loading` controlled, including passing `false` between requests, to prevent repeated
+load requests. The application owns the initial request, data, filtering, and routing.
+
+`renderLink` applies to both regular and full-text search rows with an `href`. Without it,
+rows use regular `<a>` elements. Rows without an `href`, or with editing or comparison enabled,
+render without a link and do not call `renderLink`.
+
+`renderRowItem` receives the original item (including group headers), index, variant, activity,
+editing/comparison data, visible fields, actions, and `renderLink`. It replaces the standard row;
+the consumer renders group headers and applies links as needed. Returning `null` hides the row
+contents. `renderAuthor` customizes the author in standard rows and respects field visibility.
+Set `search.fullSearchAvailable` to `false` to disable full-text search and hide its toggle.
+
 ### TutorialsHistory
 
 Tutorial list with search, optional filters, selectable rows, incremental loading, and custom

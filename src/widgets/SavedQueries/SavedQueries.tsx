@@ -6,6 +6,7 @@ import type {
     QueryListEditingConfig,
     QueryListFilterConfig,
     QueryListItem,
+    QueryListLinkRenderer,
     QueryListRowAction,
     QueryListRowRenderData,
     QueryListSearchConfig,
@@ -31,6 +32,10 @@ export type SavedQueriesProps<T extends SavedQuery = SavedQuery> = {
     renderRowItem?: (data: QueryListRowRenderData<T>) => React.ReactNode;
     getRowActions?: (item: T) => QueryListRowAction<T>[];
     onListItemClick?: (item: QueryListItem<T>) => void;
+    hasMore?: boolean;
+    loading?: boolean;
+    onLoadMore?: () => void;
+    renderLink?: QueryListLinkRenderer;
 };
 
 const block = cn('qp-saved-queries');
@@ -49,6 +54,10 @@ export const SavedQueries = <T extends SavedQuery>({
     renderRowItem,
     getRowActions,
     onListItemClick,
+    hasMore,
+    loading,
+    onLoadMore,
+    renderLink,
     className,
 }: SavedQueriesProps<T>) => {
     return (
@@ -72,6 +81,10 @@ export const SavedQueries = <T extends SavedQuery>({
                 )
             }
             onListItemClick={onListItemClick}
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={onLoadMore}
+            renderLink={renderLink}
         />
     );
 };
