@@ -96,11 +96,12 @@
     "lint:all": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "test": "npm run test:timezones && npm run test:components",
+    "test": "npm run test:timezones && npm run test:components && npm run test:timeline",
     "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
     "test:components": "vitest run tests/components",
     "prepublishOnly": "npm run build",
-    "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs"
+    "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs",
+    "test:timeline": "vitest run tests/helpers/queryTimeline.test.ts"
   },
   "repository": {
     "type": "git",
@@ -114,7 +115,6 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^20.5.3",
     "@gravity-ui/app-builder": "^0.49.0",
-    "@gravity-ui/date-utils": "^2.7.1",
     "@gravity-ui/eslint-config": "^4.3.2",
     "@gravity-ui/icons": "^2.20.0",
     "@gravity-ui/prettier-config": "^1.1.1",
@@ -126,6 +126,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
     "@typescript-eslint/parser": "^8.64.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.39.5",
     "eslint-import-resolver-typescript": "^4.4.5",
     "jsdom": "^26.1.0",
@@ -137,12 +138,11 @@
     "typescript": "^6.0.3",
     "vite": "^8.1.5",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^3.2.4",
-    "esbuild": "^0.28.1"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "@gravity-ui/icons": ">=2.0.0",
-    "@gravity-ui/uikit": ">=7.0.0",
+    "@gravity-ui/uikit": ">=7.18.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
@@ -150,12 +150,15 @@
     "@gravity-ui/charts": "^1.57.2",
     "@gravity-ui/dashkit": "^10.4.0",
     "@gravity-ui/date-components": "^3.4.2",
+    "@gravity-ui/date-utils": "^2.7.1",
     "@gravity-ui/graph": "1.12.1",
     "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/illustrations": "^2.1.1",
     "@gravity-ui/react-data-table": "^2.2.1",
+    "@gravity-ui/timeline": "1.32.2",
     "@gravity-ui/unipika": "^5.6.3",
     "bem-cn-lite": "^4.1.0",
+    "lodash": "^4.18.1",
     "monaco-editor": "^0.56.0"
   },
   "overrides": {

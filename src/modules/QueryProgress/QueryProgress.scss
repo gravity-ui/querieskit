@@ -56,17 +56,6 @@
     }
 
     &__view_hidden {
-        visibility: hidden;
-        position: absolute;
-        pointer-events: none;
-    }
-
-    &__timeline {
-        min-height: 360px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px dashed var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-l);
+        display: none;
     }
 }

@@ -13,7 +13,7 @@ npm install @gravity-ui/querieskit
 Your project must also provide:
 
 - `react` / `react-dom` (^18 or ^19)
-- `@gravity-ui/uikit` (>=7)
+- `@gravity-ui/uikit` (>=7.18.0)
 - `@gravity-ui/icons` (>=2)
 
 See `peerDependencies` in `package.json` for the exact ranges.
@@ -295,3 +295,9 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+### Execution timeline
+
+`QueryTimeline` provides a virtualized execution timeline with stages, filters and live
+updates. It can also be passed to `QueryProgress` using `timelineProps`. See the
+[QueryTimeline guide](src/modules/QueryTimeline/README.md) for the data contract and examples.

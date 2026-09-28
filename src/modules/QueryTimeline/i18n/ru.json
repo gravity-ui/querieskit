@@ -1,0 +1,22 @@
+{
+  "field_search": "Поиск по названию",
+  "field_status": "Статус",
+  "field_start": "Начало",
+  "field_end": "Окончание",
+  "field_duration": "Длительность",
+  "title_timeline": "Временная диаграмма выполнения",
+  "action_fit-all": "Показать весь интервал",
+  "action_fit-item": "Показать интервал",
+  "action_expand-all": "Раскрыть всё",
+  "action_collapse-all": "Свернуть всё",
+  "action_expand": "Раскрыть стадии",
+  "action_collapse": "Свернуть стадии",
+  "context_empty": "Нет данных временной шкалы",
+  "context_no-results": "По фильтру ничего не найдено",
+  "context_no-intervals": "Нет временных интервалов",
+  "alert_invalid-data": "Не удалось отобразить временную шкалу. Проверьте входные данные.",
+  "value_running": "Выполняется",
+  "action_zoom-in": "Приблизить",
+  "action_zoom-out": "Отдалить",
+  "value_milliseconds": "{{count}} мс"
+}

@@ -1,4 +1,5 @@
 import type React from 'react';
+import type {QueryTimelineProps} from './queryTimeline';
 
 export type QueryGraphNodeKind = 'operation' | 'input' | 'output';
 export type QueryGraphOperationType =
@@ -82,6 +83,7 @@ export type QueryGraphProps = {
 export type QueryProgressView = 'graph' | 'timeline';
 export type QueryProgressProps = {
     graphProps: QueryGraphProps;
+    timelineProps?: QueryTimelineProps;
     view?: QueryProgressView;
     defaultView?: QueryProgressView;
     onViewChange?: (view: QueryProgressView) => void;

@@ -50,3 +50,4 @@ export {NavigationMeta, buildMetaGroups} from './NavigationMeta';
 export type {NavigationMetaProps, NavigationMetaViewConfig} from './NavigationMeta';
 export {NavigationView, buildViewColumns} from './NavigationView';
 export type {NavigationViewProps, NavigationViewViewConfig} from './NavigationView';
+export {QueryTimeline} from './QueryTimeline';

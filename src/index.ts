@@ -11,3 +11,4 @@ export * from './types/errorTree';
 export * from './types/queryStatistics';
 export * from './types/queryResults';
 export * from './types/queryGraph';
+export * from './types/queryTimeline';

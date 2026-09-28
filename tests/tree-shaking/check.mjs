@@ -36,7 +36,11 @@ const barrels = new Set(
         path.join(root, 'src', p),
     ),
 );
-const pending = widgets.map((name) => path.join(root, 'src/widgets', name, 'index.ts'));
+const pending = [
+    ...widgets.map((name) => path.join(root, 'src/widgets', name, 'index.ts')),
+    path.join(root, 'src/modules/QueryTimeline/index.ts'),
+    path.join(root, 'src/modules/QueryProgress/index.ts'),
+];
 const visited = new Set();
 while (pending.length) {
     const file = pending.pop();
@@ -173,6 +177,10 @@ for (const widget of widgets) {
                 );
             }
         }
+        assert(
+            !hasDependency('@gravity-ui/timeline'),
+            `${specifier}: unrelated timeline dependency`,
+        );
         assert(!hasDependency('@gravity-ui/graph'), `${specifier}: unrelated graph dependency`);
         assert.equal(
             hasDependency('monaco-editor'),
@@ -215,4 +223,44 @@ for (const widget of widgets) {
         for (const mode of ['bundler', 'import', 'require']) checkTypes(specifier, widget, mode);
         console.info(`✓ ${specifier} → ${widget}: JS, CSS, i18n, Monaco, exports and types`);
     }
+}
+
+// Timeline is independently importable, and its public types do not expose the engine.
+for (const mode of ['bundler', 'import', 'require']) checkTypes(packageName, 'QueryTimeline', mode);
+for (const format of ['esm', 'cjs']) {
+    const result = await build({
+        absWorkingDir: root,
+        entryPoints: [path.join(root, `build/${format}/modules/QueryTimeline/index.js`)],
+        bundle: true,
+        write: false,
+        platform: 'browser',
+        format,
+        outfile: path.join(root, `build/tree-shaking/timeline-${format}.js`),
+        metafile: true,
+        external: [
+            'react',
+            'react-dom',
+            '@gravity-ui/uikit',
+            '@gravity-ui/icons',
+            '@gravity-ui/date-components',
+            '@gravity-ui/date-utils',
+        ],
+        logLevel: 'silent',
+    });
+    const included = Object.keys(result.metafile.inputs);
+    assert(
+        included.some((file) => file.includes('@gravity-ui/timeline/')),
+        `${format}: missing timeline engine`,
+    );
+    assert(
+        !included.some((file) => file.includes('@gravity-ui/graph/')),
+        `${format}: unrelated graph engine`,
+    );
+    assert(
+        result.outputFiles.some((file) => file.path.endsWith('.css')),
+        `${format}: missing timeline CSS`,
+    );
+    console.info(
+        `✓ QueryTimeline ${format}: standalone consumer bundle, CSS and engine resolution`,
+    );
 }
