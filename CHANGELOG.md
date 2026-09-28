@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9.0](https://github.com/gravity-ui/querieskit/compare/v1.8.0...v1.9.0) (2026-09-28)
+
+
+### Features
+
+* add configurable query execution timeline ([95c9ebc](https://github.com/gravity-ui/querieskit/commit/95c9ebcd8d6033bb162a1d5a32432f74add6c457))
+* extend SavedQueries integration API ([450e538](https://github.com/gravity-ui/querieskit/commit/450e5385f5c5e295ed9b396e05a381a6916197ea))
+
+
+### Bug Fixes
+
+* fix dashboard layout grid on item dynamic added ([81c9922](https://github.com/gravity-ui/querieskit/commit/81c9922386250273e458b06cf5101e9b235b6ee2))
+
 ## [1.8.0](https://github.com/gravity-ui/querieskit/compare/v1.7.0...v1.8.0) (2026-09-22)
 
 
