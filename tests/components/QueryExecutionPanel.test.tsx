@@ -338,8 +338,65 @@ describe('QueryExecutionPanel', () => {
         );
         expect(onExpandedChange).toHaveBeenLastCalledWith(false);
         act(() =>
-            container.querySelector<HTMLButtonElement>('[aria-label="Close panel"]')!.click(),
+            container.querySelector<HTMLButtonElement>('[aria-label="Collapse content"]')!.click(),
         );
         expect(onClose).toHaveBeenCalledOnce();
+    });
+    it('collapses to the header and restores the selected tab without losing its state', () => {
+        const onCollapsedChange = vi.fn();
+        render({onCollapsedChange});
+        click('b');
+        act(() => panel().querySelector('button')!.click());
+        act(() =>
+            container.querySelector<HTMLButtonElement>('[aria-label="Collapse content"]')!.click(),
+        );
+        expect(panel()).toBeNull();
+        expect(selected()).toBeUndefined();
+        expect(container.querySelector('[role="tablist"]')).not.toBeNull();
+        expect(container.querySelector('[data-active="true"]')).toBeNull();
+        expect(
+            container.querySelector('.qp-query-execution-panel__content')?.hasAttribute('hidden'),
+        ).toBe(true);
+        expect(onCollapsedChange).toHaveBeenLastCalledWith(true);
+        act(() =>
+            container.querySelector<HTMLButtonElement>('[aria-label="Expand content"]')!.click(),
+        );
+        expect(selected()).toBe('b');
+        expect(panel().textContent).toContain('Count 1');
+        expect(onCollapsedChange).toHaveBeenLastCalledWith(false);
+    });
+    it('reveals a collapsed panel when selecting a tab, including with the keyboard', () => {
+        render({defaultCollapsed: true});
+        expect(container.querySelector('[data-active]')).toBeNull();
+        click('b');
+        expect(selected()).toBe('b');
+        expect(panel().textContent).toContain('Count 0');
+        act(() =>
+            container.querySelector<HTMLButtonElement>('[aria-label="Collapse content"]')!.click(),
+        );
+        act(() =>
+            tab('c').dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})),
+        );
+        expect(selected()).toBe('c');
+    });
+    it('keeps controlled collapse state until the application updates it and exits fullscreen', () => {
+        const onCollapsedChange = vi.fn();
+        const onExpandedChange = vi.fn();
+        render({collapsed: false, expanded: true, onCollapsedChange, onExpandedChange});
+        act(() =>
+            container.querySelector<HTMLButtonElement>('[aria-label="Collapse content"]')!.click(),
+        );
+        expect(onCollapsedChange).toHaveBeenCalledWith(true);
+        expect(onExpandedChange).toHaveBeenCalledWith(false);
+        expect(panel()).not.toBeNull();
+        render({collapsed: true, expanded: false, onCollapsedChange, onExpandedChange});
+        expect(panel()).toBeNull();
+        act(() =>
+            container.querySelector<HTMLButtonElement>('[aria-label="Expand panel"]')!.click(),
+        );
+        expect(onCollapsedChange).toHaveBeenLastCalledWith(false);
+        expect(onExpandedChange).toHaveBeenLastCalledWith(true);
+        render({collapsed: false, expanded: true, onCollapsedChange, onExpandedChange});
+        expect(panel()).not.toBeNull();
     });
 });

@@ -53,6 +53,11 @@ export type QueryExecutionPanelProps<
     execution?: {startedAt?: ReactNode; author?: ReactNode};
     expanded?: boolean;
     onExpandedChange?: (expanded: boolean) => void;
+    /** Collapse to the header without unmounting visited tabs. */
+    collapsed?: boolean;
+    defaultCollapsed?: boolean;
+    onCollapsedChange?: (collapsed: boolean) => void;
+    /** @deprecated Use onCollapsedChange. Called when collapsing; do not unmount the panel. */
     onClose?: () => void;
     /** Hide the content while the panel is loading, preserving visited tabs. */
     loading?: boolean;
