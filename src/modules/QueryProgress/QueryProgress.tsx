@@ -7,7 +7,8 @@ import {
     CirclePlay,
     CircleXmark,
 } from '@gravity-ui/icons';
-import {Flex, Icon, Loader, SegmentedRadioGroup} from '@gravity-ui/uikit';
+import {Flex, Icon, Label, Loader, SegmentedRadioGroup} from '@gravity-ui/uikit';
+import type {LabelProps} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
 import type {
@@ -45,6 +46,15 @@ const statusIcons = {
     failed: CircleXmark,
     aborted: CircleMinus,
 } satisfies Record<QueryGraphNodeStatus, typeof Circle>;
+
+const statusThemes: Record<QueryGraphNodeStatus, LabelProps['theme']> = {
+    'not-started': 'clear',
+    waiting: 'normal',
+    running: 'info',
+    completed: 'success',
+    failed: 'danger',
+    aborted: 'normal',
+};
 
 export function QueryProgress({
     active = true,
@@ -85,7 +95,7 @@ export function QueryProgress({
     );
 
     return (
-        <Flex direction="column" gap={3} className={block(null, className)}>
+        <Flex direction="column" className={block(null, className)}>
             <Flex alignItems="center" gap={4} className={block('toolbar')}>
                 <SegmentedRadioGroup size="m" value={view} onUpdate={updateView}>
                     <SegmentedRadioGroup.Option value="graph">
@@ -96,12 +106,17 @@ export function QueryProgress({
                     </SegmentedRadioGroup.Option>
                 </SegmentedRadioGroup>
                 {view === 'graph' && (
-                    <Flex gap={2} wrap className={block('statuses')}>
+                    <Flex gap={1} wrap className={block('statuses')}>
                         {statuses.map((status) => (
-                            <span key={status} className={block('status', {status})}>
-                                <Icon data={statusIcons[status]} size={14} />
-                                {i18n(`status_${status}`)}: {counts[status]}
-                            </span>
+                            <Label
+                                key={status}
+                                size="xs"
+                                theme={statusThemes[status]}
+                                icon={<Icon data={statusIcons[status]} size={12} />}
+                                value={counts[status]}
+                            >
+                                {i18n(`status_${status}`)}
+                            </Label>
                         ))}
                     </Flex>
                 )}

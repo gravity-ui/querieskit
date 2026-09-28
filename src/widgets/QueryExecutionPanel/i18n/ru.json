@@ -13,5 +13,9 @@
   "context_no-tabs": "Нет доступных вкладок",
   "action_expand": "Развернуть панель",
   "action_collapse": "Свернуть панель",
-  "action_close": "Закрыть панель"
+  "action_close": "Закрыть панель",
+  "context_loading": "Загрузка",
+  "title_loading-error": "Ошибка загрузки",
+  "context_try-refreshing": "Попробуйте обновить панель",
+  "action_refresh": "Обновить"
 }

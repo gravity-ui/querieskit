@@ -54,6 +54,11 @@ export type QueryExecutionPanelProps<
     expanded?: boolean;
     onExpandedChange?: (expanded: boolean) => void;
     onClose?: () => void;
+    /** Hide the content while the panel is loading, preserving visited tabs. */
+    loading?: boolean;
+    /** Panel loading failure, distinct from query execution messages in the Info tab. */
+    error?: boolean;
+    onRetry?: () => void;
     emptyContent?: ReactNode;
     className?: string;
 };

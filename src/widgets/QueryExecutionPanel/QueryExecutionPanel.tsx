@@ -7,6 +7,7 @@ import type {QueryExecutionPanelProps, QueryExecutionTab} from '../../types/quer
 import {getMessagesSeverity} from './helpers/getMessagesSeverity';
 import {useActiveTab} from './helpers/useActiveTab';
 import {QueryExecutionTabContent} from './internal/QueryExecutionTabContent';
+import {QueryExecutionState} from './internal/QueryExecutionState';
 import i18n from './i18n';
 import './QueryExecutionPanel.scss';
 
@@ -25,6 +26,9 @@ export function QueryExecutionPanel<
     expanded = false,
     onExpandedChange,
     onClose,
+    loading = false,
+    error = false,
+    onRetry,
     emptyContent,
     className,
 }: QueryExecutionPanelProps<TRow, TMetaItem>) {
@@ -56,6 +60,7 @@ export function QueryExecutionPanel<
         onActiveTabChange,
     });
     const expandLabel = i18n(expanded ? 'action_collapse' : 'action_expand');
+    const showState = loading || error;
 
     const getTitle = (tab: QueryExecutionTab<TRow, TMetaItem>) => {
         if (tab.type === 'info') return i18n(`title_${getMessagesSeverity(tab.props?.root)}`);
@@ -66,7 +71,7 @@ export function QueryExecutionPanel<
     return (
         <Flex direction="column" className={block(null, className)}>
             <TabProvider value={selected ?? ''} onUpdate={select}>
-                <Flex wrap alignItems="center" gap={3} className={block('header')}>
+                <Flex wrap alignItems="center" gap={4} className={block('header')}>
                     <TabList className={block('tabs')} aria-label={i18n('title_tabs')}>
                         {tabs.map((tab) => (
                             <Tab
@@ -85,7 +90,7 @@ export function QueryExecutionPanel<
                             </Tab>
                         ))}
                     </TabList>
-                    <Flex wrap alignItems="center" gap={3} className={block('details')}>
+                    <Flex wrap alignItems="center" gap={2} className={block('details')}>
                         {execution?.startedAt !== undefined && execution.startedAt !== null && (
                             <Text>{execution.startedAt}</Text>
                         )}
@@ -94,7 +99,7 @@ export function QueryExecutionPanel<
                                 {i18n('context_by')} {execution.author}
                             </Text>
                         )}
-                        <Flex gap={1} className={block('actions')}>
+                        <Flex gap={2} className={block('actions')}>
                             {onExpandedChange && (
                                 <Button
                                     view="flat"
@@ -125,22 +130,26 @@ export function QueryExecutionPanel<
                         </Flex>
                     </Flex>
                 </Flex>
-                <div className={block('content')}>
+                <div className={block('content')} aria-busy={loading}>
+                    {showState && <QueryExecutionState loading={loading} onRetry={onRetry} />}
                     {tabs.map((tab) => (
                         <TabPanel
                             key={tab.id}
                             value={tab.id}
-                            hidden={tab.id !== selected}
-                            className={block('panel')}
+                            hidden={tab.id !== selected || showState}
+                            className={block('panel', {
+                                padded: ['info', 'meta', 'charts', 'custom'].includes(tab.type),
+                            })}
                         >
                             <QueryExecutionTabContent
                                 key={tab.type}
                                 tab={tab}
-                                active={tab.id === selected}
+                                active={tab.id === selected && !showState}
                             />
                         </TabPanel>
                     ))}
-                    {selected === undefined &&
+                    {!showState &&
+                        selected === undefined &&
                         (emptyContent ?? <Text color="secondary">{i18n('context_no-tabs')}</Text>)}
                 </div>
             </TabProvider>

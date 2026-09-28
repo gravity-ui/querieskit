@@ -3,6 +3,11 @@
 
     &__toolbar {
         min-width: 0;
+        padding: var(--g-spacing-2) var(--g-spacing-2) var(--g-spacing-2) var(--g-spacing-4);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--g-color-base-background);
     }
 
     &__views,
@@ -21,5 +26,6 @@
 
     &__content {
         min-width: 0;
+        padding-inline: var(--g-spacing-4);
     }
 }

@@ -1,9 +1,8 @@
 import React from 'react';
 import {ChevronsDown, ChevronsUp} from '@gravity-ui/icons';
-import {Button, Icon} from '@gravity-ui/uikit';
+import {Button, Flex, Icon, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
-import {SearchWithButtons} from '../../../components/SearchWithButtons';
 import i18n from '../i18n';
 
 import './QueryStatisticsToolbar.scss';
@@ -29,6 +28,7 @@ export function QueryStatisticsToolbar({
         <Button
             key="expand"
             size="m"
+            view="outlined"
             aria-label={i18n('action_expand-all')}
             title={i18n('action_expand-all')}
             disabled={!hasGroups}
@@ -39,6 +39,7 @@ export function QueryStatisticsToolbar({
         <Button
             key="collapse"
             size="m"
+            view="outlined"
             aria-label={i18n('action_collapse-all')}
             title={i18n('action_collapse-all')}
             disabled={!hasGroups}
@@ -49,13 +50,15 @@ export function QueryStatisticsToolbar({
     ];
 
     return (
-        <SearchWithButtons
-            value={search}
-            placeholder={i18n('field_search')}
-            hasClear
-            onUpdate={onSearchUpdate}
-            endButtons={buttons}
-            className={block()}
-        />
+        <Flex gap={2} className={block()}>
+            {buttons}
+            <TextInput
+                value={search}
+                placeholder={i18n('field_search')}
+                hasClear
+                onUpdate={onSearchUpdate}
+                className={block('search')}
+            />
+        </Flex>
     );
 }

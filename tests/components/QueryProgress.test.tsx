@@ -12,6 +12,7 @@ vi.mock('@gravity-ui/uikit', () => {
         Flex: ({children}: any) => <div>{children}</div>,
         Icon: () => null,
         Loader: () => null,
+        Label: ({children}: {children: React.ReactNode}) => <span>{children}</span>,
         SegmentedRadioGroup: Group,
     };
 });

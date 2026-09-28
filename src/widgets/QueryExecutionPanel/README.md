@@ -4,6 +4,13 @@ A panel for one query execution. Requires the application's Gravity UI styles an
 `ThemeProvider`. Data loading, backend normalization and panel placement belong to
 the application.
 
+Use `loading` to display a centered loader, or `error` with `onRetry` to display
+the loading error illustration and Refresh action. Loading takes precedence over
+error during retries. These states keep the header available and preserve visited
+tab contents while marking them inactive. They are independent of query execution
+errors displayed by the Info tab. The error illustration requires
+`@gravity-ui/illustrations/styles/styles.scss` in the application stylesheet setup.
+
 ```tsx
 import {QueryExecutionPanel} from '@gravity-ui/querieskit';
 import type {QueryExecutionTab} from '@gravity-ui/querieskit';

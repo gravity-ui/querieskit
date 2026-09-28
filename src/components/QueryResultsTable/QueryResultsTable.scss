@@ -28,9 +28,9 @@
     &__cell {
         display: block;
         padding-right: var(--g-spacing-5);
-        font-family: var(--g-font-family-monospace);
-        font-size: var(--g-text-code-2-font-size);
-        line-height: var(--g-text-code-2-line-height);
+        font-family: var(--g-text-body-font-family);
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
         overflow-wrap: anywhere;
 
         &:hover .qp-query-results-table__cell-actions,
@@ -40,6 +40,7 @@
 
         .unipika {
             display: inline;
+            font: inherit;
         }
     }
 
