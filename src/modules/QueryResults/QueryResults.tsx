@@ -65,14 +65,14 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     }
 
     return (
-        <Flex direction="column" gap={2} className={block(null, className)}>
+        <Flex direction="column" className={block(null, className)}>
             {title && <Text variant="subheader-1">{title}</Text>}
-            <Flex gap={2} alignItems="center" className={block('toolbar')}>
+            <Flex gap={2} wrap alignItems="center" className={block('toolbar')}>
                 <SegmentedRadioGroup
                     value={view}
                     onUpdate={handleViewChange}
                     width="auto"
-                    size="s"
+                    size="m"
                     className={block('views')}
                 >
                     <SegmentedRadioGroup.Option value="result">

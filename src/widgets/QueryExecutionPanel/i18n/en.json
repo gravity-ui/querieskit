@@ -13,5 +13,9 @@
   "context_no-tabs": "No available tabs",
   "action_expand": "Expand panel",
   "action_collapse": "Collapse panel",
-  "action_close": "Close panel"
+  "action_close": "Close panel",
+  "context_loading": "Loading",
+  "title_loading-error": "Error loading",
+  "context_try-refreshing": "Try refreshing the panel",
+  "action_refresh": "Refresh"
 }

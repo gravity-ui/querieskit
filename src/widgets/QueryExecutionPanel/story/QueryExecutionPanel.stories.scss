@@ -2,6 +2,24 @@
     height: 640px;
     min-width: 0;
 
+    &__reference {
+        height: 100%;
+        // Application branding is scoped to the reference story. Semantic info
+        // tokens supply the blue palette for both light and dark themes.
+        --g-color-base-brand: var(--g-color-base-info-heavy);
+        --g-color-base-brand-hover: var(--g-color-base-info-heavy-hover);
+        --g-color-base-selection: var(--g-color-base-info-medium);
+        --g-color-base-selection-hover: var(--g-color-base-info-medium-hover);
+        --g-color-line-brand: var(--g-color-base-info-heavy);
+        --g-color-text-brand: var(--g-color-text-info);
+        --g-color-text-brand-heavy: var(--g-color-text-info-heavy);
+        --g-color-text-brand-contrast: var(--g-color-text-light-primary);
+        --g-color-text-link: var(--g-color-text-info);
+        --g-color-text-link-hover: var(--g-color-text-info-heavy);
+        --g-color-text-link-visited: var(--g-color-text-misc);
+        --g-color-text-link-visited-hover: var(--g-color-text-misc-heavy);
+    }
+
     &__layout {
         height: 100%;
         background: var(--g-color-base-background);

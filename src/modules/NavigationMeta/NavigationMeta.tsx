@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Flex, Text} from '@gravity-ui/uikit';
+import {DefinitionList, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {EmptyContent} from '../../components/EmptyContent';
 import {SkeletonRows} from '../../components/SkeletonRows';
@@ -65,14 +65,13 @@ export function NavigationMeta<TItem extends NavigationMetaItem = NavigationMeta
                                 {group.title}
                             </Text>
                         ) : null}
-                        <div className={block('group-body')}>
-                            {group.items.map(({name, value}) => (
-                                <>
-                                    <Text color="secondary">{name}</Text>
-                                    <div>{value}</div>
-                                </>
+                        <DefinitionList nameMaxWidth={200} className={block('group-body')}>
+                            {group.items.map(({name, value}, itemIndex) => (
+                                <DefinitionList.Item key={itemIndex} name={name}>
+                                    {value}
+                                </DefinitionList.Item>
                             ))}
-                        </div>
+                        </DefinitionList>
                     </div>
                 ),
             )}

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import React, {act, useState} from 'react';
-import {createRoot, type Root} from 'react-dom/client';
+import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {configure, ThemeProvider} from '@gravity-ui/uikit';
+import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {QueryExecutionPanel} from '../../src/widgets/QueryExecutionPanel';
 import type {
     QueryExecutionPanelProps,
@@ -287,6 +287,36 @@ describe('QueryExecutionPanel', () => {
         expect(panel().textContent).toContain('Count 0');
         click('Charts');
         expect(panel().textContent).toContain('Count 1');
+    });
+    it('preserves visited content through loading and retry, and pauses hidden content', () => {
+        const onRetry = vi.fn();
+        render();
+        act(() => panel().querySelector('button')!.click());
+        render({loading: true, error: true, onRetry});
+        expect(container.querySelector('[role="status"]')).not.toBeNull();
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        expect(panel()).toBeNull();
+        expect(container.querySelector('[data-active="false"]')).not.toBeNull();
+        expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+        render({error: true, onRetry});
+        expect(container.querySelector('[role="alert"]')?.textContent).toContain('Error loading');
+        act(() => container.querySelector<HTMLButtonElement>('[role="alert"] button')!.click());
+        expect(onRetry).toHaveBeenCalledOnce();
+        render();
+        expect(panel().textContent).toContain('Count 1');
+        expect(selected()).toBe('a');
+        expect(changes).not.toHaveBeenCalled();
+    });
+    it('does not mount unvisited content while loading', () => {
+        const renderContent = vi.fn(() => <Counter />);
+        const tabs: QueryExecutionTab[] = [
+            {id: 'result', type: 'custom', title: 'Result', renderContent},
+        ];
+        render({tabs, loading: true});
+        expect(renderContent).not.toHaveBeenCalled();
+        render({tabs});
+        expect(renderContent).toHaveBeenCalled();
+        expect(panel().textContent).toContain('Count 0');
     });
     it('renders metadata and delegates expand/close without remounting content', () => {
         const onClose = vi.fn();

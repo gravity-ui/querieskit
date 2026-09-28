@@ -2,10 +2,14 @@
     min-width: 0;
     min-height: 0;
     height: 100%;
+    background: var(--g-color-base-background);
 
     &__header {
         flex-shrink: 0;
-        border-bottom: 1px solid var(--g-color-line-generic);
+        padding-inline: var(--g-spacing-4) var(--g-spacing-2);
+        box-shadow:
+            inset 0 1px var(--g-color-line-generic-solid),
+            inset 0 -1px var(--g-color-line-generic-solid);
     }
 
     &__tabs {
@@ -14,6 +18,7 @@
         overflow-x: auto;
         min-width: 0;
         --g-tabs-border-width: 0;
+        --g-tabs-item-gap: var(--g-spacing-3);
     }
 
     &__details {
@@ -24,6 +29,7 @@
 
     &__actions {
         flex-shrink: 0;
+        margin-inline-start: var(--g-spacing-2);
     }
 
     &__content {
@@ -31,11 +37,15 @@
         min-height: 0;
         min-width: 0;
         overflow: auto;
-        padding: var(--g-spacing-3);
     }
 
     &__panel {
         min-width: 0;
         height: 100%;
+        box-sizing: border-box;
+
+        &_padded {
+            padding: var(--g-spacing-2) var(--g-spacing-4);
+        }
     }
 }

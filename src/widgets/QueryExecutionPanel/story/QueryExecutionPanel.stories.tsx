@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import type {Meta, StoryObj} from '@storybook/react';
+import type {Meta as StoryMeta, StoryObj} from '@storybook/react';
 import {Button, Flex, Text, TextInput} from '@gravity-ui/uikit';
 import {QueryExecutionPanel} from '../QueryExecutionPanel';
 import type {QueryExecutionTab} from '../../../types/queryExecutionPanel';
@@ -9,6 +9,7 @@ import {lineSeriesMap} from '../../DashboardCharts/story/mockData';
 import {demoEdges, demoNodes} from '../../../components/QueryGraph/QueryGraph.stories';
 import {createQueryTrackerPanel} from './queryTrackerAdapter';
 import type {ExampleQuery} from './queryTrackerAdapter';
+import {designTabs} from './designReference';
 import './QueryExecutionPanel.stories.scss';
 
 const results = {
@@ -58,11 +59,11 @@ const allTabs: QueryExecutionTab[] = [
         renderContent: ({active}) => <Notes active={active} />,
     },
 ];
-const meta: Meta<typeof QueryExecutionPanel> = {
+const meta: StoryMeta<typeof QueryExecutionPanel> = {
     title: 'Widgets/QueryExecutionPanel',
     component: QueryExecutionPanel,
     tags: ['autodocs'],
-    args: {tabs: allTabs, execution: {startedAt: '28 Sep 2026, 12:07:27', author: 'admin'}},
+    args: {tabs: designTabs, execution: {startedAt: '11 Dec 2025, 12:07:27', author: 'admin'}},
     decorators: [
         (Story) => (
             <div className="qp-query-execution-panel-story">
@@ -74,6 +75,9 @@ const meta: Meta<typeof QueryExecutionPanel> = {
 export default meta;
 type Story = StoryObj<typeof QueryExecutionPanel>;
 export const Default: Story = {};
+export const Statistics: Story = {args: {defaultActiveTab: 'statistics'}};
+export const Meta: Story = {args: {defaultActiveTab: 'meta'}};
+export const Info: Story = {args: {defaultActiveTab: 'info'}};
 export const Progress: Story = {args: {defaultActiveTab: 'progress'}};
 export const Charts: Story = {args: {defaultActiveTab: 'charts'}};
 export const Narrow: Story = {
@@ -87,12 +91,38 @@ export const Narrow: Story = {
 };
 export const Empty: Story = {args: {tabs: []}};
 export const EmptyInfo: Story = {args: {tabs: [{id: 'info', type: 'info'}]}};
-export const Loading: Story = {
-    args: {
-        tabs: [
-            {id: 'result', type: 'result', props: {...results, rows: [], loading: true}},
-            {...allTabs[2], disabled: true},
-        ],
+export const Loading: Story = {args: {loading: true}};
+export const LoadingError: Story = {
+    render: function LoadingErrorExample(args) {
+        const [error, setError] = useState(true);
+        return <QueryExecutionPanel {...args} error={error} onRetry={() => setError(false)} />;
+    },
+};
+export const DesignReference: Story = {
+    decorators: [
+        (Story) => (
+            <div className="qp-query-execution-panel-story__reference">
+                <Story />
+            </div>
+        ),
+    ],
+    render: function DesignReferenceExample(args) {
+        const [expanded, setExpanded] = useState(false);
+        const [closed, setClosed] = useState(false);
+        return closed ? (
+            <Button onClick={() => setClosed(false)}>Reopen</Button>
+        ) : (
+            <div
+                className={`qp-query-execution-panel-story__layout${expanded ? ' qp-query-execution-panel-story__layout_expanded' : ''}`}
+            >
+                <QueryExecutionPanel
+                    {...args}
+                    expanded={expanded}
+                    onExpandedChange={setExpanded}
+                    onClose={() => setClosed(true)}
+                />
+            </div>
+        );
     },
 };
 export const CustomOrder: Story = {args: {tabs: [allTabs[7], allTabs[1], allTabs[0], allTabs[5]]}};
@@ -130,6 +160,7 @@ export const DynamicMessages: Story = {
     },
 };
 export const Controlled: Story = {
+    args: {tabs: allTabs},
     render: function ControlledExample(args) {
         const [activeTab, setActiveTab] = useState('result/0');
         return (
@@ -181,6 +212,7 @@ export const QueryTrackerLifecycle: Story = {
     },
 };
 export const ApplicationLayout: Story = {
+    args: {tabs: allTabs},
     render: function ApplicationLayoutExample(args) {
         const [expanded, setExpanded] = useState(false);
         const [closed, setClosed] = useState(false);

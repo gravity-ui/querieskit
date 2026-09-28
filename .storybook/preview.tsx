@@ -2,6 +2,7 @@ import type {Decorator, Preview} from '@storybook/react';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import React from 'react';
 
+import '@gravity-ui/uikit/styles/fonts.css';
 import '@gravity-ui/uikit/styles/styles.css';
 import '@gravity-ui/unipika/dist/unipika.css';
 import '@gravity-ui/illustrations/styles/styles.scss';
