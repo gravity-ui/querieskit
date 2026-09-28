@@ -244,11 +244,9 @@ function DynamicAddItemsStory() {
             title="Controlled layout"
             description="Switch presets, then drag or resize a card: every change is saved back to the controlled layout."
             actions={
-                <>
-                    <Button selected={layout === balancedLayout} onClick={handleAddItem}>
-                        Add item
-                    </Button>
-                </>
+                <Button selected={layout === balancedLayout} onClick={handleAddItem}>
+                    Add item
+                </Button>
             }
         >
             <Dashboard
