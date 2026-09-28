@@ -6,6 +6,7 @@ const DEFAULT_ITEM_HEIGHT = 4;
 export const createDefaultLayout = (
     items: DashboardRenderItem[],
     columns: number,
+    defaultLayout?: ConfigLayout[],
 ): ConfigLayout[] => {
     const itemCount = items.length;
 
@@ -14,30 +15,17 @@ export const createDefaultLayout = (
 
     const itemsPerRow = Math.max(Math.floor(columns / width), 1);
 
-    return Array.from({length: itemCount}, (_, index) => ({
-        i: items[index].id,
-        x: (index % itemsPerRow) * width,
-        y: Math.floor(index / itemsPerRow) * height,
-        w: width,
-        h: height,
-    }));
-};
+    return Array.from({length: itemCount}, (_, index) => {
+        if (defaultLayout?.[index]) {
+            return defaultLayout?.[index];
+        }
 
-export const createDefaultLayoutForItem = (
-    item: DashboardRenderItem,
-    columns: number,
-    index: number,
-) => {
-    const width = Math.min(Math.ceil(columns / 2), columns);
-    const height = DEFAULT_ITEM_HEIGHT;
-
-    const itemsPerRow = Math.max(Math.floor(columns / width), 1);
-
-    return {
-        i: item.id,
-        x: (index % itemsPerRow) * width,
-        y: Math.floor(index / itemsPerRow) * height,
-        w: width,
-        h: DEFAULT_ITEM_HEIGHT,
-    };
+        return {
+            i: items[index].id,
+            x: (index % itemsPerRow) * width,
+            y: Math.floor(index / itemsPerRow) * height,
+            w: width,
+            h: height,
+        };
+    });
 };
