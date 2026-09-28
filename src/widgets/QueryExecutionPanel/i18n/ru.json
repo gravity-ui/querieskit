@@ -1,0 +1,17 @@
+{
+  "title_tabs": "Выполнение запроса",
+  "title_result": "Результат",
+  "title_progress": "Прогресс",
+  "title_info": "Информация",
+  "title_warning": "Предупреждение",
+  "title_error": "Ошибка",
+  "title_statistics": "Статистика",
+  "title_meta": "Метаданные",
+  "title_charts": "Графики",
+  "context_by": "Автор:",
+  "context_no-messages": "Нет сообщений",
+  "context_no-tabs": "Нет доступных вкладок",
+  "action_expand": "Развернуть панель",
+  "action_collapse": "Свернуть панель",
+  "action_close": "Закрыть панель"
+}

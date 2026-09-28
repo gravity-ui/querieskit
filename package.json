@@ -66,16 +66,6 @@
         "default": "./build/cjs/widgets/QueriesNavigation/index.js"
       }
     },
-    "./widgets/QueryResults": {
-      "import": {
-        "types": "./build/esm/widgets/QueryResults/index.d.ts",
-        "default": "./build/esm/widgets/QueryResults/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/widgets/QueryResults/index.d.ts",
-        "default": "./build/cjs/widgets/QueryResults/index.js"
-      }
-    },
     "./widgets/DashboardCharts": {
       "import": {
         "types": "./build/esm/widgets/DashboardCharts/index.d.ts",
@@ -84,6 +74,26 @@
       "require": {
         "types": "./build/cjs/widgets/DashboardCharts/index.d.ts",
         "default": "./build/cjs/widgets/DashboardCharts/index.js"
+      }
+    },
+    "./modules/QueryResults": {
+      "import": {
+        "types": "./build/esm/modules/QueryResults/index.d.ts",
+        "default": "./build/esm/modules/QueryResults/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryResults/index.d.ts",
+        "default": "./build/cjs/modules/QueryResults/index.js"
+      }
+    },
+    "./widgets/QueryExecutionPanel": {
+      "import": {
+        "types": "./build/esm/widgets/QueryExecutionPanel/index.d.ts",
+        "default": "./build/esm/widgets/QueryExecutionPanel/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryExecutionPanel/index.d.ts",
+        "default": "./build/cjs/widgets/QueryExecutionPanel/index.js"
       }
     }
   },

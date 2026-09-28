@@ -47,6 +47,7 @@ const statusIcons = {
 } satisfies Record<QueryGraphNodeStatus, typeof Circle>;
 
 export function QueryProgress({
+    active = true,
     graphProps,
     timelineProps,
     view: controlledView,
@@ -112,7 +113,10 @@ export function QueryProgress({
                         hidden={view !== 'graph'}
                     >
                         <Suspense fallback={<Loader size="m" />}>
-                            <QueryGraph {...graphProps} active={view === 'graph'} />
+                            <QueryGraph
+                                {...graphProps}
+                                active={active && view === 'graph' && graphProps.active !== false}
+                            />
                         </Suspense>
                     </div>
                 )}
@@ -125,7 +129,9 @@ export function QueryProgress({
                             <QueryTimeline
                                 items={EMPTY_TIMELINE_ITEMS}
                                 {...timelineProps}
-                                active={view === 'timeline'}
+                                active={
+                                    active && view === 'timeline' && timelineProps?.active !== false
+                                }
                             />
                         </Suspense>
                     </div>

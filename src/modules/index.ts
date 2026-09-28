@@ -51,3 +51,5 @@ export type {NavigationMetaProps, NavigationMetaViewConfig} from './NavigationMe
 export {NavigationView, buildViewColumns} from './NavigationView';
 export type {NavigationViewProps, NavigationViewViewConfig} from './NavigationView';
 export {QueryTimeline} from './QueryTimeline';
+export {QueryResults} from './QueryResults';
+export type {QueryResultsProps} from './QueryResults';

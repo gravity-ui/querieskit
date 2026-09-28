@@ -46,3 +46,23 @@ export type QueryResultsView = 'result' | 'schema';
 export type QueryResultsSchemaRenderContext<TRow extends Record<string, unknown>> = {
     columns: Array<QueryResultColumn<TRow>>;
 };
+
+export type QueryResultsProps<TRow extends Record<string, unknown>> = {
+    columns: Array<QueryResultColumn<TRow>>;
+    /** Values use the YQL wire representation consumed by @gravity-ui/unipika. */
+    rows: TRow[];
+    totalRows?: number;
+    loading?: boolean;
+    errorContent?: ReactNode;
+    rowKey?: (row: TRow, index: number) => string | number;
+    formatterSettings?: QueryResultFormatterSettings;
+    maxVisibleLines?: number;
+    title?: ReactNode;
+    toolbarContent?: ReactNode;
+    actions?: ReactNode;
+    view?: QueryResultsView;
+    defaultView?: QueryResultsView;
+    onViewChange?: (view: QueryResultsView) => void;
+    renderSchema?: (context: QueryResultsSchemaRenderContext<TRow>) => ReactNode;
+    className?: string;
+};
