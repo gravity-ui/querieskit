@@ -72,7 +72,7 @@ const rows: Row[] = [
 ];
 
 const meta: Meta<typeof QueryResults> = {
-    title: 'Widgets/QueryResults',
+    title: 'Modules/QueryResults',
     component: QueryResults,
     tags: ['autodocs'],
     parameters: {layout: 'padded'},

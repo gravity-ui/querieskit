@@ -45,6 +45,25 @@ it('opens both lazy views through controlled changes and preserves mounted shell
         );
         expect(container.querySelector('[data-graph="false"]')).not.toBeNull();
         expect(container.querySelector('[data-timeline="true"]')).not.toBeNull();
+        await act(async () =>
+            root.render(<QueryProgress graphProps={graphProps} view="timeline" active={false} />),
+        );
+        expect(container.querySelector('[data-graph="false"]')).not.toBeNull();
+        expect(container.querySelector('[data-timeline="false"]')).not.toBeNull();
+        await act(async () =>
+            root.render(<QueryProgress graphProps={{...graphProps, active: false}} view="graph" />),
+        );
+        expect(container.querySelector('[data-graph="false"]')).not.toBeNull();
+        await act(async () =>
+            root.render(
+                <QueryProgress
+                    graphProps={graphProps}
+                    view="timeline"
+                    timelineProps={{items: [], active: false}}
+                />,
+            ),
+        );
+        expect(container.querySelector('[data-timeline="false"]')).not.toBeNull();
     } finally {
         act(() => root.unmount());
     }

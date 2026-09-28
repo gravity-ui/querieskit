@@ -59,7 +59,7 @@ Prefer widgets for product screens. Use modules and components when you need a c
 
 ### Widget imports
 
-All six widgets support both root and individual imports:
+Widgets support both root and individual imports:
 
 ```tsx
 import {SavedQueries} from '@gravity-ui/querieskit';
@@ -73,7 +73,7 @@ import type {SavedQueriesProps} from '@gravity-ui/querieskit/widgets/SavedQuerie
 ```
 
 Individual entrypoints are available for `QueriesHistory`, `SavedQueries`,
-`TutorialsHistory`, `QueriesNavigation`, `QueryResults`, and `DashboardCharts`.
+`TutorialsHistory`, `QueriesNavigation`, `QueryExecutionPanel`, and `DashboardCharts`.
 They expose each widget's existing public exports, including its props and helpers.
 Shared data types remain available from the package root.
 
@@ -84,6 +84,16 @@ Keep CSS processing enabled so that the selected widget's styles are included.
 Some bundlers, including esbuild, retain CSS from unused root re-exports even when
 their JavaScript is removed. Individual widget imports avoid introducing those
 unrelated styles.
+
+### QueryExecutionPanel
+
+A query execution panel with ordered, typed tabs, custom content, automatic tab
+selection until manual navigation, message severity titles, and application-owned
+expand/close actions. See [the API and integration guide](src/widgets/QueryExecutionPanel/README.md)
+and the QueryExecutionPanel Storybook examples.
+
+`QueryResults` is a module, available from the package root or through
+`@gravity-ui/querieskit/modules/QueryResults`.
 
 ### QueriesHistory
 

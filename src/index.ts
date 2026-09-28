@@ -12,3 +12,4 @@ export * from './types/queryStatistics';
 export * from './types/queryResults';
 export * from './types/queryGraph';
 export * from './types/queryTimeline';
+export * from './types/queryExecutionPanel';

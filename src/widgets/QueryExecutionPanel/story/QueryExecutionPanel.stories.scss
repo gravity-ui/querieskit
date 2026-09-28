@@ -1,0 +1,17 @@
+.qp-query-execution-panel-story {
+    height: 640px;
+    min-width: 0;
+
+    &__layout {
+        height: 100%;
+        background: var(--g-color-base-background);
+
+        &_expanded {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            padding: var(--g-spacing-4);
+            box-sizing: border-box;
+        }
+    }
+}

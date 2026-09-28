@@ -3,7 +3,7 @@ import {ChevronsDown, ChevronsUp} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
-import {SearchWithButtons} from '../../../components';
+import {SearchWithButtons} from '../../../components/SearchWithButtons';
 import i18n from '../i18n';
 
 import './QueryStatisticsToolbar.scss';

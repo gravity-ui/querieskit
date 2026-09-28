@@ -82,6 +82,8 @@ export type QueryGraphProps = {
 
 export type QueryProgressView = 'graph' | 'timeline';
 export type QueryProgressProps = {
+    /** Pauses both views while preserving their state. */
+    active?: boolean;
     graphProps: QueryGraphProps;
     timelineProps?: QueryTimelineProps;
     view?: QueryProgressView;

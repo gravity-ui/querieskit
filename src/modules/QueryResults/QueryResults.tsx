@@ -2,12 +2,7 @@ import React, {useCallback, useState} from 'react';
 import {Flex, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {QueryResultsTable} from '../../components/QueryResultsTable';
-import type {
-    QueryResultColumn,
-    QueryResultFormatterSettings,
-    QueryResultsSchemaRenderContext,
-    QueryResultsView,
-} from '../../types/queryResults';
+import type {QueryResultsProps, QueryResultsView} from '../../types/queryResults';
 import {QueryResultsSchema} from './internal/QueryResultsSchema';
 import i18n from './i18n';
 
@@ -15,25 +10,7 @@ import './QueryResults.scss';
 
 const block = cn('qp-query-results');
 
-export type QueryResultsProps<TRow extends Record<string, unknown>> = {
-    columns: Array<QueryResultColumn<TRow>>;
-    /** Values use the YQL wire representation consumed by @gravity-ui/unipika. */
-    rows: TRow[];
-    totalRows?: number;
-    loading?: boolean;
-    errorContent?: React.ReactNode;
-    rowKey?: (row: TRow, index: number) => string | number;
-    formatterSettings?: QueryResultFormatterSettings;
-    maxVisibleLines?: number;
-    title?: React.ReactNode;
-    toolbarContent?: React.ReactNode;
-    actions?: React.ReactNode;
-    view?: QueryResultsView;
-    defaultView?: QueryResultsView;
-    onViewChange?: (view: QueryResultsView) => void;
-    renderSchema?: (context: QueryResultsSchemaRenderContext<TRow>) => React.ReactNode;
-    className?: string;
-};
+export type {QueryResultsProps} from '../../types/queryResults';
 
 export function QueryResults<TRow extends Record<string, unknown>>({
     columns,
