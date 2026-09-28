@@ -1,4 +1,4 @@
-import React, {Suspense, useCallback, useMemo, useState} from 'react';
+import React, {Suspense, useCallback, useEffect, useMemo, useState} from 'react';
 import {
     Circle,
     CircleCheck,
@@ -7,7 +7,7 @@ import {
     CirclePlay,
     CircleXmark,
 } from '@gravity-ui/icons';
-import {Flex, Icon, Loader, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
+import {Flex, Icon, Loader, SegmentedRadioGroup} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 
 import type {
@@ -20,10 +20,14 @@ import i18n from './i18n';
 import './QueryProgress.scss';
 
 const QueryGraph = React.lazy(() =>
-    import('../../components/QueryGraph/QueryGraph').then((module) => ({
+    import('../../components/QueryGraph').then((module) => ({
         default: module.QueryGraph,
     })),
 );
+const QueryTimeline = React.lazy(() =>
+    import('../QueryTimeline').then((module) => ({default: module.QueryTimeline})),
+);
+const EMPTY_TIMELINE_ITEMS: NonNullable<QueryProgressProps['timelineProps']>['items'] = [];
 const block = cn('qp-query-progress');
 const statuses: QueryGraphNodeStatus[] = [
     'not-started',
@@ -44,6 +48,7 @@ const statusIcons = {
 
 export function QueryProgress({
     graphProps,
+    timelineProps,
     view: controlledView,
     defaultView = 'graph',
     onViewChange,
@@ -52,6 +57,11 @@ export function QueryProgress({
     const [uncontrolledView, setUncontrolledView] = useState(defaultView);
     const view = controlledView ?? uncontrolledView;
     const [hasOpenedGraph, setHasOpenedGraph] = useState(view === 'graph');
+    const [hasOpenedTimeline, setHasOpenedTimeline] = useState(view === 'timeline');
+    useEffect(() => {
+        if (view === 'graph') setHasOpenedGraph(true);
+        if (view === 'timeline') setHasOpenedTimeline(true);
+    }, [view]);
     const counts = useMemo(() => {
         const result = Object.fromEntries(statuses.map((status) => [status, 0])) as Record<
             QueryGraphNodeStatus,
@@ -84,26 +94,40 @@ export function QueryProgress({
                         {i18n('tab_timeline')}
                     </SegmentedRadioGroup.Option>
                 </SegmentedRadioGroup>
-                <Flex gap={2} wrap className={block('statuses')}>
-                    {statuses.map((status) => (
-                        <span key={status} className={block('status', {status})}>
-                            <Icon data={statusIcons[status]} size={14} />
-                            {i18n(`status_${status}`)}: {counts[status]}
-                        </span>
-                    ))}
-                </Flex>
+                {view === 'graph' && (
+                    <Flex gap={2} wrap className={block('statuses')}>
+                        {statuses.map((status) => (
+                            <span key={status} className={block('status', {status})}>
+                                <Icon data={statusIcons[status]} size={14} />
+                                {i18n(`status_${status}`)}: {counts[status]}
+                            </span>
+                        ))}
+                    </Flex>
+                )}
             </Flex>
             <div className={block('content')}>
-                {hasOpenedGraph && (
-                    <div className={block('view', {hidden: view !== 'graph'})}>
+                {(hasOpenedGraph || view === 'graph') && (
+                    <div
+                        className={block('view', {hidden: view !== 'graph'})}
+                        hidden={view !== 'graph'}
+                    >
                         <Suspense fallback={<Loader size="m" />}>
                             <QueryGraph {...graphProps} active={view === 'graph'} />
                         </Suspense>
                     </div>
                 )}
-                {view === 'timeline' && (
-                    <div className={block('timeline')}>
-                        <Text color="secondary">{i18n('context_timeline-unavailable')}</Text>
+                {(hasOpenedTimeline || view === 'timeline') && (
+                    <div
+                        className={block('view', {hidden: view !== 'timeline'})}
+                        hidden={view !== 'timeline'}
+                    >
+                        <Suspense fallback={<Loader size="m" />}>
+                            <QueryTimeline
+                                items={EMPTY_TIMELINE_ITEMS}
+                                {...timelineProps}
+                                active={view === 'timeline'}
+                            />
+                        </Suspense>
                     </div>
                 )}
             </div>

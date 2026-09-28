@@ -1,0 +1,51 @@
+.qp-query-timeline {
+    height: 100%;
+    min-height: 160px;
+    min-width: 0;
+
+    &__header {
+        display: grid;
+        grid-template-columns: var(--qp-timeline-list-width) minmax(0, 1fr);
+        flex-shrink: 0;
+    }
+    &__heading {
+        padding: var(--g-spacing-2);
+        align-self: center;
+    }
+    &__ruler {
+        min-width: 0;
+        overflow: hidden;
+    }
+    &__scroll {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        position: relative;
+    }
+    &__spacer {
+        position: relative;
+        min-width: calc(var(--qp-timeline-list-width) + 160px);
+    }
+    &__rows {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: var(--qp-timeline-list-width);
+    }
+    &__row {
+        position: absolute;
+        width: 100%;
+    }
+    &__canvas {
+        position: sticky;
+        top: 0;
+        margin-left: var(--qp-timeline-list-width);
+        border-left: 1px solid var(--g-color-line-generic);
+        box-sizing: border-box;
+    }
+    &__state {
+        flex: 1;
+        height: 100%;
+        min-height: 100px;
+    }
+}

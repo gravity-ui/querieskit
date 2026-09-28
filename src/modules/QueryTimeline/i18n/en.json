@@ -1,0 +1,22 @@
+{
+  "field_search": "Filter by name",
+  "field_status": "Status",
+  "field_start": "Start",
+  "field_end": "End",
+  "field_duration": "Duration",
+  "title_timeline": "Execution timeline",
+  "action_fit-all": "Fit all",
+  "action_fit-item": "Fit interval",
+  "action_expand-all": "Expand all",
+  "action_collapse-all": "Collapse all",
+  "action_expand": "Expand stages",
+  "action_collapse": "Collapse stages",
+  "context_empty": "No timeline data",
+  "context_no-results": "No matching items",
+  "context_no-intervals": "No time intervals",
+  "alert_invalid-data": "Unable to display the timeline. Check the input data.",
+  "value_running": "In progress",
+  "action_zoom-in": "Zoom in",
+  "action_zoom-out": "Zoom out",
+  "value_milliseconds": "{{count}} ms"
+}

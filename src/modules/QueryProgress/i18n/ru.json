@@ -1,7 +1,6 @@
 {
   "tab_graph": "Граф",
   "tab_timeline": "Таймлайн",
-  "context_timeline-unavailable": "Таймлайн пока недоступен",
   "status_not-started": "Не запущено",
   "status_waiting": "Ожидание",
   "status_running": "Выполняется",
