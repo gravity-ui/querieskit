@@ -45,7 +45,8 @@ const tabs: QueryExecutionTab<{name: string}>[] = [
   execution={{startedAt: formattedStartTime, author: <UserLink />}}
   expanded={expanded}
   onExpandedChange={setExpanded}
-  onClose={closePanel}
+  collapsed={collapsed}
+  onCollapsedChange={setCollapsed}
 />;
 ```
 
@@ -108,9 +109,19 @@ controlled and uncontrolled modes during the lifetime of an instance.
 and timezones in the application. The panel localizes its own labels in English
 and Russian.
 
-Providing `onClose` displays the close button. Providing `onExpandedChange` displays
-the expand/collapse button, which requests `!expanded`. Both actions are delegated
-to the application. Change CSS/layout on an existing parent to expand the panel;
+The cross button collapses the panel to its header; it does not remove the panel.
+It becomes a double-chevron button that restores the content. Selecting a tab also
+reveals its content. Visited tabs retain their state and receive `active: false`
+while collapsed. No tab is highlighted while the content is hidden.
+
+Use `collapsed` with `onCollapsedChange` for controlled state, or `defaultCollapsed`
+for an initially collapsed panel that manages its own state. The deprecated
+`onClose` is only a collapse notification: migrate handlers that unmount the panel
+to `onCollapsedChange` instead.
+
+Providing `onExpandedChange` displays the separate fullscreen button, which requests
+`!expanded` and reveals collapsed content. Collapsing an expanded panel also requests
+`onExpandedChange(false)` to release the fullscreen layout. Change CSS/layout on an existing parent to expand the panel;
 do not conditionally move it between different React subtrees. The ApplicationLayout
 story demonstrates this without losing tab state. Use `className` for external
 positioning and give the container a height for graph/timeline layouts.

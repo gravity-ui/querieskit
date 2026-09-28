@@ -75,6 +75,7 @@ const meta: StoryMeta<typeof QueryExecutionPanel> = {
 export default meta;
 type Story = StoryObj<typeof QueryExecutionPanel>;
 export const Default: Story = {};
+export const Collapsed: Story = {args: {defaultCollapsed: true}};
 export const Statistics: Story = {args: {defaultActiveTab: 'statistics'}};
 export const Meta: Story = {args: {defaultActiveTab: 'meta'}};
 export const Info: Story = {args: {defaultActiveTab: 'info'}};
@@ -108,19 +109,11 @@ export const DesignReference: Story = {
     ],
     render: function DesignReferenceExample(args) {
         const [expanded, setExpanded] = useState(false);
-        const [closed, setClosed] = useState(false);
-        return closed ? (
-            <Button onClick={() => setClosed(false)}>Reopen</Button>
-        ) : (
+        return (
             <div
                 className={`qp-query-execution-panel-story__layout${expanded ? ' qp-query-execution-panel-story__layout_expanded' : ''}`}
             >
-                <QueryExecutionPanel
-                    {...args}
-                    expanded={expanded}
-                    onExpandedChange={setExpanded}
-                    onClose={() => setClosed(true)}
-                />
+                <QueryExecutionPanel {...args} expanded={expanded} onExpandedChange={setExpanded} />
             </div>
         );
     },
@@ -215,19 +208,11 @@ export const ApplicationLayout: Story = {
     args: {tabs: allTabs},
     render: function ApplicationLayoutExample(args) {
         const [expanded, setExpanded] = useState(false);
-        const [closed, setClosed] = useState(false);
-        return closed ? (
-            <Button onClick={() => setClosed(false)}>Reopen</Button>
-        ) : (
+        return (
             <div
                 className={`qp-query-execution-panel-story__layout${expanded ? ' qp-query-execution-panel-story__layout_expanded' : ''}`}
             >
-                <QueryExecutionPanel
-                    {...args}
-                    expanded={expanded}
-                    onExpandedChange={setExpanded}
-                    onClose={() => setClosed(true)}
-                />
+                <QueryExecutionPanel {...args} expanded={expanded} onExpandedChange={setExpanded} />
             </div>
         );
     },

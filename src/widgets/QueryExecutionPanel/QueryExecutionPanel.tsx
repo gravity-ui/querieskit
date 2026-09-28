@@ -1,5 +1,5 @@
-import React, {useEffect, useMemo} from 'react';
-import {ChevronsCollapseUpRight, ChevronsExpandUpRight, Xmark} from '@gravity-ui/icons';
+import React, {useEffect, useId, useMemo, useState} from 'react';
+import {ChevronsCollapseUpRight, ChevronsExpandUpRight, ChevronsUp, Xmark} from '@gravity-ui/icons';
 import {Button, Flex, Icon, Tab, TabList, TabPanel, TabProvider, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import type {NavigationMetaItem} from '../../types/navigation';
@@ -13,6 +13,21 @@ import './QueryExecutionPanel.scss';
 
 const block = cn('qp-query-execution-panel');
 
+function ExecutionMetadata({execution}: Pick<QueryExecutionPanelProps, 'execution'>) {
+    return (
+        <>
+            {execution?.startedAt !== undefined && execution.startedAt !== null && (
+                <Text>{execution.startedAt}</Text>
+            )}
+            {execution?.author !== undefined && execution.author !== null && (
+                <Text color="secondary">
+                    {i18n('context_by')} {execution.author}
+                </Text>
+            )}
+        </>
+    );
+}
+
 export function QueryExecutionPanel<
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
@@ -25,6 +40,9 @@ export function QueryExecutionPanel<
     execution,
     expanded = false,
     onExpandedChange,
+    collapsed: controlledCollapsed,
+    defaultCollapsed = false,
+    onCollapsedChange,
     onClose,
     loading = false,
     error = false,
@@ -32,6 +50,19 @@ export function QueryExecutionPanel<
     emptyContent,
     className,
 }: QueryExecutionPanelProps<TRow, TMetaItem>) {
+    const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
+    const collapsed = controlledCollapsed ?? uncontrolledCollapsed;
+    const contentId = useId();
+
+    const changeCollapsed = (next: boolean) => {
+        if (next === collapsed) return;
+        if (controlledCollapsed === undefined) setUncontrolledCollapsed(next);
+        onCollapsedChange?.(next);
+        if (next) {
+            if (expanded) onExpandedChange?.(false);
+            onClose?.();
+        }
+    };
     const {tabs, invalidIds} = useMemo(() => {
         const seen = new Set<string>();
         const invalid: string[] = [];
@@ -60,7 +91,13 @@ export function QueryExecutionPanel<
         onActiveTabChange,
     });
     const expandLabel = i18n(expanded ? 'action_collapse' : 'action_expand');
+    const collapseLabel = i18n(collapsed ? 'action_show-content' : 'action_hide-content');
     const showState = loading || error;
+    const selectAndReveal = (id: string) => {
+        if (!tabs.some((tab) => tab.id === id && !tab.disabled)) return;
+        changeCollapsed(false);
+        select(id);
+    };
 
     const getTitle = (tab: QueryExecutionTab<TRow, TMetaItem>) => {
         if (tab.type === 'info') return i18n(`title_${getMessagesSeverity(tab.props?.root)}`);
@@ -69,8 +106,8 @@ export function QueryExecutionPanel<
     };
 
     return (
-        <Flex direction="column" className={block(null, className)}>
-            <TabProvider value={selected ?? ''} onUpdate={select}>
+        <Flex direction="column" className={block({collapsed}, className)}>
+            <TabProvider value={collapsed ? '' : (selected ?? '')} onUpdate={selectAndReveal}>
                 <Flex wrap alignItems="center" gap={4} className={block('header')}>
                     <TabList className={block('tabs')} aria-label={i18n('title_tabs')}>
                         {tabs.map((tab) => (
@@ -82,7 +119,7 @@ export function QueryExecutionPanel<
                                     if (event.key === 'Enter' || event.key === ' ') {
                                         // Avoid a second selection from the button's native click.
                                         event.preventDefault();
-                                        select(tab.id);
+                                        selectAndReveal(tab.id);
                                     }
                                 }}
                             >
@@ -91,14 +128,7 @@ export function QueryExecutionPanel<
                         ))}
                     </TabList>
                     <Flex wrap alignItems="center" gap={2} className={block('details')}>
-                        {execution?.startedAt !== undefined && execution.startedAt !== null && (
-                            <Text>{execution.startedAt}</Text>
-                        )}
-                        {execution?.author !== undefined && execution.author !== null && (
-                            <Text color="secondary">
-                                {i18n('context_by')} {execution.author}
-                            </Text>
-                        )}
+                        <ExecutionMetadata execution={execution} />
                         <Flex gap={2} className={block('actions')}>
                             {onExpandedChange && (
                                 <Button
@@ -106,7 +136,10 @@ export function QueryExecutionPanel<
                                     aria-label={expandLabel}
                                     title={expandLabel}
                                     aria-pressed={expanded}
-                                    onClick={() => onExpandedChange(!expanded)}
+                                    onClick={() => {
+                                        changeCollapsed(false);
+                                        onExpandedChange(!expanded);
+                                    }}
                                 >
                                     <Icon
                                         data={
@@ -117,26 +150,31 @@ export function QueryExecutionPanel<
                                     />
                                 </Button>
                             )}
-                            {onClose && (
-                                <Button
-                                    view="flat"
-                                    aria-label={i18n('action_close')}
-                                    title={i18n('action_close')}
-                                    onClick={onClose}
-                                >
-                                    <Icon data={Xmark} />
-                                </Button>
-                            )}
+                            <Button
+                                view="flat"
+                                aria-label={collapseLabel}
+                                title={collapseLabel}
+                                aria-expanded={!collapsed}
+                                aria-controls={contentId}
+                                onClick={() => changeCollapsed(!collapsed)}
+                            >
+                                <Icon data={collapsed ? ChevronsUp : Xmark} />
+                            </Button>
                         </Flex>
                     </Flex>
                 </Flex>
-                <div className={block('content')} aria-busy={loading}>
+                <div
+                    id={contentId}
+                    className={block('content')}
+                    aria-busy={loading}
+                    hidden={collapsed}
+                >
                     {showState && <QueryExecutionState loading={loading} onRetry={onRetry} />}
                     {tabs.map((tab) => (
                         <TabPanel
                             key={tab.id}
                             value={tab.id}
-                            hidden={tab.id !== selected || showState}
+                            hidden={collapsed || tab.id !== selected || showState}
                             className={block('panel', {
                                 padded: ['info', 'meta', 'charts', 'custom'].includes(tab.type),
                             })}
@@ -144,7 +182,7 @@ export function QueryExecutionPanel<
                             <QueryExecutionTabContent
                                 key={tab.type}
                                 tab={tab}
-                                active={tab.id === selected && !showState}
+                                active={!collapsed && tab.id === selected && !showState}
                             />
                         </TabPanel>
                     ))}
