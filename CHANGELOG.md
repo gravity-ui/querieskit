@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/gravity-ui/querieskit/compare/v1.9.0...v1.10.0) (2026-09-28)
+
+
+### Features
+
+* add extensible query execution panel ([cd2855e](https://github.com/gravity-ui/querieskit/commit/cd2855e43a8626370ce5bda6b0839ebd14867d54))
+
 ## [1.9.0](https://github.com/gravity-ui/querieskit/compare/v1.8.0...v1.9.0) (2026-09-28)
 
 
