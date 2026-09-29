@@ -10,6 +10,7 @@ type Props = {
     fullSearchAvailable?: boolean;
     hasClear?: boolean;
     filter?: QueryListFilterConfig;
+    actions?: React.ReactNode;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
     className?: string;
 };
@@ -20,6 +21,7 @@ export const HistoryHeader: FC<Props> = ({
     fullSearchAvailable = true,
     hasClear,
     filter,
+    actions,
     onUpdate,
     className,
 }) => {
@@ -59,7 +61,10 @@ export const HistoryHeader: FC<Props> = ({
                       ]
                     : undefined
             }
-            endButtons={filter ? [<HistoryFilter key="filter" {...filter} />] : undefined}
+            endButtons={[
+                ...(filter ? [<HistoryFilter key="filter" {...filter} />] : []),
+                ...(actions ? [<React.Fragment key="actions">{actions}</React.Fragment>] : []),
+            ]}
         />
     );
 };

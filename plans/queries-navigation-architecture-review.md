@@ -5,10 +5,10 @@
 
 Затронутые единицы:
 
-- Виджет [`QueriesNavigation`](src/widgets/QueriesNavigation/QueriesNavigation.tsx:51) + хелперы
-  [`createNavigationDetailResolver`](src/widgets/QueriesNavigation/helpers/createNavigationDetailResolver.ts:13),
-  [`createTableDetailConfig`](src/widgets/QueriesNavigation/helpers/createTableDetailConfig.tsx:45),
-  [`createEmptyDetailConfig`](src/widgets/QueriesNavigation/helpers/createEmptyDetailConfig.ts:5).
+- Виджет [`QueriesNavigation`](src/modules/QueriesNavigation/QueriesNavigation.tsx:51) + хелперы
+  [`createNavigationDetailResolver`](src/modules/QueriesNavigation/helpers/createNavigationDetailResolver.ts:13),
+  [`createTableDetailConfig`](src/modules/QueriesNavigation/helpers/createTableDetailConfig.tsx:45),
+  [`createEmptyDetailConfig`](src/modules/QueriesNavigation/helpers/createEmptyDetailConfig.ts:5).
 - Модули: [`NavigationDetail`](src/modules/NavigationDetail/NavigationDetail.tsx:39),
   [`NavigationHeader`](src/modules/NavigationHeader/NavigationHeader.tsx:15),
   [`ClustersList`](src/modules/ClustersList/ClustersList.tsx:23),
@@ -41,7 +41,7 @@
   раскладка/отступы задаются через `Flex gap` или `--g-spacing-*` в `.scss`. Инлайн-`gap:4` стоит
   заменить на `Flex gap` или CSS-класс с токеном. (Инлайн-стили и текстовые заглушки в сторибуках
   оставляем как есть — для демо это допустимо.)
-- **Пустой `title: ''` в конфиге таба.** В [`createEmptyDetailConfig`](src/widgets/QueriesNavigation/helpers/createEmptyDetailConfig.ts:9)
+- **Пустой `title: ''` в конфиге таба.** В [`createEmptyDetailConfig`](src/modules/QueriesNavigation/helpers/createEmptyDetailConfig.ts:9)
   создаётся таб с пустым заголовком — формально валидация i18n не срабатывает (строка не идёт
   через `t`), но семантически это «фейковый» таб только ради контейнера. См. п.4.
 
@@ -105,7 +105,7 @@
 
 Замечания:
 
-- **Дженерик теряется в detail-резолверах.** В [`createTableDetailConfig`](src/widgets/QueriesNavigation/helpers/createTableDetailConfig.tsx:19)
+- **Дженерик теряется в detail-резолверах.** В [`createTableDetailConfig`](src/modules/QueriesNavigation/helpers/createTableDetailConfig.tsx:19)
   резолверы типизированы как `NavigationSchemaResolver<T>`, но возвращают `NavigationSchemaConfig`
   без `<TColumn>`. Из-за этого `extraColumns`-типизация кастомных колонок в конфиге таблицы теряется.
   Стоит пробросить `TColumn`/`TRow` до `NavigationSchema data`.
@@ -117,7 +117,7 @@
   индексную сигнатуру `[key: string]: unknown`. Это ослабляет типизацию расширений (лучше решать
   через дженерик `T extends ...`, который и так есть). Возможная избыточность — см. п.6.
 - **`resolvedDetailActions = detailActions ?? actions`** в
-  [`QueriesNavigation`](src/widgets/QueriesNavigation/QueriesNavigation.tsx:86): fallback header-экшенов
+  [`QueriesNavigation`](src/modules/QueriesNavigation/QueriesNavigation.tsx:86): fallback header-экшенов
   на detail неочевиден. Стоит задокументировать поведение в типе `NavigationDetailPanelConfig`.
 
 ## 5. Дублирование кода
@@ -164,7 +164,7 @@
 
 - **Повторяющиеся `Loading/Empty/Error`-стори у 4 detail-модулей.** У Schema, Preview, Meta, View
   практически идентичные state-стори. Их можно оставить (они полезны для autodocs), но mock-данные
-  дублируются между сторибуками и [`QueriesNavigation.stories`](src/widgets/QueriesNavigation/QueriesNavigation.stories.tsx:148)
+  дублируются между сторибуками и [`QueriesNavigation.stories`](src/modules/QueriesNavigation/QueriesNavigation.stories.tsx:148)
   (`TABLE_SCHEMA_COLUMNS`, `TABLE_PREVIEW_ROWS`, `TABLE_META_GROUPS`, `TABLE_VIEW_SECTIONS`
   повторяют данные модульных сторибуков). Кандидат на общий `story/mockData.ts`
   (как уже сделано в `DashboardCharts/story/mockData.ts` и `ChartEditor/story/mockData.ts`).
@@ -189,7 +189,7 @@
    и [`buildViewColumns`](src/modules/NavigationView/helpers/buildViewColumns.tsx:5) в один хелпер.
 2. Вынести общий `isEmptyValue` в `src/helpers/`.
 3. Пробросить дженерики `TColumn`/`TRow` в резолверах
-   [`createTableDetailConfig`](src/widgets/QueriesNavigation/helpers/createTableDetailConfig.tsx:45).
+   [`createTableDetailConfig`](src/modules/QueriesNavigation/helpers/createTableDetailConfig.tsx:45).
 4. Решить статус `ClusterRow`/`NavigationItemRow`: поднять в `components` либо убрать из
    публичного barrel.
 

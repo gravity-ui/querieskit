@@ -13,3 +13,8 @@ export * from './types/queryResults';
 export * from './types/queryGraph';
 export * from './types/queryTimeline';
 export * from './types/queryExecutionPanel';
+export * from './types/queriesSidebar';
+export type {QueriesHistoryProps} from './types/queriesHistory';
+export type {QueriesNavigationProps} from './types/queriesNavigation';
+export type {SavedQueriesProps} from './types/savedQueriesProps';
+export type {TutorialsHistoryProps} from './types/tutorialsHistory';

@@ -1,20 +1,10 @@
-export {QueriesHistory} from './QueriesHistory';
-export type {QueriesHistoryProps} from './QueriesHistory';
-export {SavedQueries} from './SavedQueries';
-export type {SavedQueriesProps} from './SavedQueries';
 export {DashboardCharts} from './DashboardCharts';
-export {TutorialsHistory} from './TutorialsHistory';
-export type {TutorialsHistoryProps} from './TutorialsHistory';
-export {
-    QueriesNavigation,
-    createTableDetailConfig,
-    createNavigationDetailResolver,
-} from './QueriesNavigation';
-export type {
-    QueriesNavigationProps,
-    CreateTableDetailConfigOptions,
-    NavigationPreviewResolver,
-    NavigationSchemaResolver,
-} from './QueriesNavigation';
 export {QueryExecutionPanel} from './QueryExecutionPanel';
 export type {QueryExecutionPanelProps} from './QueryExecutionPanel';
+export {QueriesSidebar} from './QueriesSidebar';
+export type {
+    QueriesSidebarProps,
+    QueriesSidebarTab,
+    QueriesSidebarTabBase,
+    QueriesSidebarTabRenderContext,
+} from './QueriesSidebar';

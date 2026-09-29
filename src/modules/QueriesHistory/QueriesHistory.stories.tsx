@@ -1,3 +1,4 @@
+import {BASE_ITEMS, min} from './QueriesHistory.stories.data';
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
@@ -12,104 +13,6 @@ import {
 } from '../../types/queryList';
 import {QueryHistoryRow} from '../../types/history';
 import {action} from 'storybook/actions';
-
-const now = Date.now();
-const min = 60 * 1000;
-
-const QUERY = `use test;
-
-SELECT
-    "test_session" AS session_id,
-    "test_task" AS task_id,
-    SUBSTRING("test", 1, 1) AS truncated_char`;
-
-const BASE_ITEMS: QueryListItem<QueryHistoryRow>[] = [
-    {header: 'Today', height: 28},
-    {
-        id: 1,
-        title: 'Query 1',
-        status: 'completed',
-        engine: 'YQL',
-        mode: 'Validation',
-        startTime: now - 2 * min,
-        endTime: now - min,
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 2,
-        title: 'Query 2',
-        status: 'failed',
-        engine: 'YQL',
-        mode: 'Test',
-        startTime: now - 10 * min,
-        endTime: now - 9 * min,
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 3,
-        title: 'Query 3',
-        status: 'running',
-        engine: 'YQL',
-        mode: 'Test',
-        startTime: now - min,
-        query: QUERY,
-        height: 52,
-    },
-    {header: 'Yesterday', height: 28},
-    {
-        id: 4,
-        title: 'Query 4',
-        status: 'aborted',
-        engine: 'YQL',
-        mode: 'Validation',
-        startTime: now - 25 * 60 * min,
-        endTime: now - 24 * 60 * min,
-        query: 'SELECT 1',
-        height: 52,
-    },
-    {
-        id: 5,
-        title: 'Query 5',
-        status: 'draft',
-        engine: 'YQL',
-        mode: 'Test',
-        startTime: now - 30 * 60 * min,
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 6,
-        title: 'Query 6',
-        status: 'draft',
-        engine: 'YQL',
-        mode: 'Test',
-        startTime: now - 30 * 60 * min,
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 7,
-        title: 'Query 7',
-        status: 'draft',
-        engine: 'YQL',
-        mode: 'Test',
-        startTime: now - 30 * 60 * min,
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 8,
-        title: 'Query 8',
-        status: 'draft',
-        engine: 'YQL',
-        mode: 'Test',
-        startTime: now - 30 * 60 * min,
-        query: QUERY,
-        height: 52,
-    },
-];
 
 const LINK_ITEMS = BASE_ITEMS.map((item) =>
     'id' in item ? {...item, href: `/queries/${item.id}`} : item,
@@ -228,7 +131,7 @@ const renderRouterLink: QueryListLinkRenderer = ({onClick, ...props}) => (
 );
 
 const meta: Meta<typeof QueriesHistory> = {
-    title: 'Widgets/QueriesHistory',
+    title: 'Modules/QueriesHistory',
     component: QueriesHistory,
     tags: ['autodocs'],
     parameters: {

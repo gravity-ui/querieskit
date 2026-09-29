@@ -1,3 +1,4 @@
+import {BASE_ITEMS, QUERY} from './TutorialsHistory.stories.data';
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {Flex, Icon, Text} from '@gravity-ui/uikit';
@@ -11,13 +12,6 @@ import type {
 } from '../../types/queryList';
 import type {TutorialHistoryRow} from '../../types/tutorial';
 import {action} from 'storybook/actions';
-
-const QUERY = `use test;
-
-SELECT
-    "test_session" AS session_id,
-    "test_task" AS task_id,
-    SUBSTRING("test", 1, 1) AS truncated_char`;
 
 const filterFields: QueryListFilterConfig['fields'] = [
     {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
@@ -36,27 +30,6 @@ const filterFields: QueryListFilterConfig['fields'] = [
 
 const logFilterApply = action('onFilterApply');
 const logFilterReset = action('onFilterReset');
-
-const BASE_ITEMS: QueryListItem<TutorialHistoryRow>[] = [
-    {
-        id: 1,
-        title: 'Getting started with YQL',
-        query: QUERY,
-        height: 28,
-    },
-    {
-        id: 2,
-        title: 'Working with tables',
-        query: QUERY,
-        height: 28,
-    },
-    {
-        id: 3,
-        title: 'Window functions',
-        query: QUERY,
-        height: 28,
-    },
-];
 
 const LINK_ITEMS = BASE_ITEMS.map((item) =>
     'id' in item ? {...item, href: `/tutorials/${item.id}`} : item,
@@ -114,7 +87,7 @@ const renderRouterLink: QueryListLinkRenderer = ({onClick, ...props}) => (
 );
 
 const meta: Meta<typeof TutorialsHistory> = {
-    title: 'Widgets/TutorialsHistory',
+    title: 'Modules/TutorialsHistory',
     component: TutorialsHistory,
     tags: ['autodocs'],
     parameters: {

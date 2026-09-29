@@ -73,10 +73,10 @@ export const QueriesList = <T extends QueryListRow>({
             className={block(null, className)}
             title={title}
             logo={logo}
-            actions={visibleFields && <FieldsSelector {...visibleFields} />}
             header={
                 <HistoryHeader
                     className={block('header')}
+                    actions={visibleFields && <FieldsSelector {...visibleFields} />}
                     search={search.value}
                     fullSearch={search.fullSearch}
                     fullSearchAvailable={fullSearchAvailable}

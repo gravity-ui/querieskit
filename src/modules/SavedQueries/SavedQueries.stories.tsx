@@ -1,54 +1,13 @@
+import {BASE_ITEMS} from './SavedQueries.stories.data';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
-import {
-    QueryListFieldKey,
-    QueryListFilterConfig,
-    QueryListItem,
-    QueryListLinkRenderer,
-    QueryListVisibleFieldsConfig,
-} from '../../types/queryList';
+import {QueryListFilterConfig, QueryListItem, QueryListLinkRenderer} from '../../types/queryList';
 import {SavedQuery} from '../../types/savedQueries';
 import {SavedQueries} from './SavedQueries';
 import {HistoryGroupHeader} from '../../components/HistoryGroupHeader';
 import {RowLink} from '../../components/RowLink';
-
-const QUERY = `SELECT
-    session_id,
-    COUNT(*) AS sessions_count
-FROM visits
-GROUP BY session_id;`;
-
-const BASE_ITEMS: QueryListItem<SavedQuery>[] = [
-    {
-        id: 1,
-        title: 'New Query',
-        savedAt: '2026-04-29T12:00:00.000Z',
-        engine: 'SQL',
-        author: 'Anna Petrova',
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 2,
-        title: 'Daily conversion report',
-        savedAt: '2026-04-29T11:00:00.000Z',
-        engine: 'YQL',
-        author: 'Pavel Sidorov',
-        query: QUERY,
-        height: 52,
-    },
-    {
-        id: 3,
-        title: 'Product funnel',
-        savedAt: '2026-04-28T09:00:00.000Z',
-        engine: 'SQL',
-        author: 'Maria Volkova',
-        query: 'SELECT 1;',
-        height: 52,
-    },
-];
 
 const filterFields: QueryListFilterConfig['fields'] = [
     {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
@@ -65,14 +24,8 @@ const filterFields: QueryListFilterConfig['fields'] = [
     },
 ];
 
-const fields: QueryListVisibleFieldsConfig<SavedQuery>['fields'] = [
-    {id: 'savedAt', title: 'Saved date'},
-    {id: 'engine', title: 'Engine'},
-    {id: 'author', title: 'Author'},
-];
-
 const meta: Meta<typeof SavedQueries> = {
-    title: 'Widgets/SavedQueries',
+    title: 'Modules/SavedQueries',
     component: SavedQueries,
     tags: ['autodocs'],
     parameters: {layout: 'padded'},
@@ -84,11 +37,6 @@ type Story = StoryObj<typeof SavedQueries>;
 const SavedQueriesStory = () => {
     const [items, setItems] = useState(BASE_ITEMS);
     const [search, setSearch] = useState({value: '', fullSearch: false});
-    const [visibleFields, setVisibleFields] = useState<QueryListFieldKey<SavedQuery>[]>([
-        'savedAt',
-        'engine',
-        'author',
-    ]);
     const [comparedRowIds, setComparedRowIds] = useState<(number | string)[]>([]);
     const [editingRowId, setEditingRowId] = useState<number | string>();
 
@@ -127,7 +75,6 @@ const SavedQueriesStory = () => {
                     onApply: action('onFilterApply'),
                     onReset: action('onFilterReset'),
                 }}
-                visibleFields={{value: visibleFields, fields, onChange: setVisibleFields}}
                 editing={{
                     rowId: editingRowId,
                     onSubmit: updateTitle,

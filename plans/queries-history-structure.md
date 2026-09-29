@@ -1,3 +1,5 @@
+> Historical plan: QueriesHistory now lives in modules and is composed by QueriesSidebar. See [current architecture](queries-sidebar-architecture.md).
+
 # План трёхуровневой структуры QueriesKit
 
 ## Контекст
@@ -129,7 +131,7 @@ src/
 ## Предлагаемый порядок реализации
 
 1. Создать папки [`src/components`](src/components), [`src/modules`](src/modules), [`src/widgets`](src/widgets) как публичные уровни библиотеки.
-2. Перенести [`QueriesHistory`](src/components/QueriesHistory/QueriesHistory.tsx:28) и его i18n в [`src/widgets/QueriesHistory`](src/widgets/QueriesHistory).
+2. Перенести [`QueriesHistory`](src/components/QueriesHistory/QueriesHistory.tsx:28) и его i18n в [`src/modules/QueriesHistory`](src/modules/QueriesHistory).
 3. Перенести [`HistoryHeader`](src/components/QueriesHistory/HistoryHeader/HistoryHeader.tsx:13), [`HistoryList`](src/components/QueriesHistory/HistoryList.tsx:26) (вместе с [`HistoryRowContent`](src/components/QueriesHistory/HistoryRowContent.tsx:1) и [`prepareRowData`](src/components/QueriesHistory/helpers/prepareRowData.ts)), [`HistoryRow`](src/components/QueriesHistory/HistoryRow/HistoryRow.tsx:17) в [`src/modules`](src/modules).
 4. Вынести [`QueryStatusIcon`](src/components/QueryStatusIcon/QueryStatusIcon.tsx:27), [`QueryDuration`](src/components/QueryDuration/QueryDuration.tsx) (вместе с хуком [`useQueryDuration`](src/components/QueryDuration/useQueryDuration.ts)) и [`HistoryGroupHeader`](src/components/HistoryGroupHeader/HistoryGroupHeader.tsx:1) в [`src/components`](src/components).
 5. Оставить [`HistorySearch`](src/components/QueriesHistory/HistoryHeader/HistorySearch.tsx:16), [`HistoryFilter`](src/components/QueriesHistory/HistoryHeader/HistoryFilter.tsx:16), [`HistoryRowHeader`](src/components/QueriesHistory/HistoryRow/HistoryRowHeader.tsx:19), [`HistoryRowMenu`](src/components/QueriesHistory/HistoryRow/HistoryRowMenu.tsx) внутри соответствующих modules, пока нет явной потребности в самостоятельном использовании.

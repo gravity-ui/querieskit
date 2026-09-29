@@ -1,4 +1,5 @@
-import {useCallback, useEffect, useRef} from 'react';
+import {useCallback, useContext, useEffect, useRef} from 'react';
+import {ListActivityContext} from './ListActivityContext';
 
 export function useLoadMoreSentinel(
     hasMore: boolean | undefined,
@@ -6,6 +7,9 @@ export function useLoadMoreSentinel(
     loading?: boolean,
     itemsCount?: number,
 ) {
+    const active = useContext(ListActivityContext);
+    const activeRef = useRef(active);
+    activeRef.current = active;
     const observerRef = useRef<IntersectionObserver | null>(null);
     const loadRequestedRef = useRef(false);
     const hasMoreRef = useRef(hasMore);
@@ -25,18 +29,19 @@ export function useLoadMoreSentinel(
             // Cached pages can add items without changing the loading state.
             loadRequestedRef.current = false;
         }
-    }, [loading, itemsCount]);
+    }, [loading, itemsCount, active]);
 
     return useCallback(
         (node: HTMLElement | null) => {
             observerRef.current?.disconnect();
 
-            if (!node) {
+            if (!node || !active) {
                 return;
             }
 
             observerRef.current = new IntersectionObserver((entries) => {
                 if (
+                    activeRef.current &&
                     entries.some((entry) => entry.isIntersecting) &&
                     hasMoreRef.current &&
                     !loading &&
@@ -50,6 +55,6 @@ export function useLoadMoreSentinel(
 
             observerRef.current.observe(node);
         },
-        [loading, preventRepeatedLoad],
+        [loading, preventRepeatedLoad, active],
     );
 }

@@ -3,34 +3,14 @@ import {HistoryHeader} from '../../modules/HistoryHeader';
 import {HistoryLayout} from '../../modules/HistoryLayout';
 import {RowsList} from '../../modules/RowsList';
 import i18n from './i18n';
-import type {
-    QueryListFilterConfig,
-    QueryListItem,
-    QueryListLinkRenderer,
-    QueryListRowRenderData,
-    QueryListSearchConfig,
-} from '../../types/queryList';
 import type {TutorialHistoryRow} from '../../types/tutorial';
 import {useListKey} from '../../helpers/useListKey';
 import {TutorialRowContent} from './TutorialRowContent';
 import cn from 'bem-cn-lite';
 import './TutorialsHistory.scss';
 
-export type TutorialsHistoryProps<T extends TutorialHistoryRow = TutorialHistoryRow> = {
-    className?: string;
-    title?: string;
-    logo?: React.ReactNode;
-    search: QueryListSearchConfig;
-    filter?: QueryListFilterConfig;
-    items: QueryListItem<T>[];
-    selectedRowId?: T['id'];
-    renderRowItem?: (data: QueryListRowRenderData<T>) => React.ReactNode;
-    onListItemClick?: (item: QueryListItem<T>) => void;
-    hasMore?: boolean;
-    loading?: boolean;
-    onLoadMore?: () => void;
-    renderLink?: QueryListLinkRenderer;
-};
+export type {TutorialsHistoryProps} from '../../types/tutorialsHistory';
+import type {TutorialsHistoryProps} from '../../types/tutorialsHistory';
 
 const block = cn('qp-tutorials-history');
 
