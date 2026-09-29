@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {Button, Flex, Icon, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
 import {Star} from '@gravity-ui/icons';
@@ -193,6 +193,7 @@ function Example({external = false, narrow = false, custom = false}) {
                     tabs={tabs}
                     hideTabs={external}
                     activeTab={external ? activeTab : undefined}
+                    keepMounted={false}
                     defaultActiveTab={custom ? 'favorites' : undefined}
                 />
             </div>
@@ -202,9 +203,19 @@ function Example({external = false, narrow = false, custom = false}) {
 
 function Favorites({active}: {active: boolean}) {
     const [count, setCount] = useState(0);
+    const [ticks, setTicks] = useState(0);
+    useEffect(() => {
+        action('favorites.mount')();
+        const timer = setInterval(() => setTicks((value) => value + 1), 1000);
+        return () => {
+            clearInterval(timer);
+            action('favorites.cleanup')();
+        };
+    }, []);
     return (
         <Flex direction="column" gap={2}>
             <Text>{active ? 'Favorites' : 'Inactive'}</Text>
+            <Text>Polling ticks: {ticks}</Text>
             <Button onClick={() => setCount(count + 1)}>Saved locally: {count}</Button>
         </Flex>
     );

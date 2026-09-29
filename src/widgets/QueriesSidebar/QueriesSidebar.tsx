@@ -40,6 +40,7 @@ export function QueriesSidebar<
     defaultActiveTab,
     onActiveTabChange,
     hideTabs = false,
+    keepMounted = false,
     className,
 }: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial>) {
     const id = useId();
@@ -117,6 +118,7 @@ export function QueriesSidebar<
                     aria-label={hideTabs ? title(tab) : undefined}
                     aria-labelledby={hideTabs ? undefined : `${id}-tab-${tab.id}`}
                     active={tab.id === selected}
+                    keepMounted={keepMounted}
                     className={block('panel')}
                 >
                     <SidebarTabContent tab={tab} active={tab.id === selected} />

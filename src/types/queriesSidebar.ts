@@ -54,5 +54,7 @@ export type QueriesSidebarProps<
     onActiveTabChange?: (id: string) => void;
     /** Hide the tab strip, for example when activeTab follows external navigation. */
     hideTabs?: boolean;
+    /** Preserve visited tab contents while inactive. Default: false. */
+    keepMounted?: boolean;
     className?: string;
 };

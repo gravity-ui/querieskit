@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import React, {act, useState} from 'react';
-import {createRoot, type Root} from 'react-dom/client';
+import React, {act, useEffect, useState} from 'react';
+import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {Tab, TabList, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {QueriesSidebar} from '../../src/widgets/QueriesSidebar';
@@ -24,7 +24,14 @@ function ListContent({onLoadMore}: {onLoadMore?: () => void}) {
         </div>
     );
 }
+const lifecycle = {mount: vi.fn(), cleanup: vi.fn()};
 function Counter() {
+    useEffect(() => {
+        lifecycle.mount();
+        return () => {
+            lifecycle.cleanup();
+        };
+    }, []);
     const [count, setCount] = useState(0);
     return <button onClick={() => setCount(count + 1)}>Count {count}</button>;
 }
@@ -73,6 +80,8 @@ describe('QueriesSidebar', () => {
         globalThis.IS_REACT_ACT_ENVIRONMENT = true;
         configure({lang: 'en'});
         changes.mockClear();
+        lifecycle.mount.mockClear();
+        lifecycle.cleanup.mockClear();
         observers.length = 0;
         vi.stubGlobal(
             'IntersectionObserver',
@@ -167,32 +176,144 @@ describe('QueriesSidebar', () => {
     });
 
     it('retains state, scroll and DOM when hiding tabs or switching externally, with valid ARIA associations', () => {
-        render({activeTab: 'a', header: <div>Product</div>});
+        render({keepMounted: true, activeTab: 'a', header: <div>Product</div>});
         const first = panel();
         expect(tab('a').getAttribute('aria-controls')).toBe(first.id);
         expect(first.getAttribute('aria-labelledby')).toBe(tab('a').id);
         expect(container.querySelectorAll('button:not([role="tab"])')).toHaveLength(1);
         first.scrollTop = 120;
         act(() => first.querySelector('button')!.click());
-        render({activeTab: 'a', hideTabs: true, header: <div>Product</div>});
+        render({keepMounted: true, activeTab: 'a', hideTabs: true, header: <div>Product</div>});
         expect(panel()).toBe(first);
         expect(panel().getAttribute('role')).toBe('region');
         expect(panel().getAttribute('aria-label')).toBe('a');
         expect(panel().hasAttribute('aria-labelledby')).toBe(false);
         expect(container.querySelector('[role="tablist"]')).toBeNull();
         expect(container.textContent).toContain('Product');
-        render({activeTab: 'b', hideTabs: true});
+        render({keepMounted: true, activeTab: 'b', hideTabs: true});
         expect(first.hidden).toBe(true);
         expect(first.querySelector('[data-active]')!.getAttribute('data-active')).toBe('false');
-        render({activeTab: 'a'});
+        render({keepMounted: true, activeTab: 'a'});
         expect(panel()).toBe(first);
         expect(panel().textContent).toContain('Count 1');
         expect(panel().scrollTop).toBe(120);
         expect(changes).not.toHaveBeenCalled();
-        render({activeTab: 'b', tabs: [custom('b')]});
-        render({activeTab: 'a'});
+        render({keepMounted: true, activeTab: 'b', tabs: [custom('b')]});
+        render({keepMounted: true, activeTab: 'a'});
         expect(panel()).not.toBe(first);
         expect(panel().textContent).toContain('Count 0');
+    });
+
+    it.each([undefined, false])(
+        'unmounts inactive custom content with keepMounted=%s',
+        (keepMounted) => {
+            const renderA = vi.fn(() => <Counter />);
+            const renderB = vi.fn(() => <Counter />);
+            const tabs: QueriesSidebarTab[] = [
+                {...custom('a'), type: 'custom', renderContent: renderA},
+                {...custom('b'), type: 'custom', renderContent: renderB},
+            ];
+            render({tabs, keepMounted});
+            expect(renderB).not.toHaveBeenCalled();
+            expect(lifecycle.mount.mock.calls.length - lifecycle.cleanup.mock.calls.length).toBe(1);
+            act(() => panel().querySelector('button')!.click());
+            const cleanups = lifecycle.cleanup.mock.calls.length;
+            act(() => tab('b').click());
+            expect(lifecycle.cleanup.mock.calls.length).toBeGreaterThan(cleanups);
+            expect(container.querySelector('[role="tabpanel"][hidden]')!.textContent).toBe('');
+            expect(lifecycle.mount.mock.calls.length - lifecycle.cleanup.mock.calls.length).toBe(1);
+            act(() => tab('a').click());
+            expect(panel().textContent).toBe('Count 0');
+        },
+    );
+
+    it.each(['history', 'saved', 'tutorials', 'navigation'] as const)(
+        'unmounts %s on external selection and remounts with fresh state',
+        (type) => {
+            const section: QueriesSidebarTab =
+                type === 'navigation'
+                    ? {
+                          id: 'list',
+                          type,
+                          props: {
+                              location: {cluster: undefined, path: undefined},
+                              onUpdate: vi.fn(),
+                              listState: {},
+                          },
+                      }
+                    : {id: 'list', type, props: {items: [], search: {onUpdate: vi.fn()}}};
+            const tabs = [section, custom('other')];
+            render({tabs, activeTab: 'other', keepMounted: false});
+            expect(observers).toHaveLength(0);
+            render({tabs, activeTab: 'list', keepMounted: false});
+            const first = panel();
+            expect(
+                container
+                    .querySelector('[role="tab"][aria-selected="true"]')!
+                    .getAttribute('aria-controls'),
+            ).toBe(first.id);
+            act(() => first.querySelector('button')!.click());
+            const cleanupCount = lifecycle.cleanup.mock.calls.length;
+            render({tabs, activeTab: 'other', keepMounted: false});
+            expect(first.textContent).toBe('');
+            expect(lifecycle.cleanup.mock.calls.length).toBeGreaterThan(cleanupCount);
+            expect(lifecycle.mount.mock.calls.length - lifecycle.cleanup.mock.calls.length).toBe(1);
+            render({tabs, activeTab: 'list', keepMounted: false});
+            expect(panel().textContent).toBe('Count 0');
+            expect(changes).not.toHaveBeenCalled();
+        },
+    );
+
+    it('cleans up removed active content and uses the selection fallback', () => {
+        render();
+        const first = panel();
+        const cleanups = lifecycle.cleanup.mock.calls.length;
+        render({tabs: [custom('b')]});
+        expect(first.isConnected).toBe(false);
+        expect(lifecycle.cleanup.mock.calls.length).toBeGreaterThan(cleanups);
+        expect(lifecycle.mount.mock.calls.length - lifecycle.cleanup.mock.calls.length).toBe(1);
+        expect(changes).toHaveBeenLastCalledWith('b');
+        render({tabs: [{...custom('b'), disabled: true}]});
+        expect(panel()).toBeNull();
+        expect(lifecycle.mount.mock.calls.length).toBe(lifecycle.cleanup.mock.calls.length);
+    });
+
+    it('updates retention without remounting active content or resurrecting discarded tabs', () => {
+        render({keepMounted: true, activeTab: 'a'});
+        act(() => panel().querySelector('button')!.click());
+        render({keepMounted: true, activeTab: 'b'});
+        expect(lifecycle.mount.mock.calls.length - lifecycle.cleanup.mock.calls.length).toBe(2);
+        const activeContent = panel().querySelector('button');
+        const mounts = lifecycle.mount.mock.calls.length;
+        const cleanups = lifecycle.cleanup.mock.calls.length;
+        render({keepMounted: false, activeTab: 'b'});
+        expect(lifecycle.cleanup).toHaveBeenCalledTimes(cleanups + 1);
+        render({keepMounted: true, activeTab: 'b'});
+        expect(lifecycle.mount).toHaveBeenCalledTimes(mounts);
+        expect(panel().querySelector('button')).toBe(activeContent);
+        expect(container.querySelector('[role="tabpanel"][hidden]')!.textContent).toBe('');
+        render({keepMounted: true, activeTab: 'a'});
+        expect(panel().textContent).toBe('Count 0');
+        expect(lifecycle.mount.mock.calls.length - lifecycle.cleanup.mock.calls.length).toBe(2);
+    });
+
+    it('only changes navigation and ARIA when toggling hideTabs', () => {
+        render();
+        const first = panel();
+        const button = first.querySelector('button')!;
+        act(() => button.click());
+        const mounts = lifecycle.mount.mock.calls.length;
+        const cleanups = lifecycle.cleanup.mock.calls.length;
+        render({hideTabs: true});
+        expect(panel()).toBe(first);
+        expect(panel().getAttribute('role')).toBe('region');
+        expect(panel().hasAttribute('aria-labelledby')).toBe(false);
+        render({hideTabs: false});
+        expect(panel().querySelector('button')).toBe(button);
+        expect(panel().textContent).toBe('Count 1');
+        expect(panel().getAttribute('aria-labelledby')).toBe(tab('a').id);
+        expect(lifecycle.mount).toHaveBeenCalledTimes(mounts);
+        expect(lifecycle.cleanup).toHaveBeenCalledTimes(cleanups);
     });
 
     it('supports hidden tabs in uncontrolled mode and filters invalid IDs', () => {
@@ -240,17 +361,17 @@ describe('QueriesSidebar', () => {
                         {} as IntersectionObserver,
                     ),
                 );
-            render({tabs, activeTab: 'list'});
+            render({keepMounted: true, tabs, activeTab: 'list'});
             const beforeHide = observers.length - 1;
             intersect(beforeHide);
             expect(load).toHaveBeenCalledTimes(1);
             const first = panel();
             act(() => first.querySelector('button')!.click());
-            render({tabs, activeTab: 'other'});
+            render({keepMounted: true, tabs, activeTab: 'other'});
             expect(observers[beforeHide].disconnect).toHaveBeenCalled();
             intersect(beforeHide);
             expect(load).toHaveBeenCalledTimes(1);
-            render({tabs, activeTab: 'list'});
+            render({keepMounted: true, tabs, activeTab: 'list'});
             expect(panel()).toBe(first);
             expect(panel().textContent).toContain('Count 1');
             intersect(observers.length - 1);

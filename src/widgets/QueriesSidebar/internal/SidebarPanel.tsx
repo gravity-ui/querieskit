@@ -3,17 +3,19 @@ import {ListActivityContext} from '../../../helpers/ListActivityContext';
 
 export function SidebarPanel({
     active,
+    keepMounted,
     children,
     ...props
-}: React.HTMLAttributes<HTMLDivElement> & {active: boolean}) {
+}: React.HTMLAttributes<HTMLDivElement> & {active: boolean; keepMounted: boolean}) {
     const parentActive = useContext(ListActivityContext);
     const [visited, setVisited] = useState(active);
-    if (active && !visited) setVisited(true);
+    const mounted = active || (keepMounted && visited);
+    if (visited !== mounted) setVisited(mounted);
 
     return (
         <div {...props} hidden={!active} tabIndex={active ? 0 : -1}>
             <ListActivityContext.Provider value={active && parentActive}>
-                {visited || active ? children : null}
+                {mounted ? children : null}
             </ListActivityContext.Provider>
         </div>
     );
