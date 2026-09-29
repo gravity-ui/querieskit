@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.11.0](https://github.com/gravity-ui/querieskit/compare/v1.10.0...v1.11.0) (2026-09-29)
+
+
+### Features
+
+* add queries sidebar with configurable tabs ([333f20a](https://github.com/gravity-ui/querieskit/commit/333f20a4cb7afaab7b3a1efd54c61e9facabead0))
+
+
+### Bug Fixes
+
+* align query execution panel with design ([c872ef1](https://github.com/gravity-ui/querieskit/commit/c872ef111687a9067a153f5e2936377506da4d2d))
+* allow horizontal scrolling in narrow query history ([91595f8](https://github.com/gravity-ui/querieskit/commit/91595f845f9bfc4c444b871a38d98f974d79f014))
+* collapse query execution panel to header ([ba456c5](https://github.com/gravity-ui/querieskit/commit/ba456c5b726a46ed79a0920ed722bc48d0895f00))
+
 ## [1.10.0](https://github.com/gravity-ui/querieskit/compare/v1.9.0...v1.10.0) (2026-09-28)
 
 
