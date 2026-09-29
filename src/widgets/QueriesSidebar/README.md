@@ -32,6 +32,7 @@ const tabs: QueriesSidebarTab[] = [
 | `defaultActiveTab`  | Initial uncontrolled ID; defaults to the first enabled tab                                                |
 | `onActiveTabChange` | User selection requests, or uncontrolled fallback changes; never echoes prop updates or initial selection |
 | `hideTabs`          | Defaults to `false`; hides only the tab strip, without resetting content                                  |
+| `keepMounted`      | Defaults to `false`; set to `true` to preserve visited contents while inactive                            |
 | `className`         | External layout class on the root                                                                         |
 
 IDs must be non-empty, unique and stable. Keep a tab's type stable as well.
@@ -49,14 +50,88 @@ and `renderContent({active})`. All tab types accept `disabled`.
 
 ## State and accessibility
 
-Sections mount on their first visit, then remain mounted while hidden. Local
-state and scroll are retained when switching sections or toggling `hideTabs`.
-Removing an ID from `tabs` discards its mounted content. Application-controlled
-state continues to follow the supplied props.
+By default, only the active section's contents are mounted. Switching sections
+unmounts the previous contents, runs effect cleanup and resets their local state.
+Panel containers may remain in the DOM. This also applies to custom sections and
+external `activeTab` updates. `hideTabs` only controls the tab strip and does not
+change the content lifecycle.
 
-Hidden built-in sections pause automatic list pagination. Custom sections can
-use `active` to pause their own fetching, subscriptions or timers. The sidebar
-does not cancel requests already started by the application.
+With `keepMounted={true}`, sections mount on their first visit and remain mounted
+while hidden, preserving local state and scroll. Hidden built-in sections pause
+automatic list pagination; custom sections can use `active` to pause their own
+fetching, subscriptions or timers.
+
+Changing `keepMounted` to `false` immediately unmounts inactive contents. Changing
+it back to `true` preserves the active contents and retains subsequent visits;
+it does not remount previously discarded inactive contents. Removing a tab
+always discards its contents. Application-controlled state follows supplied props.
+
+## Loading and polling inside custom sections
+
+The option controls only panel contents. Hooks called above `QueriesSidebar` to
+prepare `tab.props` continue running even when a panel unmounts. Put loading,
+delayed search and polling hooks inside a component adapter returned by
+`custom.renderContent`. Do not call hooks directly inside `renderContent`.
+
+```tsx
+import {useEffect, useState} from 'react';
+import {QueriesHistory} from '@gravity-ui/querieskit/modules/QueriesHistory';
+import {QueriesSidebar} from '@gravity-ui/querieskit/widgets/QueriesSidebar';
+import type {QueriesHistoryProps} from '@gravity-ui/querieskit';
+
+type HistoryItems = QueriesHistoryProps['items'];
+
+function HistoryAdapter({
+  loadHistory,
+}: {
+  loadHistory: (signal: AbortSignal, query: string) => Promise<HistoryItems>;
+}) {
+  const [items, setItems] = useState<HistoryItems>([]);
+  const [search, setSearch] = useState({value: '', fullSearch: false});
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    async function refresh() {
+      try {
+        const nextItems = await loadHistory(controller.signal, search.value);
+        if (!controller.signal.aborted) setItems(nextItems);
+      } catch (error) {
+        if (!controller.signal.aborted) console.error(error);
+      } finally {
+        if (!controller.signal.aborted) timer = setTimeout(refresh, 5000);
+      }
+    }
+
+    void refresh();
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [loadHistory, search.value]);
+
+  return <QueriesHistory items={items} search={{...search, onUpdate: setSearch}} />;
+}
+
+// loadHistory is a stable application-provided loader accepting an AbortSignal.
+<QueriesSidebar
+  keepMounted={false}
+  tabs={[
+    {
+      id: 'history',
+      type: 'custom',
+      title: 'History',
+      icon: null,
+      renderContent: () => <HistoryAdapter loadHistory={loadHistory} />,
+    },
+    // Other sections use their own adapters in the same way.
+  ]}
+/>;
+```
+
+Cleanup must cancel pending work or ignore stale results. Unmounting alone does
+not cancel a request already started by the application.
 
 Visible navigation uses icon tabs with names and tooltips. With `hideTabs`, panels
 become named regions without references to missing tabs; hidden content cannot
@@ -65,6 +140,11 @@ for a shared product selector; section `logo` props remain available for standal
 usage and should not duplicate that shared header.
 
 ## Migration
+
+**Changed default:** inactive section contents now unmount. Add
+`keepMounted={true}` to preserve the previous lazy-mount-and-retain behavior.
+Without it, returning to a section resets local state and restarts its effects.
+
 
 `QueriesHistory`, `SavedQueries`, `QueriesNavigation`, `TutorialsHistory` now live
 in `src/modules` and are published at `@gravity-ui/querieskit/modules/<Name>`.
