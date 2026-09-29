@@ -122,7 +122,7 @@ For the full ownership rules, examples, and review checklist, see [`plans/styles
 
 ## i18n
 
-Every widget/module/component with its own reusable scenario keeps its localization in an `i18n/` subfolder (`en.json`, `ru.json`, `dicts.ts`, `index.ts`), registers its keyset via [`addI18Keysets`](src/i18n/index.ts:11) with a name like `` `qp:widget-name` ``, and uses the typed `t`/`i18n(...)` function — see the example in [`QueriesHistory`](src/widgets/QueriesHistory/i18n/index.ts:1).
+Every widget/module/component with its own reusable scenario keeps its localization in an `i18n/` subfolder (`en.json`, `ru.json`, `dicts.ts`, `index.ts`), registers its keyset via [`addI18Keysets`](src/i18n/index.ts:11) with a name like `` `qp:widget-name` ``, and uses the typed `t`/`i18n(...)` function — see the example in [`QueriesHistory`](src/modules/QueriesHistory/i18n/index.ts:1).
 
 Brief naming notes:
 

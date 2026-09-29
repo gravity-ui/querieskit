@@ -9,16 +9,8 @@ import {SearchWithButtons} from '../../components/SearchWithButtons';
 import type {
     NavigationCluster,
     NavigationDetailConfig,
-    NavigationDetailPanelConfig,
-    NavigationHeaderConfig,
     NavigationItem,
-    NavigationListStateConfig,
     NavigationLocation,
-    NavigationParentRowConfig,
-    NavigationSearchConfig,
-    NavigationSortConfig,
-    RenderNavigationCluster,
-    RenderNavigationItem,
 } from '../../types/navigation';
 import {createEmptyDetailConfig} from './helpers/createEmptyDetailConfig';
 import i18n from './i18n';
@@ -27,26 +19,8 @@ import './QueriesNavigation.scss';
 
 const block = cn('qp-queries-navigation');
 
-export type QueriesNavigationProps<
-    TItem extends NavigationItem = NavigationItem,
-    TCluster extends NavigationCluster = NavigationCluster,
-> = {
-    location: NavigationLocation;
-    onUpdate: (location: NavigationLocation) => void;
-    clusters?: TCluster[];
-    items?: TItem[];
-    header?: NavigationHeaderConfig;
-    search?: NavigationSearchConfig;
-    sort?: NavigationSortConfig;
-    listState?: NavigationListStateConfig;
-    detail?: NavigationDetailPanelConfig<TItem>;
-    parentRow?: NavigationParentRowConfig;
-    renderClusterItem?: RenderNavigationCluster<TCluster>;
-    renderNavigationItem?: RenderNavigationItem<TItem>;
-    onClusterClick?: (cluster: TCluster) => void;
-    onItemClick?: (item: TItem) => void;
-    className?: string;
-};
+export type {QueriesNavigationProps} from '../../types/queriesNavigation';
+import type {QueriesNavigationProps} from '../../types/queriesNavigation';
 
 type NavigationBody<TItem extends NavigationItem> =
     | {type: 'loading'}

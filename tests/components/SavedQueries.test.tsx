@@ -2,9 +2,10 @@
 
 import React, {act} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {SavedQueries, type SavedQueriesProps} from '../../src/widgets/SavedQueries';
+import {SavedQueries, type SavedQueriesProps} from '../../src/modules/SavedQueries';
+import {QueriesHistory} from '../../src/modules/QueriesHistory';
 import type {SavedQuery} from '../../src/types/savedQueries';
 import type {QueryListItem, QueryListRowRenderData} from '../../src/types/queryList';
 
@@ -116,6 +117,7 @@ describe('SavedQueries integration', () => {
     };
     beforeEach(() => {
         globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+        configure({lang: 'en'});
         vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
         IntersectionObserverMock.current = undefined;
         routerLink.mockClear();
@@ -127,6 +129,50 @@ describe('SavedQueries integration', () => {
         act(() => root.unmount());
         container.remove();
         vi.unstubAllGlobals();
+    });
+
+    it('places the history fields selector beside search and retains field visibility control', () => {
+        const renderHistory = (value?: 'engine'[]) =>
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QueriesHistory
+                            title="History"
+                            items={[
+                                {
+                                    id: 'history',
+                                    title: 'Query',
+                                    height: 52,
+                                    status: 'completed',
+                                    engine: 'YQL',
+                                },
+                            ]}
+                            search={{onUpdate: vi.fn()}}
+                            visibleFields={
+                                value && {
+                                    fields: [{id: 'engine', title: 'Engine'}],
+                                    value,
+                                    onChange: vi.fn(),
+                                }
+                            }
+                        />
+                    </ThemeProvider>,
+                ),
+            );
+        renderHistory(['engine']);
+        const selector = container.querySelector('button[aria-label="Configure visible fields"]');
+        const searchRow = container.querySelector('.qp-search-with-buttons');
+        expect(selector).not.toBeNull();
+        expect(searchRow?.contains(selector)).toBe(true);
+        expect(searchRow?.querySelector('input')).not.toBeNull();
+        expect(
+            container.querySelectorAll('button[aria-label="Configure visible fields"]'),
+        ).toHaveLength(1);
+        expect(container.textContent).toContain('YQL');
+        renderHistory([]);
+        expect(container.textContent).not.toContain('YQL');
+        renderHistory();
+        expect(container.querySelector('button[aria-label="Configure visible fields"]')).toBeNull();
     });
 
     it('connects initial loading, page loading and the load callback', () => {
@@ -185,15 +231,9 @@ describe('SavedQueries integration', () => {
             expect(container.querySelector('[data-testid="query"]')?.textContent).toContain(
                 'SELECT 1',
             );
-        render({
-            search,
-            renderLink: routerLink,
-            renderAuthor,
-            visibleFields: {fields: [], value: [], onChange: vi.fn()},
-        });
-        expect(container.textContent).not.toContain('Analytics');
-        expect(container.textContent).not.toContain('SQL');
-        expect(container.textContent).not.toContain('2026');
+        expect(container.querySelector('.qp-fields-selector')).toBeNull();
+        expect(container.querySelector('button[aria-label="Configure visible fields"]')).toBeNull();
+        expect(container.textContent).toContain('2026');
         render({search});
         expect(container.querySelector('a')?.getAttribute('href')).toBe(FIRST.href);
         routerLink.mockClear();

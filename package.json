@@ -28,42 +28,42 @@
     "./package.json": "./package.json",
     "./widgets/QueriesHistory": {
       "import": {
-        "types": "./build/esm/widgets/QueriesHistory/index.d.ts",
-        "default": "./build/esm/widgets/QueriesHistory/index.js"
+        "types": "./build/esm/modules/QueriesHistory/index.d.ts",
+        "default": "./build/esm/modules/QueriesHistory/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/QueriesHistory/index.d.ts",
-        "default": "./build/cjs/widgets/QueriesHistory/index.js"
+        "types": "./build/cjs/modules/QueriesHistory/index.d.ts",
+        "default": "./build/cjs/modules/QueriesHistory/index.js"
       }
     },
     "./widgets/SavedQueries": {
       "import": {
-        "types": "./build/esm/widgets/SavedQueries/index.d.ts",
-        "default": "./build/esm/widgets/SavedQueries/index.js"
+        "types": "./build/esm/modules/SavedQueries/index.d.ts",
+        "default": "./build/esm/modules/SavedQueries/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/SavedQueries/index.d.ts",
-        "default": "./build/cjs/widgets/SavedQueries/index.js"
+        "types": "./build/cjs/modules/SavedQueries/index.d.ts",
+        "default": "./build/cjs/modules/SavedQueries/index.js"
       }
     },
     "./widgets/TutorialsHistory": {
       "import": {
-        "types": "./build/esm/widgets/TutorialsHistory/index.d.ts",
-        "default": "./build/esm/widgets/TutorialsHistory/index.js"
+        "types": "./build/esm/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/esm/modules/TutorialsHistory/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/TutorialsHistory/index.d.ts",
-        "default": "./build/cjs/widgets/TutorialsHistory/index.js"
+        "types": "./build/cjs/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/cjs/modules/TutorialsHistory/index.js"
       }
     },
     "./widgets/QueriesNavigation": {
       "import": {
-        "types": "./build/esm/widgets/QueriesNavigation/index.d.ts",
-        "default": "./build/esm/widgets/QueriesNavigation/index.js"
+        "types": "./build/esm/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/esm/modules/QueriesNavigation/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/QueriesNavigation/index.d.ts",
-        "default": "./build/cjs/widgets/QueriesNavigation/index.js"
+        "types": "./build/cjs/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/cjs/modules/QueriesNavigation/index.js"
       }
     },
     "./widgets/DashboardCharts": {
@@ -94,6 +94,56 @@
       "require": {
         "types": "./build/cjs/widgets/QueryExecutionPanel/index.d.ts",
         "default": "./build/cjs/widgets/QueryExecutionPanel/index.js"
+      }
+    },
+    "./modules/QueriesHistory": {
+      "import": {
+        "types": "./build/esm/modules/QueriesHistory/index.d.ts",
+        "default": "./build/esm/modules/QueriesHistory/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueriesHistory/index.d.ts",
+        "default": "./build/cjs/modules/QueriesHistory/index.js"
+      }
+    },
+    "./modules/QueriesNavigation": {
+      "import": {
+        "types": "./build/esm/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/esm/modules/QueriesNavigation/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/cjs/modules/QueriesNavigation/index.js"
+      }
+    },
+    "./modules/SavedQueries": {
+      "import": {
+        "types": "./build/esm/modules/SavedQueries/index.d.ts",
+        "default": "./build/esm/modules/SavedQueries/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/SavedQueries/index.d.ts",
+        "default": "./build/cjs/modules/SavedQueries/index.js"
+      }
+    },
+    "./modules/TutorialsHistory": {
+      "import": {
+        "types": "./build/esm/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/esm/modules/TutorialsHistory/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/cjs/modules/TutorialsHistory/index.js"
+      }
+    },
+    "./widgets/QueriesSidebar": {
+      "import": {
+        "types": "./build/esm/widgets/QueriesSidebar/index.d.ts",
+        "default": "./build/esm/widgets/QueriesSidebar/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueriesSidebar/index.d.ts",
+        "default": "./build/cjs/widgets/QueriesSidebar/index.js"
       }
     }
   },

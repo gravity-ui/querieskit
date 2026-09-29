@@ -6,7 +6,7 @@ import {createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import type {QueryListLinkRenderer, QueryListRowRenderData} from '../../src/types/queryList';
 import type {TutorialHistoryRow} from '../../src/types/tutorial';
-import {TutorialRowContent} from '../../src/widgets/TutorialsHistory/TutorialRowContent';
+import {TutorialRowContent} from '../../src/modules/TutorialsHistory/TutorialRowContent';
 
 vi.mock('@gravity-ui/uikit', async () => {
     const ReactModule = await import('react');

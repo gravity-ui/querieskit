@@ -16,8 +16,8 @@ widgets/
       index.ts
 ```
 
-- [`dicts.ts`](../src/widgets/QueriesHistory/i18n/dicts.ts:1) — собирает словари по языкам: `export default {en, ru}`.
-- [`index.ts`](../src/widgets/QueriesHistory/i18n/index.ts:1) — регистрирует кейсет через [`addI18Keysets`](../src/i18n/index.ts:11) и экспортирует типизированную функцию `t`:
+- [`dicts.ts`](../src/modules/QueriesHistory/i18n/dicts.ts:1) — собирает словари по языкам: `export default {en, ru}`.
+- [`index.ts`](../src/modules/QueriesHistory/i18n/index.ts:1) — регистрирует кейсет через [`addI18Keysets`](../src/i18n/index.ts:11) и экспортирует типизированную функцию `t`:
 
   ```ts
   import {addI18Keysets} from '../../../i18n';
@@ -28,7 +28,7 @@ widgets/
   ```
 
 - Имя кейсета всегда начинается с префикса `qp:` (namespace библиотеки) — тип `addI18Keysets` требует `` `qp:${string}` ``.
-- В компоненте используется как `i18n('key_name')`, см. [`QueriesHistory.tsx`](../src/widgets/QueriesHistory/QueriesHistory.tsx:41).
+- В компоненте используется как `i18n('key_name')`, см. [`QueriesHistory.tsx`](../src/modules/QueriesHistory/QueriesHistory.tsx:41).
 - `modules` и `components`, у которых есть собственный переиспользуемый сценарий, также могут заводить свою папку `i18n/` по этой же схеме — правило применяется на всех трёх уровнях (`components` / `modules` / `widgets`).
 
 ## Кейсеты
