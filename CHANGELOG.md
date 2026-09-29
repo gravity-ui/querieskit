@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/gravity-ui/querieskit/compare/v1.11.0...v2.0.0) (2026-09-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* unmount inactive queries sidebar tabs by default
+
+### Features
+
+* unmount inactive queries sidebar tabs by default ([5cfc6aa](https://github.com/gravity-ui/querieskit/commit/5cfc6aaa261ddc82037ddf994e3b2c26a94c4a37))
+
 ## [1.11.0](https://github.com/gravity-ui/querieskit/compare/v1.10.0...v1.11.0) (2026-09-29)
 
 
