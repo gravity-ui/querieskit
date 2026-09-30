@@ -38,6 +38,7 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
 
     return (
         <HistoryLayout
+            variant="tutorials"
             className={block(null, className)}
             title={title || i18n('title_tutorials')}
             logo={logo}
@@ -53,6 +54,7 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
             }
         >
             <RowsList
+                className={block('list', {'has-items': items.length > 0})}
                 key={listKey}
                 items={items}
                 rowVariant={rowVariant}

@@ -1,6 +1,7 @@
 import React, {FC} from 'react';
 import {Button, Icon} from '@gravity-ui/uikit';
-import ChevronsExpandHorizontalIcon from '@gravity-ui/icons/svgs/chevrons-expand-horizontal.svg';
+import CodeIcon from '@gravity-ui/icons/svgs/code.svg';
+import i18n from '../i18n';
 
 type Props = {
     active?: boolean;
@@ -9,8 +10,15 @@ type Props = {
 
 export const FullSearchToggleButton: FC<Props> = ({active, onClick}) => {
     return (
-        <Button size="xs" view={active ? 'action' : undefined} onClick={onClick}>
-            <Icon data={ChevronsExpandHorizontalIcon} size={12} />
+        <Button
+            size="s"
+            view="flat-secondary"
+            selected={active}
+            aria-pressed={Boolean(active)}
+            aria-label={i18n('action_full-search')}
+            onClick={onClick}
+        >
+            <Icon data={CodeIcon} size={12} />
         </Button>
     );
 };

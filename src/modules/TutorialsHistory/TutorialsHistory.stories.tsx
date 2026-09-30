@@ -38,6 +38,7 @@ const LINK_ITEMS = BASE_ITEMS.map((item) =>
 const PAGINATION_PAGES: QueryListItem<TutorialHistoryRow>[][] = [
     Array.from({length: 8}, (_, index) => ({
         id: `basics-${index + 1}`,
+        number: index + 1,
         title: `YQL basics: lesson ${index + 1}`,
         query: QUERY,
         href: `/tutorials/basics-${index + 1}`,
@@ -45,6 +46,7 @@ const PAGINATION_PAGES: QueryListItem<TutorialHistoryRow>[][] = [
     })),
     Array.from({length: 8}, (_, index) => ({
         id: `advanced-${index + 1}`,
+        number: index + 9,
         title: `Advanced YQL: lesson ${index + 1}`,
         query: QUERY,
         href: `/tutorials/advanced-${index + 1}`,
@@ -245,6 +247,58 @@ const CustomRowRendererStory = () => (
 
 export const Default: Story = {render: () => <DefaultStory />};
 export const Empty: Story = {render: () => <EmptyStory />};
+
+const DESIGN_ITEMS: QueryListItem<TutorialHistoryRow>[] = [
+    'Select all columns',
+    'Select specific columns',
+    'Basic filter',
+    'String filter',
+    'Sort and get top N',
+    'Basic aggregation',
+    'Conditional values and UDF',
+    'Named nodes and subqueries',
+    'Save and insert results',
+    'Join tables',
+    'Window functions',
+    'Containers',
+    'Table concatenation',
+    'Sampling',
+    'Flatten by',
+    'Lambda functions',
+    'Yson and Json',
+    'Regexp capture',
+    'Inline Python',
+    'Attached Javascript',
+    'Statistics',
+    'User Defined Aggregation Functions',
+].map((title, index) => ({id: `lesson-${index + 1}`, number: index + 1, title, height: 28}));
+
+/** Reference dimensions and content from the Tutorials Figma frame. */
+export const DesignReference: Story = {
+    args: {
+        items: DESIGN_ITEMS,
+        logo: <Text>YQL UI</Text>,
+        search: {onUpdate: action('onSearchUpdate')},
+        filter: {fields: filterFields},
+    },
+    decorators: [
+        (StoryComponent) => (
+            <div style={{width: 347, height: 720}}>
+                <StoryComponent />
+            </div>
+        ),
+    ],
+};
+
+export const DesignEmpty: Story = {
+    ...DesignReference,
+    args: {...DesignReference.args, items: [], filter: {fields: filterFields, isChanged: true}},
+};
+
+export const DesignSelected: Story = {
+    ...DesignReference,
+    args: {...DesignReference.args, selectedRowId: 'lesson-2'},
+};
 export const InitialLoading: Story = {
     args: {
         title: 'Loading tutorials',
