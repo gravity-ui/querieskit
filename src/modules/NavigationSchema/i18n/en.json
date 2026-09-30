@@ -1,9 +1,10 @@
 {
-    "title_column-name": "Name",
-    "title_column-type": "Type",
-    "title_column-sort-order": "Sort order",
-    "title_column-required": "Required",
-    "value_sort-ascending": "Ascending",
-    "value_sort-descending": "Descending",
-    "value_empty": "—"
+  "title_column-name": "Name and Title",
+  "title_column-type": "Type",
+  "title_column-sort-order": "Sort order",
+  "title_column-required": "Required",
+  "value_sort-ascending": "Ascending",
+  "value_sort-descending": "Descending",
+  "value_empty": "—",
+  "title_column-datacatalog-description": "Datacatalog description"
 }

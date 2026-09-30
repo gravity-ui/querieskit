@@ -19,10 +19,18 @@ export function buildSchemaColumns<TColumn extends NavigationSchemaColumn>(
         {
             name: 'name',
             header: i18n('title_column-name'),
+            width: 200,
             render: ({row}) => (
-                <Flex inline gap={1} alignItems="center">
-                    <Text>{row.name}</Text>
-                    {row.sortOrder && <Icon data={SORT_ICONS[row.sortOrder]} size={14} />}
+                <Flex direction="column" gap={1} className="qp-navigation-schema__name">
+                    <Flex gap={1} alignItems="center">
+                        <Text>{row.name}</Text>
+                        {row.sortOrder && <Icon data={SORT_ICONS[row.sortOrder]} size={14} />}
+                    </Flex>
+                    {row.description && (
+                        <Text variant="caption-2" color="secondary">
+                            {row.description}
+                        </Text>
+                    )}
                 </Flex>
             ),
         },
@@ -30,6 +38,11 @@ export function buildSchemaColumns<TColumn extends NavigationSchemaColumn>(
             name: 'type',
             header: i18n('title_column-type'),
             render: ({row}) => row.type ?? i18n('value_empty'),
+        },
+        {
+            name: 'datacatalogDescription',
+            header: i18n('title_column-datacatalog-description'),
+            render: ({row}) => row.datacatalogDescription ?? i18n('value_empty'),
         },
         {
             name: 'sortOrder',

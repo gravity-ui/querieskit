@@ -1,24 +1,29 @@
 .qp-navigation-schema {
-  --data-table-border-color: var(--g-color-line-generic);
+    --data-table-border-color: var(--g-color-line-generic);
 
-  min-width: 0;
+    min-width: 0;
 
-  &__error {
-    display: block;
-  }
+    &__error {
+        display: block;
+    }
 
-  &__table {
-    overflow-x: auto;
-  }
+    &__table {
+        overflow-x: auto;
+    }
 
-  .data-table__row,
-  .data-table__head {
-    height: 40px;
-  }
+    &__name {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
 
-  .data-table__th,
-  .data-table__td {
-    border-width: 0 0 1px;
-    vertical-align: middle;
-  }
+    .data-table__row,
+    .data-table__head {
+        height: 40px;
+    }
+
+    .data-table__th,
+    .data-table__td {
+        border-width: 0 0 1px;
+        vertical-align: middle;
+    }
 }

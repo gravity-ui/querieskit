@@ -97,6 +97,7 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
     return (
         <Flex direction="column" gap={2} className={block(null, className)}>
             <NavigationHeader
+                className={block('header')}
                 location={location}
                 actions={mergedActions}
                 renderActions={renderActions}
@@ -114,6 +115,7 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
                     />
                     {config.hasSearch && (
                         <SearchWithButtons
+                            className={block('search')}
                             placeholder={config.searchPlaceholder}
                             value={search}
                             onUpdate={handleSearchUpdate}

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Flex} from '@gravity-ui/uikit';
+import {Button, type ButtonProps, Flex} from '@gravity-ui/uikit';
 import type {NavigationAction} from '../../types/navigation';
 
 export type NavigationActionButtonsProps<TArg> = {
@@ -7,6 +7,7 @@ export type NavigationActionButtonsProps<TArg> = {
     arg: TArg;
     className?: string;
     buttonClassName?: string;
+    size?: ButtonProps['size'];
 };
 
 export function NavigationActionButtons<TArg>({
@@ -14,6 +15,7 @@ export function NavigationActionButtons<TArg>({
     arg,
     className,
     buttonClassName,
+    size = 's',
 }: NavigationActionButtonsProps<TArg>) {
     const visibleActions = actions?.filter((action) => !action.hidden) ?? [];
 
@@ -27,7 +29,7 @@ export function NavigationActionButtons<TArg>({
                 <Button
                     key={action.id}
                     view="flat"
-                    size="s"
+                    size={size}
                     disabled={action.disabled}
                     title={action.title}
                     aria-label={action.title}

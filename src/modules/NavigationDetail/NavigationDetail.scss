@@ -1,13 +1,26 @@
 .qp-navigation-detail {
-  min-width: 0;
-
-  &__tabs {
-    overflow-x: auto;
-  }
-
-  &__content {
     min-width: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
+
+    &__header,
+    &__tabs,
+    &__search,
+    &__content {
+        margin-inline: var(--g-spacing-3) var(--g-spacing-2);
+    }
+
+    &__header,
+    &__tabs,
+    &__search {
+        flex-shrink: 0;
+    }
+
+    &__tabs {
+        overflow-x: auto;
+    }
+
+    &__content {
+        min-width: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
 }

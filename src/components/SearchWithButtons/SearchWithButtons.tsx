@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {Flex, TextInput} from '@gravity-ui/uikit';
+import {Flex, type FlexProps, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import './SearchWithButtons.scss';
 
@@ -11,6 +11,7 @@ export type SearchWithButtonsProps = {
     endButtons?: React.ReactNode[];
     onUpdate?: (value: string) => void;
     className?: string;
+    gap?: FlexProps['gap'];
 };
 
 const block = cn('qp-search-with-buttons');
@@ -26,12 +27,13 @@ export const SearchWithButtons: FC<SearchWithButtonsProps> = ({
     endButtons,
     onUpdate,
     className,
+    gap = 1,
 }) => {
     const hasInnerButtons = Boolean(innerButtons?.length);
     const hasEndButtons = Boolean(endButtons?.length);
 
     return (
-        <Flex gap={1} className={block(null, className)}>
+        <Flex gap={gap} className={block(null, className)}>
             <TextInput
                 className={block('input')}
                 value={value}
