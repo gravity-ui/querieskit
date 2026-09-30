@@ -6,4 +6,12 @@
   &__content {
     overflow: hidden;
   }
+
+  &__number {
+    flex: 0 0 24px;
+    width: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

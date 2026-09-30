@@ -2,7 +2,8 @@ import React, {FC, useEffect, useState} from 'react';
 import {FullSearchToggleButton} from './internal/FullSearchToggleButton';
 import {HistoryFilter} from '../../components/HistoryFilter';
 import {SearchWithButtons} from '../../components/SearchWithButtons';
-import {QueryListFilterConfig} from '../../types/queryList';
+import type {QueryListFilterConfig} from '../../types/queryList';
+import i18n from './i18n';
 
 type Props = {
     search?: string;
@@ -46,6 +47,8 @@ export const HistoryHeader: FC<Props> = ({
 
     return (
         <SearchWithButtons
+            placeholder={i18n('field_search')}
+            gap={2}
             className={className}
             value={searchValue}
             hasClear={hasClear}

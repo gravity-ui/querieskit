@@ -1,3 +1,12 @@
 .qp-tutorials-history {
   height: 100%;
+
+  &__list {
+    min-height: 0;
+    flex: 1;
+
+    &_has-items {
+      margin-top: 8px;
+    }
+  }
 }

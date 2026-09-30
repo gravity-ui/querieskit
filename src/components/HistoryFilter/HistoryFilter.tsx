@@ -28,7 +28,9 @@ export const HistoryFilter: FC<QueryListFilterConfig> = ({
             <Button
                 ref={setButtonElement}
                 onClick={toggleOpen}
-                view={isChanged ? 'action' : 'normal'}
+                view={isChanged ? 'flat-info' : 'flat'}
+                selected={Boolean(isChanged)}
+                className={block('button')}
             >
                 <Icon data={FunnelIcon} size={16} />
             </Button>

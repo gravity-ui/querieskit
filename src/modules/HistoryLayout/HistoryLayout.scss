@@ -4,4 +4,27 @@
   &__header {
     padding: 0 12px;
   }
+
+  &_variant_tutorials {
+    min-height: 0;
+
+    .qp-history-layout__header {
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .qp-history-layout__service {
+      min-height: 32px;
+      padding: 2px 8px 2px 12px;
+      box-sizing: border-box;
+    }
+
+    .qp-history-layout__title {
+      padding: 8px 12px 2px;
+    }
+
+    .qp-history-layout__controls {
+      padding: 4px 8px 4px 12px;
+    }
+  }
 }

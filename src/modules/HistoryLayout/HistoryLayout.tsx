@@ -12,6 +12,7 @@ export type HistoryLayoutProps = {
     header?: ReactNode;
     footer?: ReactNode;
     className?: string;
+    variant?: 'default' | 'tutorials';
     children: ReactNode;
 };
 
@@ -23,18 +24,35 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
     footer,
     className,
     children,
+    variant = 'default',
 }) => {
     return (
-        <Flex direction="column" gap={1} className={block(null, className)}>
-            <Flex direction="column" gap={1} className={block('header')}>
+        <Flex
+            direction="column"
+            gap={variant === 'tutorials' ? 0 : 1}
+            className={block({variant}, className)}
+        >
+            <Flex
+                direction="column"
+                gap={variant === 'tutorials' ? 0 : 1}
+                className={block('header')}
+            >
                 {(logo || actions) && (
-                    <Flex alignItems="center" justifyContent={logo ? 'space-between' : 'flex-end'}>
+                    <Flex
+                        className={block('service')}
+                        alignItems="center"
+                        justifyContent={logo ? 'space-between' : 'flex-end'}
+                    >
                         {logo}
                         {actions}
                     </Flex>
                 )}
-                {title !== null && <Text variant="subheader-1">{title}</Text>}
-                {header}
+                {title !== null && (
+                    <Text className={block('title')} variant="subheader-1">
+                        {title}
+                    </Text>
+                )}
+                {header && <div className={block('controls')}>{header}</div>}
             </Flex>
             {children}
             {footer}

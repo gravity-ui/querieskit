@@ -95,6 +95,25 @@ describe('tutorial row links', () => {
         expect(container.querySelector('a')?.getAttribute('href')).toBe(ITEM.href);
     });
 
+    it('keeps the lesson number independent of its string identifier and result position', () => {
+        const item = {...ITEM, number: 7};
+
+        for (const variant of ['default', 'search'] as const) {
+            renderContent({item, variant, index: 0});
+            expect(container.textContent).toContain('07.');
+            expect(container.textContent).not.toContain(ITEM.id);
+            expect(container.querySelector('a')?.getAttribute('href')).toBe(ITEM.href);
+        }
+    });
+
+    it('pads legacy numeric identifiers without truncating larger numbers', () => {
+        renderContent({item: {...ITEM, id: 1}});
+        expect(container.textContent).toContain('01.');
+
+        renderContent({item: {...ITEM, id: 123}});
+        expect(container.textContent).toContain('123.');
+    });
+
     it('renders a non-link row without calling renderLink when href is absent', () => {
         const renderLink = vi.fn<QueryListLinkRenderer>((props) => <a {...props} />);
         renderContent({item: {...ITEM, href: undefined}, renderLink});
