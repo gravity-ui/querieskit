@@ -27,6 +27,7 @@ export function FieldsSearchToolbar<K extends string = string>({
 
     return (
         <SearchWithButtons
+            gap={2}
             value={search}
             placeholder={searchPlaceholder}
             onUpdate={onSearchUpdate}
@@ -36,6 +37,7 @@ export function FieldsSearchToolbar<K extends string = string>({
                     ? [
                           <FieldsSelector<K>
                               key="fields-selector"
+                              buttonView="flat"
                               fields={fields}
                               value={visibleFields}
                               onChange={onVisibleFieldsChange}

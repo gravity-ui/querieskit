@@ -1,0 +1,16 @@
+.qp-navigation-item-row {
+    width: 100%;
+    padding: 0 var(--g-spacing-3) 0 var(--g-spacing-4);
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &__title {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    &_disabled {
+        color: var(--g-color-text-secondary);
+        cursor: default;
+    }
+}

@@ -66,7 +66,11 @@ export function NavigationSchema<TColumn extends NavigationSchemaColumn = Naviga
     const [activeVisibleColumns, handleVisibleColumnsChange] = useVisibleColumns(allColumnNames, {
         value: visibleColumns,
         onChange: onVisibleColumnsChange,
-        defaultValue: defaultVisibleColumns,
+        defaultValue:
+            defaultVisibleColumns ??
+            (tableColumns
+                ? undefined
+                : allColumnNames.filter((name) => name !== 'sortOrder' && name !== 'required')),
     });
 
     const displayedColumns = useMemo(

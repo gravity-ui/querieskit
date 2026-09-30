@@ -1,6 +1,7 @@
 .qp-navigation-items-list-header {
-  &__sort {
-    cursor: pointer;
-    user-select: none;
-  }
+    padding: 0 var(--g-spacing-3) 0 var(--g-spacing-4);
+    &__sort {
+        cursor: pointer;
+        user-select: none;
+    }
 }

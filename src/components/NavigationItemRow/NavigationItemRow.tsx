@@ -1,6 +1,7 @@
 import React, {FC} from 'react';
 import {Flex, Icon, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import './NavigationItemRow.scss';
 import {NavigationItem} from '../../types/navigation';
 import {getDefaultNavigationIcon} from '../../helpers/getDefaultNavigationIcon';
 

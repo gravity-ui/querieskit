@@ -99,6 +99,8 @@ export type NavigationSchemaSortOrder = 'ascending' | 'descending';
 
 export type NavigationSchemaColumn = {
     name: string;
+    description?: string;
+    datacatalogDescription?: string;
     type?: string;
     sortOrder?: NavigationSchemaSortOrder;
     required?: boolean;

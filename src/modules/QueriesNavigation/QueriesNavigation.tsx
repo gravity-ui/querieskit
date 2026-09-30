@@ -131,6 +131,7 @@ export const QueriesNavigation = <
     return (
         <Flex direction="column" gap={1} className={block(null, className)}>
             <NavigationHeader
+                className={block('header')}
                 location={location}
                 actions={actions}
                 renderActions={renderActions}
@@ -139,6 +140,7 @@ export const QueriesNavigation = <
                 onLoadSuggestions={onLoadSuggestions}
             />
             <SearchWithButtons
+                className={block('search')}
                 placeholder={i18n('field_search-placeholder')}
                 value={searchValue}
                 onUpdate={onSearchUpdate}

@@ -1,6 +1,6 @@
 import type {IconData} from '@gravity-ui/uikit';
 import BanIcon from '@gravity-ui/icons/svgs/ban.svg';
-import EyeSlashIcon from '@gravity-ui/icons/svgs/eye-slash.svg';
+import CircleQuestionIcon from '@gravity-ui/icons/svgs/circle-question.svg';
 import FileTextIcon from '@gravity-ui/icons/svgs/file-text.svg';
 import FolderIcon from '@gravity-ui/icons/svgs/folder.svg';
 import LayoutHeaderCellsLargeIcon from '@gravity-ui/icons/svgs/layout-header-cells-large.svg';
@@ -26,7 +26,7 @@ export function getDefaultNavigationIcon(
         case 'link':
             return LinkIcon;
         case 'unknown':
-            return EyeSlashIcon;
+            return CircleQuestionIcon;
         default:
             return BanIcon;
     }
