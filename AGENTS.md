@@ -2,6 +2,29 @@
 
 Instructions for agents on the code structure of `@gravity-ui/querieskit`.
 
+## Multi-agent workflow
+
+- Proactively use subagents when independent tasks can run in parallel
+  and materially improve speed or review quality. No separate user
+  request is needed.
+- Use up to 3 subagents concurrently across the entire task.
+  Choose the number based on useful independent work.
+- Keep small, straightforward changes and tightly coupled work
+  in the main agent.
+- Give each subagent a bounded task, relevant context, expected output,
+  and explicit permission to edit or instructions to remain read-only.
+- For parallel implementation, assign non-overlapping file ownership.
+  Agree on shared props and public types before splitting dependent work.
+  Keep shared barrels and integration changes with the main agent.
+- Useful delegated tasks in this repository include:
+  - Checking API levels, import direction, public types, and barrel usage.
+  - Reviewing style ownership, Gravity UI usage, and i18n conventions.
+  - Investigating test failures or checking affected Storybook scenarios.
+- The main agent should continue complementary work while subagents run.
+  Avoid duplicating their tasks.
+- Before finishing, inspect delegated changes, reconcile findings,
+  and run the appropriate checks on the integrated result.
+
 ## Three levels of the public API
 
 The library is organized into three levels of abstraction. Every new and existing widget must follow this structure:
