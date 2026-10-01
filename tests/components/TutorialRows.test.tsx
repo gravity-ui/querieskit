@@ -106,7 +106,7 @@ describe('tutorial row links', () => {
         }
     });
 
-    it('pads legacy numeric identifiers without truncating larger numbers', () => {
+    it('pads legacy numeric identifiers and preserves larger numbers in the rendered text', () => {
         renderContent({item: {...ITEM, id: 1}});
         expect(container.textContent).toContain('01.');
 

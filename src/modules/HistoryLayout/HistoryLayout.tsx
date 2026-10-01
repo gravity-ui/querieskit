@@ -52,7 +52,11 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
                         {title}
                     </Text>
                 )}
-                {header && <div className={block('controls')}>{header}</div>}
+                {variant === 'tutorials' && header ? (
+                    <div className={block('controls')}>{header}</div>
+                ) : (
+                    header
+                )}
             </Flex>
             {children}
             {footer}

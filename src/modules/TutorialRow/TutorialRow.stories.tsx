@@ -41,3 +41,11 @@ export const WithHref: Story = {
         item: makeRow({href: '#'}),
     },
 };
+
+export const LongNumber: Story = {
+    args: {item: makeRow({id: 'lesson-1234', number: 1234})},
+};
+
+export const StringIdentifier: Story = {
+    args: {item: makeRow({id: 'tutorial-string-id'})},
+};
