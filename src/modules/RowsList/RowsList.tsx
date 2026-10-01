@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import cn from 'bem-cn-lite';
 import type {
     QueryListComparisonConfig,
@@ -56,6 +56,10 @@ export const RowsList = <T extends QueryListRow>({
     className,
     onItemClick,
 }: RowsListProps<T>) => {
+    const listItems = useMemo(
+        () => items.map((item) => ('header' in item ? {...item, disabled: true} : item)),
+        [items],
+    );
     const getItemHeight = (item: QueryListItem<T>) =>
         rowVariant === 'search' && !('header' in item) ? SEARCH_ROW_HEIGHT : item.height;
     const selectedItemIndex =
@@ -76,7 +80,7 @@ export const RowsList = <T extends QueryListRow>({
     return (
         <LazyList<QueryListItem<T>>
             className={block(null, className)}
-            items={items}
+            items={listItems}
             itemHeight={getItemHeight}
             renderItem={(item, isActive, index) =>
                 renderRow(
