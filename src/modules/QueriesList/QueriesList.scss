@@ -1,6 +1,26 @@
 .qp-queries-list {
   height: 100%;
 
+  &__body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+
+    &_has-items {
+      margin-top: 8px;
+    }
+  }
+
+  &_panel {
+    min-height: 0;
+
+    .qp-queries-list__comparison-actions {
+      position: static;
+      width: auto;
+      flex-shrink: 0;
+    }
+  }
+
   &__comparison-actions {
     position: absolute;
     left: 0;

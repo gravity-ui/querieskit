@@ -5,6 +5,7 @@ import {SearchWithButtons} from '../../components/SearchWithButtons';
 import type {QueryListFilterConfig} from '../../types/queryList';
 import i18n from './i18n';
 import cn from 'bem-cn-lite';
+import type {HistoryPanelVariant} from '../../types/listPanel';
 import './HistoryHeader.scss';
 
 const block = cn('qp-history-header');
@@ -18,7 +19,7 @@ type Props = {
     actions?: React.ReactNode;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
     className?: string;
-    variant?: 'default' | 'tutorials';
+    variant?: HistoryPanelVariant;
 };
 
 export const HistoryHeader: FC<Props> = ({
@@ -32,6 +33,7 @@ export const HistoryHeader: FC<Props> = ({
     className,
     variant = 'default',
 }) => {
+    const isPanel = variant !== 'default';
     const [searchValue, setSearchValue] = useState(search || '');
     const [isFullSearch, setFullSearch] = useState(fullSearchAvailable && Boolean(fullSearch));
 
@@ -53,8 +55,8 @@ export const HistoryHeader: FC<Props> = ({
 
     return (
         <SearchWithButtons
-            placeholder={variant === 'tutorials' ? i18n('field_search') : undefined}
-            gap={variant === 'tutorials' ? 2 : 1}
+            placeholder={isPanel ? i18n('field_search') : undefined}
+            gap={isPanel ? 2 : 1}
             className={block({variant}, className)}
             value={searchValue}
             hasClear={hasClear}
@@ -64,7 +66,7 @@ export const HistoryHeader: FC<Props> = ({
                     ? [
                           <FullSearchToggleButton
                               key="full-search"
-                              variant={variant}
+                              appearance={variant === 'default' ? 'default' : 'flat'}
                               active={isFullSearch}
                               onClick={handleModeChange}
                           />,
@@ -77,7 +79,7 @@ export const HistoryHeader: FC<Props> = ({
                           <HistoryFilter
                               key="filter"
                               {...filter}
-                              buttonView={variant === 'tutorials' ? 'flat' : 'normal'}
+                              buttonView={isPanel ? 'flat' : 'normal'}
                           />,
                       ]
                     : []),

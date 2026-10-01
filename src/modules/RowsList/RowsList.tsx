@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
-import {
+import type {
     QueryListComparisonConfig,
     QueryListEditingConfig,
     QueryListItem,
@@ -16,10 +16,11 @@ import {LazyList} from '../../components/LazyList';
 import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../../constants/row';
 import './RowsList.scss';
+import type {ListEmptyContentProps} from '../../types/listPanel';
 
 const block = cn('qp-rows-list');
 
-export type RowsListProps<T extends QueryListRow> = {
+export type RowsListProps<T extends QueryListRow> = ListEmptyContentProps & {
     items: QueryListItem<T>[];
     selectedRowId?: T['id'];
     rowVariant?: QueryListRowVariant;
@@ -47,6 +48,7 @@ export const RowsList = <T extends QueryListRow>({
     getRowActions,
     renderRow,
     showFiltersHint,
+    emptyContent,
     hasMore,
     loading,
     onLoadMore,
@@ -96,10 +98,14 @@ export const RowsList = <T extends QueryListRow>({
             loading={loading}
             onLoadMore={onLoadMore}
             emptyContent={
-                <EmptyContent
-                    variant={showFiltersHint ? 'nothing-found' : 'no-files'}
-                    className={className}
-                />
+                emptyContent === undefined ? (
+                    <EmptyContent
+                        variant={showFiltersHint ? 'nothing-found' : 'no-files'}
+                        className={className}
+                    />
+                ) : (
+                    emptyContent
+                )
             }
             onItemClick={handleItemClick}
         />

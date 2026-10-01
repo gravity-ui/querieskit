@@ -1,10 +1,8 @@
 import React from 'react';
-import {HistoryHeader} from '../../modules/HistoryHeader';
-import {HistoryLayout} from '../../modules/HistoryLayout';
-import {RowsList} from '../../modules/RowsList';
+import {QueriesList} from '../../modules/QueriesList';
+import {EmptyContent} from '../../components/EmptyContent';
 import i18n from './i18n';
 import type {TutorialHistoryRow} from '../../types/tutorial';
-import {useListKey} from '../../helpers/useListKey';
 import {TutorialRowContent} from './TutorialRowContent';
 import cn from 'bem-cn-lite';
 import './TutorialsHistory.scss';
@@ -29,47 +27,25 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
     renderLink,
     className,
 }: TutorialsHistoryProps<T>) => {
-    const fullSearchAvailable = search.fullSearchAvailable !== false;
-    const showSearchResults = Boolean(
-        fullSearchAvailable && search.fullSearch && search.value?.trim(),
-    );
-    const rowVariant = showSearchResults ? 'search' : 'default';
-    const listKey = useListKey(items, rowVariant, Boolean(onLoadMore));
-
     return (
-        <HistoryLayout
-            variant="tutorials"
+        <QueriesList
+            variant="panel"
             className={block(null, className)}
             title={title || i18n('title_tutorials')}
             logo={logo}
-            header={
-                <HistoryHeader
-                    variant="tutorials"
-                    search={search.value}
-                    fullSearch={search.fullSearch}
-                    fullSearchAvailable={fullSearchAvailable}
-                    hasClear={search.hasClear}
-                    filter={filter}
-                    onUpdate={search.onUpdate}
-                />
+            search={search}
+            filter={filter}
+            items={items}
+            selectedRowId={selectedRowId}
+            renderRow={(data) =>
+                renderRowItem ? renderRowItem(data) : <TutorialRowContent {...data} />
             }
-        >
-            <RowsList
-                className={block('list', {'has-items': items.length > 0})}
-                key={listKey}
-                items={items}
-                rowVariant={rowVariant}
-                selectedRowId={selectedRowId}
-                renderRow={(data) =>
-                    renderRowItem ? renderRowItem(data) : <TutorialRowContent {...data} />
-                }
-                showFiltersHint={Boolean(filter)}
-                hasMore={hasMore}
-                loading={loading}
-                onLoadMore={onLoadMore}
-                renderLink={renderLink}
-                onItemClick={onListItemClick}
-            />
-        </HistoryLayout>
+            emptyContent={<EmptyContent variant="no-data" title={i18n('title_no-tutorials')} />}
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={onLoadMore}
+            renderLink={renderLink}
+            onListItemClick={onListItemClick}
+        />
     );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import cn from 'bem-cn-lite';
+import {EmptyContent} from '../../components/EmptyContent';
 import {QueriesList} from '../../modules/QueriesList';
 import type {SavedQuery} from '../../types/savedQueries';
 import i18n from './i18n';
@@ -32,6 +33,15 @@ export const SavedQueries = <T extends SavedQuery>({
 }: SavedQueriesProps<T>) => {
     return (
         <QueriesList
+            variant="panel"
+            hideSearchWhenEmpty
+            emptyContent={
+                <EmptyContent
+                    variant="no-data"
+                    title={i18n('title_no-saved-queries')}
+                    description={i18n('context_save-first-query')}
+                />
+            }
             className={block(null, className)}
             title={title || i18n('title_saved')}
             logo={logo}

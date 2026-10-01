@@ -1,3 +1,5 @@
 {
-    "title_saved": "Saved"
+    "title_saved": "Saved",
+    "title_no-saved-queries": "No saved queries",
+    "context_save-first-query": "Save your first query for quick access"
 }

@@ -2,6 +2,7 @@ export * from './components';
 export * from './modules';
 export * from './widgets';
 export * from './types/queryList';
+export * from './types/listPanel';
 export * from './types/history';
 export type {SavedQuery} from './types/savedQueries';
 export * from './types/tutorial';

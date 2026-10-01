@@ -1,6 +1,7 @@
 import React, {FC, ReactNode} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import type {HistoryPanelVariant} from '../../types/listPanel';
 import './HistoryLayout.scss';
 
 const block = cn('qp-history-layout');
@@ -12,7 +13,7 @@ export type HistoryLayoutProps = {
     header?: ReactNode;
     footer?: ReactNode;
     className?: string;
-    variant?: 'default' | 'tutorials';
+    variant?: HistoryPanelVariant;
     children: ReactNode;
 };
 
@@ -26,17 +27,10 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
     children,
     variant = 'default',
 }) => {
+    const isPanel = variant !== 'default';
     return (
-        <Flex
-            direction="column"
-            gap={variant === 'tutorials' ? 0 : 1}
-            className={block({variant}, className)}
-        >
-            <Flex
-                direction="column"
-                gap={variant === 'tutorials' ? 0 : 1}
-                className={block('header')}
-            >
+        <Flex direction="column" gap={isPanel ? 0 : 1} className={block({variant}, className)}>
+            <Flex direction="column" gap={isPanel ? 0 : 1} className={block('header')}>
                 {(logo || actions) && (
                     <Flex
                         className={block('service')}
@@ -52,11 +46,7 @@ export const HistoryLayout: FC<HistoryLayoutProps> = ({
                         {title}
                     </Text>
                 )}
-                {variant === 'tutorials' && header ? (
-                    <div className={block('controls')}>{header}</div>
-                ) : (
-                    header
-                )}
+                {isPanel && header ? <div className={block('controls')}>{header}</div> : header}
             </Flex>
             {children}
             {footer}
