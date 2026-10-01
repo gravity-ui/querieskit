@@ -4,6 +4,10 @@ import {HistoryFilter} from '../../components/HistoryFilter';
 import {SearchWithButtons} from '../../components/SearchWithButtons';
 import type {QueryListFilterConfig} from '../../types/queryList';
 import i18n from './i18n';
+import cn from 'bem-cn-lite';
+import './HistoryHeader.scss';
+
+const block = cn('qp-history-header');
 
 type Props = {
     search?: string;
@@ -14,6 +18,7 @@ type Props = {
     actions?: React.ReactNode;
     onUpdate: (data: {value: string; fullSearch: boolean}) => void;
     className?: string;
+    variant?: 'default' | 'tutorials';
 };
 
 export const HistoryHeader: FC<Props> = ({
@@ -25,6 +30,7 @@ export const HistoryHeader: FC<Props> = ({
     actions,
     onUpdate,
     className,
+    variant = 'default',
 }) => {
     const [searchValue, setSearchValue] = useState(search || '');
     const [isFullSearch, setFullSearch] = useState(fullSearchAvailable && Boolean(fullSearch));
@@ -47,9 +53,9 @@ export const HistoryHeader: FC<Props> = ({
 
     return (
         <SearchWithButtons
-            placeholder={i18n('field_search')}
-            gap={2}
-            className={className}
+            placeholder={variant === 'tutorials' ? i18n('field_search') : undefined}
+            gap={variant === 'tutorials' ? 2 : 1}
+            className={block({variant}, className)}
             value={searchValue}
             hasClear={hasClear}
             onUpdate={handleOnUpdate}
@@ -58,6 +64,7 @@ export const HistoryHeader: FC<Props> = ({
                     ? [
                           <FullSearchToggleButton
                               key="full-search"
+                              variant={variant}
                               active={isFullSearch}
                               onClick={handleModeChange}
                           />,
@@ -65,7 +72,15 @@ export const HistoryHeader: FC<Props> = ({
                     : undefined
             }
             endButtons={[
-                ...(filter ? [<HistoryFilter key="filter" {...filter} />] : []),
+                ...(filter
+                    ? [
+                          <HistoryFilter
+                              key="filter"
+                              {...filter}
+                              buttonView={variant === 'tutorials' ? 'flat' : 'normal'}
+                          />,
+                      ]
+                    : []),
                 ...(actions ? [<React.Fragment key="actions">{actions}</React.Fragment>] : []),
             ]}
         />

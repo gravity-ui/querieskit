@@ -5,6 +5,6 @@
   }
 
   &__inner-buttons {
-    margin-right: 2px;
+    margin-right: var(--qp-search-with-buttons-inner-buttons-margin-right, 4px);
   }
 }

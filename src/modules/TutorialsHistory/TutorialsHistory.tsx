@@ -44,6 +44,7 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
             logo={logo}
             header={
                 <HistoryHeader
+                    variant="tutorials"
                     search={search.value}
                     fullSearch={search.fullSearch}
                     fullSearchAvailable={fullSearchAvailable}

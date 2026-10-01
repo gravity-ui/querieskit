@@ -3,7 +3,7 @@ import {Button, Flex, Icon, Popup} from '@gravity-ui/uikit';
 import FunnelIcon from '@gravity-ui/icons/svgs/funnel.svg';
 import ArrowRotateLeftIcon from '@gravity-ui/icons/svgs/arrow-rotate-left.svg';
 import {useToggle} from '../../helpers/useToggle';
-import {QueryListFilterConfig} from '../../types/queryList';
+import type {QueryListFilterConfig} from '../../types/queryList';
 import cn from 'bem-cn-lite';
 import {SimpleForm} from '../SimpleForm';
 import i18n from './i18n';
@@ -11,25 +11,28 @@ import './HistoryFilter.scss';
 
 const block = cn('qp-history-filter');
 
-export const HistoryFilter: FC<QueryListFilterConfig> = ({
+export const HistoryFilter: FC<QueryListFilterConfig & {buttonView?: 'normal' | 'flat'}> = ({
     fields = [],
     values,
     initialValues,
     isChanged,
     onApply,
     onReset,
+    buttonView = 'normal',
 }) => {
     const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
     const [open, toggleOpen] = useToggle(false);
     const valuesRef = useRef<Record<string, any>>(values ?? initialValues ?? {});
+    const normalView = isChanged ? 'action' : 'normal';
+    const flatView = isChanged ? 'flat-info' : 'flat';
 
     return (
         <>
             <Button
                 ref={setButtonElement}
                 onClick={toggleOpen}
-                view={isChanged ? 'flat-info' : 'flat'}
-                selected={Boolean(isChanged)}
+                view={buttonView === 'flat' ? flatView : normalView}
+                selected={buttonView === 'flat' && Boolean(isChanged)}
                 className={block('button')}
             >
                 <Icon data={FunnelIcon} size={16} />
