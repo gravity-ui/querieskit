@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.1](https://github.com/gravity-ui/querieskit/compare/v2.0.0...v2.0.1) (2026-10-02)
+
+
+### Bug Fixes
+
+* **QueriesList:** unify panels and preserve uncontrolled search ([50efc85](https://github.com/gravity-ui/querieskit/commit/50efc8573c71d2060ce61c12979a094983e651e3))
+* **QueriesNavigation:** add View search and constrain tabs width ([454eb12](https://github.com/gravity-ui/querieskit/commit/454eb12844187b37e60e90ba0b13142cd78eb791))
+* **QueriesNavigation:** align navigation layout and schema with design ([a054e92](https://github.com/gravity-ui/querieskit/commit/a054e92802c9af54da4d6056fdbcf1048cd962f6))
+* **QueriesNavigation:** align rows and spacing with design ([5b18a18](https://github.com/gravity-ui/querieskit/commit/5b18a18b406e42cdc636faf834ce8327cd4b8caa))
+* **RowsList:** disable hover highlighting for group headers ([3e3c3f6](https://github.com/gravity-ui/querieskit/commit/3e3c3f6bea5035e407cefd87b9355031e8cc0bc0))
+* **RowsList:** preserve original items in row renderers ([247f4ef](https://github.com/gravity-ui/querieskit/commit/247f4ef7a7539495a3f413672e4fcda02d035250))
+* **TutorialsHistory:** align layout and controls with design ([ccfc1f7](https://github.com/gravity-ui/querieskit/commit/ccfc1f7de04ed3def1ddd0eac9e8db1d4d0f1fac))
+* **TutorialsHistory:** scope design changes and preserve long numbers ([2b4085d](https://github.com/gravity-ui/querieskit/commit/2b4085dc11d5f6e9964b3e26c4f6ca4c81b1f2f6))
+
 ## [2.0.0](https://github.com/gravity-ui/querieskit/compare/v1.11.0...v2.0.0) (2026-09-29)
 
 
