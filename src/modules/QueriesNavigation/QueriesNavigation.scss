@@ -9,6 +9,14 @@
         flex-shrink: 0;
     }
 
+    &__header {
+        min-height: 32px;
+    }
+
+    &__search {
+        margin-block: var(--g-spacing-1);
+    }
+
     &__empty,
     &__error {
         padding: var(--g-spacing-2);

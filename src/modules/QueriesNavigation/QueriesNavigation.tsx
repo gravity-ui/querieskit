@@ -129,7 +129,7 @@ export const QueriesNavigation = <
     }
 
     return (
-        <Flex direction="column" gap={1} className={block(null, className)}>
+        <Flex direction="column" className={block(null, className)}>
             <NavigationHeader
                 className={block('header')}
                 location={location}
