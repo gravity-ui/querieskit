@@ -112,9 +112,16 @@ export const createTableDetailConfig = <
             {
                 id: 'view',
                 title: i18n('tab_view'),
-                renderContent: () => {
+                renderContent: ({search, onSearchUpdate, searchPlaceholder}) => {
                     const view = resolveView?.(item);
-                    return <NavigationView<TRow> data={view ?? {sections: []}} />;
+                    return (
+                        <NavigationView<TRow>
+                            data={view ?? {sections: []}}
+                            search={search}
+                            onSearchUpdate={onSearchUpdate}
+                            searchPlaceholder={searchPlaceholder}
+                        />
+                    );
                 },
             },
         ],
