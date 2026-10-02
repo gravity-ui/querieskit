@@ -35,6 +35,22 @@ export const Default: Story = {
     },
 };
 
+const SearchStory = () => {
+    const [search, setSearch] = useState('field_2');
+
+    return (
+        <NavigationView
+            data={{sections: VIEW_SECTIONS, loaded: true}}
+            search={search}
+            onSearchUpdate={setSearch}
+        />
+    );
+};
+
+export const Search: Story = {
+    render: () => <SearchStory />,
+};
+
 export const Loading: Story = {
     args: {
         data: {sections: [], loading: true},

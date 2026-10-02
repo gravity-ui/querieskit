@@ -107,12 +107,13 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
             />
             {hasTabs ? (
                 <>
-                    <NavigationDetailTabs
-                        tabs={visibleTabs}
-                        activeTab={activeTab}
-                        onUpdate={handleTabUpdate}
-                        className={block('tabs')}
-                    />
+                    <div className={block('tabs')}>
+                        <NavigationDetailTabs
+                            tabs={visibleTabs}
+                            activeTab={activeTab}
+                            onUpdate={handleTabUpdate}
+                        />
+                    </div>
                     {config.hasSearch && (
                         <SearchWithButtons
                             className={block('search')}
