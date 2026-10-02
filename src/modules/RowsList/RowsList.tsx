@@ -82,10 +82,10 @@ export const RowsList = <T extends QueryListRow>({
             className={block(null, className)}
             items={listItems}
             itemHeight={getItemHeight}
-            renderItem={(item, isActive, index) =>
+            renderItem={(_item, isActive, index) =>
                 renderRow(
                     prepareRowData({
-                        item,
+                        item: items[index],
                         isActive,
                         index,
                         variant: rowVariant,
