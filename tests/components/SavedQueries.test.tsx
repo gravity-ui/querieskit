@@ -308,6 +308,7 @@ describe('SavedQueries integration', () => {
         expect(renderRowItem).toHaveBeenCalledWith(
             expect.objectContaining({item: HEADER, index: 0}),
         );
+        expect(renderRowItem.mock.calls.find(([data]) => data.index === 0)?.[0].item).toBe(HEADER);
         expect(container.querySelector('.qp-saved-query-row')).toBeNull();
         expect(container.querySelector('.qp-saved-query-search-row')).toBeNull();
         expect(routerLink).not.toHaveBeenCalled();
