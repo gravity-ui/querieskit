@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/gravity-ui/querieskit/compare/v2.0.1...v2.0.2) (2026-10-03)
+
+
+### Bug Fixes
+
+* **deps:** update @gravity-ui/graph to 1.12.2 ([edadda4](https://github.com/gravity-ui/querieskit/commit/edadda4785e59c974feb65faaaa539d12b9d61e8))
+
 ## [2.0.1](https://github.com/gravity-ui/querieskit/compare/v2.0.0...v2.0.1) (2026-10-02)
 
 
