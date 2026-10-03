@@ -211,7 +211,7 @@
     "@gravity-ui/dashkit": "^10.4.0",
     "@gravity-ui/date-components": "^3.4.2",
     "@gravity-ui/date-utils": "^2.7.1",
-    "@gravity-ui/graph": "1.12.1",
+    "@gravity-ui/graph": "1.12.2",
     "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/illustrations": "^2.1.1",
     "@gravity-ui/react-data-table": "^2.2.1",
