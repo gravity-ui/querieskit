@@ -1,4 +1,13 @@
 import type {QueryGraphNode} from '../../../types/queryGraph';
+import {QUERY_GRAPH_HORIZONTAL_GAP} from './layout';
+
+export function shouldShowQueryGraphLabel(cameraScale: number) {
+    return cameraScale >= 0.5;
+}
+
+export function getQueryGraphLabelMaxWidth(nodeWidth: number) {
+    return Math.min(2 * nodeWidth, nodeWidth + QUERY_GRAPH_HORIZONTAL_GAP - 16);
+}
 
 export function getQueryGraphNodeContent(node: QueryGraphNode) {
     const status = node.status ?? 'not-started';
