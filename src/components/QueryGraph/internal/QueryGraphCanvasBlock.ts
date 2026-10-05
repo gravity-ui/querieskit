@@ -6,8 +6,10 @@ import {getQueryGraphProgress} from '../helpers/layout';
 import {
     fitCanvasFontSize,
     fitCanvasText,
+    getQueryGraphLabelMaxWidth,
     getQueryGraphNodeContent,
     getScaleAdjustedFontSize,
+    shouldShowQueryGraphLabel,
 } from '../helpers/presentation';
 import {getQueryGraphStatusIconSvg} from './queryGraphIcons';
 
@@ -49,7 +51,6 @@ const STATUS_ICON_BACKGROUND_RADIUS_RATIO = 1 / 6;
 const PROGRESS_WIDTH_RATIO = 1 / 9;
 const INNER_BORDER_WIDTH_RATIO = 1 / 25;
 const COUNTER_MAX_WIDTH_RATIO = 7 / 9;
-const LABEL_MAX_WIDTH_RATIO = 2;
 const COUNTER_FONT_SIZE = 11;
 const LABEL_FONT_SIZE = 9;
 const LABEL_GAP = 4;
@@ -270,10 +271,11 @@ export class QueryGraphCanvasBlock extends CanvasBlock<QueryGraphBlock> {
     private drawLabel(context: CanvasRenderingContext2D, label: string, trimStart: boolean) {
         const {x, y, width, height} = this.state;
         const cameraScale = this.context.graph.cameraService.getCameraScale();
+        if (!shouldShowQueryGraphLabel(cameraScale)) return;
         const fontSize = getScaleAdjustedFontSize(LABEL_FONT_SIZE, cameraScale);
         const labelGap = getScaleAdjustedFontSize(LABEL_GAP, cameraScale);
-        // Keep the available screen width stable, just like the label's font size.
-        const maxWidth = getScaleAdjustedFontSize(width * LABEL_MAX_WIDTH_RATIO, cameraScale);
+        // Bound labels in graph coordinates so adjacent layers retain space between labels.
+        const maxWidth = getQueryGraphLabelMaxWidth(width);
         context.fillStyle = cssValue('--g-color-text-primary', context.canvas);
         context.textAlign = 'center';
         context.textBaseline = 'top';

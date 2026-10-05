@@ -1,10 +1,21 @@
-import type {TMultipointConnection} from '@gravity-ui/graph';
+import type {LayeredLayoutOptions, TMultipointConnection} from '@gravity-ui/graph';
 
 import type {QueryGraphEdge, QueryGraphNode} from '../../../types/queryGraph';
 
 const OPERATION_SIZE = 65;
 const RESOURCE_WIDTH = 36;
 const RESOURCE_HEIGHT = 36;
+
+export const QUERY_GRAPH_HORIZONTAL_GAP = 80;
+
+export const QUERY_GRAPH_LAYOUT_OPTIONS: LayeredLayoutOptions = {
+    nodeHorizontalGap: QUERY_GRAPH_HORIZONTAL_GAP,
+    nodeVerticalGap: 50,
+    defaultNodeWidth: OPERATION_SIZE,
+    defaultNodeHeight: OPERATION_SIZE,
+    // Keep the minimum layer step without stretching wide, branching graphs by their height.
+    layerSpacingFactor: 0,
+};
 
 export function getQueryGraphNodeSize(node: QueryGraphNode) {
     return node.kind === 'operation'

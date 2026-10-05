@@ -1,10 +1,5 @@
 import React, {useEffect, useImperativeHandle, useMemo, useRef, useState} from 'react';
-import {
-    BezierMultipointConnection,
-    ECanDrag,
-    GraphState,
-    type TMultipointConnection,
-} from '@gravity-ui/graph';
+import {ECanDrag, GraphState, type TMultipointConnection} from '@gravity-ui/graph';
 import {GraphCanvas, useGraph, useGraphEvent} from '@gravity-ui/graph/react';
 import {MagnifierMinus, MagnifierPlus, SquareDashed} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Text, Tooltip, useThemeValue} from '@gravity-ui/uikit';
@@ -18,6 +13,7 @@ import {
 } from './helpers/layout';
 import i18n from './i18n';
 import {type QueryGraphBlock, QueryGraphCanvasBlock} from './internal/QueryGraphCanvasBlock';
+import {QueryGraphConnection} from './internal/QueryGraphConnection';
 import {QueryGraphPopup} from './internal/QueryGraphPopup';
 import {getQueryGraphNodeIconSvgs} from './internal/queryGraphIcons';
 import {useQueryGraphLayout} from './internal/useQueryGraphLayout';
@@ -288,11 +284,12 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
         const previousStructureRef = useRef(structureKey);
         const [attached, setAttached] = useState(false);
         const [hoveredNodeId, setHoveredNodeId] = useState<string>();
+        const [hoverAnchor, setHoverAnchor] = useState<{left: number; top: number}>();
         const themeValue = useThemeValue();
         const {graph, api, setEntities, start, stop} = useGraph({
             name: 'query-graph',
             settings: {
-                connection: BezierMultipointConnection,
+                connection: QueryGraphConnection,
                 canDrag: ECanDrag.NONE,
                 canDragCamera: true,
                 canZoomCamera: true,
@@ -306,14 +303,32 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
         });
         const [scale, setScale] = useState(graph.cameraService.getCameraState().scale);
         const {scaleMin, scaleMax} = graph.cameraService.getCameraState();
-        useGraphEvent(graph, 'camera-change', ({scale: nextScale}) => setScale(nextScale));
-        useGraphEvent(graph, 'mouseenter', ({target}) => {
+        useGraphEvent(graph, 'camera-change', ({scale: nextScale}) => {
+            setScale(nextScale);
+            setHoverAnchor(undefined);
+            setHoveredNodeId(undefined);
+        });
+        useGraphEvent(graph, 'mouseenter', ({target, sourceEvent}) => {
             const state = (target as {state?: QueryGraphBlock} | undefined)?.state;
-            if (state?.meta?.node) setHoveredNodeId(state.meta.node.id);
+            if (!state?.meta?.node) return;
+            setHoveredNodeId(state.meta.node.id);
+            // GraphLayer wraps synthetic mouseenter events around the original pointer event.
+            const mouseEvent =
+                sourceEvent instanceof CustomEvent ? sourceEvent.detail?.sourceEvent : sourceEvent;
+            if (rootRef.current && mouseEvent instanceof MouseEvent) {
+                const rect = rootRef.current.getBoundingClientRect();
+                setHoverAnchor({
+                    left: mouseEvent.clientX - rect.left,
+                    top: mouseEvent.clientY - rect.top,
+                });
+            }
         });
         useGraphEvent(graph, 'mouseleave', ({target}) => {
             const state = (target as {state?: QueryGraphBlock} | undefined)?.state;
-            if (state?.meta?.node) setHoveredNodeId(undefined);
+            if (state?.meta?.node) {
+                setHoveredNodeId(undefined);
+                setHoverAnchor(undefined);
+            }
         });
 
         useEffect(() => {
@@ -323,7 +338,7 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
                 .getPropertyValue('--g-color-base-background')
                 .trim();
             const connection = getComputedStyle(rootRef.current)
-                .getPropertyValue('--g-color-line-generic-accent')
+                .getPropertyValue('--g-color-line-generic-active')
                 .trim();
             if (!background || !connection) return;
 
@@ -382,6 +397,8 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
             previousActiveRef.current = Boolean(active);
             previousStructureRef.current = structureKey;
             setPopup(undefined);
+            setHoverAnchor(undefined);
+            setHoveredNodeId(undefined);
             return () => {
                 if (frame !== undefined) cancelAnimationFrame(frame);
             };
@@ -391,6 +408,7 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
             target,
             sourceEvent,
         }) => {
+            setHoverAnchor(undefined);
             const state = (target as {state?: QueryGraphBlock; isBlock?: boolean} | undefined)
                 ?.state;
             if (!state?.meta?.node || !rootRef.current) {
@@ -416,6 +434,7 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
         };
 
         const selectedNode = popup ? nodes.find((node) => node.id === popup.nodeId) : undefined;
+        const hoveredNode = nodes.find((node) => node.id === hoveredNodeId);
         const defaultContent = selectedNode ? <QueryGraphPopup node={selectedNode} /> : null;
         let popupContent: React.ReactNode = null;
         if (selectedNode) {
@@ -425,7 +444,14 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
         }
 
         return (
-            <div ref={rootRef} className={block(null, className)}>
+            <div
+                ref={rootRef}
+                className={block(null, className)}
+                onMouseLeave={() => {
+                    setHoveredNodeId(undefined);
+                    setHoverAnchor(undefined);
+                }}
+            >
                 <GraphCanvas
                     graph={graph}
                     className={block('canvas')}
@@ -439,6 +465,20 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
                         }
                     }}
                 />
+                {active && hoverAnchor && hoveredNode && (
+                    <Tooltip
+                        open
+                        content={hoveredNode.label ?? hoveredNode.name}
+                        placement="top"
+                        offset={12}
+                        style={{pointerEvents: 'none'}}
+                        onOpenChange={(open) => {
+                            if (!open) setHoverAnchor(undefined);
+                        }}
+                    >
+                        <span className={block('hover-anchor')} style={hoverAnchor} />
+                    </Tooltip>
+                )}
                 <div className={block('toolbox')}>
                     <Tooltip content={i18n('action_zoom-in')} placement="right">
                         <Button
