@@ -2,6 +2,10 @@
 
 React component library for building **query pages** — history, tutorials, editors, and related UI. Part of the [Gravity UI](https://gravity-ui.com) design system.
 
+The library is under active development and its public API is not yet stable.
+API changes may be released without a major version bump. Check the changelog
+and migration notes before updating.
+
 ## Install
 
 ```shell

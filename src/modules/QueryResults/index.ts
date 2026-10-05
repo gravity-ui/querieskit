@@ -5,5 +5,6 @@ export type {
     QueryResultCellPreviewContext,
     QueryResultCellRenderContext,
     QueryResultCellSettings,
+    QueryResultsTableSettings,
     QueryResultFormatterSettings,
 } from '../../types/queryResults';

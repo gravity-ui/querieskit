@@ -1,5 +1,3 @@
-import type {NavigationPreviewRow} from '../types/navigation';
-
 const stringifyCell = (value: unknown): string => {
     if (value === undefined || value === null) {
         return '';
@@ -13,7 +11,7 @@ const stringifyCell = (value: unknown): string => {
     return '';
 };
 
-export function filterNavigationRows<TRow extends NavigationPreviewRow>(
+export function filterNavigationRows<TRow extends Record<string, unknown>>(
     rows: TRow[],
     columns: string[],
     search?: string,

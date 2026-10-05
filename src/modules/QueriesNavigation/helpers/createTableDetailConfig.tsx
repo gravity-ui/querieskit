@@ -11,9 +11,11 @@ import type {
     NavigationMetaItem,
     NavigationPreviewConfig,
     NavigationPreviewRow,
+    NavigationPreviewViewConfig,
     NavigationSchemaColumn,
     NavigationSchemaConfig,
     NavigationViewConfig,
+    NavigationViewRow,
 } from '../../../types/navigation';
 import i18n from '../i18n';
 
@@ -27,6 +29,11 @@ export type NavigationPreviewResolver<
     TRow extends NavigationPreviewRow = NavigationPreviewRow,
 > = (item: TItem) => NavigationPreviewConfig<TRow> | undefined;
 
+export type NavigationPreviewViewResolver<
+    TItem extends NavigationItem = NavigationItem,
+    TRow extends NavigationPreviewRow = NavigationPreviewRow,
+> = (item: TItem) => NavigationPreviewViewConfig<TRow> | undefined;
+
 export type NavigationMetaResolver<
     TItem extends NavigationItem = NavigationItem,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
@@ -38,7 +45,7 @@ export type NavigationMetaRenderer<TMetaItem extends NavigationMetaItem = Naviga
 
 export type NavigationViewResolver<
     TItem extends NavigationItem = NavigationItem,
-    TRow extends NavigationPreviewRow = NavigationPreviewRow,
+    TRow extends NavigationViewRow = NavigationViewRow,
 > = (item: TItem) => NavigationViewConfig<TRow> | undefined;
 
 export type CreateTableDetailConfigOptions<
@@ -46,12 +53,14 @@ export type CreateTableDetailConfigOptions<
     TColumn extends NavigationSchemaColumn = NavigationSchemaColumn,
     TRow extends NavigationPreviewRow = NavigationPreviewRow,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+    TViewRow extends NavigationViewRow = NavigationViewRow,
 > = {
     resolveSchema?: NavigationSchemaResolver<TItem, TColumn>;
     resolvePreview?: NavigationPreviewResolver<TItem, TRow>;
+    resolvePreviewView?: NavigationPreviewViewResolver<TItem, TRow>;
     resolveMeta?: NavigationMetaResolver<TItem, TMetaItem>;
     renderMeta?: NavigationMetaRenderer<TMetaItem>;
-    resolveView?: NavigationViewResolver<TItem, TRow>;
+    resolveView?: NavigationViewResolver<TItem, TViewRow>;
 };
 
 export const createTableDetailConfig = <
@@ -59,10 +68,18 @@ export const createTableDetailConfig = <
     TColumn extends NavigationSchemaColumn = NavigationSchemaColumn,
     TRow extends NavigationPreviewRow = NavigationPreviewRow,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+    TViewRow extends NavigationViewRow = NavigationViewRow,
 >(
-    options?: CreateTableDetailConfigOptions<TItem, TColumn, TRow, TMetaItem>,
+    options?: CreateTableDetailConfigOptions<TItem, TColumn, TRow, TMetaItem, TViewRow>,
 ): NavigationDetailConfigFactory<TItem> => {
-    const {resolveSchema, resolvePreview, resolveMeta, renderMeta, resolveView} = options ?? {};
+    const {
+        resolveSchema,
+        resolvePreview,
+        resolvePreviewView,
+        resolveMeta,
+        renderMeta,
+        resolveView,
+    } = options ?? {};
 
     return (item): NavigationDetailConfig => ({
         tabs: [
@@ -89,6 +106,7 @@ export const createTableDetailConfig = <
                     return (
                         <NavigationPreview<TRow>
                             data={preview ?? {columns: [], rows: []}}
+                            view={resolvePreviewView?.(item)}
                             search={search}
                             onSearchUpdate={onSearchUpdate}
                             searchPlaceholder={searchPlaceholder}
@@ -115,7 +133,7 @@ export const createTableDetailConfig = <
                 renderContent: ({search, onSearchUpdate, searchPlaceholder}) => {
                     const view = resolveView?.(item);
                     return (
-                        <NavigationView<TRow>
+                        <NavigationView<TViewRow>
                             data={view ?? {sections: []}}
                             search={search}
                             onSearchUpdate={onSearchUpdate}

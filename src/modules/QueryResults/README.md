@@ -1,9 +1,15 @@
 # Standard result cells
 
-`QueryResults`, `QueryResultsTable`, and the `result` tab of `QueryExecutionPanel`
-accept the same cell options. Values remain in YQL wire format; QueriesKit handles
+`QueryResults`, `QueryResultsTable`, `NavigationPreview.view`, and the `result`
+tab of `QueryExecutionPanel` accept the same cell options. Values remain in YQL wire format; QueriesKit handles
 Unipika conversion, HTML, copying, local expansion, and preview actions.
 `column.render` replaces this entire pipeline, including `getCellOptions`.
+
+`QueryResultsTableSettings<Row>` also shares `rowKey`, `displayIndices`,
+`stripedRows`, and `stickyHead` between results and navigation. Navigation keeps
+row indices off by default; results keep them on. See the
+[NavigationPreview migration guide](../NavigationPreview/README.md) for typed
+columns and settings passed directly or through `createTableDetailConfig`.
 
 ## YTsaurus integration
 

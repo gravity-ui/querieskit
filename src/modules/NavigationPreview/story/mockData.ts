@@ -1,6 +1,7 @@
-import type {NavigationPreviewColumn, NavigationPreviewRow} from '../../../types/navigation';
+import type {NavigationPreviewRow} from '../../../types/navigation';
+import type {QueryResultColumn} from '../../../types/queryResults';
 
-export const PREVIEW_COLUMNS: Array<NavigationPreviewColumn<NavigationPreviewRow>> = [
+export const PREVIEW_COLUMNS: Array<QueryResultColumn<NavigationPreviewRow>> = [
     {name: 'id', type: ['DataType', 'Int32']},
     {name: 'created_at', type: ['DataType', 'Utf8']},
     {name: 'title', type: ['DataType', 'Utf8']},
