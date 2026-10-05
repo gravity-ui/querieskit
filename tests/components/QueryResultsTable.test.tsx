@@ -5,6 +5,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {QueryResultsTable} from '../../src/components/QueryResultsTable';
 import {QueryResults} from '../../src/modules/QueryResults';
+import {NavigationPreview} from '../../src/modules/NavigationPreview';
 import type {QueryResultsTableProps} from '../../src/types/queryResults';
 
 const copied = vi.hoisted(() => vi.fn());
@@ -35,7 +36,7 @@ function deferred() {
     return {promise, resolve, reject};
 }
 
-describe('QueryResults standard cells', () => {
+describe.each(['table', 'results', 'navigation'] as const)('%s standard cells', (surface) => {
     let container: HTMLDivElement;
     let root: Root;
     beforeEach(() => {
@@ -54,22 +55,43 @@ describe('QueryResults standard cells', () => {
         Array.from(container.querySelectorAll('button')).find(
             (node) => (node.getAttribute('aria-label') ?? node.textContent) === name,
         );
-    function render(props: Partial<QueryResultsTableProps<Row>> = {}, module = false) {
+    function render(props: Partial<QueryResultsTableProps<Row>> = {}) {
+        const {
+            columns: resolvedColumns = columns,
+            rows = initialRows,
+            loading,
+            loaded,
+            errorContent,
+            emptyVariant: _emptyVariant,
+            className,
+            ...settings
+        } = props;
+        let content: React.ReactNode;
+        if (surface === 'navigation') {
+            content = (
+                <NavigationPreview
+                    data={{columns: resolvedColumns, rows, loading, loaded, errorContent}}
+                    className={className}
+                    view={{stickyHead: false, ...settings}}
+                    hideToolbar
+                />
+            );
+        } else if (surface === 'results') {
+            content = <QueryResults columns={columns} rows={initialRows} {...props} />;
+        } else {
+            content = (
+                <QueryResultsTable
+                    columns={columns}
+                    rows={initialRows}
+                    stickyHead={false}
+                    {...props}
+                />
+            );
+        }
         act(() =>
             root.render(
                 <React.StrictMode>
-                    <ThemeProvider>
-                        {module ? (
-                            <QueryResults columns={columns} rows={initialRows} {...props} />
-                        ) : (
-                            <QueryResultsTable
-                                columns={columns}
-                                rows={initialRows}
-                                stickyHead={false}
-                                {...props}
-                            />
-                        )}
-                    </ThemeProvider>
+                    <ThemeProvider>{content}</ThemeProvider>
                 </React.StrictMode>,
             ),
         );
@@ -106,14 +128,11 @@ describe('QueryResults standard cells', () => {
             expect(preview).not.toHaveBeenCalled();
         },
     );
-    it.each(['', 'href override'])(
-        'copies literal override %j through QueryResults',
-        async (copyText) => {
-            render({getCellOptions: () => ({copyText})}, true);
-            await click('Copy');
-            expect(copied).toHaveBeenCalledWith(copyText);
-        },
-    );
+    it.each(['', 'href override'])('copies literal override %j', async (copyText) => {
+        render({getCellOptions: () => ({copyText})});
+        await click('Copy');
+        expect(copied).toHaveBeenCalledWith(copyText);
+    });
     it('shows incomplete warning without a dead action and hides copy', () => {
         render({getCellOptions: incomplete});
         expect(container.textContent).toContain('Value is incomplete');
@@ -163,9 +182,9 @@ describe('QueryResults standard cells', () => {
         });
         expect(container.textContent).toContain('Incomplete');
     });
-    it('offers preview and full copy for a complete large placeholder through the module', async () => {
+    it('offers preview and full copy for a complete large placeholder', async () => {
         const preview = vi.fn();
-        render({maxInlineTextLength: 3, onCellPreview: preview}, true);
+        render({maxInlineTextLength: 3, onCellPreview: preview});
         expect(container.textContent).toContain('too large');
         await click('Preview');
         expect(preview.mock.calls[0][0].isIncomplete).toBe(false);
@@ -280,6 +299,63 @@ describe('QueryResults standard cells', () => {
         expect(container.textContent).toContain('Custom');
         expect(container.querySelector('[role="alert"]')).toBeNull();
         expect(options).not.toHaveBeenCalled();
+    });
+    it('renders object wire envelopes and detects server incompleteness', async () => {
+        const value = {val: 'part', inc: true};
+        const preview = vi.fn();
+        render({
+            rows: [{value}],
+            formatterSettings: {treatValAsData: true},
+            onCellPreview: preview,
+        });
+        expect(container.textContent).toContain('Value is incomplete');
+        expect(button('Copy')).toBeUndefined();
+        await click('Preview');
+        expect(preview.mock.calls[0][0].value).toBe(value);
+        expect(preview.mock.calls[0][0].isIncomplete).toBe(true);
+    });
+    it('keeps standard behavior beside a custom column', async () => {
+        const preview = vi.fn();
+        const options =
+            vi.fn<NonNullable<QueryResultsTableProps<Row>['getCellOptions']>>(incomplete);
+        render({
+            columns: [
+                {...columns[0], name: 'custom', render: () => <span>Custom neighbor</span>},
+                columns[0],
+            ],
+            getCellOptions: options,
+            onCellPreview: preview,
+        });
+        expect(container.textContent).toContain('Custom neighbor');
+        expect(container.textContent).toContain('Value is incomplete');
+        expect(options.mock.calls.every(([context]) => context.column.name === 'value')).toBe(true);
+        await click('Preview');
+        expect(preview.mock.calls[0][0].column).toBe(columns[0]);
+    });
+    it('preserves index defaults and forwards shared table appearance settings', () => {
+        render();
+        expect(container.querySelector('tbody tr')?.children.length).toBe(
+            surface === 'navigation' ? 1 : 2,
+        );
+        expect(container.querySelector('.data-table_striped-rows')).not.toBeNull();
+        render({displayIndices: true, stripedRows: false, stickyHead: false});
+        expect(container.querySelector('.data-table_striped-rows')).toBeNull();
+        expect(container.querySelector('.data-table__sticky_head')).toBeNull();
+        expect(container.querySelector('tbody tr')?.children.length).toBe(2);
+        render({displayIndices: false, stripedRows: true, stickyHead: 'fixed'});
+        expect(container.querySelector('.data-table_striped-rows')).not.toBeNull();
+        expect(container.querySelector('.data-table__sticky_head')).not.toBeNull();
+        expect(container.querySelector('tbody tr')?.children.length).toBe(1);
+    });
+    it('preserves row identity by rowKey when rows are reordered', () => {
+        const first = {value: 'one\ntwo\nthree\nfour\nfive\nsix'};
+        const second = {value: 'other'};
+        const rowKey = (row: Row) => String(row.value);
+        render({rows: [first, second], rowKey});
+        const firstRow = button('Show more')?.closest('tr');
+        expect(firstRow).toBeDefined();
+        render({rows: [second, first], rowKey});
+        expect(button('Show more')?.closest('tr')).toBe(firstRow);
     });
     it('isolates malformed values within their cell', () => {
         render({columns: [{name: 'value', type: ['UnsupportedType']}], rows: [{value: 'bad'}]});

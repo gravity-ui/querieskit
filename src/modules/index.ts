@@ -44,7 +44,7 @@ export type {
     QueryStatisticsProps,
     QueryStatisticsValues,
 } from './QueryStatistics';
-export {NavigationPreview, buildPreviewColumns, filterPreviewRows} from './NavigationPreview';
+export {NavigationPreview, filterPreviewRows} from './NavigationPreview';
 export type {NavigationPreviewProps, NavigationPreviewViewConfig} from './NavigationPreview';
 export {NavigationMeta, buildMetaGroups} from './NavigationMeta';
 export type {NavigationMetaProps, NavigationMetaViewConfig} from './NavigationMeta';
@@ -68,5 +68,6 @@ export type {
     QueriesNavigationProps,
     CreateTableDetailConfigOptions,
     NavigationPreviewResolver,
+    NavigationPreviewViewResolver,
     NavigationSchemaResolver,
 } from './QueriesNavigation';

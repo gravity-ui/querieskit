@@ -67,20 +67,25 @@ export type QueryResultCellSettings<TRow extends Record<string, unknown>> = {
     onCellPreview?: (context: QueryResultCellPreviewContext<TRow>) => void | Promise<void>;
 };
 
-export type QueryResultsTableProps<TRow extends Record<string, unknown>> =
+/** Shared rendering and layout settings for every result table. */
+export type QueryResultsTableSettings<TRow extends Record<string, unknown>> =
     QueryResultCellSettings<TRow> & {
+        rowKey?: (row: TRow, index: number) => string | number;
+        displayIndices?: boolean;
+        stripedRows?: boolean;
+        /** Set to false when the surrounding layout does not need a sticky header. */
+        stickyHead?: Settings['stickyHead'] | false;
+    };
+
+export type QueryResultsTableProps<TRow extends Record<string, unknown>> =
+    QueryResultsTableSettings<TRow> & {
         columns: Array<QueryResultColumn<TRow>>;
         /** Values use the YQL wire representation consumed by @gravity-ui/unipika. */
         rows: TRow[];
         loading?: boolean;
         loaded?: boolean;
         errorContent?: ReactNode;
-        rowKey?: (row: TRow, index: number) => string | number;
         emptyVariant?: EmptyContentVariant;
-        displayIndices?: boolean;
-        stripedRows?: boolean;
-        /** Set to false when the surrounding layout does not need a sticky header. */
-        stickyHead?: Settings['stickyHead'] | false;
         className?: string;
     };
 
@@ -91,14 +96,13 @@ export type QueryResultsSchemaRenderContext<TRow extends Record<string, unknown>
 };
 
 export type QueryResultsProps<TRow extends Record<string, unknown>> =
-    QueryResultCellSettings<TRow> & {
+    QueryResultsTableSettings<TRow> & {
         columns: Array<QueryResultColumn<TRow>>;
         /** Values use the YQL wire representation consumed by @gravity-ui/unipika. */
         rows: TRow[];
         totalRows?: number;
         loading?: boolean;
         errorContent?: ReactNode;
-        rowKey?: (row: TRow, index: number) => string | number;
         title?: ReactNode;
         toolbarContent?: ReactNode;
         actions?: ReactNode;

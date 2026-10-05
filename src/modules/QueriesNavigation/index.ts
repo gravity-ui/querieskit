@@ -6,6 +6,7 @@ export type {
     NavigationMetaRenderer,
     NavigationMetaResolver,
     NavigationPreviewResolver,
+    NavigationPreviewViewResolver,
     NavigationSchemaResolver,
     NavigationViewResolver,
 } from './helpers/createTableDetailConfig';

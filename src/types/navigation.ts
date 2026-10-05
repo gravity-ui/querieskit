@@ -1,5 +1,5 @@
-import {ReactNode} from 'react';
-import type {QueryResultColumn, QueryResultFormatterSettings} from './queryResults';
+import type {ReactNode} from 'react';
+import type {QueryResultColumn, QueryResultsTableSettings} from './queryResults';
 import type {LoadPathSuggestions} from './pathEditor';
 
 export type NavigationLocation = {
@@ -115,10 +115,10 @@ export type NavigationSchemaConfig<
 
 export type NavigationCellValue = ReactNode;
 
-export type NavigationPreviewRow = Record<string, NavigationCellValue>;
+export type NavigationPreviewRow = Record<string, unknown>;
 
 export type NavigationPreviewColumn<TRow extends NavigationPreviewRow = NavigationPreviewRow> =
-    string | QueryResultColumn<TRow>;
+    QueryResultColumn<TRow>;
 
 export type NavigationPreviewConfig<TRow extends NavigationPreviewRow = NavigationPreviewRow> =
     NavigationAsyncConfig & {
@@ -126,13 +126,24 @@ export type NavigationPreviewConfig<TRow extends NavigationPreviewRow = Navigati
         rows: TRow[];
     };
 
-export type NavigationPreviewFormatterConfig = {
-    /** Applied when every displayed preview column declares a YQL type. */
-    formatterSettings?: QueryResultFormatterSettings;
-    maxVisibleLines?: number;
+export type NavigationPreviewViewConfig<TRow extends NavigationPreviewRow = NavigationPreviewRow> =
+    QueryResultsTableSettings<TRow>;
+
+export type NavigationPreviewProps<TRow extends NavigationPreviewRow = NavigationPreviewRow> = {
+    data: NavigationPreviewConfig<TRow>;
+    view?: NavigationPreviewViewConfig<TRow>;
+    search?: string;
+    onSearchUpdate?: (value: string) => void;
+    searchPlaceholder?: string;
+    visibleColumns?: string[];
+    onVisibleColumnsChange?: (value: string[]) => void;
+    defaultVisibleColumns?: string[];
+    hideToolbar?: boolean;
+    hideFieldsSelector?: boolean;
+    className?: string;
 };
 
-export type NavigationViewRow = NavigationPreviewRow;
+export type NavigationViewRow = Record<string, NavigationCellValue>;
 
 export type NavigationViewSectionAction<TRow extends NavigationViewRow = NavigationViewRow> =
     NavigationAction<NavigationViewSection<TRow>>;

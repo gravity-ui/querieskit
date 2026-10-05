@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### API migration
+
+- Unify `NavigationPreview` and `QueryResults` on `QueryResultsTable`. Preview columns now require YQL types; move `view.tableColumns` / `view.extraColumns` into `data.columns` and use `column.render` for custom cells. Remove `buildPreviewColumns` and replace `NavigationPreviewFormatterConfig` with the shared `NavigationPreviewViewConfig<TRow>`. See the [migration guide](src/modules/NavigationPreview/README.md).
+- Separate preview wire rows from `NavigationView` display rows; `createTableDetailConfig` accepts an independent fifth generic for view rows.
+
+### Features
+
+- Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
+
 ## [2.0.2](https://github.com/gravity-ui/querieskit/compare/v2.0.1...v2.0.2) (2026-10-03)
 
 

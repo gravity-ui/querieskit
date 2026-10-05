@@ -19,6 +19,9 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     loading,
     errorContent,
     rowKey,
+    displayIndices,
+    stripedRows,
+    stickyHead,
     formatterSettings,
     maxVisibleLines,
     collapseAfterLines,
@@ -62,6 +65,9 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                 rows={rows}
                 loading={loading}
                 rowKey={rowKey}
+                displayIndices={displayIndices}
+                stripedRows={stripedRows}
+                stickyHead={stickyHead}
                 formatterSettings={formatterSettings}
                 maxVisibleLines={maxVisibleLines}
                 collapseAfterLines={collapseAfterLines}
