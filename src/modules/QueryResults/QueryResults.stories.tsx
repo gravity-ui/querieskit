@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {
     ArrowDownToLine,
@@ -8,10 +8,14 @@ import {
     Gear,
     LayoutColumns,
 } from '@gravity-ui/icons';
-import {Button, Flex, Icon, Link} from '@gravity-ui/uikit';
+import {Button, Dialog, Flex, Icon, Link} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryResults} from './QueryResults';
-import type {QueryResultColumn, QueryResultsView} from '../../types/queryResults';
+import type {
+    QueryResultCellPreviewContext,
+    QueryResultColumn,
+    QueryResultsView,
+} from '../../types/queryResults';
 
 type Row = {
     age: number;
@@ -153,3 +157,183 @@ export const CustomSchema: Story = {
         ),
     },
 };
+
+// All parity examples intentionally use the standard cell renderer.
+type CellDemoRow = {id: string; value: unknown; loaded?: boolean};
+const listColumn: Array<QueryResultColumn<CellDemoRow>> = [
+    {name: 'id', type: ['DataType', 'Utf8'], width: 220},
+    {name: 'value', type: ['ListType', ['DataType', 'Int32']], width: 500},
+];
+const ytSettings = {maxVisibleLines: 5, collapseAfterLines: 8, maxInlineTextLength: 10000};
+const fullList = Array.from({length: 60}, (_, index) => index);
+
+export const StandardCellTypes: Story = {
+    render: () => (
+        <QueryResults
+            {...ytSettings}
+            formatterSettings={{treatValAsData: true, binaryAsHex: true, maxListSize: 50}}
+            columns={[
+                {name: 'optional', type: ['OptionalType', ['DataType', 'Utf8']]},
+                {name: 'binary', type: ['DataType', 'String']},
+                {name: 'list', type: ['ListType', ['DataType', 'Int32']]},
+                {name: 'url', type: ['TaggedType', 'url', ['DataType', 'Utf8']]},
+                {name: 'image', type: ['TaggedType', 'image/png', ['DataType', 'String']]},
+            ]}
+            rows={[
+                {
+                    optional: ['Present'],
+                    binary: {val: 'AP8=', b64: true},
+                    list: [1, 2, 3],
+                    url: 'https://ytsaurus.tech/',
+                    image: {val: '', inc: true},
+                },
+                {
+                    optional: [],
+                    binary: {val: 'Partial string', inc: true},
+                    list: 'Malformed list: conversion error stays in this cell',
+                    url: 'https://gravity-ui.com/',
+                    image: {val: '', inc: true},
+                },
+            ]}
+        />
+    ),
+};
+
+export const CollapseBoundaries: Story = {
+    render: () => (
+        <QueryResults
+            {...ytSettings}
+            columns={listColumn}
+            rows={[3, 6, 7].map((length) => ({
+                id: `${length + 2} formatted lines`,
+                value: Array.from({length}, (_, index) => index),
+            }))}
+        />
+    ),
+};
+
+const InlinePreviewStory = () => {
+    const [demoRows, setDemoRows] = useState<CellDemoRow[]>([
+        {id: 'Load full list', value: fullList},
+        {id: 'Fails once; retry', value: fullList},
+    ]);
+    const attempts = useRef(new Set<string>());
+    return (
+        <QueryResults
+            {...ytSettings}
+            columns={listColumn}
+            rows={demoRows}
+            rowKey={(row) => row.id}
+            formatterSettings={{maxListSize: 50, maxStringSize: 1000}}
+            getCellOptions={({row, column}) =>
+                column.name === 'value' && row.loaded
+                    ? {
+                          isIncomplete: false,
+                          formatterSettings: {maxListSize: undefined, maxStringSize: undefined},
+                      }
+                    : {}
+            }
+            onCellPreview={async ({row}) => {
+                await new Promise((resolve) => setTimeout(resolve, 800));
+                if (row.id === 'Fails once; retry' && !attempts.current.has(row.id)) {
+                    attempts.current.add(row.id);
+                    throw new globalThis.Error('Demo request failed. Preview again to retry.');
+                }
+                setDemoRows((current) =>
+                    current.map((item) =>
+                        item.id === row.id ? {...item, value: [...fullList], loaded: true} : item,
+                    ),
+                );
+            }}
+        />
+    );
+};
+
+export const InlinePreviewAndRetry: Story = {render: () => <InlinePreviewStory />};
+
+const ModalPreviewStory = () => {
+    const [preview, setPreview] = useState<QueryResultCellPreviewContext<CellDemoRow>>();
+    return (
+        <>
+            <QueryResults<CellDemoRow>
+                {...ytSettings}
+                columns={[
+                    {name: 'id', type: ['DataType', 'Utf8'], width: 240},
+                    {name: 'value', type: ['DataType', 'Utf8'], width: 500},
+                ]}
+                rows={[
+                    {id: 'Large complete value', value: 'x'.repeat(10000)},
+                    {id: 'Incomplete tagged value', value: 'Partial payload'},
+                ]}
+                getCellOptions={({row, column}) =>
+                    column.name === 'value' && row.id === 'Incomplete tagged value'
+                        ? {isIncomplete: true, tag: 'document'}
+                        : {}
+                }
+                onCellPreview={setPreview}
+            />
+            <Dialog
+                open={Boolean(preview)}
+                onClose={() => setPreview(undefined)}
+                aria-labelledby="query-results-preview-title"
+                contentOverflow="auto"
+            >
+                <Dialog.Header id="query-results-preview-title" caption="Application preview" />
+                <Dialog.Body>
+                    <Flex direction="column" gap={3}>
+                        <span>
+                            {preview?.isIncomplete
+                                ? 'The application can fetch the remaining data here.'
+                                : 'This value is complete; the inline HTML limit does not truncate it.'}
+                        </span>
+                        <div style={{overflowWrap: 'anywhere'}}>{String(preview?.value ?? '')}</div>
+                    </Flex>
+                </Dialog.Body>
+            </Dialog>
+        </>
+    );
+};
+
+export const ExternalModalPreview: Story = {render: () => <ModalPreviewStory />};
+
+// Local media fixtures: a 32px PNG and a short silent WAV. No network is needed.
+const imageFixture =
+    'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAKklEQVR4nGMI6LlDU8QwasGoBaMWjFowasGoBaMWjFowasGoBaMWDBULAE1S4Fuc1eAmAAAAAElFTkSuQmCC';
+const audioFixture =
+    'UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+type MediaDemoRow = {image: string; audio: string};
+const InlineMediaPreviewStory = () => {
+    const [mediaRows, setMediaRows] = useState<MediaDemoRow[]>([{image: '', audio: ''}]);
+    return (
+        <QueryResults
+            {...ytSettings}
+            columns={[
+                {
+                    name: 'image',
+                    type: ['TaggedType', 'image/png', ['DataType', 'String']],
+                    width: 300,
+                },
+                {
+                    name: 'audio',
+                    type: ['TaggedType', 'audio/wav', ['DataType', 'String']],
+                    width: 360,
+                },
+            ]}
+            rows={mediaRows}
+            formatterSettings={{maxListSize: 50, maxStringSize: 1000}}
+            getCellOptions={({value}) => ({
+                isIncomplete: value === '',
+                ...(value === ''
+                    ? {}
+                    : {formatterSettings: {maxListSize: undefined, maxStringSize: undefined}}),
+            })}
+            onCellPreview={async ({column}) => {
+                await new Promise((resolve) => setTimeout(resolve, 800));
+                const value = column.name === 'image' ? imageFixture : audioFixture;
+                setMediaRows((current) => [{...current[0], [column.name]: value}]);
+            }}
+        />
+    );
+};
+
+export const InlineMediaPreview: Story = {render: () => <InlineMediaPreviewStory />};

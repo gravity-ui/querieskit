@@ -1,5 +1,13 @@
 {
   "action_show-more": "Показать больше",
   "action_show-less": "Показать меньше",
-  "alert_format-value-error": "Не удалось отформатировать значение"
+  "alert_format-value-error": "Не удалось отформатировать значение",
+  "action_copy": "Копировать",
+  "context_copied": "Скопировано",
+  "action_preview": "Предпросмотр",
+  "action_retry-preview": "Повторить предпросмотр",
+  "alert_incomplete-tag": "Неполное значение типа '{{tag}}'",
+  "alert_incomplete-value": "Значение получено не полностью",
+  "context_value-too-large": "Значение слишком большое для отображения в ячейке",
+  "alert_preview-error": "Не удалось открыть предпросмотр. Попробуйте ещё раз."
 }

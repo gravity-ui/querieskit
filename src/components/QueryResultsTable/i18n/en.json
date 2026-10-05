@@ -1,5 +1,13 @@
 {
   "action_show-more": "Show more",
   "action_show-less": "Show less",
-  "alert_format-value-error": "Unable to format value"
+  "alert_format-value-error": "Unable to format value",
+  "action_copy": "Copy",
+  "context_copied": "Copied",
+  "action_preview": "Preview",
+  "action_retry-preview": "Retry preview",
+  "alert_incomplete-tag": "Incomplete '{{tag}}' type",
+  "alert_incomplete-value": "Value is incomplete",
+  "context_value-too-large": "Value is too large to display inline",
+  "alert_preview-error": "Unable to preview value. Try again."
 }
