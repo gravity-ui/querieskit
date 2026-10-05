@@ -1,0 +1,50 @@
+.qp-query-result-cell {
+    font-family: var(--g-text-body-font-family);
+    font-size: var(--g-text-body-1-font-size);
+    line-height: var(--g-text-body-1-line-height);
+    overflow-wrap: anywhere;
+
+    &_copyable {
+        padding-right: var(--g-spacing-5);
+    }
+
+    &__copy {
+        position: absolute;
+        top: var(--g-spacing-1);
+        right: var(--g-spacing-1);
+    }
+
+    &__content {
+        .unipika {
+            font: inherit;
+        }
+
+        &_collapsed {
+            max-height: calc(var(--query-result-visible-lines) * var(--g-text-body-1-line-height));
+            overflow: hidden;
+        }
+    }
+
+    &__actions {
+        opacity: 0;
+    }
+
+    &:hover &__actions,
+    &:focus-within &__actions,
+    &_persistent &__actions {
+        opacity: 1;
+    }
+
+    &__show-more {
+        display: block;
+        margin-top: var(--g-spacing-1);
+    }
+
+    &__warning {
+        color: var(--g-color-text-warning);
+    }
+
+    &__error {
+        color: var(--g-color-text-danger);
+    }
+}

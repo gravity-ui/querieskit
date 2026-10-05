@@ -25,41 +25,6 @@
         display: inline-block;
     }
 
-    &__cell {
-        display: block;
-        padding-right: var(--g-spacing-5);
-        font-family: var(--g-text-body-font-family);
-        font-size: var(--g-text-body-1-font-size);
-        line-height: var(--g-text-body-1-line-height);
-        overflow-wrap: anywhere;
-
-        &:hover .qp-query-results-table__cell-actions,
-        &:focus-within .qp-query-results-table__cell-actions {
-            opacity: 1;
-        }
-
-        .unipika {
-            display: inline;
-            font: inherit;
-        }
-    }
-
-    &__cell-actions {
-        position: absolute;
-        top: var(--g-spacing-1);
-        right: var(--g-spacing-1);
-        opacity: 0;
-    }
-
-    &__show-more {
-        display: block;
-        margin-top: var(--g-spacing-1);
-    }
-
-    &__format-error {
-        color: var(--g-color-text-danger);
-    }
-
     &__error {
         display: block;
     }

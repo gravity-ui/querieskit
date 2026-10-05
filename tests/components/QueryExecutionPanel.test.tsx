@@ -9,9 +9,15 @@ import type {
     QueryExecutionTab,
 } from '../../src/types/queryExecutionPanel';
 import {getMessagesSeverity} from '../../src/widgets/QueryExecutionPanel/helpers/getMessagesSeverity';
+import type {QueryResultsProps} from '../../src/types/queryResults';
+
+const resultProps = vi.hoisted(() => vi.fn());
 
 vi.mock('../../src/modules/QueryResults', () => ({
-    QueryResults: ({rows}: {rows: unknown[]}) => <div>Rows: {rows.length}</div>,
+    QueryResults: (props: QueryResultsProps<Record<string, unknown>>) => {
+        resultProps(props);
+        return <div>Rows: {props.rows.length}</div>;
+    },
 }));
 vi.mock('../../src/modules/QueryProgress', () => ({
     QueryProgress: ({active}: {active: boolean}) => <div data-progress={String(active)} />,
@@ -80,6 +86,7 @@ describe('QueryExecutionPanel', () => {
         globalThis.IS_REACT_ACT_ENVIRONMENT = true;
         configure({lang: 'en'});
         changes.mockClear();
+        resultProps.mockClear();
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container);
@@ -287,6 +294,32 @@ describe('QueryExecutionPanel', () => {
         expect(panel().textContent).toContain('Count 0');
         click('Charts');
         expect(panel().textContent).toContain('Count 1');
+    });
+    it('forwards standard cell settings and callbacks unchanged to a result tab', () => {
+        const getCellOptions = vi.fn(() => ({isIncomplete: true, tag: 'image/png'}));
+        const onCellPreview = vi.fn();
+        const formatterSettings = {treatValAsData: true, maxListSize: 50};
+        const props: QueryResultsProps<Record<string, unknown>> = {
+            columns: [{name: 'value', type: ['DataType', 'String']}],
+            rows: [{value: {val: 'partial', inc: true}}],
+            getCellOptions,
+            onCellPreview,
+            maxVisibleLines: 5,
+            collapseAfterLines: 8,
+            maxInlineTextLength: 10000,
+            formatterSettings,
+        };
+        render({tabs: [{id: 'result', type: 'result', props}]});
+
+        const forwarded = resultProps.mock.calls.at(-1)?.[0];
+        expect(forwarded).toEqual(props);
+        expect(forwarded.getCellOptions).toBe(getCellOptions);
+        expect(forwarded.onCellPreview).toBe(onCellPreview);
+        expect(forwarded.formatterSettings).toBe(formatterSettings);
+        expect(forwarded.columns).toBe(props.columns);
+        expect(forwarded.rows).toBe(props.rows);
+        expect(getCellOptions).not.toHaveBeenCalled();
+        expect(onCellPreview).not.toHaveBeenCalled();
     });
     it('preserves visited content through loading and retry, and pauses hidden content', () => {
         const onRetry = vi.fn();

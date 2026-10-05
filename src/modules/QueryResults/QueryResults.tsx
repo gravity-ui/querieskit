@@ -21,6 +21,10 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     rowKey,
     formatterSettings,
     maxVisibleLines,
+    collapseAfterLines,
+    maxInlineTextLength,
+    getCellOptions,
+    onCellPreview,
     title,
     toolbarContent,
     actions,
@@ -60,6 +64,10 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                 rowKey={rowKey}
                 formatterSettings={formatterSettings}
                 maxVisibleLines={maxVisibleLines}
+                collapseAfterLines={collapseAfterLines}
+                maxInlineTextLength={maxInlineTextLength}
+                getCellOptions={getCellOptions}
+                onCellPreview={onCellPreview}
             />
         );
     }
