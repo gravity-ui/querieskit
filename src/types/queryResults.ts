@@ -14,6 +14,19 @@ export type QueryResultDataTypeParameter =
 /** A YQL type tuple accepted by @gravity-ui/unipika. */
 export type QueryResultDataType = readonly [string, ...QueryResultDataTypeParameter[]];
 
+/** A format-independent description used only by the Schema view. */
+export type QueryResultSchemaType = {
+    name: string;
+    parameters?: readonly (string | number | boolean | null)[];
+    /** Number of optional wrappers around this node; defaults to zero. */
+    optionalDepth?: number;
+    tags?: readonly string[];
+    children?: readonly {
+        label?: string;
+        type: QueryResultSchemaType;
+    }[];
+};
+
 export type QueryResultFormatterSettings = {
     escapeWhitespace?: boolean;
     decodeUTF8?: boolean;
@@ -31,6 +44,8 @@ export type QueryResultFormatterSettings = {
 export type QueryResultColumn<TRow extends Record<string, unknown>> = {
     name: Extract<keyof TRow, string> | string;
     type: QueryResultDataType;
+    /** Overrides Schema presentation without changing Result value formatting. */
+    schemaType?: QueryResultSchemaType;
     header?: ReactNode;
     width?: number | string;
     align?: AlignType;

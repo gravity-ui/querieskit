@@ -151,3 +151,19 @@ meta. The widget has no knowledge of these backend fields or statuses.
 Import QueryResults from `@gravity-ui/querieskit/modules/QueryResults` or the package
 root. Import QueryExecutionPanel directly from
 `@gravity-ui/querieskit/widgets/QueryExecutionPanel` to avoid unrelated entrypoints.
+
+## Result schema
+
+A `result` tab's existing `props` also configure its Schema view. Set
+`props.defaultView: 'schema'` to open it initially. Pass `columns` even when
+`rows` is empty; no application adapter or custom `renderSchema` is required.
+The standard schema displays expandable types, optional markers and tags, with
+indices starting at 1. `displayIndices`, `stripedRows` and `stickyHead` apply to
+both Result and Schema. Optional `column.schemaType` provides a neutral type
+description without changing Result value formatting or replacing required
+`column.type`. See [QueryResults](../../modules/QueryResults/README.md#standard-schema-view)
+for the contract and expansion lifecycle. Only supplied columns can be displayed.
+
+The `Widgets/QueryExecutionPanel/Schema` story uses the real Result module and
+opens Schema with no result rows, including optional String, Int64 and Float
+columns and a nested structure with modifiers.

@@ -3,6 +3,10 @@
   "tab_schema": "Schema",
   "field_name": "Name",
   "field_type": "Type",
+  "action_expand-type": "Expand type",
+  "action_collapse-type": "Collapse type",
+  "action_show-type-source": "Show original type value",
+  "value_optional": "optional",
   "context_rows-info": {
     "one": "{{visible}} of {{total}} row",
     "other": "{{visible}} of {{total}} rows"

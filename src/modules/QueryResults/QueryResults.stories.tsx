@@ -337,3 +337,220 @@ const InlineMediaPreviewStory = () => {
 };
 
 export const InlineMediaPreview: Story = {render: () => <InlineMediaPreviewStory />};
+
+const schemaAcceptanceColumns: Array<QueryResultColumn<Record<string, unknown>>> = [
+    {name: 'name', type: ['OptionalType', ['DataType', 'String']]},
+    {name: 'count', type: ['OptionalType', ['DataType', 'Int64']]},
+    {name: 'weight', type: ['OptionalType', ['DataType', 'Float']]},
+    {
+        name: 'details',
+        type: [
+            'TaggedType',
+            'record',
+            [
+                'OptionalType',
+                [
+                    'StructType',
+                    [
+                        [
+                            'title',
+                            ['TaggedType', 'display', ['OptionalType', ['DataType', 'String']]],
+                        ],
+                        ['items', ['ListType', ['OptionalType', ['DataType', 'Int64']]]],
+                        ['optionalItems', ['OptionalType', ['ListType', ['DataType', 'Int64']]]],
+                    ],
+                ],
+            ],
+        ],
+    },
+];
+
+export const SchemaAcceptance: Story = {
+    render: () => <QueryResults columns={schemaAcceptanceColumns} rows={[]} defaultView="schema" />,
+};
+
+const schemaFamilyColumns: Array<QueryResultColumn<Record<string, unknown>>> = [
+    {name: 'decimal', type: ['DataType', 'Decimal', '10', '2']},
+    {
+        name: 'modifiers',
+        type: [
+            'TaggedType',
+            'outer',
+            [
+                'OptionalType',
+                ['OptionalType', ['OptionalType', ['TaggedType', 'inner', ['DataType', 'String']]]],
+            ],
+        ],
+    },
+    {name: 'stream', type: ['StreamType', ['DataType', 'Int64']]},
+    {
+        name: 'tuple',
+        type: [
+            'TupleType',
+            [
+                ['DataType', 'String'],
+                ['DataType', 'Int64'],
+            ],
+        ],
+    },
+    {name: 'dict', type: ['DictType', ['DataType', 'String'], ['DataType', 'Int64']]},
+    {name: 'set', type: ['DictType', ['DataType', 'String'], ['VoidType']]},
+    {
+        name: 'variant',
+        type: [
+            'VariantType',
+            [
+                'StructType',
+                [
+                    ['text', ['DataType', 'String']],
+                    ['number', ['DataType', 'Int64']],
+                ],
+            ],
+        ],
+    },
+    {
+        name: 'indexedVariant',
+        type: [
+            'VariantType',
+            [
+                'TupleType',
+                [
+                    ['DataType', 'String'],
+                    ['DataType', 'Int64'],
+                ],
+            ],
+        ],
+    },
+    {
+        name: 'enum',
+        type: [
+            'VariantType',
+            [
+                'StructType',
+                [
+                    ['yes', ['VoidType']],
+                    ['no', ['VoidType']],
+                ],
+            ],
+        ],
+    },
+    {name: 'indexedEnum', type: ['VariantType', ['TupleType', [['VoidType'], ['VoidType']]]]},
+    ...['Void', 'Null', 'EmptyList', 'EmptyDict'].map((name) => ({
+        name,
+        type: [`${name}Type`] as const,
+    })),
+    ...['int4', '_int4', 'pgint4', '_pgint4'].map((name) => ({
+        name,
+        type: ['PgType', name] as const,
+    })),
+    {
+        name: 'fieldNames',
+        type: [
+            'StructType',
+            [
+                ['DataType', ['DataType', 'String']],
+                ['OptionalType', ['DataType', 'Int64']],
+            ],
+        ],
+    },
+    {name: 'unknownType', type: ['FutureType', '<safe text>']},
+    {
+        name: 'damagedChild',
+        type: [
+            'StructType',
+            [
+                ['broken', ['OptionalType']],
+                ['healthy', ['DataType', 'String']],
+            ],
+        ],
+    },
+    {
+        name: 'neutralType',
+        type: ['DataType', 'String'],
+        schemaType: {
+            name: 'Vector',
+            parameters: [3, true, null],
+            tags: ['spatial'],
+            children: [{label: 'coordinates', type: {name: 'Real', optionalDepth: 1}}],
+        },
+    },
+];
+
+export const SchemaTypeFamilies: Story = {
+    render: () => <QueryResults columns={schemaFamilyColumns} rows={[]} defaultView="schema" />,
+};
+
+const deepSchemaColumns: Array<QueryResultColumn<Record<string, unknown>>> = [
+    {
+        name: 'a_very_long_column_name_that_should_be_truncated_and_available_in_a_title',
+        type: [
+            'StructType',
+            [
+                [
+                    'events',
+                    [
+                        'ListType',
+                        ['StructType', [['payload', ['ListType', ['DataType', 'String']]]]],
+                    ],
+                ],
+            ],
+        ],
+    },
+    ...schemaAcceptanceColumns,
+    ...schemaFamilyColumns,
+];
+
+export const SchemaResizeAndScroll: Story = {
+    render: () => (
+        <div style={{width: 480, maxWidth: '100%', height: 400, resize: 'both', overflow: 'auto'}}>
+            <QueryResults
+                columns={deepSchemaColumns}
+                rows={[]}
+                defaultView="schema"
+                toolbarContent="Drag the bottom-right corner; expand nested types and scroll."
+            />
+        </div>
+    ),
+};
+
+const SchemaUpdatesStory = () => {
+    const [revision, setRevision] = useState(0);
+    const [replacement, setReplacement] = useState(false);
+    const updatedColumns = deepSchemaColumns.map((column, index) => ({
+        ...column,
+        type:
+            index === 0 && replacement
+                ? (['ListType', ['DataType', 'Float']] as const)
+                : column.type,
+    }));
+    return (
+        <QueryResults
+            columns={updatedColumns}
+            rows={[]}
+            defaultView="schema"
+            actions={
+                <Flex gap={2}>
+                    <Button onClick={() => setRevision(revision + 1)}>Rerender ({revision})</Button>
+                    <Button onClick={() => setReplacement(!replacement)}>
+                        Replace first schema
+                    </Button>
+                </Flex>
+            }
+        />
+    );
+};
+
+export const SchemaUpdates: Story = {render: () => <SchemaUpdatesStory />};
+
+export const SchemaWithoutTableDecorations: Story = {
+    render: () => (
+        <QueryResults
+            columns={schemaAcceptanceColumns}
+            rows={[]}
+            defaultView="schema"
+            displayIndices={false}
+            stripedRows={false}
+            stickyHead={false}
+        />
+    ),
+};
