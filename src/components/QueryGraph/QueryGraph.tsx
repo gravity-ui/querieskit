@@ -483,7 +483,7 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
                     <Tooltip content={i18n('action_zoom-in')} placement="right">
                         <Button
                             view="raised"
-                            pin="round-brick"
+                            className={block('toolbox-button', {position: 'top'})}
                             aria-label={i18n('action_zoom-in')}
                             disabled={scale >= scaleMax}
                             onClick={() => changeZoom(graph, ZOOM_STEP)}
@@ -504,7 +504,7 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
                     <Tooltip content={i18n('action_zoom-out')} placement="right">
                         <Button
                             view="raised"
-                            pin="brick-round"
+                            className={block('toolbox-button', {position: 'bottom'})}
                             aria-label={i18n('action_zoom-out')}
                             disabled={scale <= scaleMin}
                             onClick={() => changeZoom(graph, -ZOOM_STEP)}
