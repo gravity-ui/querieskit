@@ -25,6 +25,15 @@ Instructions for agents on the code structure of `@gravity-ui/querieskit`.
 - Before finishing, inspect delegated changes, reconcile findings,
   and run the appropriate checks on the integrated result.
 
+## Storybook cleanup
+
+- After testing or visual verification, stop any Storybook server started
+  by you or your subagents, including when verification fails or is blocked.
+- Track the server's process or session and verify that it has exited
+  before finishing the task. Do not stop servers started by the user or
+  other tasks, and do not use broad process-kill commands.
+- Leave Storybook running only when the user explicitly asks you to.
+
 ## Three levels of the public API
 
 The library is organized into three levels of abstraction. Every new and existing widget must follow this structure:
