@@ -10,9 +10,10 @@ export const QUERY_GRAPH_HORIZONTAL_GAP = 80;
 
 export const QUERY_GRAPH_LAYOUT_OPTIONS: LayeredLayoutOptions = {
     nodeHorizontalGap: QUERY_GRAPH_HORIZONTAL_GAP,
-    nodeVerticalGap: 50,
+    nodeVerticalGap: 28,
     defaultNodeWidth: OPERATION_SIZE,
-    defaultNodeHeight: OPERATION_SIZE,
+    // Real nodes provide their own height; reserve less space for long-edge routing points.
+    defaultNodeHeight: 10,
     // Keep the minimum layer step without stretching wide, branching graphs by their height.
     layerSpacingFactor: 0,
 };

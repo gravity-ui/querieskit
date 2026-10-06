@@ -98,6 +98,7 @@ test('preserves long routes, real endpoints, and isolated blocks with compact sp
     for (const virtual of virtualNodes) {
         assert.equal(typeof virtual.x, 'number');
         const centerX = (virtual.x ?? 0) + 65 / 2;
-        assert.ok(longRoute.some(({x, y}) => x === centerX && y === virtual.y + 65 / 2));
+        const centerY = virtual.y + QUERY_GRAPH_LAYOUT_OPTIONS.defaultNodeHeight! / 2;
+        assert.ok(longRoute.some(({x, y}) => x === centerX && y === centerY));
     }
 });
