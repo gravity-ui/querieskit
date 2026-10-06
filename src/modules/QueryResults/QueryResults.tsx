@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
 import {Flex, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {QueryResultsTable} from '../../components/QueryResultsTable';
@@ -39,6 +39,21 @@ export function QueryResults<TRow extends Record<string, unknown>>({
 }: QueryResultsProps<TRow>) {
     const [uncontrolledView, setUncontrolledView] = useState<QueryResultsView>(defaultView);
     const view = controlledView ?? uncontrolledView;
+    const toolbarRef = useRef<HTMLDivElement>(null);
+    const [toolbarHeight, setToolbarHeight] = useState(0);
+
+    useLayoutEffect(() => {
+        const toolbar = toolbarRef.current;
+        if (!toolbar || view !== 'schema' || stickyHead === false) return undefined;
+
+        const measure = () => setToolbarHeight(toolbar.getBoundingClientRect().height);
+        measure();
+        if (!globalThis.ResizeObserver) return undefined;
+
+        const observer = new ResizeObserver(measure);
+        observer.observe(toolbar);
+        return () => observer.disconnect();
+    }, [view, stickyHead]);
 
     const handleViewChange = useCallback(
         (nextView: string) => {
@@ -57,7 +72,16 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     if (errorContent) {
         content = <Text color="danger">{errorContent}</Text>;
     } else if (view === 'schema') {
-        content = schema ?? <QueryResultsSchema columns={columns} loading={loading} />;
+        content = schema ?? (
+            <QueryResultsSchema
+                columns={columns}
+                loading={loading}
+                displayIndices={displayIndices}
+                stripedRows={stripedRows}
+                stickyHead={stickyHead}
+                stickyTop={toolbarHeight}
+            />
+        );
     } else {
         content = (
             <QueryResultsTable
@@ -81,7 +105,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     return (
         <Flex direction="column" className={block(null, className)}>
             {title && <Text variant="subheader-1">{title}</Text>}
-            <Flex gap={2} wrap alignItems="center" className={block('toolbar')}>
+            <Flex ref={toolbarRef} gap={2} wrap alignItems="center" className={block('toolbar')}>
                 <SegmentedRadioGroup
                     value={view}
                     onUpdate={handleViewChange}

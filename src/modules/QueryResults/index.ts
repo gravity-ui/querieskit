@@ -7,4 +7,5 @@ export type {
     QueryResultCellSettings,
     QueryResultsTableSettings,
     QueryResultFormatterSettings,
+    QueryResultSchemaType,
 } from '../../types/queryResults';

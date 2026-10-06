@@ -9,6 +9,8 @@
 
 ### Features
 
+- Upgrade the standard Result Schema with expandable types, optional markers, tags, parameters, and one-based indices. Share indices, stripes and sticky-header settings with Result. Add optional `column.schemaType` and public `QueryResultSchemaType` for neutral schema descriptions; existing YQL types work automatically and Result value formatting is unchanged.
+
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
 ## [2.1.1](https://github.com/gravity-ui/querieskit/compare/v2.1.0...v2.1.1) (2026-10-05)

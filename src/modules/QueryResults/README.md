@@ -130,3 +130,64 @@ In a browser, use Tab to reach actions and Enter/Space to activate them. Check
 that expansion and row replacement update row height and keep the sticky header
 aligned while scrolling. Check light and dark themes. DOM-only tests do not
 verify this geometry.
+
+## Standard Schema view
+
+Use `defaultView="schema"` (or controlled `view="schema"`) to inspect columns
+without result rows. The standard view displays one-based indices, column names,
+and expandable types. `displayIndices` and `stripedRows` default to `true`;
+`stickyHead` defaults to `MOVING`. These settings apply to both Result and Schema;
+`stickyHead={false}` disables the sticky header. Schema preserves column order
+and does not sort. Names use `column.header ?? column.name`; long text names have
+a tooltip via `title`, while React headers remain React content.
+
+Existing YQL `column.type` values work automatically: optional depth and tags are
+shown next to their type, parameters use parentheses, and nested containers have
+independent expand controls. Dict with Void values is shown as Set, all-Void
+variants as Enum, and PostgreSQL types use `pg`/`_pg` names. Optional and Tagged
+wrappers do not add indentation levels. Tags retain inner-to-outer order.
+
+For a schema from another source, pass the optional, public
+`QueryResultSchemaType` description through `column.schemaType`:
+
+```tsx
+import type {QueryResultColumn, QueryResultSchemaType} from '@gravity-ui/querieskit';
+
+const vector: QueryResultSchemaType = {
+  name: 'Vector',
+  parameters: [3],
+  tags: ['spatial'],
+  children: [{label: 'coordinates', type: {name: 'Real', optionalDepth: 1}}],
+};
+const columns: QueryResultColumn<{position: string}>[] = [
+  {name: 'position', type: ['DataType', 'String'], schemaType: vector},
+];
+```
+
+`name` is unrestricted. `parameters` accepts strings, numbers, booleans and null;
+`optionalDepth` is the number of optional wrappers. `tags` and `children` preserve
+input order; each child has a `type` and an optional `label`. `schemaType` takes
+priority over the YQL adapter only in Schema. The required `column.type` still
+controls Result value formatting, which is unchanged.
+
+Complex nodes at depths 0 and 1 start expanded; deeper nodes start collapsed.
+Expand controls support Tab, Enter and Space and expose `aria-expanded`.
+Expansion survives ordinary rerenders, including equivalent new type objects,
+and collapsing a parent. Replacing a row's schema resets that row's expansion;
+neighbouring rows retain their state. Persistence after unmount is not guaranteed.
+Unknown tuple kinds display safe text. Damaged nodes display `Unknown` with a
+focusable information control: hover or focus it to see the source value in a
+tooltip. Healthy siblings continue rendering.
+
+`renderSchema` still replaces the standard renderer; returning `null` or
+`undefined` uses the standard view. Loading, empty and error states are unchanged.
+Schema completeness depends on the supplied `columns`: excluded columns cannot
+be reconstructed by the library.
+
+Storybook examples **Schema Acceptance**, **Schema Type Families**, **Schema Resize
+And Scroll**, **Schema Updates**, and **Schema Without Table Decorations** cover
+optional primitives, modifiers, all container families, neutral types, malformed
+children, depth-four nesting, long names, scroll/resize, state preservation and
+settings. Use Storybook's theme control to check light and dark themes. Expand
+types before and after resizing and verify sticky header alignment. The real panel
+integration is **Widgets/QueryExecutionPanel/Schema / Default Schema**.

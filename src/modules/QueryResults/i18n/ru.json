@@ -3,6 +3,10 @@
   "tab_schema": "Схема",
   "field_name": "Название",
   "field_type": "Тип",
+  "action_expand-type": "Развернуть тип",
+  "action_collapse-type": "Свернуть тип",
+  "action_show-type-source": "Показать исходное значение типа",
+  "value_optional": "optional",
   "context_rows-info": {
     "one": "{{visible}} из {{total}} строки",
     "few": "{{visible}} из {{total}} строк",
