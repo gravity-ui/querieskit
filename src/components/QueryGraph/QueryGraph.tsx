@@ -338,7 +338,7 @@ const QueryGraphRenderer = React.forwardRef<HTMLDivElement, RendererProps>(
                 .getPropertyValue('--g-color-base-background')
                 .trim();
             const connection = getComputedStyle(rootRef.current)
-                .getPropertyValue('--g-color-line-generic-active')
+                .getPropertyValue('--g-color-line-generic')
                 .trim();
             if (!background || !connection) return;
 
