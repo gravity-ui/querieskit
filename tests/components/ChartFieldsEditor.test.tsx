@@ -123,6 +123,128 @@ it('skips the adapter for incomplete selections and prevents direct submit', () 
     expect(onSubmit).not.toHaveBeenCalled();
 });
 
+it('keeps selected series while an added measure is empty and requires a complete form to submit', () => {
+    const onSubmit = vi.fn();
+    const getChartData = vi.fn((selection: ChartSelectedFormValues): ChartData => ({
+        series: {
+            data: ('measureItems' in selection ? selection.measureItems : []).map((item) => ({
+                type: 'line',
+                seriesId: item.id,
+                name: item.fieldId,
+                data: [{x: 0, y: 4}],
+            })),
+        },
+    }));
+    const config: Partial<ChartFieldsEditorProps> = {
+        getChartData,
+        onSubmit,
+        getFieldOptions: ({role}) =>
+            (role === 'dimension' ? ['day'] : ['count', 'total']).map((value) => ({
+                value,
+                content: value,
+            })),
+    };
+    render(config);
+    expect(container.querySelector('[data-chart]')).not.toBeNull();
+    expect(captured.chart?.series.data.map((series) => series.seriesId)).toEqual(['row']);
+
+    const withEmpty: ChartXYFormValues = {
+        ...values,
+        measureItems: [...values.measureItems, {id: 'second'}],
+    };
+    render({...config, formValues: withEmpty});
+    expect(container.querySelector('[data-chart]')).not.toBeNull();
+    expect(getChartData).toHaveBeenLastCalledWith(values);
+    expect(captured.chart?.series.data.map((series) => series.seriesId)).toEqual(['row']);
+    expect(captured.form?.formValues).toBe(withEmpty);
+    expect(withEmpty.measureItems).toEqual([{id: 'row', fieldId: 'count'}, {id: 'second'}]);
+    expect(captured.form?.submitDisabled).toBe(true);
+    act(() => captured.form?.onSubmit?.());
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    const completed: ChartXYFormValues = {
+        ...withEmpty,
+        measureItems: [values.measureItems[0], {id: 'second', fieldId: 'total'}],
+    };
+    render({...config, formValues: completed});
+    expect(container.querySelector('[data-chart]')).not.toBeNull();
+    expect(getChartData).toHaveBeenLastCalledWith(completed);
+    expect(captured.chart?.series.data.map((series) => series.seriesId)).toEqual(['row', 'second']);
+    expect(captured.form?.submitDisabled).toBeFalsy();
+    act(() => captured.form?.onSubmit?.());
+    expect(onSubmit).toHaveBeenLastCalledWith(captured.chart, completed);
+
+    render({...config, formValues: withEmpty});
+    render({...config, formValues: values});
+    expect(container.querySelector('[data-chart]')).not.toBeNull();
+    expect(captured.chart?.series.data.map((series) => series.seriesId)).toEqual(['row']);
+    expect(captured.form?.submitDisabled).toBeFalsy();
+    act(() => captured.form?.onSubmit?.());
+    expect(onSubmit).toHaveBeenLastCalledWith(captured.chart, values);
+});
+
+it('retains an explicitly available empty-string field ID in the preview', () => {
+    const getChartData = vi.fn(() => data);
+    const selection: ChartXYFormValues = {
+        ...values,
+        measureItems: [{id: 'selected', fieldId: ''}, {id: 'empty'}],
+    };
+    render({
+        formValues: selection,
+        getFieldOptions: ({role}) => [{value: role === 'dimension' ? 'day' : '', content: 'Field'}],
+        getChartData,
+    });
+    expect(container.querySelector('[data-chart]')).not.toBeNull();
+    expect(getChartData).toHaveBeenLastCalledWith({
+        ...selection,
+        measureItems: [selection.measureItems[0]],
+    });
+    expect(captured.form?.submitDisabled).toBe(true);
+});
+
+it.each([
+    {dimensionFieldId: undefined},
+    {dimensionFieldId: 'missing'},
+    {dimensionAxisType: undefined},
+    {dimensionAxisType: 'linear' as const},
+    {measureItems: [{id: 'row', fieldId: 'disabled'}, {id: 'empty'}]},
+    {
+        measureItems: [
+            {id: 'row', fieldId: 'count'},
+            {id: 'duplicate', fieldId: 'count'},
+            {id: 'empty'},
+        ],
+    },
+] satisfies Partial<ChartXYFormValues>[])(
+    'still rejects invalid selections alongside an empty measure: %j',
+    (invalidValues) => {
+        const getChartData = vi.fn(() => data);
+        const onSubmit = vi.fn();
+        render({
+            formValues: {
+                ...values,
+                measureItems: [...values.measureItems, {id: 'empty'}],
+                ...invalidValues,
+            },
+            axisVariants: ['category'],
+            getFieldOptions: ({role}) =>
+                role === 'dimension'
+                    ? [{value: 'day', content: 'Day'}]
+                    : [
+                          {value: 'count', content: 'Count'},
+                          {value: 'disabled', content: 'Disabled', disabled: true},
+                      ],
+            getChartData,
+            onSubmit,
+        });
+        expect(getChartData).not.toHaveBeenCalled();
+        expect(container.querySelector('[data-chart]')).toBeNull();
+        expect(captured.form?.submitDisabled).toBe(true);
+        act(() => captured.form?.onSubmit?.());
+        expect(onSubmit).not.toHaveBeenCalled();
+    },
+);
+
 it.each([
     undefined,
     {series: {data: []}},

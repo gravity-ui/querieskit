@@ -174,6 +174,7 @@ export type ChartFieldsEditorProps = Pick<
 > & {
     /**
      * Pure adapter called for complete selections; return undefined when data is unavailable.
+     * Empty XY measure rows are omitted from preview selections without changing the draft.
      * The editor applies appearance and, for XY charts only, axis settings.
      */
     getChartData: (values: ChartSelectedFormValues) => ChartData | undefined;

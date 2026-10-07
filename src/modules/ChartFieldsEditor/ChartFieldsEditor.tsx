@@ -32,15 +32,24 @@ export function ChartFieldsEditor({
     });
 
     const chartData = useMemo<ChartData | undefined>(() => {
+        // Unfilled measure rows belong to the draft, not to the preview selection.
+        const previewValues = isXYFormValues(formValues)
+            ? {
+                  ...formValues,
+                  measureItems: formValues.measureItems.filter(
+                      (item) => item.fieldId !== undefined,
+                  ),
+              }
+            : formValues;
         if (
-            !isChartFieldsFormComplete(formValues, {
+            !isChartFieldsFormComplete(previewValues, {
                 chartTypeOptions,
                 getFieldOptions,
                 axisVariants,
             })
         )
             return undefined;
-        const data = getChartData(formValues);
+        const data = getChartData(previewValues);
         if (!data || !data.series.data.some((series) => series.data.length > 0)) {
             return undefined;
         }
@@ -65,7 +74,8 @@ export function ChartFieldsEditor({
         return configured;
     }, [formValues, getChartData, chartTypeOptions, getFieldOptions, axisVariants]);
 
-    const cannotSubmit = !chartData || formProps?.disabled || formProps?.submitDisabled;
+    const cannotSubmit =
+        !isComplete || !chartData || formProps?.disabled || formProps?.submitDisabled;
 
     return (
         <Flex as="section" className={block(null, className)}>
