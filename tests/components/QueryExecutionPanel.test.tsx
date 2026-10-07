@@ -10,8 +10,21 @@ import type {
 } from '../../src/types/queryExecutionPanel';
 import {getMessagesSeverity} from '../../src/widgets/QueryExecutionPanel/helpers/getMessagesSeverity';
 import type {QueryResultsProps} from '../../src/types/queryResults';
+import type {DashboardChartsProps} from '../../src/types/dashboardCharts';
 
 const resultProps = vi.hoisted(() => vi.fn());
+const dashboardProps = vi.hoisted(() => vi.fn());
+
+vi.mock('../../src/widgets/DashboardCharts', () => ({
+    DashboardCharts: (props: DashboardChartsProps) => {
+        dashboardProps(props);
+        return (
+            <div data-dashboard>
+                <Counter />
+            </div>
+        );
+    },
+}));
 
 vi.mock('../../src/modules/QueryResults', () => ({
     QueryResults: (props: QueryResultsProps<Record<string, unknown>>) => {
@@ -87,6 +100,7 @@ describe('QueryExecutionPanel', () => {
         configure({lang: 'en'});
         changes.mockClear();
         resultProps.mockClear();
+        dashboardProps.mockClear();
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container);
@@ -294,6 +308,106 @@ describe('QueryExecutionPanel', () => {
         expect(panel().textContent).toContain('Count 0');
         click('Charts');
         expect(panel().textContent).toContain('Count 1');
+    });
+    it('loads built-in charts on first visit and preserves their state while hidden', async () => {
+        const props: DashboardChartsProps = {dataSource: {line: {}}, onItemsChange: vi.fn()};
+        const tabs: QueryExecutionTab[] = [custom('a'), {id: 'charts', type: 'charts', props}];
+        render({tabs});
+        expect(dashboardProps).not.toHaveBeenCalled();
+        await act(async () => tab('Charts').click());
+        expect(dashboardProps.mock.calls.at(-1)?.[0]).toEqual({...props, active: true});
+        act(() => panel().querySelector('button')!.click());
+        click('a');
+        expect(container.querySelector('[hidden] [data-dashboard]')?.textContent).toBe('Count 1');
+        render({tabs, loading: true});
+        expect(container.querySelector('[data-dashboard]')?.textContent).toBe('Count 1');
+        render({tabs, collapsed: true});
+        expect(container.querySelector('[data-dashboard]')?.textContent).toBe('Count 1');
+        render({tabs, collapsed: false});
+        click('Charts');
+        expect(panel().textContent).toBe('Count 1');
+    });
+    it('forwards fields editor options, adapter and persisted values unchanged', async () => {
+        const getChartData = vi.fn();
+        const props: DashboardChartsProps = {
+            editorMode: 'fields',
+            chartFieldsEditorProps: {
+                chartTypeOptions: [{value: 'line', content: 'Line'}],
+                getFieldOptions: ({role}) =>
+                    role === 'dimension'
+                        ? [{value: 'time', content: 'Time'}]
+                        : [{value: 'revenue', content: 'Revenue'}],
+                getInitialFormValues: () => ({
+                    chartType: 'line',
+                    dimensionAxisType: 'datetime',
+                    measureItems: [{id: 'initial'}],
+                }),
+                getChartData,
+            },
+            chartItems: [
+                {
+                    id: 'saved-chart',
+                    chartData: {series: {data: []}},
+                    fieldsFormValues: {
+                        chartType: 'line',
+                        dimensionAxisType: 'datetime',
+                        dimensionFieldId: 'time',
+                        measureItems: [{id: 'revenue-series', fieldId: 'revenue'}],
+                    },
+                },
+            ],
+            onItemsChange: vi.fn(),
+        };
+        await act(async () => render({tabs: [{id: 'charts', type: 'charts', props}]}));
+        const forwarded = dashboardProps.mock.calls.at(-1)?.[0];
+        expect(forwarded).toEqual({...props, active: true});
+        expect(forwarded.chartFieldsEditorProps).toBe(props.chartFieldsEditorProps);
+        expect(forwarded.chartFieldsEditorProps.getChartData).toBe(getChartData);
+        expect(forwarded.chartItems).toBe(props.chartItems);
+        expect(getChartData).not.toHaveBeenCalled();
+    });
+    it.each([{loading: true}, {error: true}, {collapsed: true}, {activeTab: 'a'}])(
+        'pauses built-in charts when the panel changes to %j',
+        async (hiddenProps) => {
+            const props: DashboardChartsProps = {dataSource: {line: {}}};
+            const tabs: QueryExecutionTab[] = [custom('a'), {id: 'charts', type: 'charts', props}];
+            await act(async () => render({tabs, activeTab: 'charts'}));
+            expect(dashboardProps.mock.calls.at(-1)?.[0].active).toBe(true);
+            render({tabs, activeTab: 'charts', ...hiddenProps});
+            expect(dashboardProps.mock.calls.at(-1)?.[0].active).toBe(false);
+            render({tabs, activeTab: 'charts'});
+            expect(dashboardProps.mock.calls.at(-1)?.[0].active).toBe(true);
+        },
+    );
+    it('respects an explicitly inactive dashboard in the selected tab', async () => {
+        await act(async () =>
+            render({
+                tabs: [
+                    {
+                        id: 'charts',
+                        type: 'charts',
+                        props: {dataSource: {}, active: false},
+                    },
+                ],
+            }),
+        );
+        expect(dashboardProps.mock.calls.at(-1)?.[0].active).toBe(false);
+    });
+    it('retains the charts render callback and its active lifecycle', () => {
+        const renderContent = vi.fn(({active}: {active: boolean}) => (
+            <div data-chart-active={String(active)}>
+                <Counter />
+            </div>
+        ));
+        render({tabs: [custom('a'), {id: 'charts', type: 'charts', renderContent}]});
+        expect(renderContent).not.toHaveBeenCalled();
+        click('Charts');
+        expect(renderContent).toHaveBeenLastCalledWith({active: true});
+        act(() => panel().querySelector('button')!.click());
+        click('a');
+        expect(renderContent).toHaveBeenLastCalledWith({active: false});
+        expect(container.querySelector('[data-chart-active="false"]')?.textContent).toBe('Count 1');
+        expect(dashboardProps).not.toHaveBeenCalled();
     });
     it('forwards standard cell settings and callbacks unchanged to a result tab', () => {
         const getCellOptions = vi.fn(() => ({isIncomplete: true, tag: 'image/png'}));

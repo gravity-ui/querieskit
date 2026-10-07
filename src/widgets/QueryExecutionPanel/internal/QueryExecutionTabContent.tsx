@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {Suspense, lazy, useState} from 'react';
 import {Text} from '@gravity-ui/uikit';
 import {ErrorTree} from '../../../components/ErrorTree';
 import {NavigationMeta} from '../../../modules/NavigationMeta';
@@ -8,6 +8,10 @@ import {QueryStatistics} from '../../../modules/QueryStatistics';
 import type {NavigationMetaItem} from '../../../types/navigation';
 import type {QueryExecutionTab} from '../../../types/queryExecutionPanel';
 import i18n from '../i18n';
+
+const DashboardCharts = lazy(() =>
+    import('../../DashboardCharts').then((module) => ({default: module.DashboardCharts})),
+);
 
 export function QueryExecutionTabContent<
     TRow extends Record<string, unknown>,
@@ -33,6 +37,13 @@ export function QueryExecutionTabContent<
                 <Text color="secondary">{i18n('context_no-messages')}</Text>
             );
         case 'charts':
+            return tab.props ? (
+                <Suspense fallback={null}>
+                    <DashboardCharts {...tab.props} active={active && tab.props.active !== false} />
+                </Suspense>
+            ) : (
+                tab.renderContent({active})
+            );
         case 'custom':
             return tab.renderContent({active});
     }

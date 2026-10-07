@@ -6,6 +6,7 @@ import type {QueryExecutionTab} from '../../../types/queryExecutionPanel';
 import type {ErrorTreeSeverity} from '../../../types/errorTree';
 import {DashboardCharts} from '../../DashboardCharts';
 import {lineSeriesMap} from '../../DashboardCharts/story/mockData';
+import {fieldsChartItems, fieldsEditorProps} from '../../DashboardCharts/story/fieldsData';
 import {demoEdges, demoNodes} from '../../../components/QueryGraph/QueryGraph.stories';
 import {createQueryTrackerPanel} from './queryTrackerAdapter';
 import type {ExampleQuery} from './queryTrackerAdapter';
@@ -81,6 +82,39 @@ export const Meta: Story = {args: {defaultActiveTab: 'meta'}};
 export const Info: Story = {args: {defaultActiveTab: 'info'}};
 export const Progress: Story = {args: {defaultActiveTab: 'progress'}};
 export const Charts: Story = {args: {defaultActiveTab: 'charts'}};
+export const ChartsWithSeries: Story = {
+    args: {
+        defaultActiveTab: 'charts',
+        tabs: [
+            allTabs[0],
+            {id: 'charts', type: 'charts', props: {dataSource: {line: lineSeriesMap}}},
+        ],
+    },
+};
+export const ChartsWithFields: Story = {
+    args: {defaultActiveTab: 'charts'},
+    render: function ChartsWithFieldsExample(args) {
+        const [items, setItems] = useState(() =>
+            fieldsChartItems.filter((item) =>
+                ['saved-pie', 'saved-treemap', 'saved-sankey'].includes(item.id),
+            ),
+        );
+        const tabs: QueryExecutionTab[] = [
+            allTabs[0],
+            {
+                id: 'charts',
+                type: 'charts',
+                props: {
+                    editorMode: 'fields',
+                    chartFieldsEditorProps: fieldsEditorProps,
+                    chartItems: items,
+                    onItemsChange: setItems,
+                },
+            },
+        ];
+        return <QueryExecutionPanel {...args} tabs={tabs} />;
+    },
+};
 export const Narrow: Story = {
     decorators: [
         (Story) => (

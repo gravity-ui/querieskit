@@ -266,7 +266,8 @@ for (const widget of widgets) {
                 included.has(`build/esm/${unitPath(other)}/${other}.js`),
                 other === widget ||
                     (widget === 'QueriesSidebar' && sections.has(other)) ||
-                    (widget === 'QueryExecutionPanel' && other === 'QueryResults'),
+                    (widget === 'QueryExecutionPanel' &&
+                        ['QueryResults', 'DashboardCharts'].includes(other)),
                 `${specifier}: unexpected inclusion/exclusion of ${other}`,
             );
             // esbuild can extract CSS from unused root re-exports. An individual
@@ -276,7 +277,8 @@ for (const widget of widgets) {
                     included.has(`build/esm/${unitPath(other)}/${other}.css`),
                     other === widget ||
                         (widget === 'QueriesSidebar' && sections.has(other)) ||
-                        (widget === 'QueryExecutionPanel' && other === 'QueryResults'),
+                        (widget === 'QueryExecutionPanel' &&
+                            ['QueryResults', 'DashboardCharts'].includes(other)),
                     `${specifier}: unexpected inclusion/exclusion of ${other} CSS`,
                 );
             }
@@ -297,7 +299,8 @@ for (const widget of widgets) {
         for (const dependency of ['@gravity-ui/charts', '@gravity-ui/dashkit']) {
             assert.equal(
                 hasDependency(dependency),
-                widget === 'DashboardCharts',
+                // The built-in Charts tab can load DashboardCharts on demand.
+                widget === 'DashboardCharts' || widget === 'QueryExecutionPanel',
                 `${specifier}: ${dependency}`,
             );
         }
