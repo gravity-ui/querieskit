@@ -1,21 +1,13 @@
 import React, {FC, useEffect, useRef} from 'react';
+import type {editor} from 'monaco-editor';
 // @ts-ignore monaco-editor ships its own types but the default resolution
 // doesn't pick them up for this deep import path in this project setup.
 import * as monaco from 'monaco-editor/editor/editor.api';
 import './monaco-yql-languages/monaco.contribution';
 import {MONACO_THEME_BY_UI, MonacoThemeName, YT_LIGHT_MONACO_THEME} from './MonacoEditorThemes';
+import type {MonacoEditorProps} from '../../types/monacoEditor';
 
-export type MonacoEditorConfig = Omit<monaco.editor.IStandaloneEditorConstructionOptions, 'theme'>;
-
-type Props = {
-    value: string;
-    readOnly?: boolean;
-    language?: string;
-    theme?: string;
-    onClick?: (e: monaco.editor.IEditorMouseEvent) => void;
-    monacoConfig?: MonacoEditorConfig;
-    className?: string;
-};
+export type {MonacoEditorConfig, MonacoEditorProps} from '../../types/monacoEditor';
 
 const resolveTheme = (theme?: string): MonacoThemeName => {
     if (!theme) {
@@ -24,18 +16,23 @@ const resolveTheme = (theme?: string): MonacoThemeName => {
     return (MONACO_THEME_BY_UI[theme] ?? theme) as MonacoThemeName;
 };
 
-export const MonacoEditor: FC<Props> = ({
+export const MonacoEditor: FC<MonacoEditorProps> = ({
     value,
+    onChange,
     language,
     theme,
+    backgroundColor,
     readOnly,
     onClick,
     monacoConfig,
     className,
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-    const modelRef = useRef<monaco.editor.ITextModel | null>(null);
+    const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+    const modelRef = useRef<editor.ITextModel | null>(null);
+    const syncingValueRef = useRef(false);
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
     // Keeps the latest `onClick` without re-subscribing the mouse listener
     // on every render (avoids stale closures without extra effect churn).
     const onClickRef = useRef(onClick);
@@ -45,31 +42,38 @@ export const MonacoEditor: FC<Props> = ({
     useEffect(() => {
         if (!containerRef.current) return undefined;
 
-        const model = monaco.editor.createModel(value, language);
+        const model: editor.ITextModel = monaco.editor.createModel(value, language);
         modelRef.current = model;
 
-        const editorInstance = monaco.editor.create(containerRef.current, {
-            model,
-            renderLineHighlight: 'none',
-            colorDecorators: true,
-            automaticLayout: true,
-            readOnly,
-            minimap: {
-                enabled: false,
+        const editorInstance: editor.IStandaloneCodeEditor = monaco.editor.create(
+            containerRef.current,
+            {
+                model,
+                renderLineHighlight: 'none',
+                colorDecorators: true,
+                automaticLayout: true,
+                readOnly,
+                minimap: {
+                    enabled: false,
+                },
+                lineNumbers: 'on',
+                suggestOnTriggerCharacters: true,
+                wordBasedSuggestions: 'off',
+                theme: resolveTheme(theme),
+                ...monacoConfig,
             },
-            lineNumbers: 'on',
-            suggestOnTriggerCharacters: true,
-            wordBasedSuggestions: 'off',
-            theme: resolveTheme(theme),
-            ...monacoConfig,
-        });
+        );
         editorRef.current = editorInstance;
 
         const mouseDownSubscription = editorInstance.onMouseDown((e) => {
             onClickRef.current?.(e);
         });
+        const contentSubscription = model.onDidChangeContent(() => {
+            if (!syncingValueRef.current) onChangeRef.current?.(model.getValue());
+        });
 
         return () => {
+            contentSubscription.dispose();
             mouseDownSubscription.dispose();
             editorInstance.dispose();
             model.dispose();
@@ -83,9 +87,24 @@ export const MonacoEditor: FC<Props> = ({
     useEffect(() => {
         const model = modelRef.current;
         if (model && model.getValue() !== value) {
-            model.setValue(value);
+            syncingValueRef.current = true;
+            try {
+                const instance = editorRef.current;
+                if (instance && !(monacoConfig?.readOnly ?? readOnly)) {
+                    // External edits (such as formatting) remain undoable.
+                    instance.pushUndoStop();
+                    instance.executeEdits('external-value', [
+                        {range: model.getFullModelRange(), text: value},
+                    ]);
+                    instance.pushUndoStop();
+                } else {
+                    model.setValue(value);
+                }
+            } finally {
+                syncingValueRef.current = false;
+            }
         }
-    }, [value]);
+    }, [value, readOnly, monacoConfig?.readOnly]);
 
     // Keep the model language in sync with the `language` prop.
     useEffect(() => {
@@ -99,6 +118,19 @@ export const MonacoEditor: FC<Props> = ({
     useEffect(() => {
         monaco.editor.setTheme(resolveTheme(theme));
     }, [theme]);
+
+    // Override Monaco's color tokens on this editor only, without changing the
+    // shared Monaco theme or selecting its internal markup. CSS variables also
+    // follow the surrounding UI theme without recreating the editor.
+    useEffect(() => {
+        const element = editorRef.current?.getDomNode();
+        if (!element || backgroundColor === undefined) return undefined;
+        const tokens = ['--vscode-editor-background', '--vscode-editorGutter-background'];
+        for (const token of tokens) element.style.setProperty(token, backgroundColor);
+        return () => {
+            for (const token of tokens) element.style.removeProperty(token);
+        };
+    }, [backgroundColor]);
 
     // Re-apply options (e.g. `readOnly`, `monacoConfig`) when they change.
     useEffect(() => {

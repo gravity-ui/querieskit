@@ -19,11 +19,12 @@ const widgets = [
     'QueryExecutionPanel',
     'QueriesSidebar',
     'QueryTabs',
+    'QueryEditor',
 ];
 const sections = new Set(widgets.slice(0, 4));
 const unitPath = (name) =>
-    `${name === 'QueryResults' || name === 'QueryTabs' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
-const historyWidgets = new Set([...widgets.slice(0, 3), 'QueriesSidebar']);
+    `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QueryEditor' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
+const monacoUnits = new Set([...widgets.slice(0, 3), 'QueriesSidebar', 'QueryEditor']);
 const contributions = [
     'clickhouse/clickhouse.contribution.js',
     'yql/yql.contribution.js',
@@ -113,6 +114,22 @@ function checkTypes(specifier, widget, mode) {
     let contents =
         `export {${widget}} from '${specifier}';\n` +
         (specifier === packageName ? '' : `export type {${widget}Props} from '${specifier}';`);
+    if (widget === 'QueryEditor') {
+        contents += `
+import type {QueryEditorProps, QueryEditorEngine, QueryEditorOptions} from '${specifier}';
+const engine: QueryEditorEngine = {id: 'yql', title: 'YQL', language: 'yql'};
+const options: QueryEditorOptions = {fontSize: 14, wordWrap: 'on'};
+// @ts-expect-error The module owns its model.
+const invalidOptions: QueryEditorOptions = {model: null};
+// @ts-expect-error Every engine must specify a language.
+const invalidEngine: QueryEditorEngine = {id: 'yql', title: 'YQL'};
+const onChange: QueryEditorProps['onChange'] = (value) => {
+    const text: string = value;
+    // @ts-expect-error Changes must retain their string type.
+    const invalid: number = value;
+};
+`;
+    }
     if (widget === 'QueryExecutionPanel') {
         contents += `
 import type {QueryExecutionPanelProps, QueryExecutionTab} from '${specifier}';
@@ -274,7 +291,7 @@ for (const widget of widgets) {
         );
         assert.equal(
             hasDependency('monaco-editor'),
-            historyWidgets.has(widget),
+            monacoUnits.has(widget),
             `${specifier}: Monaco`,
         );
         for (const dependency of ['@gravity-ui/charts', '@gravity-ui/dashkit']) {
@@ -289,7 +306,7 @@ for (const widget of widgets) {
                 included.has(
                     `build/esm/components/MonacoEditor/monaco-yql-languages/${contribution}`,
                 ),
-                historyWidgets.has(widget),
+                monacoUnits.has(widget),
                 `${specifier}: ${contribution}`,
             );
         }

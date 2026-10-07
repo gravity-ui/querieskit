@@ -72,3 +72,4 @@ export type {
     NavigationPreviewViewResolver,
     NavigationSchemaResolver,
 } from './QueriesNavigation';
+export {QueryEditor} from './QueryEditor';

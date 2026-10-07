@@ -40,7 +40,7 @@ export type {SearchRowLayoutProps} from './SearchRowLayout';
 export {SearchWithButtons} from './SearchWithButtons';
 export type {SearchWithButtonsProps} from './SearchWithButtons';
 export {MonacoEditor} from './MonacoEditor';
-export type {MonacoEditorConfig} from './MonacoEditor';
+export type {MonacoEditorConfig, MonacoEditorProps} from './MonacoEditor';
 export {AddChartButton, DEFAULT_ADD_CHART_BUTTON_OPTIONS} from './AddChartButton';
 export type {
     AddChartButtonOption,

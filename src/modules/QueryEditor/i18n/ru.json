@@ -1,0 +1,14 @@
+{
+  "action_run": "Запустить",
+  "action_format": "Форматировать",
+  "action_validate": "Проверить",
+  "action_more": "Дополнительные действия",
+  "action_settings": "Настройки",
+  "action_resize-settings": "Изменить ширину настроек",
+  "action_code-assistant": "Помощник по коду",
+  "action_close-settings": "Закрыть настройки",
+  "field_cluster": "Кластер",
+  "field_engine": "Движок",
+  "title_settings": "Настройки",
+  "field_query": "Редактор запроса"
+}
