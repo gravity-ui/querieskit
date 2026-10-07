@@ -1,4 +1,5 @@
 export {HistoryHeader} from './HistoryHeader';
+export {QueryTabs} from './QueryTabs';
 export {HistoryLayout} from './HistoryLayout';
 export {HistoryComparisonActions} from './HistoryComparisonActions';
 export type {HistoryComparisonActionsProps} from './HistoryComparisonActions';

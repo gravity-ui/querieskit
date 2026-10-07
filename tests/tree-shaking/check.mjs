@@ -18,10 +18,11 @@ const widgets = [
     'DashboardCharts',
     'QueryExecutionPanel',
     'QueriesSidebar',
+    'QueryTabs',
 ];
 const sections = new Set(widgets.slice(0, 4));
 const unitPath = (name) =>
-    `${name === 'QueryResults' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
+    `${name === 'QueryResults' || name === 'QueryTabs' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
 const historyWidgets = new Set([...widgets.slice(0, 3), 'QueriesSidebar']);
 const contributions = [
     'clickhouse/clickhouse.contribution.js',
