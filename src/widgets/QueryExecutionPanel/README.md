@@ -57,24 +57,90 @@ must have a unique, non-empty ID. IDs are not reserved. Invalid IDs are skipped,
 with a development warning; the first duplicate wins. Remove a configuration to
 hide a tab, or set `disabled` to retain its header without allowing selection.
 
-| Type         | Configuration                           | Default title                 |
-| ------------ | --------------------------------------- | ----------------------------- |
-| `result`     | `props: QueryResultsProps<TRow>`        | Result                        |
-| `progress`   | `props: QueryProgressProps`             | Progress                      |
-| `info`       | `props?: ErrorTreeProps`                | Computed from the entire tree |
-| `statistics` | `props: QueryStatisticsProps`           | Statistics                    |
-| `meta`       | `props: NavigationMetaProps<TMetaItem>` | Meta                          |
-| `charts`     | `renderContent({active})`               | Charts                        |
-| `custom`     | `title`, `renderContent({active})`      | Required                      |
+| Type         | Configuration                                              | Default title                 |
+| ------------ | ---------------------------------------------------------- | ----------------------------- |
+| `result`     | `props: QueryResultsProps<TRow>`                           | Result                        |
+| `progress`   | `props: QueryProgressProps`                                | Progress                      |
+| `info`       | `props?: ErrorTreeProps`                                   | Computed from the entire tree |
+| `statistics` | `props: QueryStatisticsProps`                              | Statistics                    |
+| `meta`       | `props: NavigationMetaProps<TMetaItem>`                    | Meta                          |
+| `charts`     | `props: DashboardChartsProps` or `renderContent({active})` | Charts                        |
+| `custom`     | `title`, `renderContent({active})`                         | Required                      |
 
 Standard types other than Info accept an optional `title: ReactNode`. Info uses
 Error > Warning > Info, including collapsed descendants. Without props, it shows
 an empty message state. Its ID never changes when its title changes.
 
-Charts is a content slot. Pass `<DashboardCharts ... />` from the application;
-the panel does not import the dashboard. Custom content receives `active` so it
-can pause subscriptions, animations or polling while hidden. Keep these components
-mounted when inactive if their local state must survive.
+Charts accepts `props: DashboardChartsProps` to render the built-in dashboard.
+It loads the dashboard on first activation and preserves it afterward. The built-in
+chart editor hides while the tab is inactive and restores its draft when the tab
+becomes active again. Existing
+`renderContent({active})` callbacks remain supported for charts and custom tabs;
+choose either `props` or `renderContent` for a charts tab. Custom content receives
+`active` so it can pause subscriptions, animations or polling while hidden. Keep
+these components mounted when inactive if their local state must survive.
+
+Use the default series editor with `props: {dataSource: {line: lineSeriesMap}}`.
+For type-specific column bindings, choose fields mode:
+
+```tsx
+const chartTab: QueryExecutionTab = {
+  id: 'charts',
+  type: 'charts',
+  props: {
+    editorMode: 'fields',
+    chartFieldsEditorProps: {
+      chartTypeOptions: [{value: 'line', content: 'Line'}],
+      getFieldOptions: ({role}) =>
+        role === 'dimension'
+          ? [{value: 'time', content: 'Time'}]
+          : [
+              {value: 'revenue', content: 'Revenue'},
+              {value: 'cost', content: 'Cost'},
+            ],
+      getInitialFormValues: () => ({
+        chartType: 'line',
+        dimensionAxisType: 'datetime',
+        measureItems: [{id: 'first-measure'}],
+      }),
+      getChartData: buildChartFromColumns,
+    },
+    chartItems: savedItems,
+    onItemsChange: saveItems,
+  },
+};
+```
+
+The application supplies the pure `getChartData(values)` adapter that builds chart
+data from selected columns; return `undefined` when no chart can be built. The
+editor applies appearance and, for XY charts, dimension-axis settings to that data. Save the complete
+items from `onItemsChange`, including each item's `fieldsFormValues` alongside
+`chartData`, to restore type-specific bindings and ordered measures or hierarchy levels when editing. Fields mode requires
+`chartFieldsEditorProps`; series mode retains `dataSource` and `chartEditorProps`.
+The ChartsWithSeries and ChartsWithFields stories demonstrate both direct forms.
+
+Fields mode supports line, area, scatter, bar-x, bar-y, pie, treemap and sankey.
+`getFieldOptions({chartType, role})` returns columns appropriate to each role:
+
+| Family                            | Bindings                                                    | Axis settings                           |
+| --------------------------------- | ----------------------------------------------------------- | --------------------------------------- |
+| Line, area, scatter, bar-x, bar-y | `dimensionFieldId`, ordered `measureItems: [{id, fieldId}]` | `dimensionAxisType`, `xTitle`, `yTitle` |
+| Pie                               | `categoryFieldId`, `valueFieldId`                           | None                                    |
+| Treemap                           | Ordered `levels: [{id, fieldId}]`, `valueFieldId`           | None                                    |
+| Sankey                            | `sourceFieldId`, `targetFieldId`, `valueFieldId`            | None                                    |
+
+For bar-y, the dimension lies on Y and measures on X; other XY types use the
+opposite orientation. Treemap level order controls the hierarchy. Each union
+variant includes `chartType`, `chartTitle` and `showLegend`; before a chart type is
+selected, the form may contain only appearance settings. The adapter receives
+`ChartSelectedFormValues`, so branch on `values.chartType` to access the correct
+bindings. Switching chart type resets incompatible bindings.
+
+Aggregation is application-specific. The [demo adapter](../DashboardCharts/story/fieldsData.ts)
+sums duplicate pie categories and source-target flows, and builds treemap nodes
+with collision-safe IDs from ordered paths. These policies are examples rather
+than built-in data inference. `getInitialFormValues(chartType)` supplies optional
+initial bindings for each Add chart choice.
 
 Panels mount their content on first activation and keep it mounted afterward.
 Disabling a visited tab preserves its content; removal unmounts it. IDs and types

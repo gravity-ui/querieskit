@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react';
 import type {NavigationMetaProps} from '../modules/NavigationMeta';
+import type {DashboardChartsProps} from './dashboardCharts';
 import type {ErrorTreeProps} from './errorTree';
 import type {NavigationMetaItem} from './navigation';
 import type {QueryProgressProps} from './queryGraph';
@@ -24,11 +25,16 @@ export type QueryExecutionTab<
         | {type: 'info'; props?: ErrorTreeProps}
         | {type: 'statistics'; title?: ReactNode; props: QueryStatisticsProps}
         | {type: 'meta'; title?: ReactNode; props: NavigationMetaProps<TMetaItem>}
-        | {
+        | ({
               type: 'charts';
               title?: ReactNode;
-              renderContent: (context: QueryExecutionTabRenderContext) => ReactNode;
-          }
+          } & (
+              | {props: DashboardChartsProps; renderContent?: never}
+              | {
+                    props?: never;
+                    renderContent: (context: QueryExecutionTabRenderContext) => ReactNode;
+                }
+          ))
         | {
               type: 'custom';
               title: ReactNode;
