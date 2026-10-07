@@ -1,5 +1,5 @@
 import i18n from '../i18n';
-import type {ChartEditorLabels} from '../types';
+import type {ChartEditorLabels} from '../../../types/chartEditor';
 
 export const resolveLabels = (labels: ChartEditorLabels = {}) => {
     return {
