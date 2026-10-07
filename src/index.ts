@@ -19,6 +19,7 @@ export * from './types/queryTimeline';
 export * from './types/queryExecutionPanel';
 export * from './types/queriesSidebar';
 export * from './types/chartEditor';
+export * from './types/dashboardCharts';
 export type {QueriesHistoryProps} from './types/queriesHistory';
 export type {QueriesNavigationProps} from './types/queriesNavigation';
 export type {SavedQueriesProps} from './types/savedQueriesProps';

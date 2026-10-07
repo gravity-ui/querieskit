@@ -167,3 +167,19 @@ export type ChartFieldsFormProps = {
     onCancel?: () => void;
     onSubmit?: () => void;
 };
+
+export type ChartFieldsEditorProps = Pick<
+    ChartFieldsFormProps,
+    'chartTypeOptions' | 'getFieldOptions' | 'axisVariants' | 'formValues' | 'onCancel'
+> & {
+    /**
+     * Pure adapter called for complete selections; return undefined when data is unavailable.
+     * The editor applies appearance and, for XY charts only, axis settings.
+     */
+    getChartData: (values: ChartSelectedFormValues) => ChartData | undefined;
+    onChange?: (values: ChartFieldsFormValues) => void;
+    onSubmit?: (chartData: ChartData, values: ChartSelectedFormValues) => void;
+    className?: string;
+    emptyDataLabel?: string;
+    formProps?: Pick<ChartFieldsFormProps, 'disabled' | 'submitDisabled' | 'labels' | 'className'>;
+};
