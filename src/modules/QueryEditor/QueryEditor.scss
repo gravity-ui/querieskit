@@ -1,0 +1,18 @@
+.qp-query-editor {
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--g-color-base-background);
+    &__split,
+    &__editor {
+        flex: 1;
+        min-height: 0;
+    }
+    &__footer {
+        min-height: 36px;
+        flex-shrink: 0;
+        padding-inline: var(--g-spacing-2);
+        border-top: 1px solid var(--g-color-line-generic);
+    }
+}

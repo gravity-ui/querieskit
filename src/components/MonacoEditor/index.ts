@@ -1,5 +1,5 @@
 export {MonacoEditor} from './MonacoEditor';
-export type {MonacoEditorConfig} from './MonacoEditor';
+export type {MonacoEditorConfig, MonacoEditorProps} from '../../types/monacoEditor';
 export {MonacoLanguage} from './monaco-yql-languages';
 export {
     YT_DARK_HC_MONACO_THEME,

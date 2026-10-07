@@ -1,0 +1,33 @@
+.qp-query-editor-split {
+    overflow: auto;
+    &__panels {
+        height: 100%;
+        min-width: 320px;
+    }
+    &__panels_open {
+        min-width: 566px;
+    }
+    &__editor {
+        min-width: 320px;
+        min-height: 0;
+    }
+    &__settings {
+        flex-shrink: 0;
+        overflow: auto;
+    }
+    &__divider {
+        width: 6px;
+        flex-shrink: 0;
+        cursor: col-resize;
+        touch-action: none;
+        background: var(--g-color-line-generic);
+        &:hover,
+        &:focus-visible {
+            background: var(--g-color-line-brand);
+        }
+        &:focus-visible {
+            outline: 2px solid var(--g-color-line-focus);
+            outline-offset: -2px;
+        }
+    }
+}
