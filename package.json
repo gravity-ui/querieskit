@@ -177,7 +177,7 @@
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
     "test": "npm run test:timezones && npm run test:components && npm run test:timeline && npm run test:charts",
-    "test:charts": "vitest run tests/helpers/chartFieldsForm.test.ts",
+    "test:charts": "vitest run tests/helpers/chartFieldsForm.test.ts tests/helpers/chartBindingsExamples.test.ts",
     "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
     "test:components": "vitest run tests/components",
     "prepublishOnly": "npm run build",
