@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {QueryListRowRenderData} from '../../types/queryList';
-import {QueryHistoryRow} from '../../types/history';
+import type {QueryListRowRenderData} from '../../types/queryList';
+import type {QueryHistoryRow} from '../../types/history';
 import {HistoryPrivateIcon} from '../../components/HistoryPrivateIcon';
 import {QueryDuration} from '../../components/QueryDuration';
 import {QueryStatusIcon} from '../../components/QueryStatusIcon';
@@ -38,21 +38,27 @@ export const HistorySearchRow = <T extends QueryHistoryRow>({
             header={
                 <Flex gap={2} alignItems="center" className={block('header')}>
                     <QueryStatusIcon status={status} className={block('icon')} />
-                    {isFieldVisible(visibleFields, 'duration') && startTime && (
-                        <QueryDuration status={status} startTime={startTime} endTime={endTime} />
-                    )}
-                    {isFieldVisible(visibleFields, 'mode') && mode && (
+                    {isFieldVisible<QueryHistoryRow>(visibleFields, 'duration') &&
+                        startTime !== undefined && (
+                            <QueryDuration
+                                status={status}
+                                startTime={startTime}
+                                endTime={endTime}
+                            />
+                        )}
+                    {isFieldVisible<QueryHistoryRow>(visibleFields, 'mode') && mode && (
                         <Text color="complementary">{mode}</Text>
                     )}
-                    {isFieldVisible(visibleFields, 'startTime') && startTime && (
-                        <Text color="complementary" className={block('start-time')}>
-                            {formatTimeCanonical(startTime)}
-                        </Text>
-                    )}
-                    {isFieldVisible(visibleFields, 'engine') && engine && (
+                    {isFieldVisible<QueryHistoryRow>(visibleFields, 'startTime') &&
+                        startTime !== undefined && (
+                            <Text color="complementary" className={block('start-time')}>
+                                {formatTimeCanonical(startTime)}
+                            </Text>
+                        )}
+                    {isFieldVisible<QueryHistoryRow>(visibleFields, 'engine') && engine && (
                         <Text color="complementary">{engine}</Text>
                     )}
-                    {isFieldVisible(visibleFields, 'isPrivate') && (
+                    {isFieldVisible<QueryHistoryRow>(visibleFields, 'isPrivate') && (
                         <HistoryPrivateIcon isPrivate={isPrivate} />
                     )}
                 </Flex>

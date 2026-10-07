@@ -13,7 +13,7 @@ import {
 } from '../../helpers/chartFieldsForm';
 import {ChartConfigFields} from '../ChartConfigFields';
 
-import {Field} from './internal/Field';
+import {FormField} from '../FormField';
 import {XYFields} from './internal/XYFields';
 import {PieFields} from './internal/PieFields';
 import {TreemapFields} from './internal/TreemapFields';
@@ -76,7 +76,7 @@ export function ChartFieldsForm({
             </Flex>
 
             <Flex direction="column" gap={3} className={block('fields')}>
-                <Field label={resolvedLabels.chartType}>
+                <FormField label={resolvedLabels.chartType}>
                     <Select
                         aria-label={resolvedLabels.chartType}
                         placeholder={resolvedLabels.selectItem}
@@ -98,7 +98,7 @@ export function ChartFieldsForm({
                         disabled={disabled}
                         width="max"
                     />
-                </Field>
+                </FormField>
 
                 {(() => {
                     const common = {

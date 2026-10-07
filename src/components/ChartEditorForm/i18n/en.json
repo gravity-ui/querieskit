@@ -3,10 +3,6 @@
   "field_data": "Data",
   "field_x": "X",
   "field_axis-type": "Axis type",
-  "field_chart-title": "Chart title",
-  "field_x-title": "X title",
-  "field_y-title": "Y title",
-  "field_show-legend": "Show legend",
   "button_cancel": "Cancel",
   "button_submit": "Add chart"
 }
