@@ -4,6 +4,7 @@ import cn from 'bem-cn-lite';
 import {EditableRowTitle} from '../../components/EditableRowTitle';
 import {RowActionsMenu} from '../../components/RowActionsMenu';
 import {RowLink} from '../../components/RowLink';
+import {isFieldVisible} from '../../helpers/isFieldVisible';
 import {formatDateCanonical} from '../../helpers/time';
 import type {QueryListRowRenderData} from '../../types/queryList';
 import type {SavedQuery} from '../../types/savedQueries';
@@ -31,8 +32,6 @@ export const SavedQueryRow = <T extends SavedQuery>({
     const isComparisonMode = Boolean(comparison?.enabled);
     const isChecked = Boolean(comparison?.checked);
     const showMenu = isActive && Boolean(actions?.length) && !isComparisonMode;
-    const isFieldVisible = (field: string) =>
-        visibleFields === undefined || (visibleFields.value as string[]).includes(field);
     const authorContent =
         renderAuthor?.(item) ??
         (author ? <Avatar size="3xs" text={author} title={author} /> : null);
@@ -50,13 +49,14 @@ export const SavedQueryRow = <T extends SavedQuery>({
                     {showMenu && <RowActionsMenu item={item} actions={actions} />}
                 </Flex>
                 <Flex gap={2} alignItems="center" className={block('metadata')}>
-                    {isFieldVisible('savedAt') && savedAt && (
-                        <Text color="complementary">{formatDateCanonical(savedAt)}</Text>
-                    )}
-                    {isFieldVisible('engine') && engine && (
+                    {isFieldVisible<SavedQuery>(visibleFields, 'savedAt') &&
+                        savedAt !== undefined && (
+                            <Text color="complementary">{formatDateCanonical(savedAt)}</Text>
+                        )}
+                    {isFieldVisible<SavedQuery>(visibleFields, 'engine') && engine && (
                         <Text color="complementary">{engine}</Text>
                     )}
-                    {isFieldVisible('author') && authorContent}
+                    {isFieldVisible<SavedQuery>(visibleFields, 'author') && authorContent}
                 </Flex>
             </Flex>
         </RowLink>

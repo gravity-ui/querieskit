@@ -1,20 +1,12 @@
-import {QueryListFieldKey} from '../types/queryList';
-import {QueryHistoryRow} from '../types/history';
+import type {QueryListFieldKey, QueryListRow} from '../types/queryList';
 
 /**
- * A field is visible either when no `visibleFields` config is provided
- * (the consumer doesn't opt into the feature — everything is shown), or when
- * the field key is explicitly included in `visibleFields.value`.
- *
- * `visibleFields` is accepted loosely as `{value: string[]}` (rather than the
- * generic `QueryListVisibleFieldsConfig<T>`) so this helper works for any
- * `T extends QueryHistoryRow` without fighting TS variance on generic key
- * unions; `field` still uses `QueryListFieldKey<QueryHistoryRow>` to keep
- * typo-protection for the built-in fields checked by the row renderers.
+ * A field is visible when no config is provided or its key is explicitly included.
+ * Accept only the selected keys to avoid coupling to generic config callbacks.
  */
-export const isFieldVisible = (
-    visibleFields: {value: string[]} | undefined,
-    field: QueryListFieldKey<QueryHistoryRow>,
+export const isFieldVisible = <T extends QueryListRow>(
+    visibleFields: {value: readonly string[]} | undefined,
+    field: QueryListFieldKey<T>,
 ): boolean => {
     return visibleFields === undefined || visibleFields.value.includes(field);
 };

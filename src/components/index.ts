@@ -48,6 +48,8 @@ export type {
     DefaultAddChartButtonValue,
 } from './AddChartButton';
 export {ChartEditorForm} from './ChartEditorForm';
+export {FormField} from './FormField';
+export type {FormFieldProps} from './FormField';
 export {ChartFieldsForm} from './ChartFieldsForm';
 export {ChartConfigFields} from './ChartConfigFields';
 export type {

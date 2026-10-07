@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import type {ChartEditorFormProps, ChartEditorFormValues} from '../../types/chartEditor';
 import {Button, Flex, Select, Text} from '@gravity-ui/uikit';
 import {ChartConfigFields} from '../ChartConfigFields';
-import {Field} from './internal/Field';
+import {FormField} from '../FormField';
 import {resolveLabels} from './helpers/resolveLabels';
 import type {ChartAxisType} from '@gravity-ui/charts';
 import cn from 'bem-cn-lite';
@@ -47,7 +47,7 @@ export function ChartEditorForm({
 
             <Flex direction="column" gap={3} className={block('fields')}>
                 {needShowDataIdsSelector && (
-                    <Field label={resolvedLables.data}>
+                    <FormField label={resolvedLables.data}>
                         <Select
                             multiple
                             aria-label={resolvedLables.data}
@@ -57,10 +57,10 @@ export function ChartEditorForm({
                             disabled={disabled}
                             width="max"
                         />
-                    </Field>
+                    </FormField>
                 )}
 
-                <Field label={resolvedLables.axisType}>
+                <FormField label={resolvedLables.axisType}>
                     <Select<ChartAxisType>
                         aria-label={resolvedLables.axisType}
                         options={axisOptions}
@@ -71,12 +71,12 @@ export function ChartEditorForm({
                         disabled={disabled}
                         width="max"
                     />
-                </Field>
+                </FormField>
 
                 <ChartConfigFields
                     formValues={formValues}
                     onFormValuesChange={updateFormValues}
-                    labels={resolvedLables}
+                    labels={labels}
                     disabled={disabled}
                 />
             </Flex>

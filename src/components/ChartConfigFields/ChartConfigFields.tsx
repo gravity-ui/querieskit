@@ -2,7 +2,7 @@ import React from 'react';
 import {Flex, Switch, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import type {ChartConfigFieldsProps, ChartConfigValues} from '../../types/chartEditor';
-import {Field} from './internal/Field';
+import {FormField} from '../FormField';
 import i18n from './i18n';
 import './ChartConfigFields.scss';
 
@@ -29,34 +29,34 @@ export function ChartConfigFields({
 
     return (
         <Flex direction="column" gap={3} className={block(null, className)}>
-            <Field label={resolvedLabels.chartTitle}>
+            <FormField label={resolvedLabels.chartTitle}>
                 <TextInput
                     controlProps={{'aria-label': resolvedLabels.chartTitle}}
                     value={formValues.chartTitle ?? ''}
                     onUpdate={(chartTitle) => updateFormValues({chartTitle})}
                     disabled={disabled}
                 />
-            </Field>
+            </FormField>
 
             {showAxes && (
                 <>
-                    <Field label={resolvedLabels.xTitle}>
+                    <FormField label={resolvedLabels.xTitle}>
                         <TextInput
                             controlProps={{'aria-label': resolvedLabels.xTitle}}
                             value={formValues.xTitle ?? ''}
                             onUpdate={(xTitle) => updateFormValues({xTitle})}
                             disabled={disabled}
                         />
-                    </Field>
+                    </FormField>
 
-                    <Field label={resolvedLabels.yTitle}>
+                    <FormField label={resolvedLabels.yTitle}>
                         <TextInput
                             controlProps={{'aria-label': resolvedLabels.yTitle}}
                             value={formValues.yTitle ?? ''}
                             onUpdate={(yTitle) => updateFormValues({yTitle})}
                             disabled={disabled}
                         />
-                    </Field>
+                    </FormField>
                 </>
             )}
 

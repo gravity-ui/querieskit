@@ -19,6 +19,7 @@ export * from './types/queryTimeline';
 export * from './types/queryExecutionPanel';
 export * from './types/queriesSidebar';
 export * from './types/chartEditor';
+export type {FormFieldProps} from './types/formField';
 export * from './types/dashboardCharts';
 export type {QueriesHistoryProps} from './types/queriesHistory';
 export type {QueriesNavigationProps} from './types/queriesNavigation';

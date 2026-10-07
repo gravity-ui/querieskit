@@ -1,7 +1,7 @@
 import React from 'react';
 import {Select} from '@gravity-ui/uikit';
 import type {ChartEditorOption} from '../../../types/chartEditor';
-import {Field} from './Field';
+import {FormField} from '../../FormField';
 
 export function ColumnField({
     label,
@@ -19,7 +19,7 @@ export function ColumnField({
     onChange: (value: string | undefined) => void;
 }) {
     return (
-        <Field label={label}>
+        <FormField label={label}>
             <Select
                 aria-label={label}
                 placeholder={placeholder}
@@ -29,6 +29,6 @@ export function ColumnField({
                 width="max"
                 onUpdate={([next]) => onChange(next)}
             />
-        </Field>
+        </FormField>
     );
 }
