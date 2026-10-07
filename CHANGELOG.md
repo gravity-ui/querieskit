@@ -13,6 +13,13 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [2.3.1](https://github.com/gravity-ui/querieskit/compare/v2.3.0...v2.3.1) (2026-10-07)
+
+
+### Bug Fixes
+
+* **ChartFieldsEditor:** preserve preview with empty measure rows ([b020671](https://github.com/gravity-ui/querieskit/commit/b0206711ba8253832471905f902fd7afc787d951))
+
 ## [2.3.0](https://github.com/gravity-ui/querieskit/compare/v2.2.0...v2.3.0) (2026-10-07)
 
 
