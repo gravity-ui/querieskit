@@ -4,6 +4,7 @@ export * from './widgets';
 export * from './types/queryList';
 export * from './types/listPanel';
 export * from './types/history';
+export type {QueryTabItem, QueryTabsProps} from './types/queryTabs';
 export type {SavedQuery} from './types/savedQueries';
 export * from './types/tutorial';
 export * from './types/navigation';
