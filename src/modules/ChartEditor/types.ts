@@ -1,8 +1,6 @@
-import type {ChartData as BaseChartData, ChartSeries as BaseChartSeries} from '@gravity-ui/charts';
 import type {ChartEditorFormProps} from '../../components/ChartEditorForm';
-
-export type ChartSeries = BaseChartSeries & {seriesId: string};
-export type ChartData = Omit<BaseChartData, 'series'> & {series: {data: ChartSeries[]}};
+import type {ChartData, ChartSeries} from '../../types/chartEditor';
+export type {ChartData, ChartSeries} from '../../types/chartEditor';
 
 export type ChartEditorProps = Pick<ChartEditorFormProps, 'axisVariants'> & {
     className?: string;

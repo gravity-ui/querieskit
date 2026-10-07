@@ -48,6 +48,29 @@ export type {
     DefaultAddChartButtonValue,
 } from './AddChartButton';
 export {ChartEditorForm} from './ChartEditorForm';
+export {ChartFieldsForm} from './ChartFieldsForm';
+export {ChartConfigFields} from './ChartConfigFields';
+export type {
+    ChartFieldsFormProps,
+    ChartFieldsFormValues,
+    ChartFieldsFormLabels,
+    ChartFieldItem,
+    ChartFieldsChartType,
+    ChartFieldRole,
+    ChartFieldOptionsContext,
+    ChartSelectedFormValues,
+    ChartXYType,
+    ChartXYFormValues,
+    ChartPieFormValues,
+    ChartTreemapFormValues,
+    ChartSankeyFormValues,
+    ChartAppearanceValues,
+} from './ChartFieldsForm';
+export type {
+    ChartConfigFieldsProps,
+    ChartConfigValues,
+    ChartConfigLabels,
+} from './ChartConfigFields';
 export type {
     ChartEditorFormProps,
     ChartEditorFormValues,

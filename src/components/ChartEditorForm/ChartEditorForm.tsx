@@ -1,9 +1,10 @@
 import React, {useMemo} from 'react';
-import type {ChartEditorFormProps, ChartEditorFormValues} from './types';
-import {Button, Flex, Select, Switch, Text, TextInput} from '@gravity-ui/uikit';
+import type {ChartEditorFormProps, ChartEditorFormValues} from '../../types/chartEditor';
+import {Button, Flex, Select, Text} from '@gravity-ui/uikit';
+import {ChartConfigFields} from '../ChartConfigFields';
 import {Field} from './internal/Field';
 import {resolveLabels} from './helpers/resolveLabels';
-import {ChartAxisType} from '@gravity-ui/charts';
+import type {ChartAxisType} from '@gravity-ui/charts';
 import cn from 'bem-cn-lite';
 import './ChartEditorForm.scss';
 
@@ -72,38 +73,11 @@ export function ChartEditorForm({
                     />
                 </Field>
 
-                <Field label={resolvedLables.chartTitle}>
-                    <TextInput
-                        aria-label={resolvedLables.chartTitle}
-                        value={formValues.chartTitle}
-                        onUpdate={(chartTitle) => updateFormValues({chartTitle})}
-                        disabled={disabled}
-                    />
-                </Field>
-
-                <Field label={resolvedLables.xTitle}>
-                    <TextInput
-                        aria-label={resolvedLables.xTitle}
-                        value={formValues.xTitle}
-                        onUpdate={(xTitle) => updateFormValues({xTitle})}
-                        disabled={disabled}
-                    />
-                </Field>
-
-                <Field label={resolvedLables.yTitle}>
-                    <TextInput
-                        aria-label={resolvedLables.yTitle}
-                        value={formValues.yTitle}
-                        onUpdate={(yTitle) => updateFormValues({yTitle})}
-                        disabled={disabled}
-                    />
-                </Field>
-
-                <Switch
-                    checked={Boolean(formValues.showLegend)}
-                    onUpdate={(showLegend) => updateFormValues({showLegend})}
+                <ChartConfigFields
+                    formValues={formValues}
+                    onFormValuesChange={updateFormValues}
+                    labels={resolvedLables}
                     disabled={disabled}
-                    content={resolvedLables.showLegend}
                 />
             </Flex>
 

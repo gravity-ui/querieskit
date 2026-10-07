@@ -1,0 +1,23 @@
+{
+  "title_form": "Add chart",
+  "title_chart-config": "Chart config",
+  "field_chart-type": "Chart type",
+  "field_x": "X",
+  "field_y": "Y",
+  "field_axis-type": "Axis type",
+  "field_chart-title": "Title",
+  "context_select-item": "Select item",
+  "action_add-item": "Add item",
+  "action_remove-item": "Remove item",
+  "action_close": "Close",
+  "action_cancel": "Cancel",
+  "action_submit": "Add chart",
+  "field_category": "Categories",
+  "field_value": "Value",
+  "field_levels": "Levels",
+  "field_source": "Source",
+  "field_target": "Target",
+  "field_flow-value": "Flow value",
+  "action_move-up": "Move up",
+  "action_move-down": "Move down"
+}
