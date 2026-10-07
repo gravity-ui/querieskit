@@ -13,6 +13,17 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [2.3.0](https://github.com/gravity-ui/querieskit/compare/v2.2.0...v2.3.0) (2026-10-07)
+
+
+### Features
+
+* **ChartFieldsForm:** add chart-specific column bindings ([8a68653](https://github.com/gravity-ui/querieskit/commit/8a68653dae0f3742a30e443fdecf9508d2f3703a))
+* **DashboardCharts:** add column-based chart editor ([468981b](https://github.com/gravity-ui/querieskit/commit/468981b3500c306aa95c609fd8caa90b6e413697))
+* **QueryEditor:** add query editor with resizable settings panel ([446c041](https://github.com/gravity-ui/querieskit/commit/446c041780304ea505ce50264ec88d36c59f8e09))
+* **QueryExecutionPanel:** integrate dashboard charts tab ([1a11117](https://github.com/gravity-ui/querieskit/commit/1a11117ac1c136762bffb8cbedda28cd55e201af))
+* **QueryTabs:** add query and comparison tabs ([3d349ee](https://github.com/gravity-ui/querieskit/commit/3d349ee93770c10246ba59d560e27328afca3106))
+
 ## [2.2.0](https://github.com/gravity-ui/querieskit/compare/v2.1.1...v2.2.0) (2026-10-06)
 
 
