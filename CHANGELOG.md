@@ -13,6 +13,18 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [2.4.0](https://github.com/gravity-ui/querieskit/compare/v2.3.1...v2.4.0) (2026-10-09)
+
+
+### Features
+
+* **editors:** add extensible providers and query language preset ([36fa5f2](https://github.com/gravity-ui/querieskit/commit/36fa5f2cbf97769710f17a91ad58979395b157a4))
+
+
+### Bug Fixes
+
+* deduplicate form fields and row metadata logic ([7abe1c0](https://github.com/gravity-ui/querieskit/commit/7abe1c0abb263c58b7cdc11f3bd36ef6080e26ca))
+
 ## [2.3.1](https://github.com/gravity-ui/querieskit/compare/v2.3.0...v2.3.1) (2026-10-07)
 
 
