@@ -1,5 +1,19 @@
 export {MonacoEditor} from './MonacoEditor';
-export type {MonacoEditorConfig, MonacoEditorProps} from '../../types/monacoEditor';
+export type {
+    MonacoEditorConfig,
+    MonacoEditorProps,
+    MonacoEditorIntegrationProps,
+} from '../../types/monacoEditor';
+export type {
+    EditorPreset,
+    EditorProviders,
+    EditorProviderSet,
+    EditorProviderContext,
+    EditorExtension,
+    EditorSetupContext,
+    EditorProviderOverride,
+    EditorMonaco,
+} from '../../types/editorProviders';
 export {MonacoLanguage} from './monaco-yql-languages';
 export {
     YT_DARK_HC_MONACO_THEME,

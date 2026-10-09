@@ -200,6 +200,39 @@ describe('QueryEditor', () => {
         expect(props.onEngineChange).not.toHaveBeenCalled();
         expect(editor.props.language).toBe('plaintext');
     });
+    it('forwards integrations and derives context from the selected engine and cluster', () => {
+        const integrations = {
+            editorRef: React.createRef<import('monaco-editor').editor.IStandaloneCodeEditor>(),
+            providers: {completion: false} as const,
+            extensions: [],
+            showStatusBar: true,
+            diagnostics: [],
+            highlightErrorLines: true,
+            highlightedLine: 2,
+            onLineNumberClick: vi.fn(),
+            onClick: vi.fn(),
+            onFocus: vi.fn(),
+            onBlur: vi.fn(),
+        };
+        const data = {catalog: 'test'};
+        render({...integrations, providerContext: {language: 'wrong', clusterId: 'wrong', data}});
+        for (const [key, value] of Object.entries(integrations))
+            expect(editor.props[key]).toBe(value);
+        expect(editor.props.providerContext).toEqual({
+            language: 'yql',
+            engineId: 'yql',
+            clusterId: 'a',
+            data,
+        });
+        render({...integrations, engineId: 'ch', clusterId: 'b', providerContext: {data}});
+        expect(editor.props.providerContext).toEqual({
+            language: 'clickhouse',
+            engineId: 'ch',
+            clusterId: 'b',
+            data,
+        });
+        expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
     it('delegates Cluster and Engine changes without selecting them internally', () => {
         render();
         for (const [label, option, callback, id] of [

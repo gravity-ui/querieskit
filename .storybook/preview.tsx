@@ -1,12 +1,17 @@
 import type {Decorator, Preview} from '@storybook/react';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import React from 'react';
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
 
 import '@gravity-ui/uikit/styles/fonts.css';
 import '@gravity-ui/uikit/styles/styles.css';
 import '@gravity-ui/unipika/dist/unipika.css';
 import '@gravity-ui/illustrations/styles/styles.scss';
 import './redefinition.css';
+
+// Vite must emit the worker as an asset; Monaco's default URL cannot resolve
+// relative bootstrap imports from the production preview's bundled code.
+self.MonacoEnvironment = {getWorker: () => new EditorWorker()};
 
 configure({lang: 'en'});
 

@@ -97,6 +97,16 @@ an ordered `tabs` array and an optional `header` for product selection or action
 Use `hideTabs` with `activeTab` when navigation lives outside the sidebar.
 See [the API and migration guide](src/widgets/QueriesSidebar/README.md).
 
+### Query editors
+
+`MonacoEditor` and `QueryEditor` support model-scoped language providers, custom
+extensions, diagnostics, line navigation, and access to the editor instance.
+Use `createQueryEditorPreset` for optional language completion with catalog and
+schema adapters, or replace individual capabilities with your own Monaco providers.
+See [the editor integration guide](docs/editor-extensions.md) and the QueryEditor
+Extensions stories. Individual imports are available from `components/MonacoEditor`,
+`modules/QueryEditor`, and `helpers/queryEditorPreset`.
+
 ### QueryExecutionPanel
 
 A query execution panel with ordered, typed tabs, custom content, automatic tab

@@ -1,4 +1,4 @@
-import React, {useId, useState} from 'react';
+import React, {useId, useMemo, useState} from 'react';
 import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
@@ -34,6 +34,15 @@ export function QueryEditor(props: QueryEditorProps) {
     };
     const language =
         props.engines.find((engine) => engine.id === props.engineId)?.language ?? 'plaintext';
+    const providerContext = useMemo(
+        () => ({
+            ...props.providerContext,
+            language,
+            engineId: props.engineId,
+            clusterId: props.clusterId,
+        }),
+        [props.providerContext, language, props.engineId, props.clusterId],
+    );
 
     return (
         <Flex direction="column" className={block(null, props.className)}>
@@ -52,6 +61,19 @@ export function QueryEditor(props: QueryEditorProps) {
                     onSettingsToggle={changeOpen}
                 />
                 <MonacoEditor
+                    editorRef={props.editorRef}
+                    onClick={props.onClick}
+                    onFocus={props.onFocus}
+                    onBlur={props.onBlur}
+                    preset={props.preset}
+                    providers={props.providers}
+                    providerContext={providerContext}
+                    extensions={props.extensions}
+                    showStatusBar={props.showStatusBar}
+                    diagnostics={props.diagnostics}
+                    highlightErrorLines={props.highlightErrorLines}
+                    highlightedLine={props.highlightedLine}
+                    onLineNumberClick={props.onLineNumberClick}
                     value={props.value}
                     onChange={props.onChange}
                     readOnly={props.readOnly}

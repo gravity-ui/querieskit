@@ -1,5 +1,5 @@
 import type {IconProps} from '@gravity-ui/uikit';
-import type {MonacoEditorConfig} from './monacoEditor';
+import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
 
 export type QueryEditorCluster = {id: string; title: string; disabled?: boolean};
 
@@ -27,7 +27,7 @@ export type QueryEditorOptions = Omit<
     'model' | 'value' | 'language' | 'theme' | 'readOnly' | 'automaticLayout'
 >;
 
-export type QueryEditorProps = {
+export type QueryEditorProps = MonacoEditorIntegrationProps & {
     value: string;
     onChange: (value: string) => void;
     clusters: QueryEditorCluster[];
