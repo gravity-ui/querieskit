@@ -165,6 +165,26 @@
         "types": "./build/cjs/widgets/QueriesSidebar/index.d.ts",
         "default": "./build/cjs/widgets/QueriesSidebar/index.js"
       }
+    },
+    "./helpers/queryEditorPreset": {
+      "import": {
+        "types": "./build/esm/helpers/queryEditorPreset/index.d.ts",
+        "default": "./build/esm/helpers/queryEditorPreset/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/helpers/queryEditorPreset/index.d.ts",
+        "default": "./build/cjs/helpers/queryEditorPreset/index.js"
+      }
+    },
+    "./components/MonacoEditor": {
+      "import": {
+        "types": "./build/esm/components/MonacoEditor/index.d.ts",
+        "default": "./build/esm/components/MonacoEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/MonacoEditor/index.d.ts",
+        "default": "./build/cjs/components/MonacoEditor/index.js"
+      }
     }
   },
   "files": [
@@ -176,13 +196,15 @@
     "lint:all": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "test": "npm run test:timezones && npm run test:components && npm run test:timeline && npm run test:charts",
+    "test": "npm run test:timezones && npm run test:components && npm run test:timeline && npm run test:charts && npm run test:editor-helpers",
     "test:charts": "vitest run tests/helpers/chartFieldsForm.test.ts tests/helpers/chartBindingsExamples.test.ts",
     "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
     "test:components": "vitest run tests/components",
     "prepublishOnly": "npm run build",
     "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs",
-    "test:timeline": "vitest run tests/helpers/queryTimeline.test.ts"
+    "test:timeline": "vitest run tests/helpers/queryTimeline.test.ts",
+    "test:editor-helpers": "vitest run tests/helpers/editorProviders.test.ts tests/helpers/queryEditorPreset.test.ts",
+    "test:editors:browser": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -201,6 +223,7 @@
     "@gravity-ui/prettier-config": "^1.1.1",
     "@gravity-ui/tsconfig": "^1.0.0",
     "@gravity-ui/uikit": "^7.45.1",
+    "@playwright/test": "^1.63.0",
     "@storybook/react": "^10.5.0",
     "@storybook/react-vite": "^10.5.0",
     "@types/react": "^19.2.17",
@@ -238,6 +261,7 @@
     "@gravity-ui/react-data-table": "^2.2.1",
     "@gravity-ui/timeline": "1.32.2",
     "@gravity-ui/unipika": "^5.6.3",
+    "@gravity-ui/websql-autocomplete": "^13.16.0",
     "bem-cn-lite": "^4.1.0",
     "lodash": "^4.18.1",
     "monaco-editor": "^0.56.0"
@@ -250,6 +274,8 @@
   },
   "sideEffects": [
     "**/*.css",
+    "**/*.scss",
+    "./src/components/MonacoEditor/monaco-yql-languages/**/*.contribution.ts",
     "./build/*/components/MonacoEditor/monaco-yql-languages/monaco.contribution.js",
     "./build/*/components/MonacoEditor/monaco-yql-languages/clickhouse/clickhouse.contribution.js",
     "./build/*/components/MonacoEditor/monaco-yql-languages/yql/yql.contribution.js",

@@ -1,0 +1,28 @@
+.qp-monaco-editor {
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+
+    &__surface {
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+    }
+
+    &__status-bar {
+        flex-shrink: 0;
+        min-height: var(--g-spacing-5);
+        padding-inline: var(--g-spacing-2);
+        border-top: 1px solid var(--g-color-line-generic);
+        color: var(--g-color-text-secondary);
+        background: var(--g-color-base-background);
+    }
+
+    &__error-line {
+        background: var(--g-color-base-danger-light);
+    }
+
+    &__highlighted-line {
+        background: var(--g-color-base-selection);
+    }
+}

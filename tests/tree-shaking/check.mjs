@@ -33,6 +33,32 @@ const contributions = [
     'themes/themes.contribution.js',
 ];
 
+// Storybook bundles TypeScript sources directly. Preserve language registration
+// there as well as in published JavaScript builds; dev mode does not tree-shake it.
+const sourceEditorBundle = await build({
+    absWorkingDir: root,
+    entryPoints: ['src/components/MonacoEditor/index.ts'],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    packages: 'external',
+    external: ['*.scss'],
+    metafile: true,
+    logLevel: 'silent',
+});
+const sourceOutputs = Object.values(sourceEditorBundle.metafile.outputs);
+const sourceInputs = new Set(sourceOutputs.flatMap((output) => Object.keys(output.inputs)));
+for (const contribution of contributions) {
+    const source = `src/components/MonacoEditor/monaco-yql-languages/${contribution.replace(/\.js$/, '.ts')}`;
+    assert(sourceInputs.has(source), `Source editor bundle lost language registration: ${source}`);
+}
+assert(
+    sourceOutputs.some((output) =>
+        output.imports.some((item) => item.path.endsWith('/MonacoEditor.scss')),
+    ),
+    'Source editor bundle lost its stylesheet',
+);
+
 // Resolve source imports, including type-only imports, to prevent common barrels
 // from silently returning anywhere in a widget's public dependency chain.
 const config = ts.readConfigFile(path.join(root, 'tsconfig.json'), ts.sys.readFile);
@@ -128,6 +154,26 @@ const onChange: QueryEditorProps['onChange'] = (value) => {
     // @ts-expect-error Changes must retain their string type.
     const invalid: number = value;
 };
+import {createQueryEditorPreset} from '${packageName}/helpers/queryEditorPreset';
+import type {QueryCatalogRequest, QueryEditorPresetOptions} from '${packageName}/helpers/queryEditorPreset';
+import type {MonacoEditorProps, EditorProviders, EditorExtension} from '${packageName}/components/MonacoEditor';
+const presetOptions: QueryEditorPresetOptions = {
+    getTableSchema: async (request: QueryCatalogRequest) => [{name: request.path, type: 'String'}],
+};
+const preset = createQueryEditorPreset(presetOptions);
+const providers: EditorProviders = {
+    completion: {mode: 'append', provider: {provideCompletionItems: () => ({suggestions: []})}},
+    hover: false,
+    // @ts-expect-error Formatting cannot merge multiple edit sets.
+    documentFormatting: {mode: 'append', provider: {provideDocumentFormattingEdits: () => []}},
+};
+const extension: EditorExtension = {setup: ({editor, monaco}) => {
+    const subscription = editor.onDidBlurEditorText(() => {});
+    const position = new monaco.Position(1, 1);
+    editor.setPosition(position);
+    return () => subscription.dispose();
+}};
+const editorProps: MonacoEditorProps = {value: '', preset, providers, extensions: [extension]};
 `;
     }
     if (widget === 'QueryExecutionPanel') {
@@ -261,6 +307,14 @@ for (const widget of widgets) {
         const included = new Set(outputs.flatMap((output) => Object.keys(output.inputs)));
         const imports = outputs.flatMap((output) => output.imports.map((item) => item.path));
         const hasDependency = (name) => imports.some((p) => p === name || p.startsWith(name + '/'));
+        assert(
+            !hasDependency('@gravity-ui/websql-autocomplete'),
+            `${specifier}: opt-in SQL parsers leaked into core bundle`,
+        );
+        assert(
+            !included.has('build/esm/helpers/queryEditorPreset/index.js'),
+            `${specifier}: unused editor preset retained`,
+        );
         for (const other of widgets) {
             assert.equal(
                 included.has(`build/esm/${unitPath(other)}/${other}.js`),
@@ -374,3 +428,35 @@ for (const format of ['esm', 'cjs']) {
         `✓ QueryTimeline ${format}: standalone consumer bundle, CSS and engine resolution`,
     );
 }
+
+// The opt-in preset has no runtime Monaco dependency and keeps parser imports lazy.
+const presetBundle = await build({
+    absWorkingDir: root,
+    entryPoints: [path.join(root, 'build/esm/helpers/queryEditorPreset/index.js')],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    platform: 'browser',
+    packages: 'external',
+    metafile: true,
+    outfile: path.join(root, 'build/tree-shaking/editor-preset.js'),
+    logLevel: 'silent',
+});
+const presetImports = Object.values(presetBundle.metafile.outputs).flatMap(
+    (output) => output.imports,
+);
+assert(
+    !presetImports.some((item) => item.path.startsWith('monaco-editor')),
+    'Preset imports a second Monaco runtime',
+);
+for (const dialect of ['yql', 'clickhouse']) {
+    assert(
+        presetImports.some(
+            (item) =>
+                item.path === `@gravity-ui/websql-autocomplete/${dialect}` &&
+                item.kind === 'dynamic-import',
+        ),
+        `${dialect} parser must remain lazy`,
+    );
+}
+console.info('✓ Query editor preset: standalone entrypoint and lazy SQL parsers');
