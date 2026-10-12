@@ -73,6 +73,7 @@ export type {
     NavigationSchemaResolver,
 } from './QueriesNavigation';
 export {QueryEditor} from './QueryEditor';
+export {createYtsaurusQueryEngines} from './QueryEditor/presets/ytsaurus';
 export {QuerySettings} from './QuerySettings';
 export {ChartFieldsEditor} from './ChartFieldsEditor';
 export type {ChartFieldsEditorProps} from './ChartFieldsEditor';

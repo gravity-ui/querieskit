@@ -65,6 +65,8 @@ export function SettingsForm() {
 }
 ```
 
+`renderCustomSections` renders standalone sections after Attributes using the same context as `renderCustomFields`.
+
 `renderCustomFields` appears immediately after Query name. Use it for YQL version, another engine's fields, or application settings. The application decides what happens to custom values when its engine changes. Pass `disabled`, accessible names and custom error messages to custom controls explicitly.
 
 ## Props and changes
@@ -102,8 +104,10 @@ Keep settings state in the application so closing the panel cannot discard it:
   {...editorProps}
   settingsOpen={settingsOpen}
   onSettingsOpenChange={setSettingsOpen}
-  settings={<QuerySettings value={settings} onChange={setSettings} />}
+  settingsProps={{value: settings, onChange: setSettings}}
 />
 ```
 
-`QueryEditor` owns the panel title, close action and resize behavior. Its `onChange` continues to report query text only; the form's `onChange` reports settings. Without a `settings` slot, the editor retains its existing empty panel.
+`QueryEditor` owns the panel title, close action and resize behavior. Its `onChange` continues to report query text only; the form's `onChange` reports settings. With `settingsProps`, the editor renders the selected engine’s `renderSettingsFields` after Query name, followed by the application’s `renderCustomFields`. Both receive the same controlled settings value and change callback. The engine context additionally includes `engineId` and `clusterId`.
+
+Use `settings={<QuerySettings ... />}` for full manual composition instead; `settings` and `settingsProps` are mutually exclusive. QuerySettings itself remains engine-independent. See [the editor integration and YTsaurus preset](../QueryEditor/README.md#settings) for engine descriptions, loading options and backend value mapping.

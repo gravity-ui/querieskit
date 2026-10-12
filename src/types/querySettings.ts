@@ -45,6 +45,8 @@ export type QuerySettingsProps<TCustom extends object = Record<string, unknown>>
     hiddenFields?: QuerySettingsHiddenField[];
     /** Rendered immediately after Query name. The caller owns custom controls and validation. */
     renderCustomFields?: (context: QuerySettingsCustomFieldsContext<TCustom>) => ReactNode;
+    /** Additional sections rendered after Attributes, outside General. */
+    renderCustomSections?: (context: QuerySettingsCustomFieldsContext<TCustom>) => ReactNode;
     errors?: QuerySettingsErrors<TCustom>;
     onFieldBlur?: (field: QuerySettingsFieldReference<TCustom>) => void;
     disabled?: boolean;

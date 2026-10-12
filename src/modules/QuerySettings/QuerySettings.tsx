@@ -20,6 +20,7 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>>(
     tokens,
     hiddenFields = [],
     renderCustomFields,
+    renderCustomSections,
     errors,
     onFieldBlur,
     disabled = false,
@@ -203,6 +204,7 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>>(
                     </Flex>
                 </Disclosure>
             )}
+            {renderCustomSections?.({value, onChange: change, errors, onFieldBlur, disabled})}
         </Flex>
     );
 }

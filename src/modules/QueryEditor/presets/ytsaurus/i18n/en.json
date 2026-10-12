@@ -1,0 +1,11 @@
+{
+  "field_yql-version": "YQL version",
+  "field_clique": "Clique alias",
+  "field_discovery-path": "Discovery path",
+  "value_active": "Active",
+  "value_inactive": "Inactive",
+  "field_spyt-config": "SPYT configuration",
+  "action_save": "Save",
+  "action_cancel": "Cancel",
+  "alert_invalid-spyt-config": "Enter a valid JSON object"
+}

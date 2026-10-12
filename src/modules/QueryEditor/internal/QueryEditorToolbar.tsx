@@ -6,7 +6,7 @@ import CheckIcon from '@gravity-ui/icons/svgs/list-check.svg';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
 import cn from 'bem-cn-lite';
-import type {QueryEditorProps} from '../../../types/queryEditor';
+import type {QueryEditorEngine, QueryEditorProps} from '../../../types/queryEditor';
 import i18n from '../i18n';
 import './QueryEditorToolbar.scss';
 
@@ -17,7 +17,6 @@ type Props = Pick<
     | 'clusters'
     | 'clusterId'
     | 'onClusterChange'
-    | 'engines'
     | 'engineId'
     | 'onEngineChange'
     | 'onRun'
@@ -26,7 +25,12 @@ type Props = Pick<
     | 'actionStates'
     | 'additionalActions'
     | 'rightActions'
-> & {settingsOpen: boolean; settingsId: string; onSettingsToggle: () => void};
+> & {
+    engines: Omit<QueryEditorEngine, 'renderSettingsFields' | 'renderSettingsSections'>[];
+    settingsOpen: boolean;
+    settingsId: string;
+    onSettingsToggle: () => void;
+};
 
 export function QueryEditorToolbar(props: Props) {
     const actions = [

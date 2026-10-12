@@ -3,6 +3,7 @@ import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../components/MonacoEditor';
+import {QuerySettings} from '../QuerySettings';
 import type {QueryEditorProps} from '../../types/queryEditor';
 import {QueryEditorToolbar} from './internal/QueryEditorToolbar';
 import {QueryEditorSplit} from './internal/QueryEditorSplit';
@@ -11,7 +12,9 @@ import './QueryEditor.scss';
 
 const block = cn('qp-query-editor');
 
-export function QueryEditor(props: QueryEditorProps) {
+export function QueryEditor<TCustom extends object = Record<string, unknown>>(
+    props: QueryEditorProps<TCustom>,
+) {
     const {
         settingsOpen: controlledOpen,
         defaultSettingsOpen = false,
@@ -32,8 +35,36 @@ export function QueryEditor(props: QueryEditorProps) {
         if (controlledWidth === undefined) setLocalWidth(width);
         props.onSettingsWidthChange?.(width);
     };
-    const language =
-        props.engines.find((engine) => engine.id === props.engineId)?.language ?? 'plaintext';
+    const engine = props.engines.find((item) => item.id === props.engineId);
+    const language = engine?.language ?? 'plaintext';
+    const settingsProps = props.settingsProps;
+    const settings = settingsProps ? (
+        <QuerySettings
+            {...settingsProps}
+            renderCustomFields={(context) => (
+                <>
+                    {engine?.renderSettingsFields?.({
+                        ...context,
+                        engineId: engine.id,
+                        clusterId: props.clusterId,
+                    })}
+                    {settingsProps.renderCustomFields?.(context)}
+                </>
+            )}
+            renderCustomSections={(context) => (
+                <>
+                    {engine?.renderSettingsSections?.({
+                        ...context,
+                        engineId: engine.id,
+                        clusterId: props.clusterId,
+                    })}
+                    {settingsProps.renderCustomSections?.(context)}
+                </>
+            )}
+        />
+    ) : (
+        props.settings
+    );
     const providerContext = useMemo(
         () => ({
             ...props.providerContext,
@@ -53,7 +84,7 @@ export function QueryEditor(props: QueryEditorProps) {
                 width={settingsWidth}
                 onWidthChange={changeWidth}
                 onClose={changeOpen}
-                settings={props.settings}
+                settings={settings}
             >
                 <QueryEditorToolbar
                     {...props}

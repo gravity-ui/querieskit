@@ -3,6 +3,7 @@ export type {
     QueryEditorProps,
     QueryEditorCluster,
     QueryEditorEngine,
+    QueryEditorEngineSettingsContext,
     QueryEditorActionState,
     QueryEditorMenuAction,
     QueryEditorToolbarAction,
