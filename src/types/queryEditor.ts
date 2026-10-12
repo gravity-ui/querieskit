@@ -1,3 +1,4 @@
+import type {ReactNode} from 'react';
 import type {IconProps} from '@gravity-ui/uikit';
 import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
 
@@ -45,6 +46,8 @@ export type QueryEditorProps = MonacoEditorIntegrationProps & {
     onCodeAssistantClick?: () => void;
     readOnly?: boolean;
     editorOptions?: QueryEditorOptions;
+    /** Content below the Settings heading. The caller owns settings values and validation. */
+    settings?: ReactNode;
     /** Controlled visibility; omit to keep visibility inside the module. */
     settingsOpen?: boolean;
     /** Initial uncontrolled visibility. Defaults to false. */

@@ -73,5 +73,6 @@ export type {
     NavigationSchemaResolver,
 } from './QueriesNavigation';
 export {QueryEditor} from './QueryEditor';
+export {QuerySettings} from './QuerySettings';
 export {ChartFieldsEditor} from './ChartFieldsEditor';
 export type {ChartFieldsEditorProps} from './ChartFieldsEditor';

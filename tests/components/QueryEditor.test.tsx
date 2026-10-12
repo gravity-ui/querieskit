@@ -4,6 +4,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QueryEditor} from '../../src/modules/QueryEditor';
+import {QuerySettings} from '../../src/modules/QuerySettings';
 import type {QueryEditorProps} from '../../src/types/queryEditor';
 import {setLang} from '../../src/i18n';
 
@@ -264,6 +265,39 @@ describe('QueryEditor', () => {
         expect(container.querySelector('[data-testid="editor"]')).toBe(element);
         expect(editor.mount).toHaveBeenCalledTimes(1);
         expect(onOpen.mock.calls).toEqual([[true], [false], [true]]);
+    });
+    it('keeps settings content mounted across closing and resizing, independently of query text', () => {
+        const onSettingsChange = vi.fn();
+        const value = {
+            queryName: 'Daily report',
+            access: 'private' as const,
+            ytOperationTitle: 'Report',
+            tokenIds: [],
+            attributes: [],
+            custom: {},
+        };
+        render({settings: <QuerySettings value={value} onChange={onSettingsChange} />});
+        const input = container.querySelector<HTMLInputElement>('input[aria-label="Query name"]');
+        if (!input) throw new Error('Missing Query name input');
+        expect(
+            input.closest('[role="region"][aria-label="Settings"]')?.hasAttribute('hidden'),
+        ).toBe(true);
+        click(button('Settings'));
+        act(() => {
+            Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(
+                input,
+                'Edited',
+            );
+            input.dispatchEvent(new Event('input', {bubbles: true}));
+        });
+        expect(onSettingsChange).toHaveBeenCalledExactlyOnceWith({...value, queryName: 'Edited'});
+        expect(props.onChange).not.toHaveBeenCalled();
+        key('ArrowLeft');
+        click(button('Close Settings'));
+        click(button('Settings'));
+        expect(container.querySelector('input[aria-label="Query name"]')).toBe(input);
+        expect(separator().getAttribute('aria-valuenow')).toBe('336');
+        expect(editor.mount).toHaveBeenCalledTimes(1);
     });
     it('requests controlled visibility and width without mutating either', () => {
         const onOpen = vi.fn();

@@ -6,6 +6,7 @@ export * from './types/listPanel';
 export * from './types/history';
 export type {QueryTabItem, QueryTabsProps} from './types/queryTabs';
 export * from './types/queryEditor';
+export * from './types/querySettings';
 export type {MonacoEditorProps, MonacoEditorIntegrationProps} from './types/monacoEditor';
 export * from './types/editorProviders';
 export * from './types/queryEditorPreset';

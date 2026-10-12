@@ -20,10 +20,11 @@ const widgets = [
     'QueriesSidebar',
     'QueryTabs',
     'QueryEditor',
+    'QuerySettings',
 ];
 const sections = new Set(widgets.slice(0, 4));
 const unitPath = (name) =>
-    `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QueryEditor' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
+    `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QueryEditor' || name === 'QuerySettings' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
 const monacoUnits = new Set([...widgets.slice(0, 3), 'QueriesSidebar', 'QueryEditor']);
 const contributions = [
     'clickhouse/clickhouse.contribution.js',
@@ -247,6 +248,28 @@ const tabs: QueriesSidebarTab<History, Saved, Item, Cluster, Tutorial>[] = [
     }}},
 ];
 const props: QueriesSidebarProps<History, Saved, Item, Cluster, Tutorial> = {tabs, hideTabs: true, activeTab: 'h'};
+`;
+    }
+    if (widget === 'QuerySettings') {
+        contents += `
+import type {QuerySettingsProps, QuerySettingsValue} from '${specifier}';
+type Custom = {yqlVersion: string};
+const value: QuerySettingsValue<Custom> = {
+    queryName: '', access: 'private', ytOperationTitle: '', tokenIds: [], attributes: [],
+    custom: {yqlVersion: '2025.01'},
+};
+const props: QuerySettingsProps<Custom> = {
+    value, onChange(next) {const version: string = next.custom.yqlVersion;},
+    renderCustomFields(context) {
+        const version: string = context.value.custom.yqlVersion;
+        // @ts-expect-error Preserve custom value types.
+        const invalid: number = context.value.custom.yqlVersion;
+        context.onFieldBlur?.({section: 'custom', field: 'yqlVersion'});
+        // @ts-expect-error Reject unknown custom fields.
+        context.onFieldBlur?.({section: 'custom', field: 'missing'});
+        return version;
+    },
+};
 `;
     }
     const host = ts.createCompilerHost(compilerOptions);
