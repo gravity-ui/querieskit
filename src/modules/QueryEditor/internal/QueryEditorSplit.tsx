@@ -2,11 +2,12 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import i18n from '../i18n';
-import {SettingsHeader} from './SettingsHeader';
+import {PanelHeader} from './PanelHeader';
+import type {QueryEditorPanel} from '../../../types/queryEditor';
 import './QueryEditorSplit.scss';
 
 const block = cn('qp-query-editor-split');
-const MIN_SETTINGS = 240;
+const MIN_PANEL = 240;
 const MIN_EDITOR = 320;
 const DIVIDER = 6;
 
@@ -14,7 +15,9 @@ type Props = {
     className?: string;
     children: React.ReactNode;
     settings?: React.ReactNode;
-    open: boolean;
+    attachments?: React.ReactNode;
+    attachmentsId: string;
+    activePanel: QueryEditorPanel;
     settingsId: string;
     width: number;
     onWidthChange: (width: number) => void;
@@ -25,12 +28,15 @@ export function QueryEditorSplit({
     className,
     children,
     settings,
-    open,
+    attachments,
+    attachmentsId,
+    activePanel,
     settingsId,
     width,
     onWidthChange,
     onClose,
 }: Props) {
+    const open = activePanel !== null;
     const rootRef = useRef<HTMLDivElement>(null);
     const drag = useRef<{pointerId: number; x: number; width: number} | undefined>(undefined);
     const [availableWidth, setAvailableWidth] = useState<number>();
@@ -47,12 +53,9 @@ export function QueryEditorSplit({
     const maxWidth =
         availableWidth === undefined
             ? undefined
-            : Math.max(MIN_SETTINGS, availableWidth - MIN_EDITOR - DIVIDER);
+            : Math.max(MIN_PANEL, availableWidth - MIN_EDITOR - DIVIDER);
     const clamp = (value: number) =>
-        Math.min(
-            maxWidth ?? Infinity,
-            Math.max(MIN_SETTINGS, Number.isFinite(value) ? value : 320),
-        );
+        Math.min(maxWidth ?? Infinity, Math.max(MIN_PANEL, Number.isFinite(value) ? value : 320));
     const renderedWidth = clamp(width);
     const update = (value: number) => {
         const next = clamp(value);
@@ -69,9 +72,9 @@ export function QueryEditorSplit({
                         role="separator"
                         tabIndex={0}
                         aria-orientation="vertical"
-                        aria-label={i18n('action_resize-settings')}
-                        aria-controls={settingsId}
-                        aria-valuemin={MIN_SETTINGS}
+                        aria-label={i18n('action_resize-panel')}
+                        aria-controls={activePanel === 'attachments' ? attachmentsId : settingsId}
+                        aria-valuemin={MIN_PANEL}
                         aria-valuemax={maxWidth}
                         aria-valuenow={renderedWidth}
                         className={block('divider')}
@@ -81,7 +84,7 @@ export function QueryEditorSplit({
                                 next = renderedWidth + (event.shiftKey ? 64 : 16);
                             else if (event.key === 'ArrowRight')
                                 next = renderedWidth - (event.shiftKey ? 64 : 16);
-                            else if (event.key === 'Home') next = MIN_SETTINGS;
+                            else if (event.key === 'Home') next = MIN_PANEL;
                             else if (event.key === 'End' && maxWidth !== undefined) next = maxWidth;
                             else return;
                             event.preventDefault();
@@ -115,17 +118,36 @@ export function QueryEditorSplit({
                         }}
                     />
                 )}
-                <div
-                    id={settingsId}
-                    role="region"
-                    aria-label={i18n('title_settings')}
-                    hidden={!open}
-                    className={block('settings')}
-                    style={{width: renderedWidth}}
-                >
-                    <SettingsHeader onClose={onClose} />
-                    {settings}
-                </div>
+                {(['settings', 'attachments'] as const).map((panel) => (
+                    <div
+                        key={panel}
+                        id={panel === 'settings' ? settingsId : attachmentsId}
+                        role="region"
+                        aria-label={i18n(
+                            panel === 'settings' ? 'title_settings' : 'title_attachments',
+                        )}
+                        hidden={activePanel !== panel}
+                        className={block('panel')}
+                        style={{width: renderedWidth}}
+                    >
+                        <Flex direction="column" className={block('panel-layout')}>
+                            <PanelHeader
+                                title={i18n(
+                                    panel === 'settings' ? 'title_settings' : 'title_attachments',
+                                )}
+                                closeLabel={i18n(
+                                    panel === 'settings'
+                                        ? 'action_close-settings'
+                                        : 'action_close-attachments',
+                                )}
+                                onClose={onClose}
+                            />
+                            <div className={block('content')}>
+                                {panel === 'settings' ? settings : attachments}
+                            </div>
+                        </Flex>
+                    </div>
+                ))}
             </Flex>
         </div>
     );

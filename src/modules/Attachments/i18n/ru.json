@@ -1,5 +1,7 @@
 {
   "action_add-file": "Файл",
   "action_add-link": "Ссылка",
-  "action_remove-all": "Удалить все"
+  "action_remove-all": "Удалить все",
+  "title_current": "Текущие",
+  "title_deleted": "Удалённые"
 }

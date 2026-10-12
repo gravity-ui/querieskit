@@ -3,8 +3,9 @@ import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../components/MonacoEditor';
+import {Attachments} from '../Attachments';
 import {QuerySettings} from '../QuerySettings';
-import type {QueryEditorProps} from '../../types/queryEditor';
+import type {QueryEditorPanel, QueryEditorProps} from '../../types/queryEditor';
 import {QueryEditorToolbar} from './internal/QueryEditorToolbar';
 import {QueryEditorSplit} from './internal/QueryEditorSplit';
 import i18n from './i18n';
@@ -16,24 +17,28 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     props: QueryEditorProps<TCustom>,
 ) {
     const {
-        settingsOpen: controlledOpen,
-        defaultSettingsOpen = false,
-        settingsWidth: controlledWidth,
-        defaultSettingsWidth = 320,
+        activePanel: controlledPanel,
+        defaultActivePanel = null,
+        panelWidth: controlledWidth,
+        defaultPanelWidth = 320,
     } = props;
-    const [localOpen, setLocalOpen] = useState(defaultSettingsOpen);
-    const [localWidth, setLocalWidth] = useState(defaultSettingsWidth);
-    const settingsOpen = controlledOpen ?? localOpen;
-    const settingsWidth = controlledWidth ?? localWidth;
+    const [localPanel, setLocalPanel] = useState<QueryEditorPanel>(defaultActivePanel);
+    const [localWidth, setLocalWidth] = useState(defaultPanelWidth);
+    const activePanel = controlledPanel === undefined ? localPanel : controlledPanel;
+    const panelWidth = controlledWidth ?? localWidth;
     const settingsId = useId();
+    const attachmentsId = useId();
     const theme = useThemeValue();
-    const changeOpen = () => {
-        if (controlledOpen === undefined) setLocalOpen(!settingsOpen);
-        props.onSettingsOpenChange?.(!settingsOpen);
+    const changePanel = (panel: QueryEditorPanel) => {
+        if (controlledPanel === undefined) setLocalPanel(panel);
+        props.onActivePanelChange?.(panel);
+    };
+    const togglePanel = (panel: Exclude<QueryEditorPanel, null>) => {
+        changePanel(activePanel === panel ? null : panel);
     };
     const changeWidth = (width: number) => {
         if (controlledWidth === undefined) setLocalWidth(width);
-        props.onSettingsWidthChange?.(width);
+        props.onPanelWidthChange?.(width);
     };
     const engine = props.engines.find((item) => item.id === props.engineId);
     const language = engine?.language ?? 'plaintext';
@@ -79,18 +84,27 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
         <Flex direction="column" className={block(null, props.className)}>
             <QueryEditorSplit
                 className={block('split')}
-                open={settingsOpen}
+                activePanel={activePanel}
                 settingsId={settingsId}
-                width={settingsWidth}
+                width={panelWidth}
                 onWidthChange={changeWidth}
-                onClose={changeOpen}
+                onClose={() => changePanel(null)}
                 settings={settings}
+                attachmentsId={attachmentsId}
+                attachments={
+                    props.attachments === undefined ? (
+                        <Attachments {...props.attachmentsProps} />
+                    ) : (
+                        props.attachments
+                    )
+                }
             >
                 <QueryEditorToolbar
                     {...props}
-                    settingsOpen={settingsOpen}
+                    activePanel={activePanel}
                     settingsId={settingsId}
-                    onSettingsToggle={changeOpen}
+                    attachmentsId={attachmentsId}
+                    onPanelToggle={togglePanel}
                 />
                 <MonacoEditor
                     editorRef={props.editorRef}

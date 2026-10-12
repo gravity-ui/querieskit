@@ -6,6 +6,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QueryEditor} from '../../src/modules/QueryEditor';
 import {QuerySettings} from '../../src/modules/QuerySettings';
 import type {QueryEditorEngine, QueryEditorProps} from '../../src/types/queryEditor';
+import type {AttachmentsProps} from '../../src/types/attachments';
 import type {QuerySettingsValue} from '../../src/types/querySettings';
 import {setLang} from '../../src/i18n';
 
@@ -15,30 +16,46 @@ vi.mock('@gravity-ui/uikit', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@gravity-ui/uikit')>();
     return {
         ...actual,
-        Select: (props: import('@gravity-ui/uikit').SelectProps) => (
-            <label>
-                {props.label}
-                <select
-                    aria-label={props['aria-label']}
-                    value={props.value?.[0] ?? ''}
-                    disabled={props.disabled}
-                    onChange={(event) => props.onUpdate?.([event.target.value])}
-                >
-                    <option value="" />
-                    {props.options?.map(
-                        (option) =>
-                            'value' in option && (
-                                <option
-                                    key={option.value}
-                                    value={option.value}
-                                    disabled={option.disabled}
-                                >
-                                    {option.content}
+        Select: Object.assign(
+            (props: import('@gravity-ui/uikit').SelectProps) => (
+                <label>
+                    {props.label}
+                    <select
+                        aria-label={props['aria-label']}
+                        value={props.value?.[0] ?? ''}
+                        disabled={props.disabled}
+                        onChange={(event) => props.onUpdate?.([event.target.value])}
+                    >
+                        <option value="" />
+                        {React.Children.toArray(props.children).map((child) => {
+                            if (
+                                !React.isValidElement<{value: string; content: React.ReactNode}>(
+                                    child,
+                                )
+                            )
+                                return null;
+                            return (
+                                <option key={child.props.value} value={child.props.value}>
+                                    {child.props.content}
                                 </option>
-                            ),
-                    )}
-                </select>
-            </label>
+                            );
+                        })}
+                        {props.options?.map(
+                            (option) =>
+                                'value' in option && (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                        disabled={option.disabled}
+                                    >
+                                        {option.content}
+                                    </option>
+                                ),
+                        )}
+                    </select>
+                </label>
+            ),
+            {Option: actual.Select.Option},
         ),
         DropdownMenu: (props: import('@gravity-ui/uikit').DropdownMenuProps) => {
             const [open, setOpen] = React.useState(false);
@@ -89,6 +106,14 @@ describe('QueryEditor', () => {
             vi.fn(() => 1),
         );
         vi.stubGlobal('cancelAnimationFrame', vi.fn());
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                public observe() {}
+                public disconnect() {}
+                public unobserve() {}
+            },
+        );
         configure({lang: 'en'});
         setLang('en');
         editor.mount.mockClear();
@@ -157,6 +182,7 @@ describe('QueryEditor', () => {
             expect(callback).toHaveBeenCalledTimes(1);
         }
         expect(button('Settings')).toBeTruthy();
+        expect(button('Attachments')).toBeTruthy();
         expect(container.querySelector('[aria-label="More actions"]')).toBeNull();
         expect(container.textContent).not.toContain('Code Assistant');
     });
@@ -218,8 +244,8 @@ describe('QueryEditor', () => {
         };
         const data = {catalog: 'test'};
         render({...integrations, providerContext: {language: 'wrong', clusterId: 'wrong', data}});
-        for (const [key, value] of Object.entries(integrations))
-            expect(editor.props[key]).toBe(value);
+        for (const [propName, value] of Object.entries(integrations))
+            expect(editor.props[propName]).toBe(value);
         expect(editor.props.providerContext).toEqual({
             language: 'yql',
             engineId: 'yql',
@@ -253,7 +279,7 @@ describe('QueryEditor', () => {
     });
     it('toggles uncontrolled Settings without remounting the editor and keeps resized width', () => {
         const onOpen = vi.fn();
-        render({onSettingsOpenChange: onOpen});
+        render({onActivePanelChange: onOpen});
         const element = container.querySelector('[data-testid="editor"]');
         expect(separator()).toBeNull();
         click(button('Settings'));
@@ -265,7 +291,7 @@ describe('QueryEditor', () => {
         expect(separator().getAttribute('aria-valuenow')).toBe('336');
         expect(container.querySelector('[data-testid="editor"]')).toBe(element);
         expect(editor.mount).toHaveBeenCalledTimes(1);
-        expect(onOpen.mock.calls).toEqual([[true], [false], [true]]);
+        expect(onOpen.mock.calls).toEqual([['settings'], [null], ['settings']]);
     });
     it('keeps settings content mounted across closing and resizing, independently of query text', () => {
         const onSettingsChange = vi.fn();
@@ -341,7 +367,7 @@ describe('QueryEditor', () => {
         ];
         render({
             engines,
-            defaultSettingsOpen: true,
+            defaultActivePanel: 'settings',
             settingsProps: {
                 value,
                 onChange: onSettingsChange,
@@ -428,7 +454,7 @@ describe('QueryEditor', () => {
                 <TextInput controlProps={{'aria-label': `${engine.id} field`}} />
             ),
         }));
-        render({engines, settingsProps, defaultSettingsOpen: true});
+        render({engines, settingsProps, defaultActivePanel: 'settings'});
         const name = container.querySelector('input[aria-label="Query name"]');
         const selector = container.querySelector<HTMLSelectElement>('[aria-label="Engine"]');
         if (!selector) throw new Error('Missing engine selector');
@@ -481,13 +507,13 @@ describe('QueryEditor', () => {
         const onOpen = vi.fn();
         const onWidth = vi.fn();
         render({
-            settingsOpen: true,
-            settingsWidth: 300,
-            onSettingsOpenChange: onOpen,
-            onSettingsWidthChange: onWidth,
+            activePanel: 'settings',
+            panelWidth: 300,
+            onActivePanelChange: onOpen,
+            onPanelWidthChange: onWidth,
         });
         click(button('Settings'));
-        expect(onOpen).toHaveBeenCalledExactlyOnceWith(false);
+        expect(onOpen).toHaveBeenCalledExactlyOnceWith(null);
         expect(separator()).toBeTruthy();
         key('ArrowRight');
         expect(onWidth).toHaveBeenCalledExactlyOnceWith(284);
@@ -511,9 +537,9 @@ describe('QueryEditor', () => {
         );
         const onWidth = vi.fn();
         render({
-            defaultSettingsOpen: true,
-            defaultSettingsWidth: 400,
-            onSettingsWidthChange: onWidth,
+            defaultActivePanel: 'settings',
+            defaultPanelWidth: 400,
+            onPanelWidthChange: onWidth,
         });
         const split = container.querySelector<HTMLElement>('.qp-query-editor-split');
         if (!split) throw new Error('Missing split container');
@@ -534,7 +560,7 @@ describe('QueryEditor', () => {
         expect(onWidth).toHaveBeenCalledExactlyOnceWith(674);
     });
     it('constrains keyboard resizing to the minimum and handles pointer dragging', () => {
-        render({defaultSettingsOpen: true});
+        render({defaultActivePanel: 'settings'});
         key('Home');
         expect(separator().getAttribute('aria-valuenow')).toBe('240');
         key('ArrowRight');
@@ -552,6 +578,220 @@ describe('QueryEditor', () => {
         pointer('pointerup', 450);
         expect(divider.getAttribute('aria-valuenow')).toBe('290');
         expect(divider.setPointerCapture).toHaveBeenCalledWith(1);
+    });
+    function panel(name: 'Settings' | 'Attachments') {
+        const element = container.querySelector<HTMLElement>(
+            `[role="region"][aria-label="${name}"]`,
+        );
+        if (!element) throw new Error(`Missing ${name} panel`);
+        return element;
+    }
+    function textButton(label: string, scope: ParentNode = container) {
+        const element = [...scope.querySelectorAll<HTMLButtonElement>('button')].find(
+            (candidate) => candidate.textContent?.trim() === label,
+        );
+        if (!element) throw new Error(`Missing button ${label}`);
+        return element;
+    }
+    function updateInput(input: HTMLInputElement, value: string) {
+        act(() => {
+            Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(
+                input,
+                value,
+            );
+            input.dispatchEvent(new Event('input', {bubbles: true}));
+        });
+    }
+    function tab(label: string) {
+        const element = [
+            ...panel('Attachments').querySelectorAll<HTMLElement>('[role="tab"]'),
+        ].find((candidate) => candidate.textContent?.startsWith(label));
+        if (!element) throw new Error(`Missing tab ${label}`);
+        return element;
+    }
+    it('switches one shared panel, retains width and connects both permanent buttons to their regions', () => {
+        const onActivePanelChange = vi.fn();
+        render({onActivePanelChange});
+        expect(panel('Settings').hidden).toBe(true);
+        expect(panel('Attachments').hidden).toBe(true);
+        const buttons = [...container.querySelectorAll('button')];
+        expect(buttons.indexOf(button('Attachments'))).toBeLessThan(
+            buttons.indexOf(button('Settings')),
+        );
+        for (const name of ['Settings', 'Attachments'] as const) {
+            expect(button(name).getAttribute('aria-controls')).toBe(panel(name).id);
+        }
+        click(button('Attachments'));
+        expect(panel('Attachments').hidden).toBe(false);
+        expect(panel('Settings').hidden).toBe(true);
+        key('ArrowLeft');
+        click(button('Settings'));
+        expect(panel('Settings').hidden).toBe(false);
+        expect(panel('Attachments').hidden).toBe(true);
+        expect(button('Attachments').getAttribute('aria-expanded')).toBe('false');
+        expect(separator().getAttribute('aria-valuenow')).toBe('336');
+        click(button('Settings'));
+        expect(separator()).toBeNull();
+        click(button('Attachments'));
+        expect(separator().getAttribute('aria-valuenow')).toBe('336');
+        click(button('Close Attachments'));
+        expect(panel('Attachments').hidden).toBe(true);
+        expect(onActivePanelChange.mock.calls).toEqual([
+            ['attachments'],
+            ['settings'],
+            [null],
+            ['attachments'],
+            [null],
+        ]);
+        expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('only requests controlled panel changes and does not emit events for props updates', () => {
+        const onActivePanelChange = vi.fn();
+        render({activePanel: 'settings', onActivePanelChange});
+        click(button('Attachments'));
+        expect(onActivePanelChange).toHaveBeenLastCalledWith('attachments');
+        expect(panel('Settings').hidden).toBe(false);
+        expect(panel('Attachments').hidden).toBe(true);
+        render({activePanel: 'attachments', onActivePanelChange});
+        expect(onActivePanelChange).toHaveBeenCalledTimes(1);
+        expect(panel('Attachments').hidden).toBe(false);
+        click(button('Attachments'));
+        expect(onActivePanelChange).toHaveBeenLastCalledWith(null);
+        expect(panel('Attachments').hidden).toBe(false);
+        render({activePanel: null, onActivePanelChange});
+        expect(onActivePanelChange).toHaveBeenCalledTimes(2);
+        expect(separator()).toBeNull();
+    });
+    it('preserves raw attachments and settings nodes when switching and closing panels', () => {
+        render({
+            attachments: <input data-testid="raw-attachments" defaultValue="attachment draft" />,
+            settings: <input data-testid="raw-settings" defaultValue="settings draft" />,
+            defaultActivePanel: 'attachments',
+        });
+        const attachments = container.querySelector<HTMLInputElement>(
+            '[data-testid="raw-attachments"]',
+        )!;
+        const settings = container.querySelector<HTMLInputElement>('[data-testid="raw-settings"]')!;
+        updateInput(attachments, 'unsaved attachment');
+        click(button('Settings'));
+        updateInput(settings, 'unsaved setting');
+        click(button('Close Settings'));
+        click(button('Attachments'));
+        expect(container.querySelector('[data-testid="raw-attachments"]')).toBe(attachments);
+        expect(container.querySelector('[data-testid="raw-settings"]')).toBe(settings);
+        expect(attachments.value).toBe('unsaved attachment');
+        expect(settings.value).toBe('unsaved setting');
+        expect(panel('Attachments').querySelector('.qp-attachments')).toBeNull();
+        expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('provides default empty attachments and preserves an unfinished file draft and selected tab', () => {
+        render({defaultActivePanel: 'attachments'});
+        expect(panel('Attachments').textContent).toContain('No attachments');
+        click(textButton('Add file', panel('Attachments')));
+        const input = panel('Attachments').querySelector<HTMLInputElement>('input')!;
+        updateInput(input, 'draft.csv');
+        click(button('Settings'));
+        click(button('Attachments'));
+        expect(panel('Attachments').querySelector('input')).toBe(input);
+        expect(input.value).toBe('draft.csv');
+        act(() => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})));
+        expect(panel('Attachments').textContent).toContain('draft.csv');
+        click(tab('Deleted'));
+        click(button('Settings'));
+        click(button('Attachments'));
+        expect(tab('Deleted').getAttribute('aria-selected')).toBe('true');
+        expect(props.onChange).not.toHaveBeenCalled();
+    });
+    it('forwards token options into link editing and emits the selected token with the saved link', () => {
+        const onChange = vi.fn();
+        render({
+            defaultActivePanel: 'attachments',
+            attachmentsProps: {
+                tokens: [{value: 'service', title: 'Service token'}],
+                onChange,
+            },
+        });
+        click(textButton('Add Link', panel('Attachments')));
+        const token = panel('Attachments').querySelector<HTMLSelectElement>('select')!;
+        expect(token.textContent).toContain('Service token');
+        act(() => {
+            token.value = 'service';
+            token.dispatchEvent(new Event('change', {bubbles: true}));
+        });
+        const link = panel('Attachments').querySelector<HTMLTextAreaElement>('textarea')!;
+        act(() => {
+            Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(
+                link,
+                'https://example.com/data',
+            );
+            link.dispatchEvent(new Event('input', {bubbles: true}));
+        });
+        updateInput(panel('Attachments').querySelector<HTMLInputElement>('input')!, 'data');
+        click(textButton('Save', panel('Attachments')));
+        expect(onChange).toHaveBeenLastCalledWith({
+            attachments: [
+                {
+                    id: expect.any(String),
+                    name: 'data',
+                    link: 'https://example.com/data',
+                    token: 'service',
+                },
+            ],
+            deletedAttachments: [],
+        });
+    });
+    it('forwards controlled attachment changes for add, edit, delete and restore without changing query text', () => {
+        const onItemClick = vi.fn();
+        const original = {id: 'original', name: 'original.csv'};
+        let attachmentsProps: NonNullable<QueryEditorProps['attachmentsProps']> = {
+            attachments: [original],
+            deletedAttachments: [],
+            attachmentListProps: {className: 'consumer-attachment-list'},
+            onItemClick,
+        };
+        const onChange = vi.fn<NonNullable<AttachmentsProps['onChange']>>((next) => {
+            attachmentsProps = {...attachmentsProps, ...next, onChange};
+            render({defaultActivePanel: 'attachments', attachmentsProps});
+        });
+        attachmentsProps.onChange = onChange;
+        render({defaultActivePanel: 'attachments', attachmentsProps});
+        expect(onChange).not.toHaveBeenCalled();
+        expect(panel('Attachments').querySelector('.consumer-attachment-list')).not.toBeNull();
+        const row = () => panel('Attachments').querySelector<HTMLElement>('.qp-attachment-item')!;
+        const hoverRow = () => {
+            act(() => row().dispatchEvent(new MouseEvent('mouseover', {bubbles: true})));
+            return row();
+        };
+        click(row());
+        expect(onItemClick).toHaveBeenCalledWith(original, 0, false, expect.anything());
+        click(hoverRow().querySelectorAll('button')[0]);
+        let input = panel('Attachments').querySelector<HTMLInputElement>('input')!;
+        updateInput(input, 'renamed.csv');
+        act(() => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})));
+        const renamed = {...original, name: 'renamed.csv'};
+        expect(onChange).toHaveBeenLastCalledWith({attachments: [renamed], deletedAttachments: []});
+        expect(original.name).toBe('original.csv');
+        click(hoverRow().querySelectorAll('button')[1]);
+        expect(onChange).toHaveBeenLastCalledWith({attachments: [], deletedAttachments: [renamed]});
+        click(tab('Deleted'));
+        click(hoverRow().querySelector('button')!);
+        expect(onChange).toHaveBeenLastCalledWith({attachments: [renamed], deletedAttachments: []});
+        click(tab('Current'));
+        click(textButton('File', panel('Attachments')));
+        expect(onChange).toHaveBeenLastCalledWith({
+            attachments: [renamed, {id: expect.any(String), name: '', isNew: true}],
+            deletedAttachments: [],
+        });
+        const draft = attachmentsProps.attachments![1];
+        input = panel('Attachments').querySelector<HTMLInputElement>('input')!;
+        updateInput(input, 'new.csv');
+        act(() => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})));
+        expect(onChange).toHaveBeenLastCalledWith({
+            attachments: [renamed, {id: draft.id, name: 'new.csv'}],
+            deletedAttachments: [],
+        });
+        expect(props.onChange).not.toHaveBeenCalled();
+        expect(editor.mount).toHaveBeenCalledTimes(1);
     });
     it('forwards editor data, options and theme and derives language from selected engine', () => {
         render({engineId: 'ch', readOnly: true, editorOptions: {fontSize: 16}});

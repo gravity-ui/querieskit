@@ -3,7 +3,7 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {ArrowUpFromSquare, FloppyDisk} from '@gravity-ui/icons';
 import {Button, Flex, Modal, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
-import type {QueryEditorProps} from '../../../types/queryEditor';
+import type {QueryEditorPanel, QueryEditorProps} from '../../../types/queryEditor';
 import {QueryTabs} from '../../QueryTabs';
 import {QueryEditor} from '../QueryEditor';
 
@@ -72,24 +72,28 @@ export const AllActions: Story = {
 };
 
 export const SettingsOpen: Story = {
-    render: () => <EditableExample defaultSettingsOpen />,
+    render: () => <EditableExample defaultActivePanel="settings" />,
 };
 
 function ControlledSettingsExample() {
-    const [open, setOpen] = useState(true);
+    const [activePanel, setActivePanel] = useState<QueryEditorPanel>('settings');
     const [width, setWidth] = useState(320);
     return (
         <Flex direction="column" gap={3}>
             <Flex gap={3} alignItems="center">
-                <Button onClick={() => setOpen(!open)}>Toggle Settings externally</Button>
+                <Button
+                    onClick={() => setActivePanel(activePanel === 'settings' ? null : 'settings')}
+                >
+                    Toggle Settings externally
+                </Button>
                 <Button onClick={() => setWidth(320)}>Reset width</Button>
                 <Text>Preferred width: {Math.round(width)} px</Text>
             </Flex>
             <EditableExample
-                settingsOpen={open}
-                settingsWidth={width}
-                onSettingsOpenChange={setOpen}
-                onSettingsWidthChange={setWidth}
+                activePanel={activePanel}
+                panelWidth={width}
+                onActivePanelChange={setActivePanel}
+                onPanelWidthChange={setWidth}
             />
         </Flex>
     );
@@ -100,7 +104,7 @@ export const NarrowWithLongTitles: Story = {
     render: () => (
         <EditableExample
             width={440}
-            defaultSettingsOpen
+            defaultActivePanel="settings"
             clusters={CLUSTERS.map((item) => ({
                 ...item,
                 title: `${item.title}: analytics cluster in the primary region`,

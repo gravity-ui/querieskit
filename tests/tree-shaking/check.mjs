@@ -193,6 +193,34 @@ const settingsEditorProps: QueryEditorProps<CustomSettings> = {
 SettingsEditor(settingsEditorProps);
 // @ts-expect-error Built-in and raw settings modes are mutually exclusive.
 const conflictingSettings: QueryEditorProps<CustomSettings> = {...settingsEditorProps, settings: 'raw'};
+import type {QueryEditorPanel} from '${specifier}';
+import type {AttachmentsProps, AttachItem} from '${packageName}';
+import type {AttachmentsProps as LegacyAttachmentsProps} from '${packageName}/build/esm/modules/Attachments/index.js';
+const attachment: AttachItem = {id: 'file', name: 'data.csv'};
+const attachmentOptions: AttachmentsProps = {
+    attachments: [attachment], deletedAttachments: [],
+    onChange(next) {
+        const active: AttachItem[] = next.attachments;
+        const deleted: AttachItem[] = next.deletedAttachments;
+        // @ts-expect-error Attachments remain typed through onChange.
+        const invalid: number = next.attachments;
+    },
+};
+const legacyAttachmentOptions: LegacyAttachmentsProps = attachmentOptions;
+const attachmentsEditorProps: QueryEditorProps<CustomSettings> = {
+    ...settingsEditorProps, attachments: undefined, attachmentsProps: attachmentOptions,
+    activePanel: 'attachments', panelWidth: 320,
+    onActivePanelChange(panel) { const next: QueryEditorPanel = panel; },
+    onPanelWidthChange(width) { const next: number = width; },
+};
+SettingsEditor(attachmentsEditorProps);
+const rawAttachmentsEditor: QueryEditorProps<CustomSettings> = {...settingsEditorProps, attachmentsProps: undefined, attachments: 'raw'};
+// @ts-expect-error Built-in and raw attachments modes are mutually exclusive.
+const conflictingAttachments: QueryEditorProps<CustomSettings> = {...attachmentsEditorProps, attachments: 'raw'};
+// @ts-expect-error The shared panel API replaces the old settings visibility API.
+const oldSettingsVisibility: QueryEditorProps<CustomSettings> = {...settingsEditorProps, settingsOpen: true};
+// @ts-expect-error The shared panel API replaces the old settings width API.
+const oldSettingsWidth: QueryEditorProps<CustomSettings> = {...settingsEditorProps, settingsWidth: 320};
 import {createQueryEditorPreset} from '${packageName}/helpers/queryEditorPreset';
 import type {QueryCatalogRequest, QueryEditorPresetOptions} from '${packageName}/helpers/queryEditorPreset';
 import type {MonacoEditorProps, EditorProviders, EditorExtension} from '${packageName}/components/MonacoEditor';
@@ -376,6 +404,18 @@ for (const widget of widgets) {
             !included.has('build/esm/helpers/queryEditorPreset/index.js'),
             `${specifier}: unused editor preset retained`,
         );
+        assert.equal(
+            included.has('build/esm/modules/Attachments/Attachments.js'),
+            widget === 'QueryEditor',
+            `${specifier}: unexpected inclusion/exclusion of Attachments`,
+        );
+        if (specifier !== packageName) {
+            assert.equal(
+                included.has('build/esm/modules/Attachments/Attachments.css'),
+                widget === 'QueryEditor',
+                `${specifier}: unexpected inclusion/exclusion of Attachments CSS`,
+            );
+        }
         for (const other of widgets) {
             assert.equal(
                 included.has(`build/esm/${unitPath(other)}/${other}.js`),
