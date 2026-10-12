@@ -11,11 +11,16 @@ import type {QuerySettingsValue} from '../../src/types/querySettings';
 import {setLang} from '../../src/i18n';
 
 // Popup positioning requires browser layout. Keep the actual buttons and layout,
-// and replace only Select/DropdownMenu popup surfaces to exercise our wiring.
+// and replace popup surfaces to exercise our wiring.
+const sharePopup = vi.hoisted(() => ({props: {} as import('@gravity-ui/uikit').PopupProps}));
 vi.mock('@gravity-ui/uikit', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@gravity-ui/uikit')>();
     return {
         ...actual,
+        Popup: (props: import('@gravity-ui/uikit').PopupProps) => {
+            sharePopup.props = props;
+            return props.open ? <div>{props.children}</div> : null;
+        },
         Select: Object.assign(
             (props: import('@gravity-ui/uikit').SelectProps) => (
                 <label>
@@ -890,17 +895,41 @@ describe('QueryEditor', () => {
         expect(button('Share').disabled).toBe(false);
         click(button('Share'));
         expect(panel('Settings').hidden).toBe(false);
-        const close = document.querySelector<HTMLButtonElement>(
-            '[role="dialog"] button[aria-label="Close dialog"]',
-        );
-        if (!close) throw new Error('Missing dialog close button');
-        click(close);
+        act(() => sharePopup.props.onOpenChange?.(false));
+        expect(button('Share').getAttribute('aria-expanded')).toBe('false');
         expect(panel('Settings').hidden).toBe(false);
         expect(editor.props.value).toBe('select 1');
         expect(container.querySelector('[data-testid="editor"]')).toBe(editorNode);
         expect(editor.mount).toHaveBeenCalledTimes(1);
         expect(props.onChange).not.toHaveBeenCalled();
         expect(onActivePanelChange).not.toHaveBeenCalled();
+    });
+    it('anchors sharing to its button, toggles it and handles popup dismissal', () => {
+        const shareProps = {
+            onGenerate: vi.fn(),
+            onRegenerate: vi.fn(),
+            onMakePermanent: vi.fn(),
+            onExpirationChange: vi.fn(),
+        };
+        render({shareProps});
+        const shareButton = button('Share');
+        expect(shareButton.getAttribute('aria-expanded')).toBe('false');
+        click(shareButton);
+        expect(shareButton.getAttribute('aria-expanded')).toBe('true');
+        const popup = document.querySelector('[role="dialog"]');
+        expect(popup?.textContent).toContain('Public link');
+        expect(sharePopup.props.anchorElement).toBe(shareButton);
+        expect(sharePopup.props.placement).toBe('bottom-end');
+        expect(popup?.querySelector('[aria-label="Close dialog"]')).toBeNull();
+        click(shareButton);
+        expect(shareButton.getAttribute('aria-expanded')).toBe('false');
+        click(shareButton);
+        expect(shareButton.getAttribute('aria-expanded')).toBe('true');
+        act(() => sharePopup.props.onOpenChange?.(false));
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+        expect(shareButton.getAttribute('aria-expanded')).toBe('false');
+        expect(shareProps.onGenerate).not.toHaveBeenCalled();
+        expect(props.onChange).not.toHaveBeenCalled();
     });
     it('closes sharing when shareProps are removed and does not reopen when restored', () => {
         const shareProps = {

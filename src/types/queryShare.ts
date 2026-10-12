@@ -8,6 +8,8 @@ export type QueryShareLink = {
 export type QueryShareAction = 'generate' | 'regenerate' | 'makePermanent' | 'updateExpiration';
 
 export type QueryShareProps = {
+    /** Anchor for a popup. Omit to render a standalone modal dialog. */
+    anchorElement?: HTMLElement | null;
     open: boolean;
     onClose: () => void;
     link?: QueryShareLink;
