@@ -40,6 +40,8 @@ type Props = Pick<
     settingsId: string;
     onPanelToggle: (panel: Exclude<QueryEditorPanel, null>) => void;
     onShareClick?: () => void;
+    shareButtonRef?: React.Ref<HTMLButtonElement>;
+    shareOpen?: boolean;
 };
 
 export function QueryEditorToolbar(props: Props) {
@@ -144,6 +146,8 @@ export function QueryEditorToolbar(props: Props) {
                         view="flat"
                         title={i18n('action_share')}
                         aria-label={i18n('action_share')}
+                        ref={props.shareButtonRef}
+                        aria-expanded={props.shareOpen}
                         aria-haspopup="dialog"
                         onClick={props.onShareClick}
                     >

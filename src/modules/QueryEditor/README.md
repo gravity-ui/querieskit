@@ -71,10 +71,11 @@ Pass `shareProps` to enable the built-in Share button before `rightActions`:
 />
 ```
 
-QueryEditor owns dialog visibility independently of the side panel. The application
+QueryEditor anchors the sharing popup below the Share button, aligned to its right edge.
+Click Share again, click outside or press Escape to close it. Popup visibility is independent of the side panel. The application
 owns link generation, expiration persistence, loading and errors, and supplies updated
 props after each operation. Sharing remains available in read-only editors. Removing
-`shareProps` closes the dialog and hides the button; restoring it leaves the dialog closed.
+`shareProps` closes the popup and hides the button; restoring it leaves the popup closed.
 The expiration pencil opens an inline date/time picker; Save calls `onExpirationChange`
 with a Unix timestamp in milliseconds, while Cancel discards the draft.
 For standalone use and the full contract, see [QueryShare](../QueryShare/README.md).

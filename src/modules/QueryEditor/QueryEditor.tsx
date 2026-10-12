@@ -26,6 +26,7 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     const [localPanel, setLocalPanel] = useState<QueryEditorPanel>(defaultActivePanel);
     const [localWidth, setLocalWidth] = useState(defaultPanelWidth);
     const [shareOpen, setShareOpen] = useState(false);
+    const [shareAnchor, setShareAnchor] = useState<HTMLButtonElement | null>(null);
     const sharingEnabled = props.shareProps !== undefined;
     useEffect(() => {
         if (!sharingEnabled) setShareOpen(false);
@@ -111,7 +112,9 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
                     settingsId={settingsId}
                     attachmentsId={attachmentsId}
                     onPanelToggle={togglePanel}
-                    onShareClick={sharingEnabled ? () => setShareOpen(true) : undefined}
+                    shareButtonRef={setShareAnchor}
+                    shareOpen={shareOpen}
+                    onShareClick={sharingEnabled ? () => setShareOpen((open) => !open) : undefined}
                 />
                 <MonacoEditor
                     editorRef={props.editorRef}
@@ -153,6 +156,7 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
             {props.shareProps && (
                 <QueryShare
                     {...props.shareProps}
+                    anchorElement={shareAnchor}
                     open={shareOpen}
                     onClose={() => setShareOpen(false)}
                 />

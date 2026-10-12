@@ -65,8 +65,8 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
             onSave: () => void;
             onSaveAs: () => void;
         };
-        /** Enables the built-in share action. The editor manages dialog visibility. */
-        shareProps?: Omit<QueryShareProps, 'open' | 'onClose'>;
+        /** Enables the built-in share action. The editor manages popup visibility and anchoring. */
+        shareProps?: Omit<QueryShareProps, 'open' | 'onClose' | 'anchorElement'>;
         onCodeAssistantClick?: () => void;
         readOnly?: boolean;
         editorOptions?: QueryEditorOptions;

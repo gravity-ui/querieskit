@@ -145,7 +145,7 @@ function checkTypes(specifier, widget, mode) {
     if (widget === 'QueryEditor') {
         contents += `
 import type {QueryEditorProps, QueryEditorEngine, QueryEditorOptions} from '${specifier}';
-const engine: QueryEditorEngine = {id: 'yql', title: 'YQL', language: 'yql'};
+const engine = {id: 'yql', title: 'YQL', language: 'yql'} satisfies QueryEditorEngine;
 const options: QueryEditorOptions = {fontSize: 14, wordWrap: 'on'};
 // @ts-expect-error The module owns its model.
 const invalidOptions: QueryEditorOptions = {model: null};
@@ -564,7 +564,7 @@ for (const dialect of ['yql', 'clickhouse']) {
 }
 console.info('✓ Query editor preset: standalone entrypoint and lazy SQL parsers');
 
-// Engine settings presets are independently importable without the editor or its language runtime.
+// Engine settings presets include the SPYT JSON editor, but not QueryEditor or SQL completion.
 const enginePresetPath = 'modules/QueryEditor/presets/ytsaurus';
 const enginePresetSpecifier = `${packageName}/${enginePresetPath}`;
 assert.equal(
@@ -585,22 +585,31 @@ for (const format of ['esm', 'cjs']) {
         platform: 'browser',
         packages: 'external',
         metafile: true,
+        outfile: path.join(root, `build/tree-shaking/engine-preset-${format}.js`),
         logLevel: 'silent',
     });
     assert(
-        !Object.keys(result.metafile.inputs).some(
-            (file) => file.includes('/MonacoEditor/') || file.endsWith('/QueryEditor.js'),
+        !Object.keys(result.metafile.inputs).some((file) => file.endsWith('/QueryEditor.js')),
+        'Engine settings preset pulls in the full QueryEditor',
+    );
+    assert(
+        Object.keys(result.metafile.inputs).some((file) => file.endsWith('/SpytSettings.js')),
+        `${format}: missing SPYT settings editor`,
+    );
+    assert(
+        result.outputFiles.some(
+            (file) => file.path.endsWith('.css') && file.text.includes('.qp-spyt-settings'),
         ),
-        'Engine settings preset pulls in the editor runtime',
+        `${format}: missing SPYT settings CSS`,
     );
     const imports = Object.values(result.metafile.outputs).flatMap((output) => output.imports);
     assert(
-        !imports.some(
-            ({path}) =>
-                path.startsWith('monaco-editor') ||
-                path.startsWith('@gravity-ui/websql-autocomplete'),
-        ),
-        'Engine settings preset pulls in language services',
+        imports.some(({path}) => path.startsWith('monaco-editor')),
+        `${format}: missing SPYT Monaco dependency`,
+    );
+    assert(
+        !imports.some(({path}) => path.startsWith('@gravity-ui/websql-autocomplete')),
+        'Engine settings preset pulls in SQL completion',
     );
 }
-console.info('✓ YTsaurus engine settings preset: standalone exports without Monaco');
+console.info('✓ YTsaurus engine settings preset: standalone exports with SPYT editor and CSS');

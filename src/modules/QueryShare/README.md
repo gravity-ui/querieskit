@@ -1,8 +1,8 @@
 # QueryShare
 
-A controlled dialog for generating and sharing public query links. Import it from
+A controlled popup or dialog for generating and sharing public query links. Import it from
 `@gravity-ui/querieskit/modules/QueryShare`, or enable the built-in QueryEditor
-button with `shareProps` (the same props except `open` and `onClose`).
+button with `shareProps` (the same props except `open`, `onClose` and `anchorElement`).
 
 ```tsx
 import {QueryShare} from '@gravity-ui/querieskit/modules/QueryShare';
@@ -19,6 +19,10 @@ import {QueryShare} from '@gravity-ui/querieskit/modules/QueryShare';
   error={error}
 />;
 ```
+
+Pass `anchorElement` to show a popup below the anchor, aligned to its right edge.
+Escape, outside clicks and focus leaving the popup dismiss it. QueryEditor supplies
+its Share button as the anchor. Omit `anchorElement` to use a standalone modal dialog.
 
 The consuming application generates, stores and updates `link`, and controls
 `pendingAction` and `error`. Callbacks signal user intent and return no data.
