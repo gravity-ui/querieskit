@@ -102,6 +102,16 @@ describe('QueryEditor', () => {
     beforeEach(() => {
         globalThis.IS_REACT_ACT_ENVIRONMENT = true;
         vi.stubGlobal(
+            'matchMedia',
+            vi.fn(() => ({
+                matches: false,
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+                addListener: vi.fn(),
+                removeListener: vi.fn(),
+            })),
+        );
+        vi.stubGlobal(
             'requestAnimationFrame',
             vi.fn(() => 1),
         );
@@ -792,6 +802,72 @@ describe('QueryEditor', () => {
         });
         expect(props.onChange).not.toHaveBeenCalled();
         expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('only renders sharing when configured and places it before custom right actions', () => {
+        render();
+        expect(container.querySelector('[aria-label="Share"]')).toBeNull();
+        const shareProps = {
+            onGenerate: vi.fn(),
+            onRegenerate: vi.fn(),
+            onMakePermanent: vi.fn(),
+            onExpirationChange: vi.fn(),
+        };
+        render({
+            shareProps,
+            rightActions: [{id: 'custom', title: 'Custom', icon: () => <svg />, onClick: vi.fn()}],
+        });
+        const buttons = [...container.querySelectorAll('button')];
+        expect(buttons.indexOf(button('Share'))).toBeLessThan(buttons.indexOf(button('Custom')));
+        expect(container.querySelectorAll('[aria-label="Share"]')).toHaveLength(1);
+        click(button('Share'));
+        const dialog = document.querySelector('[role="dialog"]');
+        if (!dialog) throw new Error('Missing sharing dialog');
+        expect(dialog.textContent).toContain('Public link');
+        click(textButton('Generate link', dialog));
+        expect(shareProps.onGenerate).toHaveBeenCalledTimes(1);
+    });
+    it('keeps editor text and the active panel intact while sharing in readOnly mode', () => {
+        const onActivePanelChange = vi.fn();
+        const shareProps = {
+            onGenerate: vi.fn(),
+            onRegenerate: vi.fn(),
+            onMakePermanent: vi.fn(),
+            onExpirationChange: vi.fn(),
+        };
+        render({shareProps, readOnly: true, defaultActivePanel: 'settings', onActivePanelChange});
+        const editorNode = container.querySelector('[data-testid="editor"]');
+        expect(button('Share').disabled).toBe(false);
+        click(button('Share'));
+        expect(panel('Settings').hidden).toBe(false);
+        const close = document.querySelector<HTMLButtonElement>(
+            '[role="dialog"] button[aria-label="Close dialog"]',
+        );
+        if (!close) throw new Error('Missing dialog close button');
+        click(close);
+        expect(panel('Settings').hidden).toBe(false);
+        expect(editor.props.value).toBe('select 1');
+        expect(container.querySelector('[data-testid="editor"]')).toBe(editorNode);
+        expect(editor.mount).toHaveBeenCalledTimes(1);
+        expect(props.onChange).not.toHaveBeenCalled();
+        expect(onActivePanelChange).not.toHaveBeenCalled();
+    });
+    it('closes sharing when shareProps are removed and does not reopen when restored', () => {
+        const shareProps = {
+            onGenerate: vi.fn(),
+            onRegenerate: vi.fn(),
+            onMakePermanent: vi.fn(),
+            onExpirationChange: vi.fn(),
+        };
+        render({shareProps});
+        click(button('Share'));
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+        render();
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+        expect(container.querySelector('[aria-label="Share"]')).toBeNull();
+        render({shareProps});
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+        click(button('Share'));
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
     });
     it('forwards editor data, options and theme and derives language from selected engine', () => {
         render({engineId: 'ch', readOnly: true, editorOptions: {fontSize: 16}});

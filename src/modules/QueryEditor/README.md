@@ -36,6 +36,33 @@ The parent must supply a bounded height. `className` can apply parent layout con
 
 Public types, including `QueryEditorProps`, `QueryEditorCluster`, `QueryEditorEngine` and action types, are exported from the package root and the module entrypoint.
 
+## Sharing
+
+Pass `shareProps` to enable the built-in Share button before `rightActions`:
+
+```tsx
+<QueryEditor
+  {...editorProps}
+  shareProps={{
+    link, // undefined before generation; {url, expiresAt: number | null} afterwards
+    onGenerate: generateLink,
+    onRegenerate: regenerateLink,
+    onMakePermanent: createPermanentLink,
+    onExpirationChange: updateExpiration,
+    pendingAction, // 'generate' | 'regenerate' | 'makePermanent' | 'updateExpiration' | undefined
+    error,
+  }}
+/>
+```
+
+QueryEditor owns dialog visibility independently of the side panel. The application
+owns link generation, expiration persistence, loading and errors, and supplies updated
+props after each operation. Sharing remains available in read-only editors. Removing
+`shareProps` closes the dialog and hides the button; restoring it leaves the dialog closed.
+The expiration pencil opens an inline date/time picker; Save calls `onExpirationChange`
+with a Unix timestamp in milliseconds, while Cancel discards the draft.
+For standalone use and the full contract, see [QueryShare](../QueryShare/README.md).
+
 ## Settings
 
 Pass `settingsProps` to use the built-in `QuerySettings` form. Its generic custom values are shared with the engine descriptions:

@@ -1,10 +1,11 @@
-import React, {useId, useMemo, useState} from 'react';
+import React, {useEffect, useId, useMemo, useState} from 'react';
 import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../components/MonacoEditor';
 import {Attachments} from '../Attachments';
 import {QuerySettings} from '../QuerySettings';
+import {QueryShare} from '../QueryShare';
 import type {QueryEditorPanel, QueryEditorProps} from '../../types/queryEditor';
 import {QueryEditorToolbar} from './internal/QueryEditorToolbar';
 import {QueryEditorSplit} from './internal/QueryEditorSplit';
@@ -24,6 +25,11 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     } = props;
     const [localPanel, setLocalPanel] = useState<QueryEditorPanel>(defaultActivePanel);
     const [localWidth, setLocalWidth] = useState(defaultPanelWidth);
+    const [shareOpen, setShareOpen] = useState(false);
+    const sharingEnabled = props.shareProps !== undefined;
+    useEffect(() => {
+        if (!sharingEnabled) setShareOpen(false);
+    }, [sharingEnabled]);
     const activePanel = controlledPanel === undefined ? localPanel : controlledPanel;
     const panelWidth = controlledWidth ?? localWidth;
     const settingsId = useId();
@@ -105,6 +111,7 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
                     settingsId={settingsId}
                     attachmentsId={attachmentsId}
                     onPanelToggle={togglePanel}
+                    onShareClick={sharingEnabled ? () => setShareOpen(true) : undefined}
                 />
                 <MonacoEditor
                     editorRef={props.editorRef}
@@ -143,6 +150,13 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
                     </Button>
                 )}
             </Flex>
+            {props.shareProps && (
+                <QueryShare
+                    {...props.shareProps}
+                    open={shareOpen}
+                    onClose={() => setShareOpen(false)}
+                />
+            )}
         </Flex>
     );
 }
