@@ -60,6 +60,11 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
         actionStates?: Partial<Record<'run' | 'format' | 'validate', QueryEditorActionState>>;
         additionalActions?: QueryEditorMenuAction[];
         rightActions?: QueryEditorToolbarAction[];
+        /** Enables the built-in Save / Save as menu. The application owns persistence. */
+        saveProps?: QueryEditorActionState & {
+            onSave: () => void;
+            onSaveAs: () => void;
+        };
         /** Enables the built-in share action. The editor manages dialog visibility. */
         shareProps?: Omit<QueryShareProps, 'open' | 'onClose'>;
         onCodeAssistantClick?: () => void;

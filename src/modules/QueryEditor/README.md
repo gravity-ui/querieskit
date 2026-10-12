@@ -36,6 +36,22 @@ The parent must supply a bounded height. `className` can apply parent layout con
 
 Public types, including `QueryEditorProps`, `QueryEditorCluster`, `QueryEditorEngine` and action types, are exported from the package root and the module entrypoint.
 
+## Saving
+
+Pass `saveProps` to enable the floppy-disk button after Share and before `rightActions`:
+
+```tsx
+<QueryEditor
+  {...editorProps}
+  saveProps={{onSave: saveQuery, onSaveAs: saveQueryAs, disabled, loading}}
+/>
+```
+
+The button opens a menu with Save and Save as. Selecting an item closes the menu
+and calls its callback without arguments. The application owns persistence and any
+Save as dialog. `disabled` and `loading` prevent opening the menu. Omitting `saveProps`
+hides the button. Saving is independent of `readOnly` and the active side panel.
+
 ## Sharing
 
 Pass `shareProps` to enable the built-in Share button before `rightActions`:

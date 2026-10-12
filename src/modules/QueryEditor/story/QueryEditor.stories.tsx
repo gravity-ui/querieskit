@@ -1,6 +1,5 @@
 import React, {useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {FloppyDisk} from '@gravity-ui/icons';
 import {Button, Flex, Modal, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import type {QueryEditorPanel, QueryEditorProps} from '../../../types/queryEditor';
@@ -54,8 +53,6 @@ function EditableExample({
     );
 }
 
-export const Default: Story = {render: () => <EditableExample />};
-
 function SharingExample(props: Partial<QueryEditorProps>) {
     const [link, setLink] = useState<QueryShareLink>();
     const revision = useRef(0);
@@ -81,26 +78,24 @@ function SharingExample(props: Partial<QueryEditorProps>) {
     );
 }
 
-export const Sharing: Story = {render: () => <SharingExample />};
-
-export const AllActions: Story = {
+export const Default: Story = {
     render: () => (
         <SharingExample
             additionalActions={[
                 {id: 'duplicate', title: 'Duplicate query', onClick: action('duplicate')},
                 {id: 'history', title: 'Show history', onClick: action('history'), disabled: true},
             ]}
-            rightActions={[{id: 'save', title: 'Save', icon: FloppyDisk, onClick: action('save')}]}
+            saveProps={{onSave: action('onSave'), onSaveAs: action('onSaveAs')}}
             onCodeAssistantClick={action('onCodeAssistantClick')}
         />
     ),
 };
 
-export const SettingsOpen: Story = {
+export const SplitView: Story = {
     render: () => <EditableExample defaultActivePanel="settings" />,
 };
 
-function ControlledSettingsExample() {
+function ControlledSplitViewExample() {
     const [activePanel, setActivePanel] = useState<QueryEditorPanel>('settings');
     const [width, setWidth] = useState(320);
     return (
@@ -109,7 +104,7 @@ function ControlledSettingsExample() {
                 <Button
                     onClick={() => setActivePanel(activePanel === 'settings' ? null : 'settings')}
                 >
-                    Toggle Settings externally
+                    Toggle side panel externally
                 </Button>
                 <Button onClick={() => setWidth(320)}>Reset width</Button>
                 <Text>Preferred width: {Math.round(width)} px</Text>
@@ -124,7 +119,7 @@ function ControlledSettingsExample() {
     );
 }
 
-export const ControlledSettings: Story = {render: () => <ControlledSettingsExample />};
+export const ControlledSplitView: Story = {render: () => <ControlledSplitViewExample />};
 export const NarrowWithLongTitles: Story = {
     render: () => (
         <EditableExample
@@ -240,14 +235,19 @@ function TabsExample() {
                                 action('onFormat')(draft.id);
                             }}
                             onValidate={() => action('onValidate')(draft)}
-                            rightActions={[
-                                {
-                                    id: 'save',
-                                    title: 'Save',
-                                    icon: FloppyDisk,
-                                    onClick: () => updateDraft(draft.id, {savedValue: draft.value}),
+                            saveProps={{
+                                onSave: () => updateDraft(draft.id, {savedValue: draft.value}),
+                                onSaveAs: () => {
+                                    const copy = {
+                                        ...draft,
+                                        id: String(nextId.current++),
+                                        title: `${draft.title} (copy)`,
+                                        savedValue: draft.value,
+                                    };
+                                    setDrafts((current) => [...current, copy]);
+                                    setActiveId(copy.id);
                                 },
-                            ]}
+                            }}
                         />
                     </div>
                 ))}
