@@ -332,6 +332,35 @@ describe('QuerySettings', () => {
         expect(onChange).toHaveBeenLastCalledWith({...next, tokenIds: ['second']});
     });
 
+    it('renders standalone custom sections after Attributes with the same change context', () => {
+        const renderCustomSections = vi.fn(
+            (
+                context: Parameters<
+                    NonNullable<QuerySettingsProps<Custom>['renderCustomSections']>
+                >[0],
+            ) => (
+                <button
+                    onClick={() =>
+                        context.onChange({...context.value, custom: {yqlVersion: 'section'}})
+                    }
+                >
+                    Custom section
+                </button>
+            ),
+        );
+        render({renderCustomSections});
+        const buttons = [...container.querySelectorAll('button')];
+        expect(buttons.indexOf(button('Custom section'))).toBeGreaterThan(
+            buttons.indexOf(button('Add attribute')),
+        );
+        act(() => button('Custom section').click());
+        expect(lastValue()).toEqual({...initialValue, custom: {yqlVersion: 'section'}});
+        render({renderCustomSections, disabled: true});
+        onChange.mockClear();
+        act(() => button('Custom section').click());
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
     it('provides typed custom values, errors, blur and full changes to the custom slot', () => {
         const onFieldBlur = vi.fn();
         render({

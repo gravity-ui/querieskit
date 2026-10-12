@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import React, {act, useEffect} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
-import {ThemeProvider, configure} from '@gravity-ui/uikit';
+import {TextInput, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QueryEditor} from '../../src/modules/QueryEditor';
 import {QuerySettings} from '../../src/modules/QuerySettings';
-import type {QueryEditorProps} from '../../src/types/queryEditor';
+import type {QueryEditorEngine, QueryEditorProps} from '../../src/types/queryEditor';
+import type {QuerySettingsValue} from '../../src/types/querySettings';
 import {setLang} from '../../src/i18n';
 
 // Popup positioning requires browser layout. Keep the actual buttons and layout,
@@ -298,6 +299,183 @@ describe('QueryEditor', () => {
         expect(container.querySelector('input[aria-label="Query name"]')).toBe(input);
         expect(separator().getAttribute('aria-valuenow')).toBe('336');
         expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('composes built-in settings with engine fields before application fields and forwards changes', () => {
+        const onSettingsChange = vi.fn();
+        const onFieldBlur = vi.fn();
+        const value: QuerySettingsValue = {
+            queryName: 'Daily report',
+            access: 'private',
+            ytOperationTitle: 'Report',
+            tokenIds: [],
+            attributes: [],
+            custom: {version: 'v1', extra: 'retained'},
+        };
+        const renderEngine = vi.fn<NonNullable<QueryEditorEngine['renderSettingsFields']>>(
+            (context) => (
+                <TextInput
+                    controlProps={{'aria-label': 'Engine version'}}
+                    value={String(context.value.custom.version)}
+                    onUpdate={(version) =>
+                        context.onChange({
+                            ...context.value,
+                            custom: {...context.value.custom, version},
+                        })
+                    }
+                    onBlur={() => context.onFieldBlur?.({section: 'custom', field: 'version'})}
+                    disabled={context.disabled}
+                    errorMessage={context.errors?.custom?.version}
+                    validationState={context.errors?.custom?.version ? 'invalid' : undefined}
+                />
+            ),
+        );
+        const renderSections = vi.fn<NonNullable<QueryEditorEngine['renderSettingsSections']>>(
+            () => <div data-testid="engine-section">Engine section</div>,
+        );
+        const engines = [
+            {
+                ...props.engines[0],
+                renderSettingsFields: renderEngine,
+                renderSettingsSections: renderSections,
+            },
+        ];
+        render({
+            engines,
+            defaultSettingsOpen: true,
+            settingsProps: {
+                value,
+                onChange: onSettingsChange,
+                onFieldBlur,
+                errors: {custom: {version: 'Unsupported version'}},
+                renderCustomFields: () => (
+                    <TextInput controlProps={{'aria-label': 'Application field'}} />
+                ),
+                renderCustomSections: () => (
+                    <div data-testid="application-section">Application section</div>
+                ),
+            },
+        });
+        expect(renderEngine).toHaveBeenCalledWith(
+            expect.objectContaining({
+                engineId: 'yql',
+                clusterId: 'a',
+                value,
+                disabled: false,
+                errors: {custom: {version: 'Unsupported version'}},
+            }),
+        );
+        expect(renderSections).toHaveBeenCalledWith(
+            expect.objectContaining({
+                engineId: 'yql',
+                clusterId: 'a',
+                value,
+                disabled: false,
+            }),
+        );
+        const attributesSection = container.querySelectorAll('.qp-query-settings__section')[1];
+        const engineSection = container.querySelector('[data-testid="engine-section"]');
+        const applicationSection = container.querySelector('[data-testid="application-section"]');
+        if (!engineSection || !applicationSection) throw new Error('Missing custom sections');
+        expect(attributesSection.compareDocumentPosition(engineSection)).toBe(
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+        expect(engineSection.compareDocumentPosition(applicationSection)).toBe(
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+        expect(
+            [...container.querySelectorAll('input')].map((input) =>
+                input.getAttribute('aria-label'),
+            ),
+        ).toEqual(['Query name', 'Engine version', 'Application field', 'YT operation title']);
+        const input = container.querySelector<HTMLInputElement>(
+            'input[aria-label="Engine version"]',
+        );
+        if (!input) throw new Error('Missing engine field');
+        expect(input.getAttribute('aria-invalid')).toBe('true');
+        act(() => {
+            Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(
+                input,
+                'v2',
+            );
+            input.dispatchEvent(new Event('input', {bubbles: true}));
+        });
+        expect(onSettingsChange).toHaveBeenCalledExactlyOnceWith({
+            ...value,
+            custom: {...value.custom, version: 'v2'},
+        });
+        expect(props.onChange).not.toHaveBeenCalled();
+        act(() => input.focus());
+        act(() => input.blur());
+        expect(onFieldBlur).toHaveBeenLastCalledWith({section: 'custom', field: 'version'});
+        click(button('Close Settings'));
+        click(button('Settings'));
+        expect(container.querySelector('input[aria-label="Engine version"]')).toBe(input);
+    });
+    it('leaves settings untouched on engine changes and handles absent engines without remounting the form', () => {
+        const onSettingsChange = vi.fn();
+        const value: QuerySettingsValue = {
+            queryName: 'Report',
+            access: 'everyone',
+            ytOperationTitle: 'Operation',
+            tokenIds: ['token'],
+            attributes: [{id: 'a', key: 'pool', value: 'research'}],
+            custom: {version: 'v1', clique: 'analytics'},
+        };
+        const settingsProps = {value, onChange: onSettingsChange};
+        const engines = props.engines.map((engine) => ({
+            ...engine,
+            renderSettingsFields: () => (
+                <TextInput controlProps={{'aria-label': `${engine.id} field`}} />
+            ),
+        }));
+        render({engines, settingsProps, defaultSettingsOpen: true});
+        const name = container.querySelector('input[aria-label="Query name"]');
+        const selector = container.querySelector<HTMLSelectElement>('[aria-label="Engine"]');
+        if (!selector) throw new Error('Missing engine selector');
+        act(() => {
+            selector.value = 'ch';
+            selector.dispatchEvent(new Event('change', {bubbles: true}));
+        });
+        expect(props.onEngineChange).toHaveBeenCalledExactlyOnceWith('ch');
+        expect(container.querySelector('input[aria-label="yql field"]')).not.toBeNull();
+        render({engines, settingsProps, engineId: 'ch'});
+        expect(container.querySelector('input[aria-label="ch field"]')).not.toBeNull();
+        expect(container.querySelector('input[aria-label="yql field"]')).toBeNull();
+        render({engines, settingsProps, engineId: 'unknown'});
+        expect(container.querySelector('input[aria-label="ch field"]')).toBeNull();
+        expect(container.querySelector('input[aria-label="Query name"]')).toBe(name);
+        expect(editor.props.language).toBe('plaintext');
+        expect(onSettingsChange).not.toHaveBeenCalled();
+    });
+    it('keeps settings disabled independent of text readOnly and skips engine rendering for raw slots', () => {
+        const renderSettingsFields = vi.fn<NonNullable<QueryEditorEngine['renderSettingsFields']>>(
+            () => null,
+        );
+        const engines = [{...props.engines[0], renderSettingsFields}];
+        render({engines, settings: <div>Custom settings panel</div>});
+        expect(container.textContent).toContain('Custom settings panel');
+        expect(renderSettingsFields).not.toHaveBeenCalled();
+        const settingsProps = {
+            value: {
+                queryName: '',
+                access: 'private' as const,
+                ytOperationTitle: '',
+                tokenIds: [],
+                attributes: [],
+                custom: {},
+            },
+            onChange: vi.fn(),
+            disabled: true,
+        };
+        render({engines, settingsProps});
+        expect(renderSettingsFields).toHaveBeenLastCalledWith(
+            expect.objectContaining({disabled: true}),
+        );
+        render({engines, settingsProps: {...settingsProps, disabled: false}, readOnly: true});
+        expect(renderSettingsFields).toHaveBeenLastCalledWith(
+            expect.objectContaining({disabled: false}),
+        );
+        expect(editor.props.readOnly).toBe(true);
     });
     it('requests controlled visibility and width without mutating either', () => {
         const onOpen = vi.fn();

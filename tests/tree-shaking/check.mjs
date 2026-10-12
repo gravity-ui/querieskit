@@ -74,6 +74,7 @@ const pending = [
     ...widgets.map((name) => path.join(root, 'src', unitPath(name), 'index.ts')),
     path.join(root, 'src/modules/QueryTimeline/index.ts'),
     path.join(root, 'src/modules/QueryProgress/index.ts'),
+    path.join(root, 'src/modules/QueryEditor/presets/ytsaurus/index.ts'),
 ];
 const visited = new Set();
 while (pending.length) {
@@ -155,6 +156,43 @@ const onChange: QueryEditorProps['onChange'] = (value) => {
     // @ts-expect-error Changes must retain their string type.
     const invalid: number = value;
 };
+import {QueryEditor as SettingsEditor} from '${specifier}';
+import {createYtsaurusQueryEngines} from '${packageName}/modules/QueryEditor/presets/ytsaurus';
+import {createYtsaurusQueryEngines as rootEngineFactory} from '${packageName}';
+import type {YtsaurusEngineSettings} from '${packageName}/modules/QueryEditor/presets/ytsaurus';
+import type {QuerySettingsValue} from '${packageName}/modules/QuerySettings';
+type CustomSettings = YtsaurusEngineSettings & {applicationField: string};
+const engineSettings: QuerySettingsValue<CustomSettings> = {
+    queryName: '', access: 'private', ytOperationTitle: '', tokenIds: [], attributes: [],
+    custom: {yqlVersion: 'stable', applicationField: 'custom'},
+};
+const rootEngines: QueryEditorEngine<CustomSettings>[] = rootEngineFactory<CustomSettings>();
+const engineWithSettings: QueryEditorEngine<CustomSettings> = {
+    ...engine,
+    renderSettingsFields(context) {
+        const value: string = context.value.custom.applicationField;
+        const cluster: string | undefined = context.clusterId;
+        // @ts-expect-error Preserve custom engine field types.
+        const invalid: number = context.value.custom.applicationField;
+        context.onFieldBlur?.({section: 'custom', field: 'applicationField'});
+        // @ts-expect-error Reject unknown custom field names.
+        context.onFieldBlur?.({section: 'custom', field: 'unknown'});
+        return value;
+    },
+};
+const settingsEditorProps: QueryEditorProps<CustomSettings> = {
+    value: '', onChange() {}, clusters: [], onClusterChange() {},
+    engines: [engineWithSettings, ...createYtsaurusQueryEngines<CustomSettings>()],
+    engineId: 'yql', onEngineChange() {}, onRun() {}, onFormat() {}, onValidate() {},
+    settingsProps: {value: engineSettings, onChange(next) {
+        const field: string = next.custom.applicationField;
+        // @ts-expect-error Preserve custom settings through editor callbacks.
+        const invalid: number = next.custom.applicationField;
+    }},
+};
+SettingsEditor(settingsEditorProps);
+// @ts-expect-error Built-in and raw settings modes are mutually exclusive.
+const conflictingSettings: QueryEditorProps<CustomSettings> = {...settingsEditorProps, settings: 'raw'};
 import {createQueryEditorPreset} from '${packageName}/helpers/queryEditorPreset';
 import type {QueryCatalogRequest, QueryEditorPresetOptions} from '${packageName}/helpers/queryEditorPreset';
 import type {MonacoEditorProps, EditorProviders, EditorExtension} from '${packageName}/components/MonacoEditor';
@@ -342,6 +380,7 @@ for (const widget of widgets) {
             assert.equal(
                 included.has(`build/esm/${unitPath(other)}/${other}.js`),
                 other === widget ||
+                    (widget === 'QueryEditor' && other === 'QuerySettings') ||
                     (widget === 'QueriesSidebar' && sections.has(other)) ||
                     (widget === 'QueryExecutionPanel' &&
                         ['QueryResults', 'DashboardCharts'].includes(other)),
@@ -353,6 +392,7 @@ for (const widget of widgets) {
                 assert.equal(
                     included.has(`build/esm/${unitPath(other)}/${other}.css`),
                     other === widget ||
+                        (widget === 'QueryEditor' && other === 'QuerySettings') ||
                         (widget === 'QueriesSidebar' && sections.has(other)) ||
                         (widget === 'QueryExecutionPanel' &&
                             ['QueryResults', 'DashboardCharts'].includes(other)),
@@ -483,3 +523,44 @@ for (const dialect of ['yql', 'clickhouse']) {
     );
 }
 console.info('✓ Query editor preset: standalone entrypoint and lazy SQL parsers');
+
+// Engine settings presets are independently importable without the editor or its language runtime.
+const enginePresetPath = 'modules/QueryEditor/presets/ytsaurus';
+const enginePresetSpecifier = `${packageName}/${enginePresetPath}`;
+assert.equal(
+    fileURLToPath(import.meta.resolve(enginePresetSpecifier)),
+    path.join(root, 'build/esm', enginePresetPath, 'index.js'),
+);
+assert.equal(
+    require.resolve(enginePresetSpecifier),
+    path.join(root, 'build/cjs', enginePresetPath, 'index.js'),
+);
+for (const format of ['esm', 'cjs']) {
+    const result = await build({
+        absWorkingDir: root,
+        entryPoints: [path.join(root, 'build', format, enginePresetPath, 'index.js')],
+        bundle: true,
+        write: false,
+        format,
+        platform: 'browser',
+        packages: 'external',
+        metafile: true,
+        logLevel: 'silent',
+    });
+    assert(
+        !Object.keys(result.metafile.inputs).some(
+            (file) => file.includes('/MonacoEditor/') || file.endsWith('/QueryEditor.js'),
+        ),
+        'Engine settings preset pulls in the editor runtime',
+    );
+    const imports = Object.values(result.metafile.outputs).flatMap((output) => output.imports);
+    assert(
+        !imports.some(
+            ({path}) =>
+                path.startsWith('monaco-editor') ||
+                path.startsWith('@gravity-ui/websql-autocomplete'),
+        ),
+        'Engine settings preset pulls in language services',
+    );
+}
+console.info('✓ YTsaurus engine settings preset: standalone exports without Monaco');

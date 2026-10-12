@@ -4,11 +4,14 @@ import {flushSync} from 'react-dom';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import * as monaco from 'monaco-editor/editor/editor.api';
 import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
+import JsonWorker from 'monaco-editor/languages/features/json/json.worker?worker';
 import {MonacoEditor} from '../../../src/components/MonacoEditor';
 import type {EditorPreset, EditorProviders} from '../../../src/types/editorProviders';
 import '@gravity-ui/uikit/styles/styles.css';
 
-self.MonacoEnvironment = {getWorker: () => new EditorWorker()};
+self.MonacoEnvironment = {
+    getWorker: (_moduleId, label) => (label === 'json' ? new JsonWorker() : new EditorWorker()),
+};
 
 type Id = 'first' | 'second';
 type Settings = {

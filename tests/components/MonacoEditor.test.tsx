@@ -93,6 +93,7 @@ vi.mock('monaco-editor/editor/editor.api', () => ({
     },
 }));
 vi.mock('../../src/components/MonacoEditor/monaco-yql-languages/monaco.contribution', () => ({}));
+vi.mock('monaco-editor/languages/features/json/register', () => ({}));
 
 describe('MonacoEditor', () => {
     let container: HTMLDivElement;

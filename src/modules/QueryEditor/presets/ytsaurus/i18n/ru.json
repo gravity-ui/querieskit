@@ -1,0 +1,11 @@
+{
+  "field_yql-version": "Версия YQL",
+  "field_clique": "Алиас клики",
+  "field_discovery-path": "Путь discovery",
+  "value_active": "Активна",
+  "value_inactive": "Неактивна",
+  "field_spyt-config": "Конфигурация SPYT",
+  "action_save": "Сохранить",
+  "action_cancel": "Отменить",
+  "alert_invalid-spyt-config": "Введите корректный JSON-объект"
+}
