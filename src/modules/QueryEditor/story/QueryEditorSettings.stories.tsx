@@ -123,8 +123,8 @@ function Example({
                     onRun={() => action('run')({query, engineId, clusterId, settings})}
                     onValidate={action('validate')}
                     onFormat={action('format')}
-                    defaultSettingsOpen
-                    defaultSettingsWidth={narrow ? 240 : 360}
+                    defaultActivePanel="settings"
+                    defaultPanelWidth={narrow ? 240 : 360}
                     settingsProps={{
                         value: settings,
                         onChange: setSettings,

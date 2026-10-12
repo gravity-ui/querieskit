@@ -3,10 +3,15 @@ import {Button, Divider, DropdownMenu, Flex, Icon, Select} from '@gravity-ui/uik
 import PlayIcon from '@gravity-ui/icons/svgs/play.svg';
 import SquareDashedTextIcon from '@gravity-ui/icons/svgs/square-dashed-text.svg';
 import CheckIcon from '@gravity-ui/icons/svgs/list-check.svg';
+import PaperclipIcon from '@gravity-ui/icons/svgs/paperclip.svg';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
 import cn from 'bem-cn-lite';
-import type {QueryEditorEngine, QueryEditorProps} from '../../../types/queryEditor';
+import type {
+    QueryEditorEngine,
+    QueryEditorPanel,
+    QueryEditorProps,
+} from '../../../types/queryEditor';
 import i18n from '../i18n';
 import './QueryEditorToolbar.scss';
 
@@ -27,9 +32,10 @@ type Props = Pick<
     | 'rightActions'
 > & {
     engines: Omit<QueryEditorEngine, 'renderSettingsFields' | 'renderSettingsSections'>[];
-    settingsOpen: boolean;
+    activePanel: QueryEditorPanel;
+    attachmentsId: string;
     settingsId: string;
-    onSettingsToggle: () => void;
+    onPanelToggle: (panel: Exclude<QueryEditorPanel, null>) => void;
 };
 
 export function QueryEditorToolbar(props: Props) {
@@ -144,12 +150,23 @@ export function QueryEditorToolbar(props: Props) {
                 ))}
                 <Button
                     view="flat"
+                    title={i18n('action_attachments')}
+                    aria-label={i18n('action_attachments')}
+                    selected={props.activePanel === 'attachments'}
+                    aria-expanded={props.activePanel === 'attachments'}
+                    aria-controls={props.attachmentsId}
+                    onClick={() => props.onPanelToggle('attachments')}
+                >
+                    <Icon data={PaperclipIcon} size={16} />
+                </Button>
+                <Button
+                    view="flat"
                     title={i18n('action_settings')}
                     aria-label={i18n('action_settings')}
-                    selected={props.settingsOpen}
-                    aria-expanded={props.settingsOpen}
+                    selected={props.activePanel === 'settings'}
+                    aria-expanded={props.activePanel === 'settings'}
                     aria-controls={props.settingsId}
-                    onClick={props.onSettingsToggle}
+                    onClick={() => props.onPanelToggle('settings')}
                 >
                     <Icon data={GearIcon} size={16} />
                 </Button>

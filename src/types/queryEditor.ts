@@ -1,7 +1,10 @@
 import type {ReactNode} from 'react';
 import type {IconProps} from '@gravity-ui/uikit';
+import type {AttachmentsProps} from './attachments';
 import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
 import type {QuerySettingsCustomFieldsContext, QuerySettingsProps} from './querySettings';
+
+export type QueryEditorPanel = 'settings' | 'attachments' | null;
 
 export type QueryEditorCluster = {id: string; title: string; disabled?: boolean};
 
@@ -59,16 +62,16 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
         onCodeAssistantClick?: () => void;
         readOnly?: boolean;
         editorOptions?: QueryEditorOptions;
-        /** Controlled visibility; omit to keep visibility inside the module. */
-        settingsOpen?: boolean;
-        /** Initial uncontrolled visibility. Defaults to false. */
-        defaultSettingsOpen?: boolean;
-        onSettingsOpenChange?: (open: boolean) => void;
+        /** Controlled active panel; null closes both. Omit to manage it internally. */
+        activePanel?: QueryEditorPanel;
+        /** Initial uncontrolled panel. Defaults to null (closed). */
+        defaultActivePanel?: QueryEditorPanel;
+        onActivePanelChange?: (panel: QueryEditorPanel) => void;
         /** Controlled preferred width in pixels; constrained to available space. */
-        settingsWidth?: number;
+        panelWidth?: number;
         /** Initial uncontrolled width. Defaults to 320px. */
-        defaultSettingsWidth?: number;
-        onSettingsWidthChange?: (width: number) => void;
+        defaultPanelWidth?: number;
+        onPanelWidthChange?: (width: number) => void;
         /** The parent supplies a bounded height through its layout or this class. */
         className?: string;
     } & (
@@ -81,5 +84,17 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
                   settings?: never;
                   /** Built-in controlled form. Engine fields precede renderCustomFields from these props. */
                   settingsProps: QuerySettingsProps<TCustom>;
+              }
+        ) &
+        (
+            | {
+                  /** Custom content below the Attachments heading; excludes the built-in module. */
+                  attachments?: ReactNode;
+                  attachmentsProps?: never;
+              }
+            | {
+                  attachments?: never;
+                  /** Forwarded to Attachments, including both lists and their change callback. */
+                  attachmentsProps: AttachmentsProps;
               }
         );

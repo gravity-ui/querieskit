@@ -10,16 +10,13 @@ import {
     TabProvider,
     Text,
 } from '@gravity-ui/uikit';
-import {AttachmentList, AttachmentListPlaceholder, EditAttachmentItem} from '../../components';
+import {AttachmentList, EditAttachmentItem} from '../../components/AttachmentList';
+import type {EditLinkValues} from '../../components/AttachmentList';
+import {AttachmentListPlaceholder} from '../../components/AttachmentListPlaceholder';
+import type {AttachItem, AttachmentsProps} from '../../types/attachments';
 import {createUuid} from '../../helpers/createUuid';
 import {isObjectEqual} from '../../helpers/isObjectEqual';
 import {Plus} from '@gravity-ui/icons';
-import type {
-    AttachmentItemProps,
-    AttachmentListPlaceholderProps,
-    AttachmentListProps,
-    EditLinkValues,
-} from '../../components';
 import cn from 'bem-cn-lite';
 
 import i18n from './i18n';
@@ -28,17 +25,7 @@ import './Attachments.scss';
 
 type TabVariants = 'Current' | 'Deleted';
 
-export type AttachItem = AttachmentItemProps['attachment'] & {token?: string; isNew?: boolean};
-
-export type AttachmentsProps = {
-    tokens?: {value: string; title: string}[];
-    placeholderProps?: Omit<AttachmentListPlaceholderProps, 'onAddFile' | 'onAddLink'>;
-    attachmentListProps?: Pick<AttachmentListProps, 'className'>;
-    attachments?: AttachItem[];
-    deletedAttachments?: AttachItem[];
-    onItemClick?: AttachmentListProps<AttachItem>['onItemClick'];
-    onChange?: (payload: {attachments: AttachItem[]; deletedAttachments: AttachItem[]}) => void;
-};
+export type {AttachmentsProps, AttachItem} from '../../types/attachments';
 
 const block = cn('qp-attachments');
 
@@ -247,17 +234,21 @@ export const Attachments = ({
         <Box className={block()} height="100%" overflow="hidden">
             <TabProvider value={currentTab} onUpdate={(tab) => setCurrentTab(tab as TabVariants)}>
                 <TabList className={block('tab-list')}>
-                    <Tab className={block('tab')} value="Current">
-                        <Text variant="body-1">Current</Text>
-                        <Text color="hint" variant="body-1">
-                            {attachCount}
-                        </Text>
+                    <Tab value="Current">
+                        <Flex gap={2}>
+                            <Text variant="body-1">{i18n('title_current')}</Text>
+                            <Text color="hint" variant="body-1">
+                                {attachCount}
+                            </Text>
+                        </Flex>
                     </Tab>
-                    <Tab className={block('tab')} value="Deleted">
-                        <Text variant="body-1">Deleted</Text>
-                        <Text color="hint" variant="body-1">
-                            {deletedAttachList.length}
-                        </Text>
+                    <Tab value="Deleted">
+                        <Flex gap={2}>
+                            <Text variant="body-1">{i18n('title_deleted')}</Text>
+                            <Text color="hint" variant="body-1">
+                                {deletedAttachList.length}
+                            </Text>
+                        </Flex>
                     </Tab>
                 </TabList>
 
@@ -266,6 +257,7 @@ export const Attachments = ({
                         {attachList.length ? (
                             <AttachmentList
                                 {...attachmentListProps}
+                                className={block('list', attachmentListProps?.className)}
                                 attachments={attachList}
                                 wasAddedIds={wasAddedIds}
                                 wasEditedIds={wasEdited}
@@ -314,7 +306,7 @@ export const Attachments = ({
                             />
                         )}
                         {Boolean(attachList.length) && (
-                            <Flex spacing={{px: 4}} gap={2}>
+                            <Flex spacing={{px: 4}} gap={2} wrap="wrap" shrink={0}>
                                 <Button onClick={handleAddEmptyFile}>
                                     <Icon data={Plus} />
                                     {i18n('action_add-file')}
@@ -337,6 +329,7 @@ export const Attachments = ({
                     <Flex spacing={{pt: 3}} width="100%" height="100%">
                         <AttachmentList
                             {...attachmentListProps}
+                            className={block('list', attachmentListProps?.className)}
                             isDeleted
                             attachments={deletedAttachList}
                             onRevert={(attach) => handleRevertDelete(attach.id)}

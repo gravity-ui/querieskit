@@ -1,6 +1,6 @@
 # QueryEditor
 
-A reusable module that combines a query toolbar, an editable Monaco editor, a footer and a resizable Settings panel. It does not execute, format, validate or save queries itself.
+A reusable module that combines a query toolbar, an editable Monaco editor, a footer and a resizable side panel for Settings and Attachments. It does not execute, format, validate or save queries itself.
 
 ```tsx
 import {QueryEditor} from '@gravity-ui/querieskit/modules/QueryEditor';
@@ -30,7 +30,7 @@ The parent must supply a bounded height. `className` can apply parent layout con
 - `clusters` contains `{id, title, disabled?}` items. `engines` uses the same shape with an additional Monaco `language` ID and optional `renderSettingsFields` callback. Selection is controlled by `clusterId` / `engineId` and their change callbacks. The application owns dependencies between these lists. Empty lists disable their selectors; a missing selected engine uses plain text.
 - Run, Format and Validate are always visible. Their required callbacks receive no arguments; the application already owns the selected values and text. `actionStates` supplies `disabled` and `loading` independently for `run`, `format` and `validate`.
 - `additionalActions` supplies `{id, title, onClick, disabled?}` menu items. The overflow button appears only for a nonempty list.
-- `rightActions` supplies ordered buttons with the same fields plus a Gravity `Icon`-compatible `icon` and optional `loading`. Settings is always available.
+- `rightActions` supplies ordered buttons with the same fields plus a Gravity `Icon`-compatible `icon` and optional `loading`. Attachments and Settings are always available.
 - `onCodeAssistantClick` adds a footer button. The footer remains present without it.
 - `readOnly` controls text editing. `editorOptions` accepts Monaco configuration except for model, value, language, theme, readOnly and automaticLayout, which the module owns.
 
@@ -96,14 +96,44 @@ These are form values, not a backend request schema. At submission, the applicat
 
 This factory is separate from `createQueryEditorPreset`: that helper configures Monaco language services, completion and navigation; this factory configures the engine list and settings controls.
 
-Visibility and width each support independent controlled or uncontrolled usage:
+## Attachments
 
-| State           | Controlled prop | Initial uncontrolled prop       | Change callback         |
-| --------------- | --------------- | ------------------------------- | ----------------------- |
-| Visibility      | `settingsOpen`  | `defaultSettingsOpen` (false)   | `onSettingsOpenChange`  |
-| Preferred width | `settingsWidth` | `defaultSettingsWidth` (320 px) | `onSettingsWidthChange` |
+Pass `attachmentsProps` to forward the existing `Attachments` contract:
 
-A controlled parent must update the corresponding prop in response to its callback. The preferred width is retained across closing and reopening; the displayed width is constrained to available space. Settings has a minimum width of 240 px and the editor 320 px. A narrower container scrolls horizontally. Drag the separator or focus it and press the arrow keys to resize in 16 px steps.
+```tsx
+<QueryEditor
+  {...editorProps}
+  attachmentsProps={{
+    attachments,
+    deletedAttachments,
+    tokens,
+    onChange: ({attachments, deletedAttachments}) => {
+      setAttachments(attachments);
+      setDeletedAttachments(deletedAttachments);
+    },
+    onItemClick,
+  }}
+/>
+```
+
+`onChange` receives both current and deleted lists, including draft rows (`isNew`). The editor forwards events without copying state or uploading files. Tokens retain the Attachments format `{value, title}`. The application owns persistence and loading.
+
+Alternatively, pass `attachments={<YourAttachments />}` for custom content. The slot and `attachmentsProps` are mutually exclusive. Without either, an empty Attachments component manages its lists internally. Both contents stay mounted when closed or switched, preserving drafts and the selected tab.
+
+## Side panel
+
+The paperclip opens Attachments; the gear opens Settings. Only one panel is visible. Clicking its button again or its close button closes it. Headings and resizing belong to the editor.
+
+| State           | Controlled prop | Initial uncontrolled prop     | Change callback       |
+| --------------- | --------------- | ----------------------------- | --------------------- |
+| Active panel    | `activePanel`   | `defaultActivePanel` (`null`) | `onActivePanelChange` |
+| Preferred width | `panelWidth`    | `defaultPanelWidth` (320 px)  | `onPanelWidthChange`  |
+
+`QueryEditorPanel` is `'settings' | 'attachments' | null`. A controlled parent must update the corresponding prop in response to its callback; prop updates do not emit events. Panel and width control are independent.
+
+The shared preferred width is retained across closing and switching panels; the displayed width is constrained to available space. Panels have a minimum width of 240 px and the editor 320 px. A narrower container scrolls horizontally. Drag the separator or focus it and press the arrow keys to resize in 16 px steps (64 px with Shift); Home and End select the minimum and maximum width.
+
+This API replaces the previous settings-specific visibility and width props without compatibility aliases.
 
 ## Composition with QueryTabs
 

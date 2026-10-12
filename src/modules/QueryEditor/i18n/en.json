@@ -4,11 +4,14 @@
   "action_validate": "Validate",
   "action_more": "More actions",
   "action_settings": "Settings",
-  "action_resize-settings": "Resize Settings",
   "action_code-assistant": "Code Assistant",
   "action_close-settings": "Close Settings",
   "field_cluster": "Cluster",
   "field_engine": "Engine",
   "title_settings": "Settings",
-  "field_query": "Query editor"
+  "field_query": "Query editor",
+  "action_attachments": "Attachments",
+  "title_attachments": "Attachments",
+  "action_close-attachments": "Close Attachments",
+  "action_resize-panel": "Resize panel"
 }

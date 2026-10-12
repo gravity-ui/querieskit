@@ -93,7 +93,7 @@ const errors: QuerySettingsErrors<CustomSettings> = {
 
 `onFieldBlur` receives one of `{section: 'fields', field}`, `{section: 'attributes', id, field: 'key' | 'value'}`, or `{section: 'custom', field}`. The example reveals all validation errors after the first blur; use these references to track touched fields when per-field validation is preferred. Custom controls report their own blur events and render their own errors.
 
-Before Run, validate the current complete value again, show the returned errors and execute only when no messages remain. For a closed editor panel, set `settingsOpen` to `true` if validation fails. The `EditorIntegration` story demonstrates this flow, engine selection and scrolling through a long attribute list.
+Before Run, validate the current complete value again, show the returned errors and execute only when no messages remain. For a closed editor panel, set `activePanel` to `'settings'` if validation fails. The `EditorIntegration` story demonstrates this flow, engine selection and scrolling through a long attribute list.
 
 ## QueryEditor integration
 
@@ -102,8 +102,8 @@ Keep settings state in the application so closing the panel cannot discard it:
 ```tsx
 <QueryEditor
   {...editorProps}
-  settingsOpen={settingsOpen}
-  onSettingsOpenChange={setSettingsOpen}
+  activePanel={activePanel}
+  onActivePanelChange={setActivePanel}
   settingsProps={{value: settings, onChange: setSettings}}
 />
 ```

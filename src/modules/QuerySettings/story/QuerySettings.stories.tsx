@@ -10,6 +10,7 @@ import type {
     QuerySettingsValue,
 } from '../../../types/querySettings';
 import {QueryEditor} from '../../QueryEditor';
+import type {QueryEditorPanel} from '../../../types/queryEditor';
 import {QuerySettings} from '../QuerySettings';
 
 type CustomSettings = {yqlVersion: string; warehouse: string};
@@ -119,7 +120,7 @@ function Example({
 }) {
     const [engineId, setEngineId] = useState(engine);
     const [query, setQuery] = useState('SELECT 1;');
-    const [settingsOpen, setSettingsOpen] = useState(true);
+    const [activePanel, setActivePanel] = useState<QueryEditorPanel>('settings');
     const [showErrors, setShowErrors] = useState(invalid);
     const [value, setValue] = useState<Settings>(() => ({
         ...initialValue,
@@ -147,7 +148,7 @@ function Example({
             ...Object.values(nextErrors.attributes ?? {}).flatMap(Object.values),
         ].some(Boolean);
         if (hasErrors) {
-            setSettingsOpen(true);
+            setActivePanel('settings');
         } else {
             action('run')({query, settings: value});
         }
@@ -187,11 +188,11 @@ function Example({
                     onFormat={action('format')}
                     onValidate={() => {
                         setShowErrors(true);
-                        setSettingsOpen(true);
+                        setActivePanel('settings');
                         action('validate')(validate(value, engineId));
                     }}
-                    settingsOpen={settingsOpen}
-                    onSettingsOpenChange={setSettingsOpen}
+                    activePanel={activePanel}
+                    onActivePanelChange={setActivePanel}
                     settings={settings}
                 />
             </div>

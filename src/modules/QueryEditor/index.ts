@@ -1,6 +1,7 @@
 export {QueryEditor} from './QueryEditor';
 export type {
     QueryEditorProps,
+    QueryEditorPanel,
     QueryEditorCluster,
     QueryEditorEngine,
     QueryEditorEngineSettingsContext,

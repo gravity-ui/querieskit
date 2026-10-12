@@ -1,5 +1,7 @@
 {
   "action_add-file": "File",
   "action_add-link": "Link",
-  "action_remove-all": "Remove all"
+  "action_remove-all": "Remove all",
+  "title_current": "Current",
+  "title_deleted": "Deleted"
 }
