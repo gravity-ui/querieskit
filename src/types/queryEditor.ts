@@ -3,6 +3,7 @@ import type {IconProps} from '@gravity-ui/uikit';
 import type {AttachmentsProps} from './attachments';
 import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
 import type {QuerySettingsCustomFieldsContext, QuerySettingsProps} from './querySettings';
+import type {QueryShareProps} from './queryShare';
 
 export type QueryEditorPanel = 'settings' | 'attachments' | null;
 
@@ -59,6 +60,8 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
         actionStates?: Partial<Record<'run' | 'format' | 'validate', QueryEditorActionState>>;
         additionalActions?: QueryEditorMenuAction[];
         rightActions?: QueryEditorToolbarAction[];
+        /** Enables the built-in share action. The editor manages dialog visibility. */
+        shareProps?: Omit<QueryShareProps, 'open' | 'onClose'>;
         onCodeAssistantClick?: () => void;
         readOnly?: boolean;
         editorOptions?: QueryEditorOptions;

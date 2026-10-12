@@ -1,0 +1,16 @@
+{
+  "title_public-link": "Публичная ссылка",
+  "action_generate-link": "Сгенерировать ссылку",
+  "action_regenerate-link": "Перегенерировать ссылку",
+  "action_create-permanent-link": "Создать постоянную ссылку",
+  "action_edit-expiration": "Изменить срок действия",
+  "action_save-expiration": "Сохранить срок действия",
+  "action_cancel-expiration": "Отменить изменение срока",
+  "field_expiration": "Действует до",
+  "field_expiration-date-time": "Дата и время окончания действия",
+  "action_copy-link": "Скопировать ссылку",
+  "value_copied": "Скопировано",
+  "alert_copy-failed": "Не удалось скопировать ссылку",
+  "value_expiration": "Действует до {{date}}",
+  "value_no-expiration": "Без срока действия"
+}

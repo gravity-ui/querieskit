@@ -1,9 +1,10 @@
 import React, {useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {ArrowUpFromSquare, FloppyDisk} from '@gravity-ui/icons';
+import {FloppyDisk} from '@gravity-ui/icons';
 import {Button, Flex, Modal, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import type {QueryEditorPanel, QueryEditorProps} from '../../../types/queryEditor';
+import type {QueryShareLink} from '../../../types/queryShare';
 import {QueryTabs} from '../../QueryTabs';
 import {QueryEditor} from '../QueryEditor';
 
@@ -55,17 +56,41 @@ function EditableExample({
 
 export const Default: Story = {render: () => <EditableExample />};
 
+function SharingExample(props: Partial<QueryEditorProps>) {
+    const [link, setLink] = useState<QueryShareLink>();
+    const revision = useRef(0);
+    const generate = (permanent: boolean) => {
+        revision.current += 1;
+        setLink({
+            url: `https://example.com/queries/shared-${revision.current}`,
+            expiresAt: permanent ? null : Date.now() + 24 * 60 * 60 * 1000,
+        });
+    };
+    return (
+        <EditableExample
+            {...props}
+            shareProps={{
+                link,
+                onGenerate: () => generate(false),
+                onRegenerate: () => generate(link?.expiresAt === null),
+                onMakePermanent: () => generate(true),
+                onExpirationChange: (expiresAt) =>
+                    setLink((current) => current && {...current, expiresAt}),
+            }}
+        />
+    );
+}
+
+export const Sharing: Story = {render: () => <SharingExample />};
+
 export const AllActions: Story = {
     render: () => (
-        <EditableExample
+        <SharingExample
             additionalActions={[
                 {id: 'duplicate', title: 'Duplicate query', onClick: action('duplicate')},
                 {id: 'history', title: 'Show history', onClick: action('history'), disabled: true},
             ]}
-            rightActions={[
-                {id: 'save', title: 'Save', icon: FloppyDisk, onClick: action('save')},
-                {id: 'share', title: 'Share', icon: ArrowUpFromSquare, onClick: action('share')},
-            ]}
+            rightActions={[{id: 'save', title: 'Save', icon: FloppyDisk, onClick: action('save')}]}
             onCodeAssistantClick={action('onCodeAssistantClick')}
         />
     ),

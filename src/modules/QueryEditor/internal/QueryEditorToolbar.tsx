@@ -6,6 +6,7 @@ import CheckIcon from '@gravity-ui/icons/svgs/list-check.svg';
 import PaperclipIcon from '@gravity-ui/icons/svgs/paperclip.svg';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
+import ShareIcon from '@gravity-ui/icons/svgs/arrow-shape-turn-up-right.svg';
 import cn from 'bem-cn-lite';
 import type {
     QueryEditorEngine,
@@ -36,6 +37,7 @@ type Props = Pick<
     attachmentsId: string;
     settingsId: string;
     onPanelToggle: (panel: Exclude<QueryEditorPanel, null>) => void;
+    onShareClick?: () => void;
 };
 
 export function QueryEditorToolbar(props: Props) {
@@ -135,6 +137,17 @@ export function QueryEditorToolbar(props: Props) {
             </Flex>
             <Flex gap={1} alignItems="center" className={block('actions')}>
                 <Divider orientation="vertical" className={block('divider')} />
+                {props.onShareClick && (
+                    <Button
+                        view="flat"
+                        title={i18n('action_share')}
+                        aria-label={i18n('action_share')}
+                        aria-haspopup="dialog"
+                        onClick={props.onShareClick}
+                    >
+                        <Icon data={ShareIcon} size={16} />
+                    </Button>
+                )}
                 {props.rightActions?.map(({id, title, icon, onClick, disabled, loading}) => (
                     <Button
                         key={id}
