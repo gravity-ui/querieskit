@@ -194,6 +194,7 @@ describe('QueryEditor', () => {
         expect(button('Settings')).toBeTruthy();
         expect(button('Attachments')).toBeTruthy();
         expect(container.querySelector('[aria-label="More actions"]')).toBeNull();
+        expect(container.querySelector('[aria-label="Save"]')).toBeNull();
         expect(container.textContent).not.toContain('Code Assistant');
     });
     it('respects disabled/loading actions and optional toolbar/footer callbacks', () => {
@@ -802,6 +803,56 @@ describe('QueryEditor', () => {
         });
         expect(props.onChange).not.toHaveBeenCalled();
         expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('places saving after sharing and before custom right actions', () => {
+        render({
+            saveProps: {onSave: vi.fn(), onSaveAs: vi.fn()},
+            shareProps: {
+                onGenerate: vi.fn(),
+                onRegenerate: vi.fn(),
+                onMakePermanent: vi.fn(),
+                onExpirationChange: vi.fn(),
+            },
+            rightActions: [{id: 'custom', title: 'Custom', icon: () => <svg />, onClick: vi.fn()}],
+        });
+        const buttons = [...container.querySelectorAll('button')];
+        expect(buttons.indexOf(button('Share'))).toBeLessThan(buttons.indexOf(button('Save')));
+        expect(buttons.indexOf(button('Save'))).toBeLessThan(buttons.indexOf(button('Custom')));
+        expect(container.querySelector('[role="menuitem"]')).toBeNull();
+    });
+    it.each([
+        ['Save', 'onSave', 'onSaveAs'],
+        ['Save as', 'onSaveAs', 'onSave'],
+    ] as const)(
+        'delegates %s without changing editor text or the active panel',
+        (label, action, otherAction) => {
+            const saveProps = {onSave: vi.fn(), onSaveAs: vi.fn()};
+            const onActivePanelChange = vi.fn();
+            render({saveProps, defaultActivePanel: 'settings', onActivePanelChange});
+            const editorNode = container.querySelector('[data-testid="editor"]');
+            click(button('Save'));
+            const items = [...container.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')];
+            expect(items.map((item) => item.textContent)).toEqual(['Save', 'Save as']);
+            expect(saveProps.onSave).not.toHaveBeenCalled();
+            expect(saveProps.onSaveAs).not.toHaveBeenCalled();
+            click(items.find((item) => item.textContent === label)!);
+            expect(saveProps[action]).toHaveBeenCalledTimes(1);
+            expect(saveProps[otherAction]).not.toHaveBeenCalled();
+            expect(panel('Settings').hidden).toBe(false);
+            expect(editor.props.value).toBe('select 1');
+            expect(container.querySelector('[data-testid="editor"]')).toBe(editorNode);
+            expect(editor.mount).toHaveBeenCalledTimes(1);
+            expect(props.onChange).not.toHaveBeenCalled();
+            expect(onActivePanelChange).not.toHaveBeenCalled();
+        },
+    );
+    it.each(['disabled', 'loading'] as const)('blocks the save menu while %s', (state) => {
+        const saveProps = {onSave: vi.fn(), onSaveAs: vi.fn(), [state]: true};
+        render({saveProps});
+        click(button('Save'));
+        expect(container.querySelector('[role="menuitem"]')).toBeNull();
+        expect(saveProps.onSave).not.toHaveBeenCalled();
+        expect(saveProps.onSaveAs).not.toHaveBeenCalled();
     });
     it('only renders sharing when configured and places it before custom right actions', () => {
         render();

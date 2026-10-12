@@ -6,6 +6,7 @@ import CheckIcon from '@gravity-ui/icons/svgs/list-check.svg';
 import PaperclipIcon from '@gravity-ui/icons/svgs/paperclip.svg';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
+import SaveIcon from '@gravity-ui/icons/svgs/floppy-disk.svg';
 import ShareIcon from '@gravity-ui/icons/svgs/arrow-shape-turn-up-right.svg';
 import cn from 'bem-cn-lite';
 import type {
@@ -31,6 +32,7 @@ type Props = Pick<
     | 'actionStates'
     | 'additionalActions'
     | 'rightActions'
+    | 'saveProps'
 > & {
     engines: Omit<QueryEditorEngine, 'renderSettingsFields' | 'renderSettingsSections'>[];
     activePanel: QueryEditorPanel;
@@ -147,6 +149,28 @@ export function QueryEditorToolbar(props: Props) {
                     >
                         <Icon data={ShareIcon} size={16} />
                     </Button>
+                )}
+                {props.saveProps && (
+                    <DropdownMenu
+                        disabled={props.saveProps.disabled || props.saveProps.loading}
+                        popupProps={{placement: 'bottom-start'}}
+                        items={[
+                            {text: i18n('action_save'), action: props.saveProps.onSave},
+                            {text: i18n('action_save-as'), action: props.saveProps.onSaveAs},
+                        ]}
+                        renderSwitcher={(switcherProps) => (
+                            <Button
+                                {...switcherProps}
+                                view="flat"
+                                title={i18n('action_save')}
+                                aria-label={i18n('action_save')}
+                                disabled={props.saveProps?.disabled}
+                                loading={props.saveProps?.loading}
+                            >
+                                <Icon data={SaveIcon} size={16} />
+                            </Button>
+                        )}
+                    />
                 )}
                 {props.rightActions?.map(({id, title, icon, onClick, disabled, loading}) => (
                     <Button
