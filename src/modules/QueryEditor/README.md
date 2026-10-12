@@ -1,6 +1,6 @@
 # QueryEditor
 
-A reusable module that combines a query toolbar, an editable Monaco editor, a footer and a resizable Settings placeholder. It does not execute, format, validate or save queries itself.
+A reusable module that combines a query toolbar, an editable Monaco editor, a footer and a resizable Settings panel. It does not execute, format, validate or save queries itself.
 
 ```tsx
 import {QueryEditor} from '@gravity-ui/querieskit/modules/QueryEditor';
@@ -38,7 +38,16 @@ Public types, including `QueryEditorProps`, `QueryEditorCluster`, `QueryEditorEn
 
 ## Settings
 
-Settings is a placeholder with a heading and close button. It contains no settings form or persistence layer.
+Pass settings content through the `settings` React node prop. The panel owns its heading, close button and resizing; the application owns form values and validation. Without content, only the heading and close button are shown.
+
+```tsx
+<QueryEditor
+  {...editorProps}
+  settings={<QuerySettings value={settings} onChange={setSettings} />}
+/>
+```
+
+Import `QuerySettings` from `@gravity-ui/querieskit/modules/QuerySettings`. See its [API and validation examples](../QuerySettings/README.md). Settings updates are independent of the editor's text `onChange`. Closing the panel keeps its content mounted.
 
 Visibility and width each support independent controlled or uncontrolled usage:
 
@@ -55,4 +64,4 @@ The `WithQueryTabs` story demonstrates application-owned tabs, text and selectio
 
 The application computes `isModified` by comparing the current text with the saved baseline. `QueryTabs.onCloseTab` requests closure: the application may show a confirmation modal before removing the tab. Cancelling leaves the editor mounted and its state intact. Saving updates the baseline. If cluster or engine changes also count as unsaved work in your product, include them in that comparison.
 
-Query results, assistant content, actual settings, tab persistence and navigation-away protection belong to the consuming application or a future widget.
+Query results, assistant content, settings state and validation, tab persistence and navigation-away protection belong to the consuming application or a future widget.

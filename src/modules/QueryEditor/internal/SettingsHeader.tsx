@@ -3,11 +3,11 @@ import {Button, Flex, Icon, Text} from '@gravity-ui/uikit';
 import XmarkIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
 import i18n from '../i18n';
-import './SettingsPlaceholder.scss';
+import './SettingsHeader.scss';
 
-const block = cn('qp-query-editor-settings-placeholder');
+const block = cn('qp-query-editor-settings-header');
 
-export function SettingsPlaceholder({onClose}: {onClose: () => void}) {
+export function SettingsHeader({onClose}: {onClose: () => void}) {
     return (
         <Flex alignItems="center" justifyContent="space-between" className={block()}>
             <Text variant="subheader-1">{i18n('title_settings')}</Text>

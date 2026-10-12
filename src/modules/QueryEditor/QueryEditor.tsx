@@ -53,6 +53,7 @@ export function QueryEditor(props: QueryEditorProps) {
                 width={settingsWidth}
                 onWidthChange={changeWidth}
                 onClose={changeOpen}
+                settings={props.settings}
             >
                 <QueryEditorToolbar
                     {...props}

@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import i18n from '../i18n';
-import {SettingsPlaceholder} from './SettingsPlaceholder';
+import {SettingsHeader} from './SettingsHeader';
 import './QueryEditorSplit.scss';
 
 const block = cn('qp-query-editor-split');
@@ -13,6 +13,7 @@ const DIVIDER = 6;
 type Props = {
     className?: string;
     children: React.ReactNode;
+    settings?: React.ReactNode;
     open: boolean;
     settingsId: string;
     width: number;
@@ -23,6 +24,7 @@ type Props = {
 export function QueryEditorSplit({
     className,
     children,
+    settings,
     open,
     settingsId,
     width,
@@ -121,7 +123,8 @@ export function QueryEditorSplit({
                     className={block('settings')}
                     style={{width: renderedWidth}}
                 >
-                    <SettingsPlaceholder onClose={onClose} />
+                    <SettingsHeader onClose={onClose} />
+                    {settings}
                 </div>
             </Flex>
         </div>
