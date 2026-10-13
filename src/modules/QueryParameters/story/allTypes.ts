@@ -2,7 +2,16 @@ import type {QueryParameter, QueryParameterType} from '../../../types/queryParam
 
 type ScalarKind = Exclude<
     QueryParameterType['kind'],
-    'Bool' | 'Pg' | 'Enum' | 'Optional' | 'Struct' | 'List' | 'Tuple' | 'Variant' | 'Dict'
+    | 'Bool'
+    | 'Pg'
+    | 'Unknown'
+    | 'Enum'
+    | 'Optional'
+    | 'Struct'
+    | 'List'
+    | 'Tuple'
+    | 'Variant'
+    | 'Dict'
 >;
 
 function scalar(kind: ScalarKind, value: string): QueryParameter {
@@ -10,7 +19,7 @@ function scalar(kind: ScalarKind, value: string): QueryParameter {
     return {id: kind, name: kind.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase(), type, value};
 }
 
-/** The 42 examples in the Figma all-fields matrix, in design order. */
+/** The 42 Figma examples in design order, followed by contract edge cases. */
 export const allTypesParameters: QueryParameter[] = [
     {id: 'Bool', name: 'bool', type: {kind: 'Bool'}, value: false},
     scalar('Date', '2025-01-01'),
@@ -40,8 +49,8 @@ export const allTypesParameters: QueryParameter[] = [
     scalar('Int32', '42'),
     scalar('Int64', '9007199254740993'),
     scalar('Int8', '42'),
-    scalar('Interval', '86400000000'),
-    scalar('Interval64', '86400000000'),
+    scalar('Interval', 'PT1M30S'),
+    scalar('Interval64', '-P1DT0.123456S'),
     scalar('Json', '{\n  "a": 3\n}'),
     scalar('JsonDocument', '{\n  "a": 3\n}'),
     {
@@ -126,5 +135,23 @@ export const allTypesParameters: QueryParameter[] = [
         },
         value: {optionId: '1', value: 'text'},
     },
-    scalar('Yson', '{a=3;}'),
+    scalar('Yson', '{\n  "a": 3\n}'),
+    {
+        id: 'NestedOptional',
+        name: 'nested_optional',
+        type: {kind: 'Optional', item: {kind: 'Optional', item: {kind: 'Int32'}}},
+        value: {kind: 'optional-null', depth: 1},
+    },
+    {
+        id: 'OptionalPg',
+        name: 'optional_pg',
+        type: {kind: 'Optional', item: {kind: 'Pg', name: 'text'}},
+        value: {kind: 'optional-null', depth: 1},
+    },
+    {
+        id: 'Unknown',
+        name: 'unknown',
+        type: {kind: 'Unknown', name: 'CustomType'},
+        value: '{\n  "exact": 9007199254740993\n}',
+    },
 ];

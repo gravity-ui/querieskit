@@ -38,6 +38,7 @@ export type QueryParameterType =
       }
     | {kind: 'Decimal'; precision?: number; scale?: number}
     | {kind: 'Pg'; name: string}
+    | {kind: 'Unknown'; name: string}
     | {kind: 'Enum'; options: string[]}
     | {kind: 'Optional'; item: QueryParameterType}
     | {kind: 'Struct'; fields: QueryParameterOption[]}
@@ -48,11 +49,15 @@ export type QueryParameterType =
 
 export type QueryParameterOption = {id: string; name: string; type: QueryParameterType};
 
+/** An inner nullable level; null itself denotes the outermost level. */
+export type QueryParameterNullLevel = {kind: 'optional-null'; depth: number};
+
 /** Numbers and JSON documents stay as text to avoid precision loss while editing. */
 export type QueryParameterValue =
     | string
     | boolean
     | null
+    | QueryParameterNullLevel
     | QueryParameterItem[]
     | QueryParameterEntry[]
     | {optionId: string; value: QueryParameterValue};

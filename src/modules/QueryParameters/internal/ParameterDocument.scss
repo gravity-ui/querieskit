@@ -1,0 +1,35 @@
+.qp-parameter-document {
+    min-width: 0;
+    width: 100%;
+
+    &__input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__editor {
+        height: min(60vh, 480px);
+        min-height: 200px;
+    }
+
+    &__view {
+        font-family: var(--g-font-family-monospace);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        min-width: 0;
+    }
+}
+
+.qp-parameter-document__token {
+    &_string {
+        color: var(--g-color-text-positive);
+    }
+
+    &_number {
+        color: var(--g-color-text-info);
+    }
+
+    &_keyword {
+        color: var(--g-color-text-misc);
+    }
+}

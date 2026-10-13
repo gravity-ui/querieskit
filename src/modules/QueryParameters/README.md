@@ -27,7 +27,7 @@ The application owns parsing `DECLARE`, adapting engine-specific types and value
 | `errors`                         | External field errors indexed by parameter ID.                            |
 | `disabled`                       | Disables mutations.                                                       |
 | `loading`                        | Indicates an external operation and blocks mutations.                     |
-| `expanded`                       | Controlled expanded presentation; defaults to `false`.                    |
+| `expanded`                       | Host panel expansion state; defaults to `false`.                          |
 | `onExpandedChange(nextExpanded)` | Shows the expand/collapse button and requests a layout change.            |
 | `onClose()`                      | Shows the close button and requests that the host hide the panel.         |
 | `className`                      | Positions the module within the host layout.                              |
@@ -86,9 +86,10 @@ const [open, setOpen] = useState(true);
 The host supplies an accessible action to reopen the panel and should move focus
 there when closing it. Hiding the stable container preserves its editing session;
 unmounting it intentionally discards local state. Expansion itself does not save,
-cancel or refresh parameters. In expanded mode, sufficiently wide containers show
-parameter headings and values in two columns; narrow containers retain the stacked
-layout. The ApplicationLayout story demonstrates a sidebar expanding across the
+cancel or refresh parameters. Editing uses two columns when the available panel
+width is at least 720 px, independently of `expanded`; narrower containers retain
+the stacked layout. View mode always keeps headings above values. Parameter spacing
+is 20 px in both modes, so expanding a panel does not change view-mode spacing. The ApplicationLayout story demonstrates a sidebar expanding across the
 query workspace, closing and reopening without remounting.
 
 ## Types and values
@@ -100,27 +101,84 @@ The supported types are UI schemas rather than query-engine wire types:
 | String, Utf8, Uuid                                                     | `{kind: 'String'}` (or the corresponding kind)   | String                                           |
 | Number, Decimal, Double, DyNumber, Float                               | `{kind: 'Decimal'}` (or the corresponding kind)  | Numeric text, preserving precision               |
 | Int8, Int16, Int32, Int64, Uint8, Uint16, Uint32, Uint64               | `{kind: 'Int64'}` (or the corresponding kind)    | Integer text, preserving precision               |
-| Interval, Interval64                                                   | `{kind: 'Interval'}` (or `Interval64`)           | Integer text                                     |
+| Interval, Interval64                                                   | `{kind: 'Interval'}` (or `Interval64`)           | Duration text, e.g. `PT1M30S`                    |
 | Date, Date32, Datetime, Datetime64, Timestamp, Timestamp64             | `{kind: 'Date'}` (or the corresponding kind)     | Date/time text                                   |
 | TzDate, TzDate32, TzDatetime, TzDatetime64, TzTimestamp, TzTimestamp64 | `{kind: 'TzDate'}` (or the corresponding kind)   | Date/time text with a time zone                  |
 | Bool                                                                   | `{kind: 'Bool'}`                                 | Boolean                                          |
-| Json, JsonDocument, Yson                                               | `{kind: 'Json'}` (or the corresponding kind)     | Document text                                    |
+| Json, JsonDocument, Yson                                               | `{kind: 'Json'}` (or the corresponding kind)     | JSON document text                               |
 | Enum                                                                   | `{kind: 'Enum', options: ['red', 'green']}`      | One of the option strings                        |
-| Optional                                                               | `{kind: 'Optional', item: type}`                 | `null` or a value of the item type               |
+| Optional                                                               | `{kind: 'Optional', item: type}`                 | `null`, internal NULL marker, or item value      |
 | Pg                                                                     | `{kind: 'Pg', name: 'text'}`                     | String or `null`                                 |
 | List                                                                   | `{kind: 'List', item: type}`                     | `[{id, value}]`                                  |
 | Tuple                                                                  | `{kind: 'Tuple', items: [type, ...]}`            | `[{id, value}]`, in schema order                 |
 | Struct                                                                 | `{kind: 'Struct', fields: [{id, name, type}]}`   | `[{id, value}]`, with IDs matching schema fields |
 | Variant                                                                | `{kind: 'Variant', options: [{id, name, type}]}` | `{optionId, value}`                              |
 | Dict                                                                   | `{kind: 'Dict', key: type, value: type}`         | `[{id, key, value}]`                             |
+| Unknown                                                                | `{kind: 'Unknown', name: 'CustomType'}`          | Raw JSON text                                    |
 
 Collections, structs, optional values and variants can nest. Numbers remain strings,
 including values outside JavaScript's safe integer range. JSON documents also remain
 strings, rather than being converted to JavaScript objects. Decimal optionally accepts
-`precision` and `scale`. The application decides which engine-specific numeric ranges,
-date/time formats, PostgreSQL types, YSON documents and type combinations to accept.
-Integer kinds require integer text, and unsigned kinds reject negative values.
-Json and JsonDocument require valid JSON; Yson remains application-validated text. Calendar selection changes only the date portion; manual input, fractional seconds and timezone suffixes remain exact.
+`precision` and `scale`. Integer kinds require integer text, and unsigned kinds
+reject negative values. Engine-specific numeric ranges and type combinations remain
+the application's responsibility.
+
+Date values use `YYYY-MM-DD`; Datetime adds `THH:mm:ssZ`, and Timestamp additionally
+accepts fractional seconds up to 6 digits. The `Z` suffix is mandatory for Datetime
+and Timestamp. Extended types support negative and longer years. The form checks
+format and component bounds; the server checks engine ranges and calendar rules.
+Calendar selection changes only the date portion and preserves the time suffix.
+Interval values use duration text such as `PT1M30S`, `-P1D` or `PT0.123456S`:
+weeks, days, hours, minutes and seconds are accepted; calendar years/months and empty
+durations are not. New intervals default to `PT0S`. Tz types and Utf8 are unchecked
+text fields without a calendar. Uuid requires hexadecimal groups of `8-4-4-4-12`
+characters without a UUID version restriction.
+
+Json, JsonDocument and Yson all require JSON input, preserving the original text
+rather than parsing and reserializing it. Their inline TextArea grows with content;
+the pencil opens a larger JSON editor loaded on demand. Apply accepts valid JSON
+into the form draft, while Cancel leaves the inline value unchanged. View mode
+highlights the original document, with plain text as the loading/error fallback.
+Bool uses True/False segments; Enum uses the schema's option list.
+
+**Compatibility:** adapters supplying integer microseconds for Interval/Interval64
+must convert them to duration text before passing values to the form. Adapters
+supplying YSON syntax must supply JSON text for Yson. These UI representations do
+not define an engine wire format.
+
+### Nullable values
+
+Only Optional and Pg are nullable. A contiguous chain of Optional wrappers plus a
+terminal Pg defines its nullable levels. `null` means the outermost NULL; the public
+`QueryParameterNullLevel` marker `{kind: 'optional-null', depth: number}` identifies
+an inner NULL. Depth is an integer starting at 1 and must fit the schema.
+
+For `Optional<Optional<Int32>>`, values include:
+
+```ts
+null                                  // outer Optional is absent
+{kind: 'optional-null', depth: 1}       // outer present, inner Optional absent
+'42'                                  // both present
+```
+
+For `Optional<Pg>`, depth 1 means the outer Optional is present and Pg is NULL.
+The UI has one NULL switch and a level selector when several levels exist; selector
+labels are 1-based, so level 1 corresponds to `null`. Scalar NULL shows an empty,
+disabled control; container NULL hides its body. The switch restores the previous
+value and any unfinished RAW/escaped input. Inactive draft errors do not block
+saving NULL, but become active again when that draft is restored. Reset restores
+the snapshot value and NULL level; Cancel, schema changes and successful saving
+clear corresponding editor drafts.
+
+### Unknown types
+
+An adapter must explicitly represent unsupported engine types as
+`{kind: 'Unknown', name: 'CustomType'}`. This keeps the original type name without
+accepting arbitrary `kind` strings or hiding malformed known schemas. Unknown is
+not offered in the new-type picker. Its value is raw JSON text: whitespace and
+large numeric literals remain intact, but invalid JSON blocks Save. When embedded
+in a container's RAW representation, that text is a JSON string, just like a document
+leaf.
 
 For `List<List<String>>`, use `{kind: 'List', item: {kind: 'List', item: {kind: 'String'}}}`.
 In the name/type dialog, select List for Parameter type and Item type, then String
@@ -144,7 +202,7 @@ Rows keep compact name/type headings while values are edited. Use the row overfl
 
 List values use compact nested rows. Tuple is unbordered in view mode. Tuple, Struct, Variant and Dict use bordered groups while editing. Variant displays all options with radio controls and disables the inactive editors. Inactive branch drafts are retained within the editing session so switching back restores the entered value; only the active branch is included in the exported parameter.
 
-RAW edits a JSON representation adapted to the declared UI schema: List and Tuple use arrays of values, Struct uses an object keyed by field names, Dict uses arrays of `[key, value]` pairs, and Variant uses `{optionId, value}`. Optional uses `null` or its item representation, Bool uses a boolean, and Pg uses a string or `null`. Collection item IDs are managed internally and omitted from RAW. It is not an engine serialization format; numeric, date/time and document leaves still use string values. RAW and escaped-value editing happen inline, without separate Apply/Cancel actions. Valid text immediately updates the local form draft; invalid text stays visible and blocks Save until corrected or reset. RAW switches are available for String and structured collections; other scalar editors use their typed controls. The escaped string view is a reversible text representation, not a backend binary encoding or a bytes codec.
+RAW edits a JSON representation adapted to the declared UI schema: List and Tuple use arrays of values, Struct uses an object keyed by field names, Dict uses arrays of `[key, value]` pairs, and Variant uses `{optionId, value}`. Optional uses `null`, the internal NULL marker, or its item representation; Bool uses a boolean, and Pg uses a string or `null`. Collection item IDs are managed internally and omitted from RAW. It is not an engine serialization format; numeric, date/time, document and Unknown leaves still use string values. For example, `List<Int64>` uses `["9007199254740993"]`. Internal NULL markers round-trip through RAW; the application must translate them to its engine representation. RAW and escaped-value editing happen inline, without separate Apply/Cancel actions. Valid text immediately updates the local form draft; invalid text stays visible and blocks Save until corrected or reset. RAW switches are available for String and structured collections; other scalar editors use their typed controls. String and Pg share the escaped-text toggle. It is a reversible text representation using escapes such as `\xNN` and `\uNNNN`, not byte-oriented hex or a backend binary encoding. This is the agreed exception to the design's text/hex wording.
 
 ## Deletion
 
@@ -154,7 +212,7 @@ The Deleted tab displays entries marked `deleted`. Its Remove all action immedia
 
 ## Validation
 
-The form validates required, unique active names and the shape of values against their schemas. Names must contain at least one non-whitespace character. The form imposes no character or first-character restrictions; engine-specific naming rules belong to the application. External errors display application-specific validation messages; they do not independently block Save. The application must reject `onChange` when its own validation fails. Use parameter IDs and stable value paths rather than row positions:
+The form validates required, unique active names and the shape of values against their schemas. Names must contain at least one non-whitespace character. The form imposes no character or first-character restrictions; engine-specific naming rules belong to the application. The application translates server errors into readable messages and handles server-side type restrictions, including DyNumber support. External errors display application-specific validation messages; they do not independently block Save. The application must reject `onChange` when its own validation fails. Use parameter IDs and stable value paths rather than row positions:
 
 ```tsx
 <QueryParameters
@@ -174,4 +232,4 @@ Value paths start at `$`. List and tuple children use `$/item-id`; struct fields
 
 ## Examples
 
-Storybook includes AllTypes (the 42 Figma examples in three independent columns: view, full-width editing, and default-width editing), Default (basic schemas, nested values and a deleted parameter), Empty (creation from scratch), ExternalErrors (application validation messages), and ApplicationLayout (sidebar expansion within a query workspace). The basic examples also include an expand/collapse control. Use Edit in the form to explore editing. Story args configure width, disabled/loading states and rejected saves; the shared Storybook toolbar selects the theme. The application's library locale applies to the module.
+Storybook includes AllTypes (the 42 Figma examples plus nested Optional, Optional<Pg> and Unknown, in three independent columns: view, full-width editing, and default-width editing), WidthBoundaries (editing at 719/720/721 px with `expanded=false`), Default (basic schemas, nested values and a deleted parameter), Empty (creation from scratch), ExternalErrors (application validation messages), and ApplicationLayout (sidebar expansion within a query workspace). The basic examples also include an expand/collapse control. Use Edit in the form to explore editing. Story args configure width, disabled/loading states and rejected saves; the shared Storybook toolbar selects the theme. The application's library locale applies to the module.

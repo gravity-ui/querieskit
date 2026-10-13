@@ -218,25 +218,40 @@ export const ApplicationLayout: Story = {
 };
 
 const typeColumns = [
-    {title: 'Просмотр · Edit=False', editing: false, expanded: false},
-    {title: 'Редактирование · Edit=True · Width=Full', editing: true, expanded: true},
-    {title: 'Редактирование · Edit=True · Width=Default', editing: true, expanded: false},
+    {title: 'Просмотр · Edit=False', editing: false, expanded: false, width: 448},
+    {title: 'Редактирование · Edit=True · Width=Full', editing: true, expanded: true, width: 720},
+    {
+        title: 'Редактирование · Edit=True · Width=Default',
+        editing: true,
+        expanded: false,
+        width: 448,
+    },
 ];
 
-function AllTypesMatrix() {
-    const [values, setValues] = useState(() => typeColumns.map(() => allTypesParameters));
+const boundaryColumns = [719, 720, 721].map((width) => ({
+    title: `Редактирование · ${width}px · expanded=false`,
+    editing: true,
+    expanded: false,
+    width,
+}));
+
+function AllTypesMatrix({columns = typeColumns}: {columns?: typeof typeColumns}) {
+    const [values, setValues] = useState(() => columns.map(() => allTypesParameters));
 
     return (
         <div className={b('type-matrix')}>
-            <div className={b('type-grid')}>
-                {typeColumns.map(({title}) => (
+            <div
+                className={b('type-grid')}
+                style={{gridTemplateColumns: columns.map(({width}) => `${width}px`).join(' ')}}
+            >
+                {columns.map(({title}) => (
                     <Text key={title} variant="subheader-1">
                         {title}
                     </Text>
                 ))}
                 {allTypesParameters.map((initialParameter, index) => (
                     <React.Fragment key={initialParameter.id}>
-                        {typeColumns.map(({title, editing, expanded}, columnIndex) => {
+                        {columns.map(({title, editing, expanded}, columnIndex) => {
                             const parameter = values[columnIndex].find(
                                 ({id}) => id === initialParameter.id,
                             );
@@ -293,7 +308,19 @@ export const AllTypes: Story = {
         controls: {disable: true},
         docs: {
             description: {
-                story: 'All 42 examples from the Figma all-fields matrix. Each column has independent values; Full uses a 720px container, and View/Default use 448px containers. Editing is active immediately.',
+                story: 'The 42 Figma examples plus nested Optional, Optional<Pg> and Unknown. Each column has independent values; Full uses a 720px container, and View/Default use 448px containers. Editing is active immediately.',
+            },
+        },
+    },
+};
+
+export const WidthBoundaries: Story = {
+    render: () => <AllTypesMatrix columns={boundaryColumns} />,
+    parameters: {
+        controls: {disable: true},
+        docs: {
+            description: {
+                story: 'Editing at 719, 720 and 721px with expanded=false in every column. Full layout follows the available width. Use the shared toolbar to check both themes.',
             },
         },
     },
