@@ -1,6 +1,46 @@
 /** UI schema, independent of a query engine's wire format. */
 export type QueryParameterType =
-    | {kind: 'String' | 'Number' | 'Json'}
+    | {
+          kind:
+              | 'String'
+              | 'Number'
+              | 'Json'
+              | 'Bool'
+              | 'Utf8'
+              | 'Uuid'
+              | 'JsonDocument'
+              | 'Yson'
+              | 'Date'
+              | 'Date32'
+              | 'Datetime'
+              | 'Datetime64'
+              | 'Timestamp'
+              | 'Timestamp64'
+              | 'TzDate'
+              | 'TzDate32'
+              | 'TzDatetime'
+              | 'TzDatetime64'
+              | 'TzTimestamp'
+              | 'TzTimestamp64'
+              | 'Double'
+              | 'DyNumber'
+              | 'Float'
+              | 'Int8'
+              | 'Int16'
+              | 'Int32'
+              | 'Int64'
+              | 'Uint8'
+              | 'Uint16'
+              | 'Uint32'
+              | 'Uint64'
+              | 'Interval'
+              | 'Interval64';
+      }
+    | {kind: 'Decimal'; precision?: number; scale?: number}
+    | {kind: 'Pg'; name: string}
+    | {kind: 'Enum'; options: string[]}
+    | {kind: 'Optional'; item: QueryParameterType}
+    | {kind: 'Struct'; fields: QueryParameterOption[]}
     | {kind: 'List'; item: QueryParameterType}
     | {kind: 'Tuple'; items: QueryParameterType[]}
     | {kind: 'Variant'; options: QueryParameterOption[]}
@@ -11,6 +51,8 @@ export type QueryParameterOption = {id: string; name: string; type: QueryParamet
 /** Numbers and JSON documents stay as text to avoid precision loss while editing. */
 export type QueryParameterValue =
     | string
+    | boolean
+    | null
     | QueryParameterItem[]
     | QueryParameterEntry[]
     | {optionId: string; value: QueryParameterValue};

@@ -2,20 +2,11 @@ import React from 'react';
 import {Button, Flex, Select, Text, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import type {QueryParameterType} from '../../../types/queryParameters';
-import {createId, defaultType} from '../helpers/parameters';
+import {createId, defaultType, parameterKinds} from '../helpers/parameters';
 import i18n from '../i18n';
 import './ParameterTypeEditor.scss';
 
 const block = cn('qp-parameter-type-editor');
-const kinds: QueryParameterType['kind'][] = [
-    'String',
-    'Number',
-    'Json',
-    'List',
-    'Tuple',
-    'Variant',
-    'Dict',
-];
 
 type Props = {
     value: QueryParameterType;
@@ -46,6 +37,12 @@ export function ParameterTypeEditor({
             depth={depth + 1}
         />
     );
+    const options =
+        value.kind === 'Struct' ? value.fields : value.kind === 'Variant' ? value.options : [];
+    const updateOptions = (next: typeof options) => {
+        if (value.kind === 'Struct') onChange({...value, fields: next});
+        else if (value.kind === 'Variant') onChange({...value, options: next});
+    };
     if (depth >= 20) return null;
     return (
         <Flex direction="column" gap={2} className={block(null, className)}>
@@ -55,14 +52,93 @@ export function ParameterTypeEditor({
             <Select
                 aria-label={label}
                 value={[value.kind]}
-                options={kinds.map((kind) => ({value: kind, content: kind}))}
+                options={parameterKinds.map((kind) => ({value: kind, content: kind}))}
                 disabled={disabled}
                 onUpdate={([kind]) => {
                     if (kind && kind !== value.kind)
                         onChange(defaultType(kind as QueryParameterType['kind']));
                 }}
             />
-            {value.kind === 'List' && (
+            {value.kind === 'Decimal' && (
+                <Flex gap={2}>
+                    <TextInput
+                        value={value.precision?.toString() ?? ''}
+                        label={i18n('field_precision')}
+                        disabled={disabled}
+                        controlProps={{'aria-label': `${label}: ${i18n('field_precision')}`}}
+                        onUpdate={(text) =>
+                            onChange({
+                                ...value,
+                                precision: text === '' ? undefined : Number(text),
+                            })
+                        }
+                    />
+                    <TextInput
+                        value={value.scale?.toString() ?? ''}
+                        label={i18n('field_scale')}
+                        disabled={disabled}
+                        controlProps={{'aria-label': `${label}: ${i18n('field_scale')}`}}
+                        onUpdate={(text) =>
+                            onChange({
+                                ...value,
+                                scale: text === '' ? undefined : Number(text),
+                            })
+                        }
+                    />
+                </Flex>
+            )}
+            {value.kind === 'Pg' && (
+                <TextInput
+                    value={value.name}
+                    disabled={disabled}
+                    controlProps={{'aria-label': `${label}: ${i18n('field_type')}`}}
+                    onUpdate={(name) => onChange({...value, name})}
+                />
+            )}
+            {value.kind === 'Enum' && (
+                <Flex direction="column" gap={2} className={block('nested')}>
+                    {value.options.map((option, index) => (
+                        <Flex key={index} gap={1}>
+                            <TextInput
+                                value={option}
+                                disabled={disabled}
+                                controlProps={{
+                                    'aria-label': `${label}: ${i18n('field_option-name')} ${index + 1}`,
+                                }}
+                                onUpdate={(name) =>
+                                    onChange({
+                                        ...value,
+                                        options: value.options.map((entry, position) =>
+                                            position === index ? name : entry,
+                                        ),
+                                    })
+                                }
+                            />
+                            <Button
+                                view="flat"
+                                disabled={disabled || value.options.length === 1}
+                                onClick={() =>
+                                    onChange({
+                                        ...value,
+                                        options: value.options.filter(
+                                            (_, position) => position !== index,
+                                        ),
+                                    })
+                                }
+                            >
+                                {i18n('action_remove-option')} {index + 1}
+                            </Button>
+                        </Flex>
+                    ))}
+                    <Button
+                        disabled={disabled}
+                        onClick={() => onChange({...value, options: [...value.options, '']})}
+                    >
+                        {i18n('action_add-option')}
+                    </Button>
+                </Flex>
+            )}
+            {(value.kind === 'List' || value.kind === 'Optional') && (
                 <div className={block('nested')}>
                     {nested(
                         value.item,
@@ -122,9 +198,9 @@ export function ParameterTypeEditor({
                     </Button>
                 </Flex>
             )}
-            {value.kind === 'Variant' && (
+            {(value.kind === 'Variant' || value.kind === 'Struct') && (
                 <Flex direction="column" gap={2} className={block('nested')}>
-                    {value.options.map((option, index) => (
+                    {options.map((option, index) => (
                         <Flex key={option.id} direction="column" gap={1}>
                             <TextInput
                                 value={option.name}
@@ -133,35 +209,30 @@ export function ParameterTypeEditor({
                                     'aria-label': `${label}: ${i18n('field_option-name')} ${index + 1}`,
                                 }}
                                 onUpdate={(name) =>
-                                    onChange({
-                                        ...value,
-                                        options: value.options.map((entry) =>
+                                    updateOptions(
+                                        options.map((entry) =>
                                             entry.id === option.id ? {...entry, name} : entry,
                                         ),
-                                    })
+                                    )
                                 }
                             />
                             {nested(
                                 option.type,
                                 (type) =>
-                                    onChange({
-                                        ...value,
-                                        options: value.options.map((entry) =>
+                                    updateOptions(
+                                        options.map((entry) =>
                                             entry.id === option.id ? {...entry, type} : entry,
                                         ),
-                                    }),
+                                    ),
                                 option.name || `${index + 1}`,
                             )}
                             <Button
                                 view="flat"
-                                disabled={disabled || value.options.length === 1}
+                                disabled={
+                                    disabled || (value.kind === 'Variant' && options.length === 1)
+                                }
                                 onClick={() =>
-                                    onChange({
-                                        ...value,
-                                        options: value.options.filter(
-                                            (entry) => entry.id !== option.id,
-                                        ),
-                                    })
+                                    updateOptions(options.filter((entry) => entry.id !== option.id))
                                 }
                             >
                                 {i18n('action_remove-option')} {index + 1}
@@ -171,13 +242,10 @@ export function ParameterTypeEditor({
                     <Button
                         disabled={disabled}
                         onClick={() =>
-                            onChange({
-                                ...value,
-                                options: [
-                                    ...value.options,
-                                    {id: createId(), name: '', type: defaultType('String')},
-                                ],
-                            })
+                            updateOptions([
+                                ...options,
+                                {id: createId(), name: '', type: defaultType('String')},
+                            ])
                         }
                     >
                         {i18n('action_add-option')}

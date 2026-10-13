@@ -5,6 +5,8 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
 import type {QueryParameter, QueryParametersProps} from '../../../types/queryParameters';
 import {QueryParameters} from '../QueryParameters';
+import {ParameterRow} from '../internal/ParameterRow';
+import {allTypesParameters} from './allTypes';
 
 import './QueryParameters.stories.scss';
 
@@ -213,4 +215,86 @@ export const ExternalErrors: Story = {
 export const ApplicationLayout: Story = {
     render: () => <ApplicationLayoutExample />,
     parameters: {controls: {disable: true}},
+};
+
+const typeColumns = [
+    {title: 'Просмотр · Edit=False', editing: false, expanded: false},
+    {title: 'Редактирование · Edit=True · Width=Full', editing: true, expanded: true},
+    {title: 'Редактирование · Edit=True · Width=Default', editing: true, expanded: false},
+];
+
+function AllTypesMatrix() {
+    const [values, setValues] = useState(() => typeColumns.map(() => allTypesParameters));
+
+    return (
+        <div className={b('type-matrix')}>
+            <div className={b('type-grid')}>
+                {typeColumns.map(({title}) => (
+                    <Text key={title} variant="subheader-1">
+                        {title}
+                    </Text>
+                ))}
+                {allTypesParameters.map((initialParameter, index) => (
+                    <React.Fragment key={initialParameter.id}>
+                        {typeColumns.map(({title, editing, expanded}, columnIndex) => {
+                            const parameter = values[columnIndex].find(
+                                ({id}) => id === initialParameter.id,
+                            );
+                            return (
+                                <div key={title} className={b('type-cell')}>
+                                    {parameter && (
+                                        <ParameterRow
+                                            parameter={parameter}
+                                            initialParameter={initialParameter}
+                                            index={index}
+                                            editing={editing}
+                                            expanded={expanded}
+                                            disabled={false}
+                                            onChange={(nextParameter) =>
+                                                setValues((current) =>
+                                                    current.map((column, i) =>
+                                                        i === columnIndex
+                                                            ? column.map((item) =>
+                                                                  item.id === nextParameter.id
+                                                                      ? nextParameter
+                                                                      : item,
+                                                              )
+                                                            : column,
+                                                    ),
+                                                )
+                                            }
+                                            onRemove={() =>
+                                                setValues((current) =>
+                                                    current.map((column, i) =>
+                                                        i === columnIndex
+                                                            ? column.filter(
+                                                                  ({id}) => id !== parameter.id,
+                                                              )
+                                                            : column,
+                                                    ),
+                                                )
+                                            }
+                                            onValidityChange={() => {}}
+                                        />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </React.Fragment>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export const AllTypes: Story = {
+    render: () => <AllTypesMatrix />,
+    parameters: {
+        controls: {disable: true},
+        docs: {
+            description: {
+                story: 'All 42 examples from the Figma all-fields matrix. Each column has independent values; Full uses a 720px container, and View/Default use 448px containers. Editing is active immediately.',
+            },
+        },
+    },
 };

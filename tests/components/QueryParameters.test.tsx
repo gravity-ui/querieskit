@@ -7,6 +7,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QueryParameters} from '../../src/modules/QueryParameters/QueryParameters';
 import type {QueryParameter, QueryParametersProps} from '../../src/types/queryParameters';
 import {setLang} from '../../src/i18n';
+import {allTypesParameters} from '../../src/modules/QueryParameters/story/allTypes';
 
 const initial: QueryParameter[] = [{id: 'p', name: 'limit', type: {kind: 'Number'}, value: '10'}];
 
@@ -772,6 +773,19 @@ describe('QueryParameters', () => {
         await click('Save');
         expect(lastValue()[0]).toEqual({...initial[0], type: {kind: 'String'}, value: 'text'});
     });
+
+    it('renders and saves every design field without changing its value or precision', async () => {
+        render({value: allTypesParameters});
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        await click('Edit');
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        expect(field('$' + allTypesParameters.find(({id}) => id === 'Timestamp')!.name).value).toBe(
+            '2025-01-01T12:30:00.123456Z',
+        );
+        await click('Save');
+        expect(lastValue()).toEqual(allTypesParameters);
+    });
+
     it('preserves multiline dictionary keys and values during editing', async () => {
         render({
             value: [
@@ -791,6 +805,87 @@ describe('QueryParameters', () => {
         expect(lastValue()[0].value).toEqual([
             {id: 'entry', key: 'first\nsecond', value: 'changed\r\ntwo'},
         ]);
+    });
+
+    it('retains nullable drafts across NULL toggles and resets to the original NULL', async () => {
+        render({
+            value: [
+                {
+                    id: 'p',
+                    name: 'optional',
+                    type: {kind: 'Optional', item: {kind: 'String'}},
+                    value: null,
+                },
+            ],
+        });
+        await click('Edit');
+        const toggle = () => act(() => field('NULL: $optional').click());
+        toggle();
+        change('$optional', 'kept');
+        toggle();
+        expect(container.querySelector('input[aria-label="$optional"]')).toBeNull();
+        toggle();
+        expect(field('$optional').value).toBe('kept');
+        await click('Reset value: $optional');
+        expect((field('NULL: $optional') as HTMLInputElement).checked).toBe(true);
+        await click('Save');
+        expect(lastValue()[0].value).toBeNull();
+    });
+
+    it('edits Bool and named Struct fields while preserving their public shapes', async () => {
+        render({
+            value: [
+                {id: 'bool', name: 'bool', type: {kind: 'Bool'}, value: false},
+                {
+                    id: 'struct',
+                    name: 'struct',
+                    type: {
+                        kind: 'Struct',
+                        fields: [
+                            {id: 'count', name: 'count', type: {kind: 'Uint64'}},
+                            {id: 'text', name: 'text', type: {kind: 'Utf8'}},
+                        ],
+                    },
+                    value: [
+                        {id: 'count', value: '18446744073709551615'},
+                        {id: 'text', value: 'old'},
+                    ],
+                },
+            ],
+        });
+        await click('Edit');
+        const radio = container.querySelector<HTMLInputElement>(
+            'input[type="radio"][value="true"]',
+        );
+        expect(radio).not.toBeNull();
+        act(() => radio!.click());
+        change('$struct: text', 'new');
+        await click('Save');
+        expect(lastValue()[0].value).toBe(true);
+        expect(lastValue()[1].value).toEqual([
+            {id: 'count', value: '18446744073709551615'},
+            {id: 'text', value: 'new'},
+        ]);
+    });
+
+    it('distinguishes empty strings and displays the selected variant type in view mode', () => {
+        render({
+            value: [
+                {id: 's', name: 'empty', type: {kind: 'String'}, value: ''},
+                {
+                    id: 'v',
+                    name: 'variant',
+                    type: {
+                        kind: 'Variant',
+                        options: [{id: 'text', name: '1', type: {kind: 'String'}}],
+                    },
+                    value: {optionId: 'text', value: 'hello'},
+                },
+            ],
+        });
+        expect(container.textContent).toContain('""');
+        expect(container.textContent).toContain('1 [String]:');
+        expect(container.textContent).toContain('"hello"');
     });
 
     it('keeps dictionary RAW open when a pair becomes multiline', async () => {
@@ -814,23 +909,26 @@ describe('QueryParameters', () => {
         expect(lastValue()[0].value).toEqual([{id: 'entry', key: 'key', value: 'first\nsecond'}]);
     });
 
-    it('distinguishes empty strings and displays the selected variant type in view mode', () => {
+    it('chooses a calendar date without changing microseconds or timezone', async () => {
         render({
             value: [
-                {id: 's', name: 'empty', type: {kind: 'String'}, value: ''},
                 {
-                    id: 'v',
-                    name: 'variant',
-                    type: {
-                        kind: 'Variant',
-                        options: [{id: 'text', name: '1', type: {kind: 'String'}}],
-                    },
-                    value: {optionId: 'text', value: 'hello'},
+                    id: 'date',
+                    name: 'date',
+                    type: {kind: 'TzTimestamp'},
+                    value: '2025-01-01T12:30:00.123456,Europe/Moscow',
                 },
             ],
         });
-        expect(container.textContent).toContain('""');
-        expect(container.textContent).toContain('1 [String]:');
-        expect(container.textContent).toContain('"hello"');
+        await click('Edit');
+        await click('Open calendar');
+        const secondDay = [
+            ...dialog().querySelectorAll<HTMLElement>('[role="gridcell"] [role="button"]'),
+        ].find((node) => node.textContent === '2');
+        expect(secondDay).toBeDefined();
+        await act(async () => secondDay!.click());
+        expect(field('$date').value).toBe('2025-01-02T12:30:00.123456,Europe/Moscow');
+        await click('Save');
+        expect(lastValue()[0].value).toBe('2025-01-02T12:30:00.123456,Europe/Moscow');
     });
 });

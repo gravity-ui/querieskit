@@ -6,6 +6,7 @@ import {
     escapeString,
     formatType,
     fromRaw,
+    parameterKinds,
     toRaw,
     unescapeString,
     validateParameters,
@@ -126,15 +127,7 @@ describe('query parameter RAW conversion', () => {
         expect(() => fromRaw({kind: 'String'}, '{')).toThrow();
     });
     it('supplies valid defaults for every supported kind', () => {
-        for (const kind of [
-            'String',
-            'Number',
-            'Json',
-            'List',
-            'Tuple',
-            'Variant',
-            'Dict',
-        ] as const) {
+        for (const kind of parameterKinds) {
             const type = defaultType(kind);
             const value = defaultValue(type);
             expect(validateParameters([parameter({type, value})])).toEqual({});
@@ -153,5 +146,72 @@ describe('escaped strings', () => {
     it('rejects incomplete and unknown escapes', () => {
         for (const value of ['\\', '\\x1', '\\u123', '\\xzz', '\\q'])
             expect(() => unescapeString(value)).toThrow();
+    });
+});
+
+describe('extended parameter schemas', () => {
+    it('preserves nullable booleans and nullable Pg text', () => {
+        const optional: QueryParameterType = {kind: 'Optional', item: {kind: 'Bool'}};
+        for (const value of [null, false, true]) {
+            expect(fromRaw(optional, toRaw(optional, value))).toBe(value);
+        }
+        expect(() => fromRaw(optional, '"false"')).toThrow();
+        const pg: QueryParameterType = {kind: 'Pg', name: 'text'};
+        for (const value of [null, '', 'NULL', 'first\nsecond']) {
+            expect(fromRaw(pg, toRaw(pg, value))).toBe(value);
+        }
+    });
+    it('rejects invalid integer syntax without converting large integers', () => {
+        const value = '18446744073709551615';
+        expect(fromRaw({kind: 'Uint64'}, toRaw({kind: 'Uint64'}, value))).toBe(value);
+        for (const [kind, value] of [
+            ['Int64', '1.2'],
+            ['Uint64', '-1'],
+            ['Int32', '1e2'],
+        ] as const) {
+            expect(validateParameters([parameter({type: {kind}, value})]).p.value?.$).toBeTruthy();
+        }
+    });
+    it('validates enum options and selected values', () => {
+        const type: QueryParameterType = {kind: 'Enum', options: ['red', 'blue']};
+        expect(fromRaw(type, '"blue"')).toBe('blue');
+        expect(() => fromRaw(type, '"green"')).toThrow();
+        expect(
+            validateParameters([
+                parameter({type: {kind: 'Enum', options: ['red', 'red']}, value: 'red'}),
+            ]).p.type,
+        ).toBeTruthy();
+    });
+    it('roundtrips named structs with stable schema IDs and nullable nested values', () => {
+        const type: QueryParameterType = {
+            kind: 'Struct',
+            fields: [
+                {id: 'name-id', name: '__proto__', type: {kind: 'Utf8'}},
+                {id: 'enabled-id', name: 'enabled', type: {kind: 'Optional', item: {kind: 'Bool'}}},
+            ],
+        };
+        const value = [
+            {id: 'name-id', value: 'текст'},
+            {id: 'enabled-id', value: null},
+        ];
+        const raw = toRaw(type, value);
+        expect(JSON.parse(raw)).toEqual(JSON.parse('{"__proto__":"текст","enabled":null}'));
+        expect(fromRaw(type, raw)).toEqual(value);
+        expect(() => fromRaw(type, '{"enabled":null}')).toThrow();
+        expect(() => fromRaw(type, '{"__proto__":"текст","enabled":null,"extra":"x"}')).toThrow();
+        expect(
+            validateParameters([parameter({type, value: [{id: 'wrong', value: ''}, value[1]]})]).p
+                .value?.$,
+        ).toBeTruthy();
+        const invalid = [...value];
+        invalid[1] = {id: 'enabled-id', value: 'true'};
+        expect(
+            validateParameters([parameter({type, value: invalid})]).p.value?.['$/enabled-id'],
+        ).toBeTruthy();
+    });
+    it('validates JSON documents but leaves engine-specific YSON syntax intact', () => {
+        expect(() => fromRaw({kind: 'JsonDocument'}, '"not json"')).toThrow();
+        const yson = '{foo=42;bar=#;}';
+        expect(fromRaw({kind: 'Yson'}, toRaw({kind: 'Yson'}, yson))).toBe(yson);
     });
 });
