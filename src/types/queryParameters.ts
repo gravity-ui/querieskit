@@ -45,6 +45,12 @@ export type QueryParametersProps = {
     onChange: (value: QueryParameter[]) => void | Promise<void>;
     /** Optional refresh action. The application supplies the resulting value. */
     onUpdate?: () => void | Promise<void>;
+    /** Wide layout. The host expands the existing panel container within its workspace. */
+    expanded?: boolean;
+    /** Providing this callback shows the fullscreen toggle. */
+    onExpandedChange?: (expanded: boolean) => void;
+    /** Providing this callback shows the close button. */
+    onClose?: () => void;
     errors?: Record<string, QueryParameterErrors>;
     disabled?: boolean;
     loading?: boolean;

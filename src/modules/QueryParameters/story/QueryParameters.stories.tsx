@@ -1,8 +1,14 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
+import {Button, Flex, Text} from '@gravity-ui/uikit';
+import block from 'bem-cn-lite';
 import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
 import type {QueryParameter, QueryParametersProps} from '../../../types/queryParameters';
 import {QueryParameters} from '../QueryParameters';
+
+import './QueryParameters.stories.scss';
+
+const b = block('query-parameters-story');
 
 const parameters: QueryParameter[] = [
     {id: 'limit', name: 'limit', type: {kind: 'Number'}, value: '9007199254740993'},
@@ -88,11 +94,14 @@ function Example({
     rejectSave?: boolean;
 }) {
     const [value, setValue] = useState(initialValue);
+    const [expanded, setExpanded] = useState(false);
 
     return (
-        <div style={{width, maxWidth: '100%', height: 680}}>
+        <div style={{width: expanded ? '100%' : width, maxWidth: '100%', height: 680}}>
             <QueryParameters
                 value={value}
+                expanded={expanded}
+                onExpandedChange={setExpanded}
                 onChange={async (nextValue) => {
                     action('parametersChange')(nextValue);
                     if (rejectSave) {
@@ -110,6 +119,60 @@ function Example({
                 loading={loading}
             />
         </div>
+    );
+}
+
+function ApplicationLayoutExample() {
+    const [value, setValue] = useState(parameters);
+    const [expanded, setExpanded] = useState(false);
+    const [open, setOpen] = useState(true);
+    const reopenButtonRef = useRef<HTMLButtonElement>(null);
+
+    return (
+        <Flex direction="column" className={b()}>
+            <Flex alignItems="center" gap={4} className={b('tabs')}>
+                <Text variant="subheader-1">New query</Text>
+                <Text color="secondary">Query workspace</Text>
+                <Button
+                    ref={reopenButtonRef}
+                    view="flat"
+                    selected={open}
+                    onClick={() => setOpen(true)}
+                    className={b('open')}
+                >
+                    Parameters
+                </Button>
+            </Flex>
+            <div className={b('workspace')}>
+                <div className={b('editor', {sidebar: open})} hidden={expanded}>
+                    <Flex direction="column" gap={5}>
+                        <Text variant="subheader-1">Query</Text>
+                        <Text as="pre" variant="code-1" className={b('code')}>
+                            {
+                                'DECLARE $limit AS Int64;\nDECLARE $region AS String;\n\nSELECT *\nFROM events\nWHERE region = $region\nLIMIT $limit;'
+                            }
+                        </Text>
+                        <Text color="secondary">
+                            Open Parameters, then use the expand button next to Close.
+                        </Text>
+                    </Flex>
+                </div>
+                <div className={b('panel', {expanded})} hidden={!open}>
+                    <QueryParameters
+                        value={value}
+                        onChange={setValue}
+                        onUpdate={() => setValue((current) => [...current])}
+                        expanded={expanded}
+                        onExpandedChange={setExpanded}
+                        onClose={() => {
+                            setOpen(false);
+                            setExpanded(false);
+                            reopenButtonRef.current?.focus();
+                        }}
+                    />
+                </div>
+            </div>
+        </Flex>
     );
 }
 
@@ -145,4 +208,9 @@ export const ExternalErrors: Story = {
             },
         },
     },
+};
+
+export const ApplicationLayout: Story = {
+    render: () => <ApplicationLayoutExample />,
+    parameters: {controls: {disable: true}},
 };

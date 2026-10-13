@@ -127,6 +127,115 @@ describe('QueryParameters', () => {
         return value;
     }
 
+    it('shows optional panel controls and requests controlled expansion changes', async () => {
+        const onExpandedChange = vi.fn();
+        const onClose = vi.fn();
+        render();
+        expect(container.querySelector('button[aria-label="Expand parameters"]')).toBeNull();
+        expect(container.querySelector('button[aria-label="Close parameters"]')).toBeNull();
+
+        render({onExpandedChange});
+        expect(button('Expand parameters').getAttribute('aria-pressed')).toBe('false');
+        expect(container.querySelector('button[aria-label="Close parameters"]')).toBeNull();
+        await click('Expand parameters');
+        expect(onExpandedChange).toHaveBeenLastCalledWith(true);
+        expect(button('Expand parameters').getAttribute('aria-pressed')).toBe('false');
+
+        render({expanded: true, onExpandedChange});
+        expect(button('Collapse parameters').getAttribute('aria-pressed')).toBe('true');
+        await click('Collapse parameters');
+        expect(onExpandedChange).toHaveBeenLastCalledWith(false);
+
+        render({onClose});
+        expect(container.querySelector('button[aria-label="Expand parameters"]')).toBeNull();
+        await click('Close parameters');
+        expect(onClose).toHaveBeenCalledOnce();
+        expect(onChange).not.toHaveBeenCalled();
+    });
+    it('releases the expanded layout before notifying the parent to close', async () => {
+        const onExpandedChange = vi.fn();
+        const onClose = vi.fn();
+        render({expanded: true, onExpandedChange, onClose});
+        await click('Close parameters');
+        expect(onExpandedChange).toHaveBeenCalledExactlyOnceWith(false);
+        expect(onClose).toHaveBeenCalledOnce();
+        expect(onExpandedChange.mock.invocationCallOrder[0]).toBeLessThan(
+            onClose.mock.invocationCallOrder[0],
+        );
+
+        onExpandedChange.mockClear();
+        render({expanded: false, onExpandedChange, onClose});
+        await click('Close parameters');
+        expect(onExpandedChange).not.toHaveBeenCalled();
+        expect(onChange).not.toHaveBeenCalled();
+    });
+    it.each(['List', 'Dict', 'Variant'] as const)(
+        'preserves search, collapse state and invalid %s RAW drafts across expansion',
+        async (kind) => {
+            const parameter: QueryParameter =
+                kind === 'List'
+                    ? {
+                          id: 'nested',
+                          name: 'nested',
+                          type: {kind: 'List', item: {kind: 'List', item: {kind: 'String'}}},
+                          value: [{id: 'row', value: [{id: 'cell', value: 'hello'}]}],
+                      }
+                    : kind === 'Dict'
+                      ? {
+                            id: 'nested',
+                            name: 'nested',
+                            type: {kind: 'Dict', key: {kind: 'String'}, value: {kind: 'Number'}},
+                            value: [{id: 'entry', key: 'key', value: '10'}],
+                        }
+                      : {
+                            id: 'nested',
+                            name: 'nested',
+                            type: {
+                                kind: 'Variant',
+                                options: [{id: 'text', name: 'text', type: {kind: 'String'}}],
+                            },
+                            value: {optionId: 'text', value: 'hello'},
+                        };
+            const rawLabel =
+                kind === 'List'
+                    ? 'RAW: $nested: 1: 1'
+                    : kind === 'Dict'
+                      ? 'RAW: $nested: 1'
+                      : 'RAW: $nested: text';
+            const collapseLabel = kind === 'List' ? '$nested: 1' : '$nested';
+            const onExpandedChange = vi.fn();
+            const props = {value: [parameter], onExpandedChange};
+            render(props);
+            await click('Edit');
+            await click(rawLabel);
+            change(rawLabel, 'unfinished RAW');
+            const rawField = field(rawLabel);
+            await click(`Collapse: ${collapseLabel}`);
+            change('Search', 'missing');
+
+            await click('Expand parameters');
+            expect(onExpandedChange).toHaveBeenLastCalledWith(true);
+            render({...props, expanded: true});
+            expect(field('Search').value).toBe('missing');
+            expect(field(rawLabel)).toBe(rawField);
+            expect(field(rawLabel).value).toBe('unfinished RAW');
+            expect(button(`Expand: ${collapseLabel}`).getAttribute('aria-expanded')).toBe('false');
+            expect(button('Save').disabled).toBe(true);
+
+            await click('Collapse parameters');
+            expect(onExpandedChange).toHaveBeenLastCalledWith(false);
+            render({...props, expanded: false});
+            expect(field('Search').value).toBe('missing');
+            change('Search', '');
+            expect(button(`Expand: ${collapseLabel}`).getAttribute('aria-expanded')).toBe('false');
+            await click(`Expand: ${collapseLabel}`);
+            expect(field(rawLabel)).toBe(rawField);
+            expect(field(rawLabel).value).toBe('unfinished RAW');
+            expect(button('Save').disabled).toBe(true);
+            expect(onChange).not.toHaveBeenCalled();
+        },
+    );
+
     it('creates a first parameter with focus and applies the controlled value on Save', async () => {
         controlled([]);
         expect(container.textContent).toContain('No parameters');
@@ -703,5 +812,25 @@ describe('QueryParameters', () => {
         expect(field('Escaped string: $dict: 1: Value').value).toBe(String.raw`first\x0asecond`);
         await click('Save');
         expect(lastValue()[0].value).toEqual([{id: 'entry', key: 'key', value: 'first\nsecond'}]);
+    });
+
+    it('distinguishes empty strings and displays the selected variant type in view mode', () => {
+        render({
+            value: [
+                {id: 's', name: 'empty', type: {kind: 'String'}, value: ''},
+                {
+                    id: 'v',
+                    name: 'variant',
+                    type: {
+                        kind: 'Variant',
+                        options: [{id: 'text', name: '1', type: {kind: 'String'}}],
+                    },
+                    value: {optionId: 'text', value: 'hello'},
+                },
+            ],
+        });
+        expect(container.textContent).toContain('""');
+        expect(container.textContent).toContain('1 [String]:');
+        expect(container.textContent).toContain('"hello"');
     });
 });

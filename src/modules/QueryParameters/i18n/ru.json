@@ -64,5 +64,8 @@
   "value_element": "Элементов: {{count}}",
   "title_parameter-details": "Имя и тип параметра",
   "title_confirm-update": "Обновить параметры?",
-  "context_confirm-update": "После успешного обновления несохранённые правки будут отменены."
+  "context_confirm-update": "После успешного обновления несохранённые правки будут отменены.",
+  "action_expand-panel": "Развернуть параметры",
+  "action_collapse-panel": "Свернуть параметры",
+  "action_close-panel": "Закрыть параметры"
 }

@@ -64,5 +64,8 @@
   "value_element": "{{count}} element",
   "title_parameter-details": "Parameter name and type",
   "title_confirm-update": "Update parameters?",
-  "context_confirm-update": "Updating will discard your unsaved edits after a successful refresh."
+  "context_confirm-update": "Updating will discard your unsaved edits after a successful refresh.",
+  "action_expand-panel": "Expand parameters",
+  "action_collapse-panel": "Collapse parameters",
+  "action_close-panel": "Close parameters"
 }
