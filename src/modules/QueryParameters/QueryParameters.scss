@@ -2,6 +2,21 @@
     min-width: 0;
     min-height: 0;
     height: 100%;
+    container-type: inline-size;
+
+    &__header {
+        flex-shrink: 0;
+        padding: var(--g-spacing-1) var(--g-spacing-4) 0;
+    }
+
+    &__title {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &_expanded &__search {
+        max-width: 448px;
+    }
 
     &__tabs {
         flex-shrink: 0;

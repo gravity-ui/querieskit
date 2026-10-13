@@ -17,17 +17,20 @@ export function ParametersForm() {
 
 Every parameter has a stable `id`, a `name` without the leading `$`, a `type`, and a `value`. Keep IDs stable when updating external data. Collection items, dictionary entries and variant options also have stable IDs.
 
-The application owns parsing `DECLARE`, adapting engine-specific types and values, persisting changes, and updating the controlled `value`. This module neither reads nor rewrites the query text. It does not yet integrate with QueryEditor and has no host-panel title, close button or resize behavior.
+The application owns parsing `DECLARE`, adapting engine-specific types and values, persisting changes, and updating the controlled `value`. This module neither reads nor rewrites the query text. It does not yet integrate with QueryEditor. Optional panel controls provide a title, expand/collapse button and close button; the application owns panel placement and sizing.
 
-| Prop                  | Purpose                                                                   |
-| --------------------- | ------------------------------------------------------------------------- |
-| `value`               | The controlled collection, including any deleted entries.                 |
-| `onChange(nextValue)` | Called on Save or Remove all; may return a promise.                       |
-| `onUpdate()`          | Optional refresh request; the application supplies the refreshed `value`. |
-| `errors`              | External field errors indexed by parameter ID.                            |
-| `disabled`            | Disables mutations.                                                       |
-| `loading`             | Indicates an external operation and blocks mutations.                     |
-| `className`           | Positions the module within the host layout.                              |
+| Prop                             | Purpose                                                                   |
+| -------------------------------- | ------------------------------------------------------------------------- |
+| `value`                          | The controlled collection, including any deleted entries.                 |
+| `onChange(nextValue)`            | Called on Save or Remove all; may return a promise.                       |
+| `onUpdate()`                     | Optional refresh request; the application supplies the refreshed `value`. |
+| `errors`                         | External field errors indexed by parameter ID.                            |
+| `disabled`                       | Disables mutations.                                                       |
+| `loading`                        | Indicates an external operation and blocks mutations.                     |
+| `expanded`                       | Controlled expanded presentation; defaults to `false`.                    |
+| `onExpandedChange(nextExpanded)` | Shows the expand/collapse button and requests a layout change.            |
+| `onClose()`                      | Shows the close button and requests that the host hide the panel.         |
+| `className`                      | Positions the module within the host layout.                              |
 
 On Edit, the form takes a snapshot and creates a local draft. Save validates that draft and awaits `onChange`. The parent must update `value` when accepting a change. A rejected promise preserves the draft and displays a generic error; Cancel discards the draft. Do not persist on every field keystroke through `onChange`—it represents application of the whole collection.
 
@@ -47,6 +50,46 @@ For asynchronous persistence, update state after the operation succeeds:
 ```
 
 External changes during editing create a conflict. Save is blocked until the user explicitly reloads the external version, discarding the draft, or cancels editing. The editing footer provides Save and Update. Update asks for confirmation during editing and discards the draft only after `onUpdate` succeeds; a rejected refresh preserves the draft and shows an error. Reset actions restore only the corresponding value or nested group from the snapshot taken on entry to editing; they do not change the parameter name or type.
+
+## Expanded panel
+
+Pass `expanded` and `onExpandedChange` to show the expand/collapse control. The
+header appears when `onExpandedChange` or `onClose` is provided. The module requests
+a change; the host updates `expanded` and gives the panel the available workspace.
+This does not use the browser Fullscreen API or create a modal: query tabs and
+application navigation can remain visible.
+
+Keep the same `QueryParameters` instance mounted in the same position in the React
+tree while changing its container's width. Do not switch between separately rendered
+sidebar and expanded instances or change its `key`: remounting loses local edits,
+invalid RAW text and collection expansion state.
+
+```tsx
+const [expanded, setExpanded] = useState(false);
+const [open, setOpen] = useState(true);
+
+// Place this stable container inside the workspace beneath the query tabs.
+<div hidden={!open} style={{width: expanded ? '100%' : 460, maxWidth: '100%', height: '100%'}}>
+  <QueryParameters
+    value={value}
+    onChange={setValue}
+    expanded={expanded}
+    onExpandedChange={setExpanded}
+    onClose={() => {
+      setOpen(false);
+      setExpanded(false);
+    }}
+  />
+</div>;
+```
+
+The host supplies an accessible action to reopen the panel and should move focus
+there when closing it. Hiding the stable container preserves its editing session;
+unmounting it intentionally discards local state. Expansion itself does not save,
+cancel or refresh parameters. In expanded mode, sufficiently wide containers show
+parameter headings and values in two columns; narrow containers retain the stacked
+layout. The ApplicationLayout story demonstrates a sidebar expanding across the
+query workspace, closing and reopening without remounting.
 
 ## Types and values
 
@@ -116,4 +159,4 @@ Value paths start at `$`. List and tuple children use `$/item-id`; dictionary fi
 
 ## Examples
 
-Storybook has three examples: Default (all seven types, nested values and a deleted parameter), Empty (creation from scratch), and ExternalErrors (application validation messages). Use Edit in the form to explore editing. Story args configure width, disabled/loading states and rejected saves; the shared Storybook toolbar selects the theme. The application's library locale applies to the module.
+Storybook includes Default (all seven types, nested values and a deleted parameter), Empty (creation from scratch), ExternalErrors (application validation messages), and ApplicationLayout (sidebar expansion within a query workspace). The basic examples also include an expand/collapse control. Use Edit in the form to explore editing. Story args configure width, disabled/loading states and rejected saves; the shared Storybook toolbar selects the theme. The application's library locale applies to the module.

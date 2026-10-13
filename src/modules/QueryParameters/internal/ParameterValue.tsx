@@ -33,6 +33,7 @@ type Props = {
     value: QueryParameterValue;
     initialValue?: QueryParameterValue;
     header?: React.ReactNode;
+    horizontal?: boolean;
     onChange: (value: QueryParameterValue) => void;
     editing: boolean;
     disabled?: boolean;
@@ -208,6 +209,7 @@ function ParameterValueContent(props: Props) {
         value,
         initialValue,
         header,
+        horizontal = false,
         onChange,
         editing,
         disabled,
@@ -229,7 +231,7 @@ function ParameterValueContent(props: Props) {
         onChange(nextValue);
     };
     const scalar = ['String', 'Number', 'Json'].includes(type.kind);
-    const boxed = ['Tuple', 'Variant', 'Dict'].includes(type.kind);
+    const boxed = ['Variant', 'Dict'].includes(type.kind) || (editing && type.kind === 'Tuple');
     const actions =
         editing && type.kind !== 'Json' ? (
             <ValueActions
@@ -279,10 +281,15 @@ function ParameterValueContent(props: Props) {
         );
     }
     return (
-        <Flex direction="column" gap={2} className={block({boxed}, className)}>
-            {!boxed && header}
+        <Flex
+            direction="column"
+            gapRow={scalar ? 0 : 2}
+            className={block({boxed, horizontal: horizontal && editing}, className)}
+        >
+            {!boxed && header && <div className={block('header')}>{header}</div>}
             {boxed && (
                 <BoxHeader
+                    className={block('box-heading')}
                     type={type}
                     header={header}
                     label={label}
@@ -295,6 +302,7 @@ function ParameterValueContent(props: Props) {
             )}
             {type.kind === 'List' && (
                 <ListHeader
+                    className={block('list-header')}
                     type={type}
                     label={label}
                     disabled={disabled}
@@ -304,9 +312,11 @@ function ParameterValueContent(props: Props) {
                     actions={actions}
                 />
             )}
-            <div hidden={!expanded}>{content}</div>
+            <div className={block('content')} hidden={!expanded}>
+                {content}
+            </div>
             {error && !scalar && representation.mode !== 'raw' && (
-                <Text color="danger" role="alert">
+                <Text className={block('error')} color="danger" role="alert">
                     {error}
                 </Text>
             )}
@@ -315,6 +325,7 @@ function ParameterValueContent(props: Props) {
 }
 
 function BoxHeader({
+    className,
     type,
     header,
     label,
@@ -324,6 +335,7 @@ function BoxHeader({
     count,
     actions,
 }: {
+    className?: string;
     type: QueryParameterType;
     header?: React.ReactNode;
     label: string;
@@ -336,7 +348,7 @@ function BoxHeader({
     const collapsible = type.kind === 'Dict' || type.kind === 'Variant';
     const elements = type.kind === 'Variant' ? type.options.length : count;
     return (
-        <Flex alignItems="center" gap={1}>
+        <Flex alignItems="center" gap={1} className={block('box-header', className)}>
             {collapsible && (
                 <Button
                     view="flat-secondary"
@@ -352,7 +364,7 @@ function BoxHeader({
             <div className={block('cell')}>
                 {header ?? <Text variant="code-1">{formatType(type)}</Text>}
             </div>
-            {collapsible && (
+            {collapsible && type.kind !== 'Variant' && (
                 <Text color="secondary" variant="caption-2" className={block('count')}>
                     {i18n(elements === 1 ? 'value_element' : 'value_elements', {count: elements})}
                 </Text>
@@ -363,6 +375,7 @@ function BoxHeader({
 }
 
 function ListHeader({
+    className,
     type,
     label,
     disabled,
@@ -371,6 +384,7 @@ function ListHeader({
     count,
     actions,
 }: {
+    className?: string;
     type: Extract<QueryParameterType, {kind: 'List'}>;
     label: string;
     disabled?: boolean;
@@ -380,7 +394,7 @@ function ListHeader({
     actions: React.ReactNode;
 }) {
     return (
-        <Flex gap={1} alignItems="center">
+        <Flex gap={1} alignItems="center" className={className}>
             <Button
                 className={block('list-toggle')}
                 view="flat"
@@ -424,7 +438,9 @@ function ScalarValue({
     if (!editing)
         return (
             <Flex direction="column" gap={1}>
-                <pre className={block('text')}>{String(value) || i18n('value_empty')}</pre>
+                <pre className={block('text')}>
+                    {type.kind === 'String' ? JSON.stringify(value) : String(value)}
+                </pre>
                 {error && (
                     <Text color="danger" role="alert">
                         {error}
@@ -729,8 +745,10 @@ function DictEntry(
                         endContent={field === 'value' ? actions : undefined}
                     />
                 ) : (
-                    <pre key={field} className={block('text')}>
-                        {String(entry[field]) || i18n('value_empty')}
+                    <pre key={field} className={block('text', {paired: true})}>
+                        {field === 'value' && type.value.kind === 'String'
+                            ? JSON.stringify(entry[field])
+                            : String(entry[field])}
                     </pre>
                 );
             })}
@@ -782,9 +800,14 @@ function VariantValue(
                                     }}
                                 />
                             )}
-                            <Flex direction="column" gap={1} className={block('cell')}>
+                            <Flex
+                                direction={editing ? 'column' : 'row'}
+                                gap={2}
+                                className={block('cell')}
+                            >
                                 <Text variant="code-1" color={active ? 'primary' : 'secondary'}>
-                                    {option.name}
+                                    {option.name}{' '}
+                                    <Text color="secondary">[{formatType(option.type)}]:</Text>
                                 </Text>
                                 <ParameterValue
                                     {...childProps(

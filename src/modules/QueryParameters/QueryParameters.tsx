@@ -10,6 +10,7 @@ import {
     TabList,
     TabPanel,
     TabProvider,
+    Text,
     TextInput,
 } from '@gravity-ui/uikit';
 import PlusIcon from '@gravity-ui/icons/svgs/plus.svg';
@@ -17,6 +18,8 @@ import PencilIcon from '@gravity-ui/icons/svgs/pencil.svg';
 import SaveIcon from '@gravity-ui/icons/svgs/floppy-disk.svg';
 import UpdateIcon from '@gravity-ui/icons/svgs/arrows-rotate-right.svg';
 import TrashBinIcon from '@gravity-ui/icons/svgs/trash-bin.svg';
+import FullscreenIcon from '@gravity-ui/icons/svgs/square-dashed.svg';
+import CloseIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
 import {EmptyContent} from '../../components/EmptyContent';
 import type {QueryParameter, QueryParametersProps} from '../../types/queryParameters';
@@ -33,6 +36,9 @@ export function QueryParameters({
     value,
     onChange,
     onUpdate,
+    expanded = false,
+    onExpandedChange,
+    onClose,
     errors,
     disabled = false,
     loading = false,
@@ -213,9 +219,45 @@ export function QueryParameters({
             <Flex
                 ref={root}
                 direction="column"
-                className={block(null, className)}
+                className={block({expanded}, className)}
                 aria-busy={loading || pending !== null}
             >
+                {(onExpandedChange || onClose) && (
+                    <Flex alignItems="center" className={block('header')}>
+                        <Text variant="subheader-1" className={block('title')}>
+                            {i18n('title_parameters')}
+                        </Text>
+                        {onExpandedChange && (
+                            <Button
+                                view="flat-secondary"
+                                selected={expanded}
+                                aria-pressed={expanded}
+                                aria-label={i18n(
+                                    expanded ? 'action_collapse-panel' : 'action_expand-panel',
+                                )}
+                                title={i18n(
+                                    expanded ? 'action_collapse-panel' : 'action_expand-panel',
+                                )}
+                                onClick={() => onExpandedChange(!expanded)}
+                            >
+                                <Icon data={FullscreenIcon} size={16} />
+                            </Button>
+                        )}
+                        {onClose && (
+                            <Button
+                                view="flat-secondary"
+                                aria-label={i18n('action_close-panel')}
+                                title={i18n('action_close-panel')}
+                                onClick={() => {
+                                    if (expanded) onExpandedChange?.(false);
+                                    onClose();
+                                }}
+                            >
+                                <Icon data={CloseIcon} size={16} />
+                            </Button>
+                        )}
+                    </Flex>
+                )}
                 <TabList
                     value={tab}
                     onUpdate={setTab}
@@ -232,6 +274,7 @@ export function QueryParameters({
                 <Flex direction="column" gap={3} className={block('body')}>
                     {parameters.length > 0 && (
                         <TextInput
+                            className={block('search')}
                             value={search}
                             onUpdate={setSearch}
                             hasClear
@@ -288,7 +331,7 @@ export function QueryParameters({
                                         className={block('empty')}
                                     />
                                 )}
-                                <Flex direction="column" gap={6}>
+                                <Flex direction="column" gap={editing && expanded ? 4 : 6}>
                                     {current.map((parameter, index) => {
                                         const original = session?.original.find(
                                             (item) => item.id === parameter.id,
@@ -302,6 +345,7 @@ export function QueryParameters({
                                                 data-parameter-id={parameter.id}
                                             >
                                                 <ParameterRow
+                                                    expanded={expanded}
                                                     parameter={parameter}
                                                     index={index + 1}
                                                     editing={editing}

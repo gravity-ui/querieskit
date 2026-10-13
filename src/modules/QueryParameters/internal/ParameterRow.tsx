@@ -19,6 +19,7 @@ type Props = {
     isNew?: boolean;
     index: number;
     editing: boolean;
+    expanded?: boolean;
     disabled: boolean;
     errors?: QueryParameterErrors;
     onChange: (parameter: QueryParameter) => void;
@@ -32,6 +33,7 @@ export function ParameterRow({
     isNew = false,
     index,
     editing,
+    expanded = false,
     disabled,
     errors,
     onChange,
@@ -114,6 +116,7 @@ export function ParameterRow({
                 value={parameter.value}
                 initialValue={initialValue}
                 header={header}
+                horizontal={expanded}
                 label={label}
                 editing={editing}
                 disabled={disabled}
