@@ -1,0 +1,62 @@
+.qp-parameter-value {
+    min-width: 0;
+
+    &_boxed {
+        padding: var(--g-spacing-3);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+    }
+
+    &__cell {
+        min-width: 0;
+        flex: 1;
+    }
+
+    &__count {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    &__actions {
+        flex-shrink: 0;
+    }
+
+    &__raw {
+        --g-button-padding: var(--g-spacing-1);
+    }
+
+    &__binary {
+        flex-shrink: 0;
+        width: 28px;
+    }
+
+    &__text {
+        margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font: var(--g-text-code-1-font-weight) var(--g-text-code-1-font-size) /
+            var(--g-text-code-1-line-height) var(--g-font-family-monospace);
+    }
+
+    &__list-toggle {
+        --g-button-padding: 0px;
+        --g-button-icon-space: var(--g-spacing-3);
+        --g-button-icon-offset: var(--g-spacing-1);
+    }
+
+    &__collection_list {
+        // Center the 1px guide under the 12px chevron; keep a 16px nesting step.
+        margin-inline-start: calc(var(--g-spacing-3) / 2 - 0.5px);
+        padding-inline-start: calc(var(--g-spacing-4) - var(--g-spacing-3) / 2 - 0.5px);
+        border-inline-start: 1px solid var(--g-color-line-generic);
+    }
+
+    &__add {
+        align-self: flex-start;
+    }
+
+    &__radio {
+        margin-block-start: var(--g-spacing-half);
+        flex-shrink: 0;
+    }
+}

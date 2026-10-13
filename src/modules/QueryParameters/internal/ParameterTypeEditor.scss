@@ -1,0 +1,8 @@
+.qp-parameter-type-editor {
+    min-width: 0;
+
+    &__nested {
+        padding-inline-start: var(--g-spacing-3);
+        border-inline-start: 1px solid var(--g-color-line-generic);
+    }
+}
