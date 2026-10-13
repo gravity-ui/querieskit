@@ -78,7 +78,15 @@ export function ParameterRow({
             <Text className={block('title')}>
                 <Text variant="subheader-1">{label}</Text>{' '}
                 <Text color="secondary" title={formatType(parameter.type)}>
-                    [{parameter.type.kind}]:
+                    [
+                    {parameter.type.kind === 'Optional'
+                        ? `${formatType(parameter.type.item)}?`
+                        : parameter.type.kind === 'Pg'
+                          ? `pg${parameter.type.name}`
+                          : parameter.type.kind === 'Decimal'
+                            ? formatType(parameter.type)
+                            : parameter.type.kind}
+                    ]:
                 </Text>
             </Text>
             {editing && (

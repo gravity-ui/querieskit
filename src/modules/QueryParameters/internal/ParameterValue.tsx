@@ -1,5 +1,16 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Button, Flex, Icon, Radio, Text, TextArea, TextInput} from '@gravity-ui/uikit';
+import {
+    Button,
+    Flex,
+    Icon,
+    Radio,
+    SegmentedRadioGroup,
+    Select,
+    Switch,
+    Text,
+    TextArea,
+    TextInput,
+} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import TrashBinIcon from '@gravity-ui/icons/svgs/trash-bin.svg';
 import ChevronDownIcon from '@gravity-ui/icons/svgs/chevron-down.svg';
@@ -8,6 +19,7 @@ import ResetIcon from '@gravity-ui/icons/svgs/arrow-rotate-left.svg';
 import PlusIcon from '@gravity-ui/icons/svgs/plus.svg';
 import RawIcon from './icons/RawIcon';
 import BinaryIcon from './icons/BinaryIcon';
+import {ParameterDateInput} from './ParameterDateInput';
 import type {
     QueryParameterEntry,
     QueryParameterItem,
@@ -20,6 +32,10 @@ import {
     escapeString,
     formatType,
     fromRaw,
+    isDocumentType,
+    isNumericType,
+    isScalarType,
+    isTextType,
     toRaw,
     unescapeString,
     validType,
@@ -35,6 +51,7 @@ type Props = {
     header?: React.ReactNode;
     horizontal?: boolean;
     onChange: (value: QueryParameterValue) => void;
+    onReset?: () => void;
     editing: boolean;
     disabled?: boolean;
     label: string;
@@ -44,8 +61,20 @@ type Props = {
     className?: string;
 };
 
-function shapeValid(type: QueryParameterType, value: QueryParameterValue) {
-    if (type.kind === 'List' || type.kind === 'Tuple' || type.kind === 'Dict') {
+function isDateType(type: QueryParameterType) {
+    return /^(Tz)?(Date|Date32|Datetime|Datetime64|Timestamp|Timestamp64)$/.test(type.kind);
+}
+
+function shapeValid(type: QueryParameterType, value: QueryParameterValue): boolean {
+    if (type.kind === 'Optional') return value === null || shapeValid(type.item, value);
+    if (type.kind === 'Pg') return value === null || typeof value === 'string';
+    if (type.kind === 'Bool') return typeof value === 'boolean';
+    if (
+        type.kind === 'List' ||
+        type.kind === 'Tuple' ||
+        type.kind === 'Dict' ||
+        type.kind === 'Struct'
+    ) {
         return (
             Array.isArray(value) &&
             value.every(
@@ -77,11 +106,134 @@ export function ParameterValue(props: Props) {
             </Text>
         );
     }
+    if (props.type.kind === 'Optional' || props.type.kind === 'Pg') {
+        return <NullableValue {...props} type={props.type} />;
+    }
     return <ParameterValueContent {...props} />;
 }
 
+function NullableValue(
+    props: Props & {type: Extract<QueryParameterType, {kind: 'Optional' | 'Pg'}>},
+) {
+    const {type, value, initialValue, editing, horizontal, header, disabled, label, onChange} =
+        props;
+    const childType = type.kind === 'Optional' ? type.item : type;
+    const lastValue = useRef<QueryParameterValue | undefined>(value === null ? undefined : value);
+    if (value !== null) lastValue.current = value;
+    const [revision, setRevision] = useState(0);
+    const reset = () => {
+        const next = initialValue === undefined ? defaultValue(type) : initialValue;
+        lastValue.current = next === null ? undefined : next;
+        setRevision((current) => current + 1);
+        onChange(next);
+    };
+    const child =
+        value !== null &&
+        (type.kind === 'Optional' ? (
+            <ParameterValue
+                {...props}
+                key={revision}
+                type={childType}
+                header={undefined}
+                horizontal={false}
+                onReset={reset}
+            />
+        ) : (
+            <ParameterValueContent
+                {...props}
+                key={revision}
+                header={undefined}
+                horizontal={false}
+                onReset={reset}
+            />
+        ));
+    if (!editing)
+        return (
+            <Flex direction="column" gap={1} className={block(null, props.className)}>
+                {header}
+                {value === null ? <Text>NULL</Text> : child}
+            </Flex>
+        );
+    return (
+        <div className={block({nullable: true, horizontal}, props.className)}>
+            <div className={block('header')}>{header}</div>
+            <Switch
+                className={block('null-switch')}
+                size="s"
+                checked={value === null}
+                disabled={disabled}
+                controlProps={{'aria-label': `NULL: ${label}`}}
+                onUpdate={(checked) =>
+                    onChange(
+                        checked
+                            ? null
+                            : (lastValue.current ??
+                                  initialValue ??
+                                  (type.kind === 'Pg' ? '' : defaultValue(type.item))),
+                    )
+                }
+            >
+                NULL
+            </Switch>
+            <div className={block('content')}>
+                {child}
+                {value === null && props.errors?.[props.path ?? '$'] && (
+                    <Text color="danger" role="alert">
+                        {props.errors[props.path ?? '$']}
+                    </Text>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function StructValue(props: Props & {type: Extract<QueryParameterType, {kind: 'Struct'}>}) {
+    const {type, value, initialValue, onChange, editing} = props;
+    const items = value as QueryParameterItem[];
+    const baseline = Array.isArray(initialValue) ? initialValue : [];
+    return (
+        <Flex direction="column" gap={2}>
+            {type.fields.map((field) => {
+                const item = items.find(({id}) => id === field.id);
+                const child = (
+                    <ParameterValue
+                        {...childProps(
+                            props,
+                            field.type,
+                            item ? item.value : defaultValue(field.type),
+                            baseline.find(({id}) => id === field.id)?.value,
+                            field.id,
+                            field.name,
+                            (next) =>
+                                onChange(
+                                    type.fields.map((entry) => ({
+                                        id: entry.id,
+                                        value:
+                                            entry.id === field.id
+                                                ? next
+                                                : (items.find(({id}) => id === entry.id)?.value ??
+                                                  defaultValue(entry.type)),
+                                    })),
+                                ),
+                        )}
+                    />
+                );
+                return (
+                    <Flex key={field.id} direction={editing ? 'column' : 'row'} gap={1}>
+                        <Text className={editing ? undefined : block('field-name')}>
+                            {field.name}
+                            {editing && <Text color="secondary"> [{formatType(field.type)}]:</Text>}
+                        </Text>
+                        {child}
+                    </Flex>
+                );
+            })}
+        </Flex>
+    );
+}
+
 function needsEscapes(type: QueryParameterType, value: QueryParameterValue) {
-    return type.kind === 'String' && typeof value === 'string' && /[\r\n]/.test(value);
+    return isTextType(type) && typeof value === 'string' && /[\r\n]/.test(value);
 }
 
 /** Representation drafts stay local until they can be decoded without losing data. */
@@ -224,22 +376,31 @@ function ParameterValueContent(props: Props) {
     const {pending, childValidity, clearChildren} = useChildValidity(onValidityChange);
     const representation = useRepresentation(props);
     const reset = () => {
+        if (props.onReset) {
+            props.onReset();
+            return;
+        }
         const nextValue = initialValue ?? defaultValue(type);
         representation.clear(nextValue);
         clearChildren();
         setGeneration((current) => current + 1);
         onChange(nextValue);
     };
-    const scalar = ['String', 'Number', 'Json'].includes(type.kind);
-    const boxed = ['Variant', 'Dict'].includes(type.kind) || (editing && type.kind === 'Tuple');
+    const scalar = isScalarType(type);
+    const boxed =
+        ['Variant', 'Dict', 'Struct'].includes(type.kind) || (editing && type.kind === 'Tuple');
     const actions =
-        editing && type.kind !== 'Json' ? (
+        editing && !isDocumentType(type) && type.kind !== 'Bool' ? (
             <ValueActions
                 label={label}
                 disabled={disabled}
                 raw={representation.mode === 'raw'}
                 rawDisabled={representation.invalid || pending.size > 0}
-                onRaw={type.kind === 'Number' ? undefined : () => representation.toggle('raw')}
+                onRaw={
+                    !scalar || type.kind === 'String'
+                        ? () => representation.toggle('raw')
+                        : undefined
+                }
                 onReset={reset}
             />
         ) : null;
@@ -274,6 +435,8 @@ function ParameterValueContent(props: Props) {
             <div key={generation}>
                 {type.kind === 'Variant' ? (
                     <VariantValue {...contentProps} type={type} pending={pending.size > 0} />
+                ) : type.kind === 'Struct' ? (
+                    <StructValue {...contentProps} type={type} />
                 ) : (
                     <CollectionValue {...contentProps} />
                 )}
@@ -345,8 +508,8 @@ function BoxHeader({
     count: number;
     actions: React.ReactNode;
 }) {
-    const collapsible = type.kind === 'Dict' || type.kind === 'Variant';
-    const elements = type.kind === 'Variant' ? type.options.length : count;
+    const collapsible = ['Dict', 'Variant', 'Struct'].includes(type.kind);
+    const elements = type.kind === 'Struct' ? type.fields.length : count;
     return (
         <Flex alignItems="center" gap={1} className={block('box-header', className)}>
             {collapsible && (
@@ -366,7 +529,16 @@ function BoxHeader({
             </div>
             {collapsible && type.kind !== 'Variant' && (
                 <Text color="secondary" variant="caption-2" className={block('count')}>
-                    {i18n(elements === 1 ? 'value_element' : 'value_elements', {count: elements})}
+                    {i18n(
+                        type.kind === 'Struct'
+                            ? elements === 1
+                                ? 'value_field'
+                                : 'value_fields'
+                            : elements === 1
+                              ? 'value_element'
+                              : 'value_elements',
+                        {count: elements},
+                    )}
                 </Text>
             )}
             {actions}
@@ -439,7 +611,9 @@ function ScalarValue({
         return (
             <Flex direction="column" gap={1}>
                 <pre className={block('text')}>
-                    {type.kind === 'String' ? JSON.stringify(value) : String(value)}
+                    {isTextType(type) && type.kind !== 'Uuid'
+                        ? JSON.stringify(value)
+                        : String(value)}
                 </pre>
                 {error && (
                     <Text color="danger" role="alert">
@@ -455,7 +629,7 @@ function ScalarValue({
             ? `${representation.mode === 'raw' ? 'RAW' : i18n('action_escaped')}: ${label}`
             : label,
     };
-    if (type.kind === 'Json')
+    if (isDocumentType(type))
         return (
             <TextArea
                 value={text}
@@ -468,9 +642,64 @@ function ScalarValue({
                 errorMessage={error}
             />
         );
+    if (type.kind === 'Bool')
+        return (
+            <Flex direction="column" gap={1}>
+                <SegmentedRadioGroup
+                    value={String(value)}
+                    onUpdate={(next) => onChange(next === 'true')}
+                    disabled={disabled}
+                    aria-label={label}
+                    options={[
+                        {value: 'true', content: 'True'},
+                        {value: 'false', content: 'False'},
+                    ]}
+                />
+                {error && (
+                    <Text color="danger" role="alert">
+                        {error}
+                    </Text>
+                )}
+            </Flex>
+        );
+    if (type.kind === 'Enum')
+        return (
+            <Flex gap={1}>
+                <Select
+                    className={block('cell')}
+                    width="max"
+                    value={[String(value)]}
+                    options={type.options.map((option) => ({value: option, content: option}))}
+                    onUpdate={([next]) => {
+                        if (next !== undefined) onChange(next);
+                    }}
+                    disabled={disabled}
+                    aria-label={label}
+                    validationState={error ? 'invalid' : undefined}
+                    errorMessage={error}
+                />
+                {actions}
+            </Flex>
+        );
+    if (isDateType(type))
+        return (
+            <Flex gap={1} alignItems="flex-start">
+                <div className={block('cell')}>
+                    <ParameterDateInput
+                        value={text}
+                        onUpdate={update}
+                        kind={type.kind}
+                        label={label}
+                        disabled={disabled}
+                        error={error}
+                    />
+                </div>
+                {actions}
+            </Flex>
+        );
     return (
-        <Flex gap={2} alignItems="flex-start">
-            {type.kind === 'String' && (
+        <Flex gap={1} alignItems="flex-start">
+            {(type.kind === 'String' || representation.multiline) && (
                 <Button
                     view="outlined"
                     size="m"
@@ -661,8 +890,10 @@ function DictEntry(
     };
     const representation = useRepresentation(pairProps);
     const paired =
-        ['String', 'Number'].includes(type.key.kind) &&
-        ['String', 'Number'].includes(type.value.kind) &&
+        typeof entry.key === 'string' &&
+        typeof entry.value === 'string' &&
+        (isTextType(type.key) || isNumericType(type.key)) &&
+        (isTextType(type.value) || isNumericType(type.value)) &&
         !needsEscapes(type.key, entry.key) &&
         !needsEscapes(type.value, entry.value);
     const actions = editing && (
@@ -746,7 +977,7 @@ function DictEntry(
                     />
                 ) : (
                     <pre key={field} className={block('text', {paired: true})}>
-                        {field === 'value' && type.value.kind === 'String'
+                        {field === 'value' && isTextType(type.value)
                             ? JSON.stringify(entry[field])
                             : String(entry[field])}
                     </pre>
@@ -762,7 +993,7 @@ function VariantValue(
     const {type, value, initialValue, editing, disabled, pending, onChange} = props;
     const selected = value as {optionId: string; value: QueryParameterValue};
     const baseline =
-        initialValue && !Array.isArray(initialValue) && typeof initialValue !== 'string'
+        initialValue && typeof initialValue === 'object' && !Array.isArray(initialValue)
             ? initialValue
             : undefined;
     const [drafts] = useState(

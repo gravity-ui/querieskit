@@ -245,7 +245,7 @@
     "test:timeline": "vitest run tests/helpers/queryTimeline.test.ts",
     "test:editor-helpers": "vitest run tests/helpers/editorProviders.test.ts tests/helpers/queryEditorPreset.test.ts",
     "test:editors:browser": "playwright test",
-    "test:parameters": "vitest run tests/helpers/queryParameters.test.ts"
+    "test:parameters": "vitest run tests/helpers/queryParameters.test.ts tests/helpers/parameterDate.test.ts"
   },
   "repository": {
     "type": "git",

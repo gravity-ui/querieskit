@@ -95,17 +95,32 @@ query workspace, closing and reopening without remounting.
 
 The supported types are UI schemas rather than query-engine wire types:
 
-| Type    | Schema                                           | Value                              |
-| ------- | ------------------------------------------------ | ---------------------------------- |
-| String  | `{kind: 'String'}`                               | String                             |
-| Number  | `{kind: 'Number'}`                               | Numeric text, preserving precision |
-| Json    | `{kind: 'Json'}`                                 | JSON document text                 |
-| List    | `{kind: 'List', item: type}`                     | `[{id, value}]`                    |
-| Tuple   | `{kind: 'Tuple', items: [type, ...]}`            | `[{id, value}]`, in schema order   |
-| Variant | `{kind: 'Variant', options: [{id, name, type}]}` | `{optionId, value}`                |
-| Dict    | `{kind: 'Dict', key: type, value: type}`         | `[{id, key, value}]`               |
+| Type                                                                   | Schema                                           | Value                                            |
+| ---------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------ |
+| String, Utf8, Uuid                                                     | `{kind: 'String'}` (or the corresponding kind)   | String                                           |
+| Number, Decimal, Double, DyNumber, Float                               | `{kind: 'Decimal'}` (or the corresponding kind)  | Numeric text, preserving precision               |
+| Int8, Int16, Int32, Int64, Uint8, Uint16, Uint32, Uint64               | `{kind: 'Int64'}` (or the corresponding kind)    | Integer text, preserving precision               |
+| Interval, Interval64                                                   | `{kind: 'Interval'}` (or `Interval64`)           | Integer text                                     |
+| Date, Date32, Datetime, Datetime64, Timestamp, Timestamp64             | `{kind: 'Date'}` (or the corresponding kind)     | Date/time text                                   |
+| TzDate, TzDate32, TzDatetime, TzDatetime64, TzTimestamp, TzTimestamp64 | `{kind: 'TzDate'}` (or the corresponding kind)   | Date/time text with a time zone                  |
+| Bool                                                                   | `{kind: 'Bool'}`                                 | Boolean                                          |
+| Json, JsonDocument, Yson                                               | `{kind: 'Json'}` (or the corresponding kind)     | Document text                                    |
+| Enum                                                                   | `{kind: 'Enum', options: ['red', 'green']}`      | One of the option strings                        |
+| Optional                                                               | `{kind: 'Optional', item: type}`                 | `null` or a value of the item type               |
+| Pg                                                                     | `{kind: 'Pg', name: 'text'}`                     | String or `null`                                 |
+| List                                                                   | `{kind: 'List', item: type}`                     | `[{id, value}]`                                  |
+| Tuple                                                                  | `{kind: 'Tuple', items: [type, ...]}`            | `[{id, value}]`, in schema order                 |
+| Struct                                                                 | `{kind: 'Struct', fields: [{id, name, type}]}`   | `[{id, value}]`, with IDs matching schema fields |
+| Variant                                                                | `{kind: 'Variant', options: [{id, name, type}]}` | `{optionId, value}`                              |
+| Dict                                                                   | `{kind: 'Dict', key: type, value: type}`         | `[{id, key, value}]`                             |
 
-Collections and variants can nest. Numbers remain strings, including values outside JavaScript's safe integer range. JSON documents also remain strings, rather than being converted to JavaScript objects. The application decides which engine-specific numeric ranges and type combinations to accept.
+Collections, structs, optional values and variants can nest. Numbers remain strings,
+including values outside JavaScript's safe integer range. JSON documents also remain
+strings, rather than being converted to JavaScript objects. Decimal optionally accepts
+`precision` and `scale`. The application decides which engine-specific numeric ranges,
+date/time formats, PostgreSQL types, YSON documents and type combinations to accept.
+Integer kinds require integer text, and unsigned kinds reject negative values.
+Json and JsonDocument require valid JSON; Yson remains application-validated text. Calendar selection changes only the date portion; manual input, fractional seconds and timezone suffixes remain exact.
 
 For `List<List<String>>`, use `{kind: 'List', item: {kind: 'List', item: {kind: 'String'}}}`.
 In the name/type dialog, select List for Parameter type and Item type, then String
@@ -127,9 +142,9 @@ const initialParameters: QueryParameter[] = [
 
 Rows keep compact name/type headings while values are edited. Use the row overflow menu to edit the name and type in a separate dialog. Add parameter opens the same dialog; cancelling creation discards the new parameter. Explicitly applying a changed schema resets the value to a default for the new schema. Closing the dialog without applying leaves the existing draft unchanged.
 
-List values use compact nested rows. Tuple, Variant and Dict use bordered groups. Variant displays all options with radio controls and disables the inactive editors. Inactive branch drafts are retained within the editing session so switching back restores the entered value; only the active branch is included in the exported parameter.
+List values use compact nested rows. Tuple is unbordered in view mode. Tuple, Struct, Variant and Dict use bordered groups while editing. Variant displays all options with radio controls and disables the inactive editors. Inactive branch drafts are retained within the editing session so switching back restores the entered value; only the active branch is included in the exported parameter.
 
-RAW edits a JSON representation adapted to the declared UI schema: List and Tuple use arrays of values, Dict uses arrays of `[key, value]` pairs, and Variant uses `{optionId, value}`. Collection item IDs are managed internally and omitted from RAW. It is not an engine serialization format; Number and Json leaves still use string values. RAW and escaped-value editing happen inline, without separate Apply/Cancel actions. Valid text immediately updates the local form draft; invalid text stays visible and blocks Save until corrected or reset. Number and Json editors do not have a RAW switch. The escaped string view is a reversible text representation, not a backend binary encoding or a bytes codec.
+RAW edits a JSON representation adapted to the declared UI schema: List and Tuple use arrays of values, Struct uses an object keyed by field names, Dict uses arrays of `[key, value]` pairs, and Variant uses `{optionId, value}`. Optional uses `null` or its item representation, Bool uses a boolean, and Pg uses a string or `null`. Collection item IDs are managed internally and omitted from RAW. It is not an engine serialization format; numeric, date/time and document leaves still use string values. RAW and escaped-value editing happen inline, without separate Apply/Cancel actions. Valid text immediately updates the local form draft; invalid text stays visible and blocks Save until corrected or reset. RAW switches are available for String and structured collections; other scalar editors use their typed controls. The escaped string view is a reversible text representation, not a backend binary encoding or a bytes codec.
 
 ## Deletion
 
@@ -155,8 +170,8 @@ The form validates required, unique active names and the shape of values against
 />
 ```
 
-Value paths start at `$`. List and tuple children use `$/item-id`; dictionary fields use `$/entry-id/key` and `$/entry-id/value`; variant contents use `$/option-id`. Append segments for nested values. Each parameter error can also contain `name` and `type` messages.
+Value paths start at `$`. List and tuple children use `$/item-id`; struct fields use `$/field-id`; dictionary fields use `$/entry-id/key` and `$/entry-id/value`; variant contents use `$/option-id`. Append segments for nested values. Each parameter error can also contain `name` and `type` messages.
 
 ## Examples
 
-Storybook includes Default (all seven types, nested values and a deleted parameter), Empty (creation from scratch), ExternalErrors (application validation messages), and ApplicationLayout (sidebar expansion within a query workspace). The basic examples also include an expand/collapse control. Use Edit in the form to explore editing. Story args configure width, disabled/loading states and rejected saves; the shared Storybook toolbar selects the theme. The application's library locale applies to the module.
+Storybook includes AllTypes (the 42 Figma examples in three independent columns: view, full-width editing, and default-width editing), Default (basic schemas, nested values and a deleted parameter), Empty (creation from scratch), ExternalErrors (application validation messages), and ApplicationLayout (sidebar expansion within a query workspace). The basic examples also include an expand/collapse control. Use Edit in the form to explore editing. Story args configure width, disabled/loading states and rejected saves; the shared Storybook toolbar selects the theme. The application's library locale applies to the module.

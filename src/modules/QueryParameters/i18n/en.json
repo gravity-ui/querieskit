@@ -67,5 +67,10 @@
   "context_confirm-update": "Updating will discard your unsaved edits after a successful refresh.",
   "action_expand-panel": "Expand parameters",
   "action_collapse-panel": "Collapse parameters",
-  "action_close-panel": "Close parameters"
+  "action_close-panel": "Close parameters",
+  "action_open-calendar": "Open calendar",
+  "value_field": "{{count}} field",
+  "value_fields": "{{count}} fields",
+  "field_precision": "Precision",
+  "field_scale": "Scale"
 }

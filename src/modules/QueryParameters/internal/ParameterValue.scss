@@ -52,6 +52,45 @@
         margin-inline-start: auto;
     }
 
+    &__field-name {
+        flex: 0 0 120px;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    &_nullable {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        min-height: 52px;
+
+        > .qp-parameter-value__content {
+            grid-column: 1 / -1;
+        }
+    }
+
+    &__null-switch {
+        min-height: 24px;
+        margin-inline-end: 32px;
+    }
+
+    @container (min-width: 720px) {
+        &_nullable#{&}_horizontal {
+            min-height: 28px;
+            grid-template-columns: 240px auto minmax(0, 1fr);
+
+            > .qp-parameter-value__null-switch {
+                grid-column: 2;
+                margin-inline-end: var(--g-spacing-2);
+            }
+
+            > .qp-parameter-value__content {
+                grid-column: 3;
+                grid-row: 1;
+            }
+        }
+    }
+
     &__cell {
         min-width: 0;
         flex: 1;

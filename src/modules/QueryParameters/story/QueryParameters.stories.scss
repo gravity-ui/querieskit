@@ -53,4 +53,22 @@
             border-inline-start: 0;
         }
     }
+    &__type-matrix {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    &__type-grid {
+        display: grid;
+        grid-template-columns: 448px 720px 448px;
+        column-gap: calc(2 * var(--g-spacing-6));
+        row-gap: var(--g-spacing-5);
+        align-items: start;
+        padding-block-end: var(--g-spacing-6);
+    }
+
+    &__type-cell {
+        container-type: inline-size;
+        min-width: 0;
+    }
 }

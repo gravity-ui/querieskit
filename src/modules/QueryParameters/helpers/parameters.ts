@@ -6,6 +6,69 @@ import type {
 } from '../../../types/queryParameters';
 import i18n from '../i18n';
 
+export const parameterKinds: QueryParameterType['kind'][] = [
+    'Bool',
+    'Date',
+    'Date32',
+    'Datetime',
+    'Datetime64',
+    'Timestamp',
+    'Timestamp64',
+    'TzDate',
+    'TzDate32',
+    'TzDatetime',
+    'TzDatetime64',
+    'TzTimestamp',
+    'TzTimestamp64',
+    'Decimal',
+    'Double',
+    'DyNumber',
+    'Float',
+    'Int8',
+    'Int16',
+    'Int32',
+    'Int64',
+    'Uint8',
+    'Uint16',
+    'Uint32',
+    'Uint64',
+    'Interval',
+    'Interval64',
+    'String',
+    'Utf8',
+    'Uuid',
+    'Json',
+    'JsonDocument',
+    'Yson',
+    'Number',
+    'Enum',
+    'Optional',
+    'Pg',
+    'List',
+    'Tuple',
+    'Variant',
+    'Dict',
+    'Struct',
+];
+
+export function isNumericType(type: QueryParameterType): boolean {
+    return /^(Number|Decimal|Double|DyNumber|Float|(?:Uint|Int)(?:8|16|32|64)|Interval(?:64)?)$/.test(
+        type.kind,
+    );
+}
+
+export function isTextType(type: QueryParameterType): boolean {
+    return ['String', 'Utf8', 'Uuid', 'Pg'].includes(type.kind);
+}
+
+export function isDocumentType(type: QueryParameterType): boolean {
+    return ['Json', 'JsonDocument', 'Yson'].includes(type.kind);
+}
+
+export function isScalarType(type: QueryParameterType): boolean {
+    return !['List', 'Tuple', 'Variant', 'Dict', 'Struct', 'Optional'].includes(type.kind);
+}
+
 let nextId = 0;
 export function createId(): string {
     return `parameter-${Date.now().toString(36)}-${(++nextId).toString(36)}`;
@@ -13,12 +76,21 @@ export function createId(): string {
 
 export function defaultType(kind: QueryParameterType['kind']): QueryParameterType {
     switch (kind) {
+        case 'Optional':
         case 'List':
             return {kind, item: {kind: 'String'}};
         case 'Tuple':
             return {kind, items: [{kind: 'String'}]};
         case 'Variant':
             return {kind, options: [{id: createId(), name: 'String', type: {kind: 'String'}}]};
+        case 'Struct':
+            return {kind, fields: [{id: createId(), name: 'field', type: {kind: 'String'}}]};
+        case 'Pg':
+            return {kind, name: 'text'};
+        case 'Enum':
+            return {kind, options: ['value']};
+        case 'Decimal':
+            return {kind};
         case 'Dict':
             return {kind, key: {kind: 'String'}, value: {kind: 'String'}};
         default:
@@ -35,6 +107,7 @@ export function validType(type: QueryParameterType, depth = 0): boolean {
         case 'Number':
         case 'Json':
             return true;
+        case 'Optional':
         case 'List':
             return validType(type.item, depth + 1);
         case 'Tuple':
@@ -45,31 +118,69 @@ export function validType(type: QueryParameterType, depth = 0): boolean {
             );
         case 'Dict':
             return validType(type.key, depth + 1) && validType(type.value, depth + 1);
-        case 'Variant': {
-            const ids = new Set<string>();
+        case 'Enum':
             return (
                 Array.isArray(type.options) &&
                 type.options.length > 0 &&
-                type.options.every((option) => {
+                type.options.every(
+                    (option) => typeof option === 'string' && Boolean(option.trim()),
+                ) &&
+                new Set(type.options).size === type.options.length
+            );
+        case 'Pg':
+            return typeof type.name === 'string' && Boolean(type.name.trim());
+        case 'Decimal':
+            return (
+                (type.precision === undefined && type.scale === undefined) ||
+                (typeof type.precision === 'number' &&
+                    typeof type.scale === 'number' &&
+                    Number.isInteger(type.precision) &&
+                    Number.isInteger(type.scale) &&
+                    type.precision > 0 &&
+                    type.scale >= 0 &&
+                    type.scale <= type.precision)
+            );
+        case 'Struct':
+        case 'Variant': {
+            const options = type.kind === 'Struct' ? type.fields : type.options;
+            const names = new Set<string>();
+            const ids = new Set<string>();
+            return (
+                Array.isArray(options) &&
+                (type.kind === 'Struct' || options.length > 0) &&
+                options.every((option) => {
                     if (!option || !option.id || ids.has(option.id) || !option.name?.trim())
                         return false;
+                    if (type.kind === 'Struct' && names.has(option.name)) return false;
+                    names.add(option.name);
                     ids.add(option.id);
                     return validType(option.type, depth + 1);
                 })
             );
         }
         default:
-            return false;
+            return parameterKinds.includes(type.kind);
     }
 }
 
 export function defaultValue(type: QueryParameterType): QueryParameterValue {
     if (!validType(type)) throw new Error(i18n('alert_invalid-type'));
     switch (type.kind) {
+        case 'Bool':
+            return false;
+        case 'Optional':
+        case 'Pg':
+            return null;
+        case 'Enum':
+            return type.options[0];
+        case 'Struct':
+            return type.fields.map((field) => ({id: field.id, value: defaultValue(field.type)}));
         case 'String':
             return '';
         case 'Number':
             return '0';
+        case 'JsonDocument':
+        case 'Yson':
         case 'Json':
             return '{}';
         case 'List':
@@ -80,13 +191,25 @@ export function defaultValue(type: QueryParameterType): QueryParameterValue {
         case 'Variant':
             return {optionId: type.options[0].id, value: defaultValue(type.options[0].type)};
         default:
-            throw new Error(i18n('alert_invalid-type'));
+            return isNumericType(type) ? '0' : '';
     }
 }
 
 export function formatType(type: QueryParameterType): string {
     if (!validType(type)) return i18n('alert_invalid-type');
     switch (type.kind) {
+        case 'Optional':
+            return `Optional<${formatType(type.item)}>`;
+        case 'Pg':
+            return `Pg<${type.name}>`;
+        case 'Enum':
+            return `Enum<${type.options.join(', ')}>`;
+        case 'Decimal':
+            return type.precision === undefined
+                ? 'Decimal'
+                : `Decimal(${type.precision}, ${type.scale})`;
+        case 'Struct':
+            return `Struct<${type.fields.map((field) => `${field.name}: ${formatType(field.type)}`).join(', ')}>`;
         case 'List':
             return `List<${formatType(type.item)}>`;
         case 'Tuple':
@@ -113,28 +236,41 @@ function valueErrors(
     const invalid = () => {
         errors[path] = i18n('alert_invalid-value');
     };
-    switch (type.kind) {
-        case 'String':
-        case 'Number':
-        case 'Json':
-            if (typeof value !== 'string') {
-                invalid();
-                return;
-            }
-            if (
-                type.kind === 'Number' &&
-                !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(value)
-            ) {
-                errors[path] = i18n('alert_invalid-number');
-            }
-            if (type.kind === 'Json') {
-                try {
-                    JSON.parse(value);
-                } catch {
-                    errors[path] = i18n('alert_invalid-json');
-                }
-            }
+    if (type.kind === 'Optional') {
+        if (value !== null) valueErrors(type.item, value, path, errors);
+        return;
+    }
+    if (isScalarType(type)) {
+        if (type.kind === 'Bool') {
+            if (typeof value !== 'boolean') invalid();
             return;
+        }
+        if (type.kind === 'Pg' && value === null) return;
+        if (typeof value !== 'string') {
+            invalid();
+            return;
+        }
+        if (isNumericType(type)) {
+            const integer = /^(?:Uint|Int|Interval)/.test(type.kind);
+            const unsigned = type.kind.startsWith('Uint');
+            const pattern = integer
+                ? unsigned
+                    ? /^\+?\d+$/
+                    : /^[+-]?\d+$/
+                : /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+            if (!pattern.test(value)) errors[path] = i18n('alert_invalid-number');
+        }
+        if (type.kind === 'Json' || type.kind === 'JsonDocument') {
+            try {
+                JSON.parse(value);
+            } catch {
+                errors[path] = i18n('alert_invalid-json');
+            }
+        }
+        if (type.kind === 'Enum' && !type.options.includes(value)) invalid();
+        return;
+    }
+    switch (type.kind) {
         case 'Variant': {
             if (!record(value)) {
                 invalid();
@@ -154,6 +290,14 @@ function valueErrors(
                 return;
             }
             if (type.kind === 'Tuple' && value.length !== type.items.length) invalid();
+            if (
+                type.kind === 'Struct' &&
+                (value.length !== type.fields.length ||
+                    type.fields.some(
+                        (field) => !value.some((item) => record(item) && item.id === field.id),
+                    ))
+            )
+                invalid();
             const ids = new Set<string>();
             const keys = new Set<string>();
             value.forEach((item, index) => {
@@ -181,7 +325,18 @@ function valueErrors(
                     }
                     valueErrors(type.value, item.value, `${itemPath}/value`, errors);
                 } else {
-                    const childType = type.kind === 'List' ? type.item : type.items[index];
+                    const childType =
+                        type.kind === 'List'
+                            ? type.item
+                            : type.kind === 'Tuple'
+                              ? type.items[index]
+                              : type.kind === 'Struct'
+                                ? type.fields.find((field) => field.id === item.id)?.type
+                                : undefined;
+                    if (!childType) {
+                        invalid();
+                        return;
+                    }
                     if (childType) valueErrors(childType, item.value, itemPath, errors);
                 }
             });
@@ -204,8 +359,7 @@ export function validateParameters(
         if (!parameter.id || (ids.get(parameter.id) ?? 0) > 1)
             errors.name = i18n('alert_duplicate-id');
         if (!parameter.deleted) {
-            if (!parameter.name.trim())
-                errors.name = i18n('alert_invalid-name');
+            if (!parameter.name.trim()) errors.name = i18n('alert_invalid-name');
             else if ((names.get(parameter.name) ?? 0) > 1)
                 errors.name = i18n('alert_duplicate-name');
             if (!validType(parameter.type)) errors.type = i18n('alert_invalid-type');
@@ -221,7 +375,16 @@ export function validateParameters(
 }
 
 function encode(type: QueryParameterType, value: QueryParameterValue): unknown {
-    if (typeof value === 'string') return value;
+    if (type.kind === 'Optional') return value === null ? null : encode(type.item, value);
+    if (value === null || typeof value === 'boolean' || typeof value === 'string') return value;
+    if (type.kind === 'Struct' && Array.isArray(value)) {
+        return Object.fromEntries(
+            type.fields.map((field) => [
+                field.name,
+                encode(field.type, value.find((item) => item.id === field.id)!.value),
+            ]),
+        );
+    }
     if (!Array.isArray(value)) {
         const option =
             type.kind === 'Variant' && type.options.find(({id}) => id === value.optionId);
@@ -255,19 +418,39 @@ function decode(
     previous?: QueryParameterValue,
 ): QueryParameterValue {
     const invalid = () => new Error(i18n('alert_invalid-raw'));
+    if (type.kind === 'Optional') return raw === null ? null : decode(type.item, raw, previous);
+    if (isScalarType(type)) {
+        if (type.kind === 'Bool' && typeof raw === 'boolean') return raw;
+        if (type.kind === 'Pg' && raw === null) return raw;
+        if (type.kind !== 'Bool' && typeof raw === 'string') return raw;
+        throw invalid();
+    }
     switch (type.kind) {
-        case 'String':
-        case 'Number':
-        case 'Json':
-            if (typeof raw !== 'string') throw invalid();
-            return raw;
+        case 'Struct': {
+            if (
+                !record(raw) ||
+                Object.keys(raw).length !== type.fields.length ||
+                type.fields.some((field) => !Object.prototype.hasOwnProperty.call(raw, field.name))
+            )
+                throw invalid();
+            return type.fields.map((field) => ({
+                id: field.id,
+                value: decode(
+                    field.type,
+                    raw[field.name],
+                    Array.isArray(previous)
+                        ? previous.find((item) => item.id === field.id)?.value
+                        : undefined,
+                ),
+            }));
+        }
         case 'Variant': {
             if (!record(raw)) throw invalid();
             const option = type.options.find(({id}) => id === raw.optionId);
             if (!option) throw invalid();
             const oldValue =
                 previous &&
-                typeof previous !== 'string' &&
+                typeof previous === 'object' &&
                 !Array.isArray(previous) &&
                 previous.optionId === option.id
                     ? previous.value
@@ -297,7 +480,13 @@ function decode(
                 return {
                     id,
                     value: decode(
-                        type.kind === 'List' ? type.item : type.items[index],
+                        type.kind === 'List'
+                            ? type.item
+                            : type.kind === 'Tuple'
+                              ? type.items[index]
+                              : (() => {
+                                    throw invalid();
+                                })(),
                         item,
                         oldItem?.value,
                     ),
