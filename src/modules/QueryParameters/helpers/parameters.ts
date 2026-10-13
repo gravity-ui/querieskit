@@ -1,6 +1,7 @@
 import type {
     QueryParameter,
     QueryParameterErrors,
+    QueryParameterNullLevel,
     QueryParameterType,
     QueryParameterValue,
 } from '../../../types/queryParameters';
@@ -52,9 +53,7 @@ export const parameterKinds: QueryParameterType['kind'][] = [
 ];
 
 export function isNumericType(type: QueryParameterType): boolean {
-    return /^(Number|Decimal|Double|DyNumber|Float|(?:Uint|Int)(?:8|16|32|64)|Interval(?:64)?)$/.test(
-        type.kind,
-    );
+    return /^(Number|Decimal|Double|DyNumber|Float|(?:Uint|Int)(?:8|16|32|64))$/.test(type.kind);
 }
 
 export function isTextType(type: QueryParameterType): boolean {
@@ -85,6 +84,8 @@ export function defaultType(kind: QueryParameterType['kind']): QueryParameterTyp
             return {kind, options: [{id: createId(), name: 'String', type: {kind: 'String'}}]};
         case 'Struct':
             return {kind, fields: [{id: createId(), name: 'field', type: {kind: 'String'}}]};
+        case 'Unknown':
+            return {kind, name: 'Unknown'};
         case 'Pg':
             return {kind, name: 'text'};
         case 'Enum':
@@ -127,6 +128,7 @@ export function validType(type: QueryParameterType, depth = 0): boolean {
                 ) &&
                 new Set(type.options).size === type.options.length
             );
+        case 'Unknown':
         case 'Pg':
             return typeof type.name === 'string' && Boolean(type.name.trim());
         case 'Decimal':
@@ -175,10 +177,25 @@ export function defaultValue(type: QueryParameterType): QueryParameterValue {
             return type.options[0];
         case 'Struct':
             return type.fields.map((field) => ({id: field.id, value: defaultValue(field.type)}));
+        case 'Interval':
+        case 'Interval64':
+            return 'PT0S';
+        case 'Date':
+        case 'Date32':
+            return '1970-01-01';
+        case 'Datetime':
+        case 'Datetime64':
+            return '1970-01-01T00:00:00Z';
+        case 'Timestamp':
+        case 'Timestamp64':
+            return '1970-01-01T00:00:00.000000Z';
+        case 'Uuid':
+            return '00000000-0000-0000-0000-000000000000';
         case 'String':
             return '';
         case 'Number':
             return '0';
+        case 'Unknown':
         case 'JsonDocument':
         case 'Yson':
         case 'Json':
@@ -200,6 +217,8 @@ export function formatType(type: QueryParameterType): string {
     switch (type.kind) {
         case 'Optional':
             return `Optional<${formatType(type.item)}>`;
+        case 'Unknown':
+            return type.name;
         case 'Pg':
             return `Pg<${type.name}>`;
         case 'Enum':
@@ -227,6 +246,89 @@ function record(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/** Collapse consecutive Optional wrappers, including the intrinsic nullable Pg level. */
+export function nullableInfo(type: QueryParameterType): {type: QueryParameterType; levels: number} {
+    let levels = 0;
+    while (type.kind === 'Optional' && levels <= MAX_DEPTH) {
+        levels++;
+        type = type.item;
+    }
+    if (type.kind === 'Pg') levels++;
+    return {type, levels};
+}
+
+export function isNullLevel(value: unknown): value is QueryParameterNullLevel {
+    return (
+        record(value) &&
+        value.kind === 'optional-null' &&
+        Object.keys(value).length === 2 &&
+        typeof value.depth === 'number' &&
+        Number.isInteger(value.depth) &&
+        value.depth > 0
+    );
+}
+
+export function isNullValue(type: QueryParameterType, value: unknown): boolean {
+    const {levels} = nullableInfo(type);
+    return levels > 0 && (value === null || (isNullLevel(value) && value.depth < levels));
+}
+
+export function parameterFormatExample(type: QueryParameterType): string | undefined {
+    switch (type.kind) {
+        case 'Date':
+        case 'Date32':
+            return '2026-10-13';
+        case 'Datetime':
+        case 'Datetime64':
+            return '2026-10-13T12:34:56Z';
+        case 'Timestamp':
+        case 'Timestamp64':
+            return '2026-10-13T12:34:56.123456Z';
+        case 'Interval':
+        case 'Interval64':
+            return 'PT1M30S';
+        case 'Uuid':
+            return '12345678-1234-1234-1234-123456789abc';
+        case 'Json':
+        case 'JsonDocument':
+        case 'Yson':
+        case 'Unknown':
+            return '{"key": "value"}';
+        default:
+            return undefined;
+    }
+}
+
+function validDateValue(kind: string, value: string): boolean {
+    const extended = /(?:32|64)$/.test(kind);
+    const year = extended ? '[+-]?\\d{1,6}' : '\\d{4}';
+    const date = `(${year})-(\\d{2})-(\\d{2})`;
+    const dateOnly = /^Date(?:32)?$/.test(kind);
+    const fraction = kind.startsWith('Timestamp') ? '(?:\\.\\d{1,6})?' : '';
+    const pattern = new RegExp(
+        `^${date}${dateOnly ? '' : `T(\\d{2}):(\\d{2}):(\\d{2})${fraction}Z`}$`,
+    );
+    const match = pattern.exec(value);
+    if (!match) return false;
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    return (
+        month >= 1 &&
+        month <= 12 &&
+        day >= 1 &&
+        day <= 31 &&
+        (dateOnly || (Number(match[4]) <= 23 && Number(match[5]) <= 59 && Number(match[6]) <= 59))
+    );
+}
+
+function validInterval(value: string): boolean {
+    return (
+        /^-?P(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d{1,6})?S)?)?$/.test(value) &&
+        /\d/.test(value) &&
+        !value.endsWith('T')
+    );
+}
+
 function valueErrors(
     type: QueryParameterType,
     value: unknown,
@@ -237,7 +339,8 @@ function valueErrors(
         errors[path] = i18n('alert_invalid-value');
     };
     if (type.kind === 'Optional') {
-        if (value !== null) valueErrors(type.item, value, path, errors);
+        if (isNullValue(type, value)) return;
+        valueErrors(nullableInfo(type).type, value, path, errors);
         return;
     }
     if (isScalarType(type)) {
@@ -251,7 +354,7 @@ function valueErrors(
             return;
         }
         if (isNumericType(type)) {
-            const integer = /^(?:Uint|Int|Interval)/.test(type.kind);
+            const integer = /^(?:Uint|Int)/.test(type.kind);
             const unsigned = type.kind.startsWith('Uint');
             const pattern = integer
                 ? unsigned
@@ -260,13 +363,25 @@ function valueErrors(
                 : /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
             if (!pattern.test(value)) errors[path] = i18n('alert_invalid-number');
         }
-        if (type.kind === 'Json' || type.kind === 'JsonDocument') {
+        if (isDocumentType(type) || type.kind === 'Unknown') {
             try {
                 JSON.parse(value);
             } catch {
                 errors[path] = i18n('alert_invalid-json');
             }
         }
+        if (
+            /^(Date(?:32)?|Datetime(?:64)?|Timestamp(?:64)?)$/.test(type.kind) &&
+            !validDateValue(type.kind, value)
+        )
+            errors[path] = i18n('alert_invalid-date');
+        if ((type.kind === 'Interval' || type.kind === 'Interval64') && !validInterval(value))
+            errors[path] = i18n('alert_invalid-interval');
+        if (
+            type.kind === 'Uuid' &&
+            !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+        )
+            errors[path] = i18n('alert_invalid-uuid');
         if (type.kind === 'Enum' && !type.options.includes(value)) invalid();
         return;
     }
@@ -375,7 +490,9 @@ export function validateParameters(
 }
 
 function encode(type: QueryParameterType, value: QueryParameterValue): unknown {
-    if (type.kind === 'Optional') return value === null ? null : encode(type.item, value);
+    if (isNullValue(type, value)) return value;
+    if (isNullLevel(value)) throw new Error(i18n('alert_invalid-raw'));
+    if (type.kind === 'Optional') return encode(nullableInfo(type).type, value);
     if (value === null || typeof value === 'boolean' || typeof value === 'string') return value;
     if (type.kind === 'Struct' && Array.isArray(value)) {
         return Object.fromEntries(
@@ -418,7 +535,8 @@ function decode(
     previous?: QueryParameterValue,
 ): QueryParameterValue {
     const invalid = () => new Error(i18n('alert_invalid-raw'));
-    if (type.kind === 'Optional') return raw === null ? null : decode(type.item, raw, previous);
+    if (isNullValue(type, raw)) return raw as null | QueryParameterNullLevel;
+    if (type.kind === 'Optional') return decode(nullableInfo(type).type, raw, previous);
     if (isScalarType(type)) {
         if (type.kind === 'Bool' && typeof raw === 'boolean') return raw;
         if (type.kind === 'Pg' && raw === null) return raw;
@@ -452,6 +570,7 @@ function decode(
                 previous &&
                 typeof previous === 'object' &&
                 !Array.isArray(previous) &&
+                'optionId' in previous &&
                 previous.optionId === option.id
                     ? previous.value
                     : undefined;

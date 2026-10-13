@@ -72,5 +72,11 @@
   "value_field": "{{count}} field",
   "value_fields": "{{count}} fields",
   "field_precision": "Precision",
-  "field_scale": "Scale"
+  "field_scale": "Scale",
+  "alert_invalid-date": "Enter a valid date/time in the indicated format.",
+  "alert_invalid-interval": "Enter a duration, for example PT1M30S.",
+  "alert_invalid-uuid": "Enter a UUID in 8-4-4-4-12 format.",
+  "action_edit-document": "Edit document",
+  "field_null-level": "NULL level",
+  "context_format": "Format: {{format}}"
 }

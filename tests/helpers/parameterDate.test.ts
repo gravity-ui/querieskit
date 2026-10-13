@@ -7,6 +7,7 @@ import {
 
 describe('parameter calendar dates', () => {
     it.each([
+        ['Timestamp64', '-1-02-15T12:34:56.123456Z', '2026-03-10T12:34:56.123456Z'],
         ['Timestamp', '2025-02-15T12:34:56.123456Z', '2026-03-10T12:34:56.123456Z'],
         [
             'TzTimestamp',

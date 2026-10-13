@@ -331,7 +331,7 @@ export function QueryParameters({
                                         className={block('empty')}
                                     />
                                 )}
-                                <Flex direction="column" gap={editing && expanded ? 4 : 6}>
+                                <Flex direction="column" gap={5}>
                                     {current.map((parameter, index) => {
                                         const original = session?.original.find(
                                             (item) => item.id === parameter.id,
@@ -400,7 +400,7 @@ export function QueryParameters({
                                         className={block('empty')}
                                     />
                                 )}
-                                <Flex direction="column" gap={6}>
+                                <Flex direction="column" gap={5}>
                                     {deleted.map((parameter, index) => (
                                         <div key={parameter.id} hidden={!matches(parameter)}>
                                             <ParameterRow
@@ -438,6 +438,7 @@ export function QueryParameters({
                         </Button>
                     ) : tab === 'deleted' && deleted.length > 0 ? (
                         <Button
+                            view="flat-secondary"
                             onClick={() => commit(value.filter((parameter) => !parameter.deleted))}
                             disabled={locked}
                             loading={pending === 'save'}

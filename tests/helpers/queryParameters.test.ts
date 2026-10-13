@@ -6,9 +6,13 @@ import {
     escapeString,
     formatType,
     fromRaw,
+    isNullLevel,
+    isNullValue,
+    nullableInfo,
     parameterKinds,
     toRaw,
     unescapeString,
+    validType,
     validateParameters,
 } from '../../src/modules/QueryParameters/helpers/parameters';
 
@@ -209,9 +213,140 @@ describe('extended parameter schemas', () => {
             validateParameters([parameter({type, value: invalid})]).p.value?.['$/enabled-id'],
         ).toBeTruthy();
     });
-    it('validates JSON documents but leaves engine-specific YSON syntax intact', () => {
+    it('validates JSON documents and Yson as JSON without rewriting text', () => {
         expect(() => fromRaw({kind: 'JsonDocument'}, '"not json"')).toThrow();
-        const yson = '{foo=42;bar=#;}';
+        expect(() => fromRaw({kind: 'Yson'}, JSON.stringify('{foo=42;}'))).toThrow();
+        const yson = ' {"n":900719925474099312345, "nil":null} ';
         expect(fromRaw({kind: 'Yson'}, toRaw({kind: 'Yson'}, yson))).toBe(yson);
+    });
+});
+
+describe('format validation', () => {
+    it.each([
+        ['Date', '2026-10-13'],
+        ['Date32', '-123456-01-31'],
+        ['Date32', '1-01-01'],
+        ['Datetime64', '+123456-12-31T23:59:59Z'],
+        ['Timestamp', '2026-10-13T12:34:56.123456Z'],
+        ['Timestamp64', '-0001-01-01T00:00:00.1Z'],
+        ['Datetime', '2026-10-13T00:00:00Z'],
+        ['Interval', 'PT0S'],
+        ['Interval64', '-P1D'],
+        ['Interval', 'P1W2DT3000H4M5.123456S'],
+        ['Uuid', 'ABCDEF12-1234-0000-FFFF-123456789abc'],
+    ])('accepts %s %s and preserves its exact text', (kind, value) => {
+        const type = {kind} as QueryParameterType;
+        expect(validateParameters([parameter({type, value})])).toEqual({});
+        expect(fromRaw(type, toRaw(type, value))).toBe(value);
+    });
+    it.each([
+        ['Date', '-0001-01-01'],
+        ['Date', '2026-00-01'],
+        ['Date', '2026-13-01'],
+        ['Date', '2026-01-00'],
+        ['Date32', '1234567-01-01'],
+        ['Date', '2026-01-32'],
+        ['Datetime', '2026-01-01T24:00:00Z'],
+        ['Datetime', '2026-01-01T12:60:00Z'],
+        ['Datetime', '2026-01-01T12:00:60Z'],
+        ['Datetime', '2026-01-01T12:00:00.1Z'],
+        ['Timestamp', '2026-01-01T12:00:00.1234567Z'],
+        ['Timestamp', '2026-01-01T12:00:00'],
+        ['Timestamp', '2026-01-01T12:00:00+03:00'],
+        ['Interval', '90'],
+        ['Interval', 'P'],
+        ['Interval', 'PT'],
+        ['Interval', 'P1DT'],
+        ['Interval', 'P1Y'],
+        ['Interval', 'P1M'],
+        ['Interval', 'PT1.1234567S'],
+        ['Uuid', '123456781234123412341234567890ab'],
+        ['Uuid', 'zzzzzzzz-1234-1234-1234-123456789abc'],
+    ])('rejects %s %s', (kind, value) => {
+        expect(
+            validateParameters([parameter({type: {kind} as QueryParameterType, value})]).p.value?.$,
+        ).toBeTruthy();
+    });
+    it('leaves timezone types and Utf8 unchecked', () => {
+        for (const kind of [
+            'TzDate',
+            'TzDate32',
+            'TzDatetime',
+            'TzDatetime64',
+            'TzTimestamp',
+            'TzTimestamp64',
+            'Utf8',
+        ] as const) {
+            expect(
+                validateParameters([parameter({type: {kind}, value: 'arbitrary input'})]),
+            ).toEqual({});
+        }
+    });
+});
+
+describe('nested nullable levels', () => {
+    const type: QueryParameterType = {
+        kind: 'Optional',
+        item: {kind: 'Optional', item: {kind: 'Int32'}},
+    };
+    it('distinguishes outer NULL, inner NULL and present values', () => {
+        expect(nullableInfo(type)).toEqual({type: {kind: 'Int32'}, levels: 2});
+        for (const value of [null, {kind: 'optional-null' as const, depth: 1}, '42']) {
+            expect(fromRaw(type, toRaw(type, value))).toEqual(value);
+        }
+        expect(isNullValue(type, null)).toBe(true);
+        expect(isNullValue({kind: 'Int32'}, null)).toBe(false);
+    });
+    it('counts Pg as its own nullable level', () => {
+        const pg: QueryParameterType = {kind: 'Optional', item: {kind: 'Pg', name: 'text'}};
+        expect(nullableInfo(pg).levels).toBe(2);
+        expect(fromRaw(pg, '{"kind":"optional-null","depth":1}')).toEqual({
+            kind: 'optional-null',
+            depth: 1,
+        });
+        expect(() =>
+            fromRaw({kind: 'Pg', name: 'text'}, '{"kind":"optional-null","depth":1}'),
+        ).toThrow();
+    });
+    it('rejects invalid depths and marker shapes', () => {
+        for (const depth of [-1, 0, 1.5, 2, 3, '1']) {
+            expect(() => fromRaw(type, JSON.stringify({kind: 'optional-null', depth}))).toThrow();
+        }
+        expect(isNullLevel({kind: 'optional-null', depth: 1, extra: true})).toBe(false);
+        expect(() => fromRaw(type, '{"kind":"optional-null","depth":1,"extra":true}')).toThrow();
+        expect(() => fromRaw({kind: 'String'}, '{"kind":"optional-null","depth":1}')).toThrow();
+    });
+    it('roundtrips markers inside collections without losing stable IDs', () => {
+        const list: QueryParameterType = {kind: 'List', item: type};
+        const value = [
+            {id: 'outer', value: null},
+            {id: 'inner', value: {kind: 'optional-null' as const, depth: 1}},
+            {id: 'present', value: '42'},
+        ];
+        expect(fromRaw(list, toRaw(list, value), value)).toEqual(value);
+        const invalid = [{id: 'inner', value: {kind: 'optional-null' as const, depth: 2}}];
+        expect(
+            validateParameters([parameter({type: list, value: invalid})]).p.value?.['$/inner'],
+        ).toBeTruthy();
+    });
+});
+
+describe('unknown schemas', () => {
+    const type: QueryParameterType = {kind: 'Unknown', name: 'FutureType'};
+    it('preserves JSON text and exposes the original type name without adding a picker choice', () => {
+        expect(validType(type)).toBe(true);
+        expect(formatType(type)).toBe('FutureType');
+        expect(parameterKinds).not.toContain('Unknown');
+        const value = ' {"n":900719925474099312345} ';
+        expect(fromRaw(type, toRaw(type, value))).toBe(value);
+        const list: QueryParameterType = {kind: 'List', item: type};
+        expect(JSON.parse(toRaw(list, [{id: 'u', value}]))).toEqual([value]);
+    });
+    it('rejects invalid JSON and malformed schemas', () => {
+        expect(
+            validateParameters([parameter({type, value: 'raw invalid text'})]).p.value?.$,
+        ).toBeTruthy();
+        expect(validType({kind: 'Unknown', name: ''})).toBe(false);
+        expect(validType({kind: 'FutureType'} as unknown as QueryParameterType)).toBe(false);
     });
 });

@@ -60,7 +60,6 @@
 
     &__type-grid {
         display: grid;
-        grid-template-columns: 448px 720px 448px;
         column-gap: calc(2 * var(--g-spacing-6));
         row-gap: var(--g-spacing-5);
         align-items: start;

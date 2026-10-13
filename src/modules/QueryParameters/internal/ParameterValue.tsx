@@ -19,6 +19,7 @@ import ResetIcon from '@gravity-ui/icons/svgs/arrow-rotate-left.svg';
 import PlusIcon from '@gravity-ui/icons/svgs/plus.svg';
 import RawIcon from './icons/RawIcon';
 import BinaryIcon from './icons/BinaryIcon';
+import {ParameterDocument} from './ParameterDocument';
 import {ParameterDateInput} from './ParameterDateInput';
 import type {
     QueryParameterEntry,
@@ -33,9 +34,13 @@ import {
     formatType,
     fromRaw,
     isDocumentType,
+    isNullLevel,
+    isNullValue,
     isNumericType,
     isScalarType,
     isTextType,
+    nullableInfo,
+    parameterFormatExample,
     toRaw,
     unescapeString,
     validType,
@@ -50,6 +55,7 @@ type Props = {
     initialValue?: QueryParameterValue;
     header?: React.ReactNode;
     horizontal?: boolean;
+    nullActive?: boolean;
     onChange: (value: QueryParameterValue) => void;
     onReset?: () => void;
     editing: boolean;
@@ -62,11 +68,12 @@ type Props = {
 };
 
 function isDateType(type: QueryParameterType) {
-    return /^(Tz)?(Date|Date32|Datetime|Datetime64|Timestamp|Timestamp64)$/.test(type.kind);
+    return /^(Date|Date32|Datetime|Datetime64|Timestamp|Timestamp64)$/.test(type.kind);
 }
 
 function shapeValid(type: QueryParameterType, value: QueryParameterValue): boolean {
-    if (type.kind === 'Optional') return value === null || shapeValid(type.item, value);
+    if (type.kind === 'Optional')
+        return isNullValue(type, value) || shapeValid(nullableInfo(type).type, value);
     if (type.kind === 'Pg') return value === null || typeof value === 'string';
     if (type.kind === 'Bool') return typeof value === 'boolean';
     if (
@@ -92,6 +99,7 @@ function shapeValid(type: QueryParameterType, value: QueryParameterValue): boole
             value &&
             typeof value === 'object' &&
             !Array.isArray(value) &&
+            'optionId' in value &&
             typeof value.optionId === 'string' &&
             'value' in value,
         );
@@ -117,67 +125,113 @@ function NullableValue(
 ) {
     const {type, value, initialValue, editing, horizontal, header, disabled, label, onChange} =
         props;
-    const childType = type.kind === 'Optional' ? type.item : type;
-    const lastValue = useRef<QueryParameterValue | undefined>(value === null ? undefined : value);
-    if (value !== null) lastValue.current = value;
+    const {type: childType, levels} = nullableInfo(type);
+    const nullActive = isNullValue(type, value);
+    const lastValue = useRef<QueryParameterValue | undefined>(nullActive ? undefined : value);
+    if (!nullActive) lastValue.current = value;
+    const [level, setLevel] = useState(isNullLevel(value) ? value.depth : 0);
+    const selectedLevel = nullActive ? (isNullLevel(value) ? value.depth : 0) : level;
     const [revision, setRevision] = useState(0);
+    // Keep child drafts mounted, but suspend their validity while the NULL value is active.
+    const pending = useRef(new Set<string>());
+    const validity = useRef(props.onValidityChange);
+    validity.current = props.onValidityChange;
+    const active = useRef(nullActive);
+    active.current = nullActive;
+    const reportValidity = useCallback((path: string, invalid: boolean) => {
+        if (invalid) pending.current.add(path);
+        else pending.current.delete(path);
+        validity.current?.(path, invalid && !active.current);
+    }, []);
+    useEffect(() => {
+        pending.current.forEach((path) => validity.current?.(path, !nullActive));
+    }, [nullActive]);
     const reset = () => {
         const next = initialValue === undefined ? defaultValue(type) : initialValue;
-        lastValue.current = next === null ? undefined : next;
+        lastValue.current = isNullValue(type, next) ? undefined : next;
+        setLevel(isNullLevel(next) ? next.depth : 0);
+        pending.current.forEach((path) => validity.current?.(path, false));
+        pending.current.clear();
         setRevision((current) => current + 1);
         onChange(next);
     };
-    const child =
-        value !== null &&
-        (type.kind === 'Optional' ? (
-            <ParameterValue
-                {...props}
-                key={revision}
-                type={childType}
-                header={undefined}
-                horizontal={false}
-                onReset={reset}
-            />
-        ) : (
-            <ParameterValueContent
-                {...props}
-                key={revision}
-                header={undefined}
-                horizontal={false}
-                onReset={reset}
-            />
-        ));
+    const childValue = nullActive
+        ? (lastValue.current ?? (childType.kind === 'Pg' ? '' : defaultValue(childType)))
+        : value;
+    const child = (
+        <ParameterValueContent
+            {...props}
+            key={revision}
+            type={childType}
+            value={childValue}
+            header={undefined}
+            horizontal={false}
+            nullActive={nullActive}
+            disabled={disabled || nullActive}
+            errors={nullActive ? undefined : props.errors}
+            onValidityChange={reportValidity}
+            onReset={reset}
+        />
+    );
     if (!editing)
         return (
             <Flex direction="column" gap={1} className={block(null, props.className)}>
                 {header}
-                {value === null ? <Text>NULL</Text> : child}
+                {nullActive ? (
+                    <Text
+                        title={`${i18n('field_null-level')}: ${selectedLevel + 1}`}
+                        aria-label={`NULL: ${i18n('field_null-level')} ${selectedLevel + 1}`}
+                    >
+                        NULL
+                    </Text>
+                ) : (
+                    child
+                )}
             </Flex>
         );
     return (
         <div className={block({nullable: true, horizontal}, props.className)}>
             <div className={block('header')}>{header}</div>
-            <Switch
-                className={block('null-switch')}
-                size="s"
-                checked={value === null}
-                disabled={disabled}
-                controlProps={{'aria-label': `NULL: ${label}`}}
-                onUpdate={(checked) =>
-                    onChange(
-                        checked
-                            ? null
-                            : (lastValue.current ??
-                                  initialValue ??
-                                  (type.kind === 'Pg' ? '' : defaultValue(type.item))),
-                    )
-                }
-            >
-                NULL
-            </Switch>
+            <Flex gap={2} alignItems="center" className={block('null-controls')}>
+                <Switch
+                    size="m"
+                    checked={nullActive}
+                    disabled={disabled}
+                    controlProps={{'aria-label': `NULL: ${label}`}}
+                    onUpdate={(checked) => {
+                        setLevel(selectedLevel);
+                        onChange(
+                            checked
+                                ? selectedLevel === 0
+                                    ? null
+                                    : {kind: 'optional-null', depth: selectedLevel}
+                                : childValue,
+                        );
+                    }}
+                >
+                    NULL
+                </Switch>
+                {levels > 1 && (
+                    <Select
+                        size="m"
+                        aria-label={`${i18n('field_null-level')}: ${label}`}
+                        value={[String(selectedLevel)]}
+                        disabled={disabled || !nullActive}
+                        options={Array.from({length: levels}, (_, depth) => ({
+                            value: String(depth),
+                            content: String(depth + 1),
+                        }))}
+                        onUpdate={([next]) => {
+                            const depth = Number(next);
+                            setLevel(depth);
+                            onChange(depth === 0 ? null : {kind: 'optional-null', depth});
+                        }}
+                    />
+                )}
+            </Flex>
             <div className={block('content')}>
                 {child}
-                {value === null && props.errors?.[props.path ?? '$'] && (
+                {nullActive && props.errors?.[props.path ?? '$'] && (
                     <Text color="danger" role="alert">
                         {props.errors[props.path ?? '$']}
                     </Text>
@@ -233,7 +287,11 @@ function StructValue(props: Props & {type: Extract<QueryParameterType, {kind: 'S
 }
 
 function needsEscapes(type: QueryParameterType, value: QueryParameterValue) {
-    return isTextType(type) && typeof value === 'string' && /[\r\n]/.test(value);
+    return (
+        (type.kind === 'String' || type.kind === 'Pg') &&
+        typeof value === 'string' &&
+        /[\r\n]/.test(value)
+    );
 }
 
 /** Representation drafts stay local until they can be decoded without losing data. */
@@ -404,7 +462,7 @@ function ParameterValueContent(props: Props) {
                 onReset={reset}
             />
         ) : null;
-    const error = representation.error || errors?.[path];
+    const error = props.nullActive ? undefined : representation.error || errors?.[path];
     const collection = Array.isArray(value) ? value : [];
     const contentProps = {...props, onValidityChange: childValidity};
     let content: React.ReactNode;
@@ -475,7 +533,7 @@ function ParameterValueContent(props: Props) {
                     actions={actions}
                 />
             )}
-            <div className={block('content')} hidden={!expanded}>
+            <div className={block('content')} hidden={!expanded || (props.nullActive && !scalar)}>
                 {content}
             </div>
             {error && !scalar && representation.mode !== 'raw' && (
@@ -508,8 +566,13 @@ function BoxHeader({
     count: number;
     actions: React.ReactNode;
 }) {
-    const collapsible = ['Dict', 'Variant', 'Struct'].includes(type.kind);
-    const elements = type.kind === 'Struct' ? type.fields.length : count;
+    const collapsible = ['Dict', 'Variant', 'Struct', 'Tuple'].includes(type.kind);
+    const elements =
+        type.kind === 'Struct'
+            ? type.fields.length
+            : type.kind === 'Variant'
+              ? type.options.length
+              : count;
     return (
         <Flex alignItems="center" gap={1} className={block('box-header', className)}>
             {collapsible && (
@@ -602,11 +665,30 @@ function ScalarValue({
     actions,
     representation,
     error,
+    nullActive,
 }: Props & {
     actions: React.ReactNode;
     representation: ReturnType<typeof useRepresentation>;
     error?: string;
 }) {
+    if (isDocumentType(type))
+        return (
+            <Flex direction="column" gap={1}>
+                <ParameterDocument
+                    value={nullActive ? '' : String(value)}
+                    onUpdate={onChange}
+                    editing={editing}
+                    disabled={disabled}
+                    label={label}
+                    error={error}
+                />
+                {!editing && error && (
+                    <Text color="danger" role="alert">
+                        {error}
+                    </Text>
+                )}
+            </Flex>
+        );
     if (!editing)
         return (
             <Flex direction="column" gap={1}>
@@ -622,31 +704,36 @@ function ScalarValue({
                 )}
             </Flex>
         );
-    const text = representation.mode ? representation.text : String(value);
+    const text = nullActive ? '' : representation.mode ? representation.text : String(value);
     const update = representation.mode ? representation.update : onChange;
+    const format = parameterFormatExample(type);
     const controlProps = {
+        title: format ? i18n('context_format', {format}) : undefined,
         'aria-label': representation.mode
             ? `${representation.mode === 'raw' ? 'RAW' : i18n('action_escaped')}: ${label}`
             : label,
     };
-    if (isDocumentType(type))
+    if (type.kind === 'Unknown')
         return (
-            <TextArea
-                value={text}
-                onUpdate={update}
-                disabled={disabled}
-                minRows={3}
-                maxRows={12}
-                controlProps={controlProps}
-                validationState={error ? 'invalid' : undefined}
-                errorMessage={error}
-            />
+            <Flex gap={1} alignItems="flex-start">
+                <TextArea
+                    className={block('cell')}
+                    value={text}
+                    onUpdate={onChange}
+                    disabled={disabled}
+                    minRows={3}
+                    controlProps={{'aria-label': `RAW: ${label}`}}
+                    validationState={error ? 'invalid' : undefined}
+                    errorMessage={error}
+                />
+                {actions}
+            </Flex>
         );
     if (type.kind === 'Bool')
         return (
             <Flex direction="column" gap={1}>
                 <SegmentedRadioGroup
-                    value={String(value)}
+                    value={nullActive ? '' : String(value)}
                     onUpdate={(next) => onChange(next === 'true')}
                     disabled={disabled}
                     aria-label={label}
@@ -668,7 +755,7 @@ function ScalarValue({
                 <Select
                     className={block('cell')}
                     width="max"
-                    value={[String(value)]}
+                    value={nullActive ? [] : [String(value)]}
                     options={type.options.map((option) => ({value: option, content: option}))}
                     onUpdate={([next]) => {
                         if (next !== undefined) onChange(next);
@@ -689,6 +776,7 @@ function ScalarValue({
                         value={text}
                         onUpdate={update}
                         kind={type.kind}
+                        placeholder={parameterFormatExample(type)}
                         label={label}
                         disabled={disabled}
                         error={error}
@@ -699,7 +787,7 @@ function ScalarValue({
         );
     return (
         <Flex gap={1} alignItems="flex-start">
-            {(type.kind === 'String' || representation.multiline) && (
+            {(type.kind === 'String' || type.kind === 'Pg') && (
                 <Button
                     view="outlined"
                     size="m"
@@ -720,6 +808,7 @@ function ScalarValue({
                 className={block('cell')}
                 size="m"
                 value={text}
+                placeholder={parameterFormatExample(type)}
                 onUpdate={update}
                 disabled={disabled}
                 controlProps={controlProps}
@@ -869,6 +958,9 @@ function DictEntry(
 ) {
     const {type, entry, initial, index, value, onChange, editing, disabled} = props;
     const entries = value as QueryParameterEntry[];
+    const [generation, setGeneration] = useState(0);
+    const {pending, childValidity, clearChildren} = useChildValidity(props.onValidityChange);
+    const childrenProps = {...props, onValidityChange: childValidity};
     const update = (next: QueryParameterEntry) =>
         onChange(entries.map((item) => (item.id === entry.id ? next : item)));
     const pairType: QueryParameterType = {kind: 'Tuple', items: [type.key, type.value]};
@@ -901,10 +993,12 @@ function DictEntry(
             label={pairProps.label}
             disabled={disabled}
             raw={representation.mode === 'raw'}
-            rawDisabled={representation.invalid}
+            rawDisabled={representation.invalid || pending.size > 0}
             onRaw={() => representation.toggle('raw')}
             onReset={() => {
                 representation.clear();
+                clearChildren();
+                setGeneration((current) => current + 1);
                 update({
                     ...entry,
                     key: initial?.key ?? defaultValue(type.key),
@@ -931,10 +1025,10 @@ function DictEntry(
         );
     if (!paired)
         return (
-            <Flex direction="column" gap={2}>
+            <Flex key={generation} direction="column" gap={2}>
                 <ParameterValue
                     {...childProps(
-                        props,
+                        childrenProps,
                         type.key,
                         entry.key,
                         initial?.key,
@@ -945,7 +1039,7 @@ function DictEntry(
                 />
                 <ParameterValue
                     {...childProps(
-                        props,
+                        childrenProps,
                         type.value,
                         entry.value,
                         initial?.value,
@@ -957,24 +1051,22 @@ function DictEntry(
             </Flex>
         );
     return (
-        <Flex gap={2} alignItems="flex-start">
+        <Flex key={generation} gap={2} alignItems="flex-start">
             {(['key', 'value'] as const).map((field) => {
-                const error = props.errors?.[`${pairProps.path}/${field}`];
-                const label = `${pairProps.label}: ${i18n(field === 'key' ? 'field_key' : 'field_value')}`;
                 return editing ? (
-                    <TextInput
-                        key={field}
-                        className={block('cell')}
-                        size="m"
-                        value={String(entry[field])}
-                        onUpdate={(next) => update({...entry, [field]: next})}
-                        disabled={disabled}
-                        placeholder={i18n(field === 'key' ? 'field_key' : 'field_value')}
-                        controlProps={{'aria-label': label}}
-                        validationState={error ? 'invalid' : undefined}
-                        errorMessage={error}
-                        endContent={field === 'value' ? actions : undefined}
-                    />
+                    <div key={field} className={block('cell')}>
+                        <ParameterValue
+                            {...childProps(
+                                childrenProps,
+                                field === 'key' ? type.key : type.value,
+                                entry[field],
+                                initial?.[field],
+                                `${entry.id}/${field}`,
+                                `${index + 1}: ${i18n(field === 'key' ? 'field_key' : 'field_value')}`,
+                                (next) => update({...entry, [field]: next}),
+                            )}
+                        />
+                    </div>
                 ) : (
                     <pre key={field} className={block('text', {paired: true})}>
                         {field === 'value' && isTextType(type.value)
@@ -983,6 +1075,7 @@ function DictEntry(
                     </pre>
                 );
             })}
+            {actions}
         </Flex>
     );
 }
@@ -993,7 +1086,10 @@ function VariantValue(
     const {type, value, initialValue, editing, disabled, pending, onChange} = props;
     const selected = value as {optionId: string; value: QueryParameterValue};
     const baseline =
-        initialValue && typeof initialValue === 'object' && !Array.isArray(initialValue)
+        initialValue &&
+        typeof initialValue === 'object' &&
+        !Array.isArray(initialValue) &&
+        'optionId' in initialValue
             ? initialValue
             : undefined;
     const [drafts] = useState(

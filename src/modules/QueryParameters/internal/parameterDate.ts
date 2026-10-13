@@ -1,6 +1,6 @@
 import {dateTime} from '@gravity-ui/date-utils';
 
-const DATE_PREFIX = /^([+-]?\d{4,6}-\d{2}-\d{2})(.*)$/;
+const DATE_PREFIX = /^([+-]?\d{1,6}-\d{2}-\d{2})(.*)$/;
 
 export function getParameterCalendarDate(value: string) {
     const prefix = DATE_PREFIX.exec(value)?.[1];

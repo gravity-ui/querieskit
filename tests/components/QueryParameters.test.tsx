@@ -630,7 +630,10 @@ describe('QueryParameters', () => {
             ],
         });
         await click('Edit');
-        expect(container.querySelector('button[aria-label="RAW: $mapping: 1: Key"]')).toBeNull();
+        expect(button('Escaped string: $mapping: 1: Key')).toBeDefined();
+        expect(
+            container.querySelector('button[aria-label="Escaped string: $mapping: 1: Value"]'),
+        ).toBeNull();
         expect(container.querySelector('button[aria-label="RAW: $mapping: 1: Value"]')).toBeNull();
         await click('RAW: $mapping: 1');
         change('RAW: $mapping: 1', '["changed", "20"]');
@@ -823,7 +826,8 @@ describe('QueryParameters', () => {
         toggle();
         change('$optional', 'kept');
         toggle();
-        expect(container.querySelector('input[aria-label="$optional"]')).toBeNull();
+        expect(field('$optional').disabled).toBe(true);
+        expect(field('$optional').value).toBe('');
         toggle();
         expect(field('$optional').value).toBe('kept');
         await click('Reset value: $optional');
@@ -909,14 +913,14 @@ describe('QueryParameters', () => {
         expect(lastValue()[0].value).toEqual([{id: 'entry', key: 'key', value: 'first\nsecond'}]);
     });
 
-    it('chooses a calendar date without changing microseconds or timezone', async () => {
+    it('chooses a calendar date without changing microseconds or the UTC suffix', async () => {
         render({
             value: [
                 {
                     id: 'date',
                     name: 'date',
-                    type: {kind: 'TzTimestamp'},
-                    value: '2025-01-01T12:30:00.123456,Europe/Moscow',
+                    type: {kind: 'Timestamp'},
+                    value: '2025-01-01T12:30:00.123456Z',
                 },
             ],
         });
@@ -927,8 +931,197 @@ describe('QueryParameters', () => {
         ].find((node) => node.textContent === '2');
         expect(secondDay).toBeDefined();
         await act(async () => secondDay!.click());
-        expect(field('$date').value).toBe('2025-01-02T12:30:00.123456,Europe/Moscow');
+        expect(field('$date').value).toBe('2025-01-02T12:30:00.123456Z');
         await click('Save');
-        expect(lastValue()[0].value).toBe('2025-01-02T12:30:00.123456,Europe/Moscow');
+        expect(lastValue()[0].value).toBe('2025-01-02T12:30:00.123456Z');
+    });
+    it.each(['escaped', 'raw'] as const)(
+        'suspends and restores invalid nullable %s drafts',
+        async (mode) => {
+            render({
+                value: [
+                    {
+                        id: 'p',
+                        name: 'p',
+                        type: {kind: 'Optional', item: {kind: 'String'}},
+                        value: 'kept',
+                    },
+                ],
+            });
+            await click('Edit');
+            const editor = mode === 'raw' ? 'RAW: $p' : 'Escaped string: $p';
+            await click(editor);
+            const unfinished = mode === 'raw' ? '{' : String.raw`\x`;
+            change(editor, unfinished);
+            expect(button('Save').disabled).toBe(true);
+            act(() => field('NULL: $p').click());
+            expect(field(editor).disabled).toBe(true);
+            expect(field(editor).value).toBe('');
+            expect(button('Save').disabled).toBe(false);
+            act(() => field('NULL: $p').click());
+            expect(field(editor).value).toBe(unfinished);
+            expect(button('Save').disabled).toBe(true);
+            act(() => field('NULL: $p').click());
+            await click('Save');
+            expect(lastValue()[0].value).toBeNull();
+        },
+    );
+
+    it('retains invalid child RAW when a nullable container is disabled then restored', async () => {
+        render({
+            value: [
+                {
+                    id: 'p',
+                    name: 'p',
+                    type: {kind: 'Optional', item: {kind: 'List', item: {kind: 'String'}}},
+                    value: [{id: 'a', value: 'kept'}],
+                },
+            ],
+        });
+        await click('Edit');
+        await click('RAW: $p: 1');
+        change('RAW: $p: 1', '{');
+        expect(button('Save').disabled).toBe(true);
+        act(() => field('NULL: $p').click());
+        expect(button('Save').disabled).toBe(false);
+        expect(field('RAW: $p: 1').closest('[hidden]')).not.toBeNull();
+        act(() => field('NULL: $p').click());
+        expect(field('RAW: $p: 1').value).toBe('{');
+        expect(button('Save').disabled).toBe(true);
+        await click('Reset value: $p');
+        expect(button('Save').disabled).toBe(false);
+        await click('Save');
+        expect(lastValue()[0].value).toEqual([{id: 'a', value: 'kept'}]);
+    });
+
+    it('restores an internal NULL level and its original marker on reset', async () => {
+        const marker = {kind: 'optional-null', depth: 1} as const;
+        render({
+            value: [
+                {
+                    id: 'p',
+                    name: 'p',
+                    type: {kind: 'Optional', item: {kind: 'Optional', item: {kind: 'String'}}},
+                    value: marker,
+                },
+            ],
+        });
+        await click('Edit');
+        expect(container.querySelector('[aria-label="NULL level: $p"]')).not.toBeNull();
+        act(() => field('NULL: $p').click());
+        change('$p', 'kept');
+        act(() => field('NULL: $p').click());
+        act(() => field('NULL: $p').click());
+        expect(field('$p').value).toBe('kept');
+        await click('Reset value: $p');
+        expect((field('NULL: $p') as HTMLInputElement).checked).toBe(true);
+        await click('Save');
+        expect(lastValue()[0].value).toEqual(marker);
+    });
+
+    it('uses unchecked text for timezone types and escaped mode for Pg', async () => {
+        render({
+            value: [
+                {id: 'tz', name: 'tz', type: {kind: 'TzTimestamp64'}, value: 'raw timezone value'},
+                {id: 'pg', name: 'pg', type: {kind: 'Pg', name: 'text'}, value: 'hello'},
+            ],
+        });
+        await click('Edit');
+        expect(container.querySelector('button[aria-label="Open calendar"]')).toBeNull();
+        await click('Escaped string: $pg');
+        change('Escaped string: $pg', String.raw`hello\x21`);
+        await click('Save');
+        expect(lastValue().map((p) => p.value)).toEqual(['raw timezone value', 'hello!']);
+    });
+
+    it('validates Unknown JSON while retaining its name, whitespace and large numbers', async () => {
+        render({
+            value: [{id: 'p', name: 'p', type: {kind: 'Unknown', name: 'FutureType'}, value: '{}'}],
+        });
+        expect(container.textContent).toContain('FutureType');
+        await click('Edit');
+        change('RAW: $p', '{');
+        await click('Save');
+        expect(onChange).not.toHaveBeenCalled();
+        const raw = '{ "n": 900719925474099312345 }';
+        change('RAW: $p', raw);
+        await click('Save');
+        expect(lastValue()[0].value).toBe(raw);
+    });
+
+    it('blocks dictionary pair RAW for invalid child drafts and clears them on pair reset', async () => {
+        render({
+            value: [
+                {
+                    id: 'p',
+                    name: 'p',
+                    type: {kind: 'Dict', key: {kind: 'String'}, value: {kind: 'Number'}},
+                    value: [{id: 'a', key: 'original', value: '10'}],
+                },
+            ],
+        });
+        await click('Edit');
+        await click('Escaped string: $p: 1: Key');
+        change('Escaped string: $p: 1: Key', String.raw`\x`);
+        expect(button('RAW: $p: 1').disabled).toBe(true);
+        expect(button('Save').disabled).toBe(true);
+        await click('Reset value: $p: 1');
+        expect(button('Save').disabled).toBe(false);
+        expect(field('$p: 1: Key').value).toBe('original');
+        expect(button('RAW: $p: 1').disabled).toBe(false);
+        await click('Save');
+        expect(lastValue()[0].value).toEqual([{id: 'a', key: 'original', value: '10'}]);
+    });
+
+    it('collapses Tuple without losing its fixed elements', async () => {
+        render({
+            value: [
+                {
+                    id: 'p',
+                    name: 'p',
+                    type: {kind: 'Tuple', items: [{kind: 'String'}]},
+                    value: [{id: 'a', value: 'kept'}],
+                },
+            ],
+        });
+        await click('Edit');
+        await click('Collapse: $p');
+        expect(field('$p: 1').closest('[hidden]')).not.toBeNull();
+        await click('Expand: $p');
+        expect(field('$p: 1').value).toBe('kept');
+        expect(container.querySelector('button[aria-label="Remove item: $p 1"]')).toBeNull();
+        await click('Save');
+        expect(lastValue()[0].value).toEqual([{id: 'a', value: 'kept'}]);
+    });
+    it('selects the intrinsic Pg NULL level inside Optional', async () => {
+        render({
+            value: [
+                {
+                    id: 'p',
+                    name: 'p',
+                    type: {kind: 'Optional', item: {kind: 'Pg', name: 'text'}},
+                    value: null,
+                },
+            ],
+        });
+        await click('Edit');
+        await click('NULL level: $p');
+        const option = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(
+            (node) => node.textContent === '2',
+        );
+        expect(option).toBeDefined();
+        await act(async () => option?.click());
+        await click('Save');
+        expect(lastValue()[0].value).toEqual({kind: 'optional-null', depth: 1});
+    });
+
+    it('shows application document errors in view mode', () => {
+        render({
+            value: [{id: 'p', name: 'p', type: {kind: 'Json'}, value: '{}'}],
+            errors: {p: {value: {$: 'Readable server error'}}},
+        });
+        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+            'Readable server error',
+        );
     });
 });

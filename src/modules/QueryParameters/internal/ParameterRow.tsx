@@ -33,7 +33,6 @@ export function ParameterRow({
     isNew = false,
     index,
     editing,
-    expanded = false,
     disabled,
     errors,
     onChange,
@@ -83,7 +82,7 @@ export function ParameterRow({
                         ? `${formatType(parameter.type.item)}?`
                         : parameter.type.kind === 'Pg'
                           ? `pg${parameter.type.name}`
-                          : parameter.type.kind === 'Decimal'
+                          : parameter.type.kind === 'Decimal' || parameter.type.kind === 'Unknown'
                             ? formatType(parameter.type)
                             : parameter.type.kind}
                     ]:
@@ -124,7 +123,7 @@ export function ParameterRow({
                 value={parameter.value}
                 initialValue={initialValue}
                 header={header}
-                horizontal={expanded}
+                horizontal
                 label={label}
                 editing={editing}
                 disabled={disabled}

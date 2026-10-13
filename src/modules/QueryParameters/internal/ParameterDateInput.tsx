@@ -14,6 +14,7 @@ interface ParameterDateInputProps {
     label: string;
     error?: string;
     kind: string;
+    placeholder?: string;
 }
 
 export function ParameterDateInput({
@@ -23,6 +24,7 @@ export function ParameterDateInput({
     label,
     error,
     kind,
+    placeholder,
 }: ParameterDateInputProps) {
     const [open, setOpen] = React.useState(false);
     const [anchor, setAnchor] = React.useState<HTMLButtonElement | null>(null);
@@ -31,9 +33,14 @@ export function ParameterDateInput({
         <>
             <TextInput
                 value={value}
+                size="m"
+                placeholder={placeholder}
                 onUpdate={onUpdate}
                 disabled={disabled}
-                controlProps={{'aria-label': label}}
+                controlProps={{
+                    'aria-label': label,
+                    title: placeholder ? i18n('context_format', {format: placeholder}) : undefined,
+                }}
                 validationState={error ? 'invalid' : undefined}
                 errorMessage={error}
                 endContent={

@@ -4,6 +4,7 @@ export type {
     QueryParameterType,
     QueryParameterOption,
     QueryParameterValue,
+    QueryParameterNullLevel,
     QueryParameterItem,
     QueryParameterEntry,
     QueryParameterErrors,

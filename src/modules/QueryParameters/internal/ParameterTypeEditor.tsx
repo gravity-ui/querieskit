@@ -52,7 +52,12 @@ export function ParameterTypeEditor({
             <Select
                 aria-label={label}
                 value={[value.kind]}
-                options={parameterKinds.map((kind) => ({value: kind, content: kind}))}
+                options={[
+                    ...(value.kind === 'Unknown'
+                        ? [{value: 'Unknown', content: value.name, disabled: true}]
+                        : []),
+                    ...parameterKinds.map((kind) => ({value: kind, content: kind})),
+                ]}
                 disabled={disabled}
                 onUpdate={([kind]) => {
                     if (kind && kind !== value.kind)

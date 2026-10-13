@@ -72,5 +72,11 @@
   "value_field": "{{count}} поле",
   "value_fields": "{{count}} полей",
   "field_precision": "Точность",
-  "field_scale": "Масштаб"
+  "field_scale": "Масштаб",
+  "alert_invalid-date": "Введите дату и время в указанном формате.",
+  "alert_invalid-interval": "Введите длительность, например PT1M30S.",
+  "alert_invalid-uuid": "Введите UUID в формате 8-4-4-4-12.",
+  "action_edit-document": "Редактировать документ",
+  "field_null-level": "Уровень NULL",
+  "context_format": "Формат: {{format}}"
 }
