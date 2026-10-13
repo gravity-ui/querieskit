@@ -13,6 +13,23 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [2.5.0](https://github.com/gravity-ui/querieskit/compare/v2.4.0...v2.5.0) (2026-10-13)
+
+
+### Features
+
+* **QueryEditor:** add query link sharing dialog ([47c454d](https://github.com/gravity-ui/querieskit/commit/47c454daca5d1cfb9fb2001371701240585a53b9))
+* **QueryEditor:** add save menu and simplify stories ([3062817](https://github.com/gravity-ui/querieskit/commit/3062817b75c080987726e1dda20788017c02767c))
+* **QueryEditor:** integrate attachments in shared side panel ([c9e7c62](https://github.com/gravity-ui/querieskit/commit/c9e7c6298bd773efd435bc31762945f7c79f7f51))
+* **QueryEditor:** integrate settings and YTsaurus engine preset ([9c5a040](https://github.com/gravity-ui/querieskit/commit/9c5a0409de1ad51766b50b8572f9e4b448455886))
+* **QuerySettings:** add extensible query settings form ([5d7321d](https://github.com/gravity-ui/querieskit/commit/5d7321db8b34f54a37f1ac18d3a7287ed40aa791))
+
+
+### Bug Fixes
+
+* **ci:** resolve jsdom test timeouts before release ([033daca](https://github.com/gravity-ui/querieskit/commit/033daca9fd52d7aa9f4627113b619b4ff6a2dea7))
+* **QueryEditor:** anchor sharing popup and update bundle checks ([ebe4f71](https://github.com/gravity-ui/querieskit/commit/ebe4f71b5fcd83dbd9e4bb6dfd29f20eb219f5fe))
+
 ## [2.4.0](https://github.com/gravity-ui/querieskit/compare/v2.3.1...v2.4.0) (2026-10-09)
 
 
