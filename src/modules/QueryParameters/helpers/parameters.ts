@@ -1,0 +1,361 @@
+import type {
+    QueryParameter,
+    QueryParameterErrors,
+    QueryParameterType,
+    QueryParameterValue,
+} from '../../../types/queryParameters';
+import i18n from '../i18n';
+
+let nextId = 0;
+export function createId(): string {
+    return `parameter-${Date.now().toString(36)}-${(++nextId).toString(36)}`;
+}
+
+export function defaultType(kind: QueryParameterType['kind']): QueryParameterType {
+    switch (kind) {
+        case 'List':
+            return {kind, item: {kind: 'String'}};
+        case 'Tuple':
+            return {kind, items: [{kind: 'String'}]};
+        case 'Variant':
+            return {kind, options: [{id: createId(), name: 'String', type: {kind: 'String'}}]};
+        case 'Dict':
+            return {kind, key: {kind: 'String'}, value: {kind: 'String'}};
+        default:
+            return {kind};
+    }
+}
+
+const MAX_DEPTH = 20;
+
+export function validType(type: QueryParameterType, depth = 0): boolean {
+    if (!type || depth > MAX_DEPTH) return false;
+    switch (type.kind) {
+        case 'String':
+        case 'Number':
+        case 'Json':
+            return true;
+        case 'List':
+            return validType(type.item, depth + 1);
+        case 'Tuple':
+            return (
+                Array.isArray(type.items) &&
+                type.items.length > 0 &&
+                type.items.every((item) => validType(item, depth + 1))
+            );
+        case 'Dict':
+            return validType(type.key, depth + 1) && validType(type.value, depth + 1);
+        case 'Variant': {
+            const ids = new Set<string>();
+            return (
+                Array.isArray(type.options) &&
+                type.options.length > 0 &&
+                type.options.every((option) => {
+                    if (!option || !option.id || ids.has(option.id) || !option.name?.trim())
+                        return false;
+                    ids.add(option.id);
+                    return validType(option.type, depth + 1);
+                })
+            );
+        }
+        default:
+            return false;
+    }
+}
+
+export function defaultValue(type: QueryParameterType): QueryParameterValue {
+    if (!validType(type)) throw new Error(i18n('alert_invalid-type'));
+    switch (type.kind) {
+        case 'String':
+            return '';
+        case 'Number':
+            return '0';
+        case 'Json':
+            return '{}';
+        case 'List':
+        case 'Dict':
+            return [];
+        case 'Tuple':
+            return type.items.map((item) => ({id: createId(), value: defaultValue(item)}));
+        case 'Variant':
+            return {optionId: type.options[0].id, value: defaultValue(type.options[0].type)};
+        default:
+            throw new Error(i18n('alert_invalid-type'));
+    }
+}
+
+export function formatType(type: QueryParameterType): string {
+    if (!validType(type)) return i18n('alert_invalid-type');
+    switch (type.kind) {
+        case 'List':
+            return `List<${formatType(type.item)}>`;
+        case 'Tuple':
+            return `Tuple<${type.items.map(formatType).join(', ')}>`;
+        case 'Dict':
+            return `Dict<${formatType(type.key)}, ${formatType(type.value)}>`;
+        case 'Variant':
+            return `Variant<${type.options.map((option) => `${option.name}: ${formatType(option.type)}`).join(', ')}>`;
+        default:
+            return type.kind;
+    }
+}
+
+function record(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function valueErrors(
+    type: QueryParameterType,
+    value: unknown,
+    path: string,
+    errors: Record<string, string>,
+): void {
+    const invalid = () => {
+        errors[path] = i18n('alert_invalid-value');
+    };
+    switch (type.kind) {
+        case 'String':
+        case 'Number':
+        case 'Json':
+            if (typeof value !== 'string') {
+                invalid();
+                return;
+            }
+            if (
+                type.kind === 'Number' &&
+                !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(value)
+            ) {
+                errors[path] = i18n('alert_invalid-number');
+            }
+            if (type.kind === 'Json') {
+                try {
+                    JSON.parse(value);
+                } catch {
+                    errors[path] = i18n('alert_invalid-json');
+                }
+            }
+            return;
+        case 'Variant': {
+            if (!record(value)) {
+                invalid();
+                return;
+            }
+            const option = type.options.find(({id}) => id === value.optionId);
+            if (!option) {
+                invalid();
+                return;
+            }
+            valueErrors(option.type, value.value, `${path}/${option.id}`, errors);
+            return;
+        }
+        default: {
+            if (!Array.isArray(value)) {
+                invalid();
+                return;
+            }
+            if (type.kind === 'Tuple' && value.length !== type.items.length) invalid();
+            const ids = new Set<string>();
+            const keys = new Set<string>();
+            value.forEach((item, index) => {
+                if (!record(item) || typeof item.id !== 'string' || !item.id) {
+                    invalid();
+                    return;
+                }
+                const itemPath = `${path}/${item.id}`;
+                if (ids.has(item.id)) errors[itemPath] = i18n('alert_duplicate-id');
+                ids.add(item.id);
+                if (type.kind === 'Dict') {
+                    valueErrors(type.key, item.key, `${itemPath}/key`, errors);
+                    const keyPath = `${itemPath}/key`;
+                    if (
+                        !Object.keys(errors).some(
+                            (errorPath) =>
+                                errorPath === keyPath || errorPath.startsWith(`${keyPath}/`),
+                        )
+                    ) {
+                        const key = JSON.stringify(
+                            encode(type.key, item.key as QueryParameterValue),
+                        );
+                        if (keys.has(key)) errors[keyPath] = i18n('alert_duplicate-key');
+                        keys.add(key);
+                    }
+                    valueErrors(type.value, item.value, `${itemPath}/value`, errors);
+                } else {
+                    const childType = type.kind === 'List' ? type.item : type.items[index];
+                    if (childType) valueErrors(childType, item.value, itemPath, errors);
+                }
+            });
+        }
+    }
+}
+
+export function validateParameters(
+    parameters: QueryParameter[],
+): Record<string, QueryParameterErrors> {
+    const result: Record<string, QueryParameterErrors> = Object.create(null);
+    const names = new Map<string, number>();
+    const ids = new Map<string, number>();
+    parameters.forEach((parameter) => {
+        ids.set(parameter.id, (ids.get(parameter.id) ?? 0) + 1);
+        if (!parameter.deleted) names.set(parameter.name, (names.get(parameter.name) ?? 0) + 1);
+    });
+    parameters.forEach((parameter) => {
+        const errors: QueryParameterErrors = {};
+        if (!parameter.id || (ids.get(parameter.id) ?? 0) > 1)
+            errors.name = i18n('alert_duplicate-id');
+        if (!parameter.deleted) {
+            if (!parameter.name.trim())
+                errors.name = i18n('alert_invalid-name');
+            else if ((names.get(parameter.name) ?? 0) > 1)
+                errors.name = i18n('alert_duplicate-name');
+            if (!validType(parameter.type)) errors.type = i18n('alert_invalid-type');
+            else {
+                const errorsByPath: Record<string, string> = Object.create(null);
+                valueErrors(parameter.type, parameter.value, '$', errorsByPath);
+                if (Object.keys(errorsByPath).length) errors.value = errorsByPath;
+            }
+        }
+        if (Object.keys(errors).length) result[parameter.id] = errors;
+    });
+    return result;
+}
+
+function encode(type: QueryParameterType, value: QueryParameterValue): unknown {
+    if (typeof value === 'string') return value;
+    if (!Array.isArray(value)) {
+        const option =
+            type.kind === 'Variant' && type.options.find(({id}) => id === value.optionId);
+        if (!option) throw new Error(i18n('alert_invalid-raw'));
+        return {optionId: value.optionId, value: encode(option.type, value.value)};
+    }
+    return value.map((item, index) => {
+        if (type.kind === 'Dict' && 'key' in item)
+            return [encode(type.key, item.key), encode(type.value, item.value)];
+        if (type.kind === 'Tuple') return encode(type.items[index], item.value);
+        if (type.kind === 'List') return encode(type.item, item.value);
+        throw new Error(i18n('alert_invalid-raw'));
+    });
+}
+
+export function toRaw(type: QueryParameterType, value: QueryParameterValue): string {
+    assertValue(type, value);
+    return JSON.stringify(encode(type, value), null, 2);
+}
+
+function assertValue(type: QueryParameterType, value: QueryParameterValue): void {
+    if (!validType(type)) throw new Error(i18n('alert_invalid-type'));
+    const errors = {};
+    valueErrors(type, value, '$', errors);
+    if (Object.keys(errors).length) throw new Error(i18n('alert_invalid-raw'));
+}
+
+function decode(
+    type: QueryParameterType,
+    raw: unknown,
+    previous?: QueryParameterValue,
+): QueryParameterValue {
+    const invalid = () => new Error(i18n('alert_invalid-raw'));
+    switch (type.kind) {
+        case 'String':
+        case 'Number':
+        case 'Json':
+            if (typeof raw !== 'string') throw invalid();
+            return raw;
+        case 'Variant': {
+            if (!record(raw)) throw invalid();
+            const option = type.options.find(({id}) => id === raw.optionId);
+            if (!option) throw invalid();
+            const oldValue =
+                previous &&
+                typeof previous !== 'string' &&
+                !Array.isArray(previous) &&
+                previous.optionId === option.id
+                    ? previous.value
+                    : undefined;
+            return {optionId: option.id, value: decode(option.type, raw.value, oldValue)};
+        }
+        default:
+            if (!Array.isArray(raw) || (type.kind === 'Tuple' && raw.length !== type.items.length))
+                throw invalid();
+            return raw.map((item, index) => {
+                const oldItem = Array.isArray(previous) ? previous[index] : undefined;
+                const id = oldItem?.id || createId();
+                if (type.kind === 'Dict') {
+                    if (!Array.isArray(item) || item.length !== 2) throw invalid();
+                    return {
+                        id,
+                        key: decode(
+                            type.key,
+                            item[0],
+                            oldItem && 'key' in oldItem
+                                ? (oldItem.key as QueryParameterValue)
+                                : undefined,
+                        ),
+                        value: decode(type.value, item[1], oldItem?.value),
+                    };
+                }
+                return {
+                    id,
+                    value: decode(
+                        type.kind === 'List' ? type.item : type.items[index],
+                        item,
+                        oldItem?.value,
+                    ),
+                };
+            });
+    }
+}
+
+export function fromRaw(
+    type: QueryParameterType,
+    text: string,
+    previousValue?: QueryParameterValue,
+): QueryParameterValue {
+    if (!validType(type)) throw new Error(i18n('alert_invalid-type'));
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(text);
+    } catch {
+        throw new Error(i18n('alert_invalid-raw'));
+    }
+    const value = decode(type, parsed, previousValue);
+    assertValue(type, value);
+    return value;
+}
+
+/** Reversible UTF-16 escapes; literal backslashes are always escaped. */
+export function escapeString(value: string): string {
+    return value
+        .split('')
+        .map((character) => {
+            if (character === '\\') return '\\\\';
+            const code = character.charCodeAt(0);
+            if (code >= 32 && code < 127) return character;
+            return code <= 0xff
+                ? `\\x${code.toString(16).padStart(2, '0')}`
+                : `\\u${code.toString(16).padStart(4, '0')}`;
+        })
+        .join('');
+}
+
+export function unescapeString(text: string): string {
+    let result = '';
+    for (let index = 0; index < text.length; index++) {
+        if (text[index] !== '\\') {
+            result += text[index];
+            continue;
+        }
+        const kind = text[++index];
+        if (kind === '\\') {
+            result += '\\';
+            continue;
+        }
+        const length = ({x: 2, u: 4} as Record<string, number>)[kind] ?? 0;
+        const hex = text.slice(index + 1, index + 1 + length);
+        if (!length || hex.length !== length || !/^[0-9a-f]+$/i.test(hex))
+            throw new Error(i18n('alert_invalid-escape'));
+        result += String.fromCharCode(parseInt(hex, 16));
+        index += length;
+    }
+    return result;
+}

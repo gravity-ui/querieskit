@@ -76,5 +76,6 @@ export {QueryEditor} from './QueryEditor';
 export {QueryShare} from './QueryShare';
 export {createYtsaurusQueryEngines} from './QueryEditor/presets/ytsaurus';
 export {QuerySettings} from './QuerySettings';
+export {QueryParameters} from './QueryParameters';
 export {ChartFieldsEditor} from './ChartFieldsEditor';
 export type {ChartFieldsEditorProps} from './ChartFieldsEditor';
