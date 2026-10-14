@@ -1,0 +1,102 @@
+.qp-query-tab {
+    position: relative;
+    max-width: 280px;
+    padding-inline: var(--g-spacing-3) var(--g-spacing-1);
+    border-inline-end: 1px solid var(--g-color-line-generic);
+    color: var(--g-color-text-secondary);
+
+    &:hover {
+        background: var(--g-color-base-simple-hover);
+    }
+
+    &_active {
+        background: var(--g-color-base-background);
+        color: var(--g-color-text-primary);
+    }
+
+    &__select {
+        min-width: 0;
+        flex: 1;
+        font-family: var(--g-text-body-font-family);
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
+
+        &:focus-visible {
+            outline: 2px solid var(--g-color-line-focus);
+            outline-offset: -2px;
+            border-radius: var(--g-focus-border-radius);
+        }
+    }
+
+    &__heading {
+        min-width: 0;
+        color: inherit;
+    }
+
+    &__icon {
+        flex-shrink: 0;
+        line-height: 0;
+    }
+
+    &__title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__modified {
+        flex-shrink: 0;
+        width: var(--g-spacing-2);
+        height: var(--g-spacing-2);
+        border-radius: 50%;
+        background: var(--g-color-text-danger);
+        pointer-events: none;
+    }
+
+    &__trailing {
+        position: relative;
+        line-height: 0;
+    }
+
+    &__close {
+        opacity: 0;
+    }
+
+    &_active &__close,
+    &:hover &__close,
+    &:focus-within &__close {
+        opacity: 1;
+    }
+
+    &_replace-close &__modified {
+        position: absolute;
+        inset-block-start: 50%;
+        inset-inline-start: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    &_replace-close &__close {
+        opacity: 0;
+    }
+
+    &_replace-close:hover &__close,
+    &_replace-close:focus-within &__close {
+        opacity: 1;
+    }
+
+    &_replace-close:hover &__modified,
+    &_replace-close:focus-within &__modified {
+        opacity: 0;
+    }
+
+    &__description {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+}

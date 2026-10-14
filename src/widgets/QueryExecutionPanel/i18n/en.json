@@ -1,0 +1,22 @@
+{
+  "title_tabs": "Query execution",
+  "title_result": "Result",
+  "title_progress": "Progress",
+  "title_info": "Info",
+  "title_warning": "Warning",
+  "title_error": "Error",
+  "title_statistics": "Statistics",
+  "title_meta": "Meta",
+  "title_charts": "Charts",
+  "context_by": "by",
+  "context_no-messages": "No messages",
+  "context_no-tabs": "No available tabs",
+  "action_expand": "Expand panel",
+  "action_collapse": "Collapse panel",
+  "context_loading": "Loading",
+  "title_loading-error": "Error loading",
+  "context_try-refreshing": "Try refreshing the panel",
+  "action_refresh": "Refresh",
+  "action_show-content": "Expand content",
+  "action_hide-content": "Collapse content"
+}

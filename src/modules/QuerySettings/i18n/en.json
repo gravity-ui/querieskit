@@ -1,0 +1,20 @@
+{
+  "title_general": "General",
+  "title_attributes": "Attributes",
+  "field_query-name": "Query name",
+  "field_access": "Access",
+  "field_tokens": "Tokens",
+  "field_yt-operation-title": "YT operation title",
+  "field_key": "Key",
+  "field_value": "Value",
+  "field_attribute-key": "Attribute key {{index}}",
+  "field_attribute-value": "Attribute value {{index}}",
+  "value_everyone": "Everyone",
+  "value_only-me": "Only me",
+  "context_select-token": "Select token",
+  "action_add-attribute": "Add attribute",
+  "action_remove-attribute": "Remove attribute {{index}}",
+  "action_edit-attribute": "Edit attribute {{index}}",
+  "action_apply-attribute": "Apply attribute {{index}}",
+  "action_cancel-attribute": "Cancel editing attribute {{index}}"
+}

@@ -4,7 +4,6 @@ import type {NavigationCluster, RenderNavigationCluster} from '../../types/navig
 import {ClusterRow} from '../../components/ClusterRow';
 import {LazyList} from '../../components/LazyList';
 import {NAVIGATION_ROW_HEIGHT} from '../../constants/row';
-import './ClustersList.scss';
 
 const block = cn('qp-clusters-list');
 

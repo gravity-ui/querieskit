@@ -1,0 +1,19 @@
+{
+  "title_mode": "Comparison mode",
+  "value_split": "Split",
+  "value_unified": "Unified",
+  "action_collapse": "Collapse",
+  "action_expand": "Expand",
+  "action_restore": "Restore file",
+  "action_remove": "Remove file",
+  "value_missing-original": "The file did not exist in this version",
+  "value_missing-modified": "The file has been removed in this version",
+  "value_empty": "No files to compare",
+  "value_pending": "Calculating changes or comparison unavailable",
+  "field_baseline": "Baseline",
+  "field_competitor": "Competitor",
+  "action_swap": "Swap versions",
+  "action_reset": "Reset changes",
+  "action_save": "Save changes",
+  "action_create-query": "Create Query"
+}

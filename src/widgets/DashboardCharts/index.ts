@@ -1,2 +1,6 @@
 export {DashboardCharts} from './DashboardCharts';
-export type {DashboardChartsProps} from './types';
+export type {
+    DashboardChartsProps,
+    DashboardItem,
+    DashboardChartFieldsEditorProps,
+} from '../../types/dashboardCharts';

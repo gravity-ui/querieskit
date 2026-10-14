@@ -2,6 +2,10 @@
 
 React component library for building **query pages** — history, tutorials, editors, and related UI. Part of the [Gravity UI](https://gravity-ui.com) design system.
 
+The library is under active development and its public API is not yet stable.
+API changes may be released without a major version bump. Check the changelog
+and migration notes before updating.
+
 ## Install
 
 ```shell
@@ -13,7 +17,7 @@ npm install @gravity-ui/querieskit
 Your project must also provide:
 
 - `react` / `react-dom` (^18 or ^19)
-- `@gravity-ui/uikit` (>=7)
+- `@gravity-ui/uikit` (>=7.18.0)
 - `@gravity-ui/icons` (>=2)
 
 See `peerDependencies` in `package.json` for the exact ranges.
@@ -43,38 +47,40 @@ See [UIKit docs](https://github.com/gravity-ui/uikit#styles) for theming and i18
 
 ## Architecture
 
-The public API has three levels:
+The public API has four levels:
 
 | Level | Path | Role |
 | --- | --- | --- |
+| **Pages** | `src/pages` | Compositions of widgets with shared screen layout |
 | **Widgets** | `src/widgets` | Ready-to-use feature blocks for a queries page |
-| **Modules** | `src/modules` | Scenario blocks composed from components (lists, rows, headers) |
+| **Modules** | `src/modules` | Scenario blocks composed from components and other modules (lists, rows, headers) |
 | **Components** | `src/components` | Small reusable UI pieces with a stable props contract |
 
-Import direction is one-way: `widgets → modules → components`.
+Cross-level imports flow one way: `pages → widgets → modules → components`. Modules may compose other modules without dependency cycles.
 
-Prefer widgets for product screens. Use modules and components when you need a custom layout or only a part of a scenario.
+Use pages for a complete screen layout, widgets for independent feature blocks, and modules or components for custom compositions.
 
 ## Usage
 
-### Widget imports
+### Individual imports
 
-All six widgets support both root and individual imports:
+Pages, widgets, and modules support both root and individual imports:
 
 ```tsx
 import {SavedQueries} from '@gravity-ui/querieskit';
 ```
 
-Alternatively, start directly from the widget's entrypoint:
+Alternatively, start directly from the module's entrypoint:
 
 ```tsx
-import {SavedQueries} from '@gravity-ui/querieskit/widgets/SavedQueries';
-import type {SavedQueriesProps} from '@gravity-ui/querieskit/widgets/SavedQueries';
+import {SavedQueries} from '@gravity-ui/querieskit/modules/SavedQueries';
+import type {SavedQueriesProps} from '@gravity-ui/querieskit/modules/SavedQueries';
 ```
 
-Individual entrypoints are available for `QueriesHistory`, `SavedQueries`,
-`TutorialsHistory`, `QueriesNavigation`, `QueryResults`, and `DashboardCharts`.
-They expose each widget's existing public exports, including its props and helpers.
+Individual entrypoints are available for `QueryPage` under `pages/`, `QueriesHistory`, `SavedQueries`,
+`TutorialsHistory`, `QueriesNavigation` under `modules/`, and `QueriesSidebar`,
+`QueryEditor`, `QueryExecutionPanel`, `DashboardCharts` under `widgets/`.
+They expose each unit's existing public exports, including its props and helpers.
 Shared data types remain available from the package root.
 
 Individual imports limit the dependency graph the bundler needs to traverse.
@@ -84,6 +90,75 @@ Keep CSS processing enabled so that the selected widget's styles are included.
 Some bundlers, including esbuild, retain CSS from unused root re-exports even when
 their JavaScript is removed. Individual widget imports avoid introducing those
 unrelated styles.
+
+### QueryPage
+
+Composes a shared `QueriesSidebar` with `QueryTabs`. Each query tab owns an independent
+`QueryEditor` and `QueryExecutionPanel`, including its results layout. Visited workspaces
+stay mounted when switching tabs; removing a tab releases its workspace. The query tab
+strip stays visible when results expand. Your application owns the tab list, selection,
+query data, actions, and navigation. See [the QueryPage guide](src/pages/QueryPage/README.md)
+for the full API and migration from the previous single-workspace props.
+
+```tsx
+import {QueryPage} from '@gravity-ui/querieskit/pages/QueryPage';
+
+<div style={{height: 800}}>
+  <QueryPage
+    sidebarProps={sidebarProps}
+    tabsProps={{
+      activeTab: activeQueryId,
+      onActiveTabChange: setActiveQueryId,
+      onAddTab: addQuery,
+      onCloseTab: closeQuery,
+      items: queries.map((query) => ({
+        id: query.id,
+        type: 'query',
+        title: query.title,
+        status: query.status,
+        editorProps: query.editorProps,
+        executionPanelProps: query.executionPanelProps,
+      })),
+    }}
+  />
+</div>;
+```
+
+### QueriesSidebar
+
+Combines history, saved queries, navigation and tutorials in one panel. Supply
+an ordered `tabs` array and an optional `header` for product selection or actions.
+Use `hideTabs` with `activeTab` when navigation lives outside the sidebar.
+See [the API and migration guide](src/widgets/QueriesSidebar/README.md).
+
+### Query editors
+
+`MonacoEditor` and `QueryEditor` support model-scoped language providers, custom
+extensions, diagnostics, line navigation, and access to the editor instance.
+Use `createQueryEditorPreset` for optional language completion with catalog and
+schema adapters, or replace individual capabilities with your own Monaco providers.
+See [the QueryEditor guide](src/widgets/QueryEditor/README.md),
+[the editor integration guide](docs/editor-extensions.md), and the QueryEditor
+Extensions stories. Individual imports are available from `components/MonacoEditor`,
+`widgets/QueryEditor`, and `helpers/queryEditorPreset`.
+
+```tsx
+import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
+```
+
+The YTsaurus preset is available from `widgets/QueryEditor/presets/ytsaurus`.
+The previous package subpaths `modules/QueryEditor` and
+`modules/QueryEditor/presets/ytsaurus` remain supported as compatibility aliases.
+
+### QueryExecutionPanel
+
+A query execution panel with ordered, typed tabs, custom content, automatic tab
+selection until manual navigation, message severity titles, and application-owned
+expand/close actions. See [the API and integration guide](src/widgets/QueryExecutionPanel/README.md)
+and the QueryExecutionPanel Storybook examples.
+
+`QueryResults` is a module, available from the package root or through
+`@gravity-ui/querieskit/modules/QueryResults`.
 
 ### QueriesHistory
 
@@ -295,3 +370,9 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+### Execution timeline
+
+`QueryTimeline` provides a virtualized execution timeline with stages, filters and live
+updates. It can also be passed to `QueryProgress` using `timelineProps`. See the
+[QueryTimeline guide](src/modules/QueryTimeline/README.md) for the data contract and examples.

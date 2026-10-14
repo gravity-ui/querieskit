@@ -1,0 +1,13 @@
+{
+  "title_queries": "Запросы",
+  "action_add-tab": "Новый запрос",
+  "action_close-tab": "Закрыть вкладку {{title}}",
+  "context_modified": "В запрос внесены изменения",
+  "context_comparison": "Сравнение запросов",
+  "title_comparison": "Сравнение {{leftTitle}} и {{rightTitle}}",
+  "value_draft": "Не запущен",
+  "value_running": "Выполняется",
+  "value_completed": "Выполнен",
+  "value_failed": "Ошибка",
+  "value_aborted": "Прерван"
+}

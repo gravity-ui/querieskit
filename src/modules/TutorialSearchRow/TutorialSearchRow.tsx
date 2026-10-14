@@ -29,7 +29,7 @@ export const TutorialSearchRow = <T extends TutorialHistoryRow>({
             className={block()}
             header={
                 <Flex gap={2} alignItems="center" className={block('header')}>
-                    <Text color="secondary">{id}.</Text>
+                    <Text color="secondary">{String(item.number ?? id).padStart(2, '0')}.</Text>
                     <Text ellipsis>{title}</Text>
                 </Flex>
             }

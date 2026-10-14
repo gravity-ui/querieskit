@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import BaseDataTable, {type Column} from '@gravity-ui/react-data-table';
-import {DataTable} from '../../../components';
+import {DataTable} from '../../../components/DataTable';
 import type {
     QueryStatisticsColumn,
     QueryStatisticsExtraColumn,

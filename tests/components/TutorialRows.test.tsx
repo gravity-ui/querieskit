@@ -6,7 +6,7 @@ import {createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import type {QueryListLinkRenderer, QueryListRowRenderData} from '../../src/types/queryList';
 import type {TutorialHistoryRow} from '../../src/types/tutorial';
-import {TutorialRowContent} from '../../src/widgets/TutorialsHistory/TutorialRowContent';
+import {TutorialRowContent} from '../../src/modules/TutorialsHistory/TutorialRowContent';
 
 vi.mock('@gravity-ui/uikit', async () => {
     const ReactModule = await import('react');
@@ -93,6 +93,25 @@ describe('tutorial row links', () => {
         renderContent({item: ITEM});
 
         expect(container.querySelector('a')?.getAttribute('href')).toBe(ITEM.href);
+    });
+
+    it('keeps the lesson number independent of its string identifier and result position', () => {
+        const item = {...ITEM, number: 7};
+
+        for (const variant of ['default', 'search'] as const) {
+            renderContent({item, variant, index: 0});
+            expect(container.textContent).toContain('07.');
+            expect(container.textContent).not.toContain(ITEM.id);
+            expect(container.querySelector('a')?.getAttribute('href')).toBe(ITEM.href);
+        }
+    });
+
+    it('pads legacy numeric identifiers and preserves larger numbers in the rendered text', () => {
+        renderContent({item: {...ITEM, id: 1}});
+        expect(container.textContent).toContain('01.');
+
+        renderContent({item: {...ITEM, id: 123}});
+        expect(container.textContent).toContain('123.');
     });
 
     it('renders a non-link row without calling renderLink when href is absent', () => {

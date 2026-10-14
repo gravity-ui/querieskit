@@ -1,0 +1,56 @@
+.qp-query-execution-panel {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    background: var(--g-color-base-background);
+
+    &_collapsed {
+        height: auto;
+        flex: 0 0 auto;
+    }
+
+    &__header {
+        flex-shrink: 0;
+        padding-inline: var(--g-spacing-4) var(--g-spacing-2);
+        box-shadow:
+            inset 0 1px var(--g-color-line-generic-solid),
+            inset 0 -1px var(--g-color-line-generic-solid);
+    }
+
+    &__tabs {
+        flex: 1 1 20rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        min-width: 0;
+        --g-tabs-border-width: 0;
+        --g-tabs-item-gap: var(--g-spacing-3);
+    }
+
+    &__details {
+        margin-left: auto;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    &__actions {
+        flex-shrink: 0;
+        margin-inline-start: var(--g-spacing-2);
+    }
+
+    &__content {
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+        overflow: auto;
+    }
+
+    &__panel {
+        min-width: 0;
+        height: 100%;
+        box-sizing: border-box;
+
+        &_padded {
+            padding: var(--g-spacing-2) var(--g-spacing-4);
+        }
+    }
+}

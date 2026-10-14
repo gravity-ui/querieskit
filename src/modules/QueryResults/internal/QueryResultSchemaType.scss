@@ -1,0 +1,51 @@
+.qp-query-result-schema-type {
+    &__line {
+        min-height: var(--g-spacing-6);
+        width: max-content;
+    }
+
+    &__children {
+        padding-inline-start: var(--g-spacing-4);
+    }
+
+    &__toggle,
+    &__spacer {
+        width: var(--g-spacing-5);
+        flex-shrink: 0;
+    }
+
+    &__toggle {
+        --g-button-padding: 0;
+    }
+
+    &__info {
+        flex-shrink: 0;
+    }
+
+    &__name {
+        color: var(--g-color-text-primary);
+        white-space: pre;
+    }
+
+    &__label,
+    &__modifier,
+    &__tag {
+        color: var(--g-color-text-secondary);
+    }
+
+    &__modifier {
+        font-size: var(--g-text-caption-2-font-size);
+        font-style: italic;
+        white-space: pre;
+    }
+
+    &__tag {
+        font-size: var(--g-text-caption-2-font-size);
+        white-space: pre;
+    }
+
+    &__source {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+}

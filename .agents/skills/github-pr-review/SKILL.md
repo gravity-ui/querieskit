@@ -19,6 +19,8 @@ If the PR already contains comments from other reviewers:
 1. **Relevance:** Determine whether each comment still applies. Mark it if the issue has already been fixed in newer commits.
 2. **Validity:** Check each comment against the current checklist. Point out any comment that conflicts with the project's standards or the checklist.
 
+Attach a rationale to every conclusion using the checklist's evidence requirements. For each comment status, cite the current code, relevant change, or project rule that justifies marking it Confirmed, Fixed, or Outdated; the status alone is not an explanation.
+
 ## Response Format
 
 Use the following format for every finding, whether new or an existing PR comment:
@@ -27,4 +29,5 @@ Use the following format for every finding, whether new or an existing PR commen
 - **Status:** (New / Confirmed / Fixed / Outdated)
 - **Severity:** (High / Medium / Low)
 - **Issue:** A concise description of the problem based on the checklist.
+- **Rationale:** Concrete evidence with file and line references, relevant contracts, or check results, explaining why the issue and its status follow from that evidence.
 - **Recommendation:** A concrete example of the corrected code.

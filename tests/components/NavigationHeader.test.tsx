@@ -6,7 +6,7 @@ import {createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {NavigationHeader} from '../../src/modules/NavigationHeader/NavigationHeader';
 import {NavigationDetail} from '../../src/modules/NavigationDetail/NavigationDetail';
-import {QueriesNavigation} from '../../src/widgets/QueriesNavigation/QueriesNavigation';
+import {QueriesNavigation} from '../../src/modules/QueriesNavigation/QueriesNavigation';
 import type {NavigationHeaderAction} from '../../src/types/navigation';
 
 vi.mock('../../src/components/Breadcrumbs', () => ({

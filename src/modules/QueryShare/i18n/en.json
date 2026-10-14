@@ -1,0 +1,16 @@
+{
+  "title_public-link": "Public link",
+  "action_generate-link": "Generate link",
+  "action_regenerate-link": "Regenerate link",
+  "action_create-permanent-link": "Create permanent link",
+  "action_edit-expiration": "Edit expiration",
+  "action_save-expiration": "Save expiration",
+  "action_cancel-expiration": "Cancel expiration editing",
+  "field_expiration": "Expires on",
+  "field_expiration-date-time": "Expiration date and time",
+  "action_copy-link": "Copy link",
+  "value_copied": "Copied",
+  "alert_copy-failed": "Failed to copy link",
+  "value_expiration": "Expires on {{date}}",
+  "value_no-expiration": "No expiration"
+}

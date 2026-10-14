@@ -1,5 +1,5 @@
 import React, {ReactNode, useState} from 'react';
-import {Button, Flex, Icon, Popup, Text} from '@gravity-ui/uikit';
+import {Button, type ButtonProps, Flex, Icon, Popup, Text} from '@gravity-ui/uikit';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import CheckIcon from '@gravity-ui/icons/svgs/check.svg';
 import {useToggle} from '../../helpers/useToggle';
@@ -17,6 +17,7 @@ export type FieldsSelectorProps<K extends string = string> = {
     value: K[];
     onChange: (value: K[]) => void;
     buttonLabel?: string;
+    buttonView?: ButtonProps['view'];
 };
 
 const block = cn('qp-fields-selector');
@@ -26,6 +27,7 @@ export const FieldsSelector = <K extends string = string>({
     value,
     onChange,
     buttonLabel = i18n('action_configure-visible-fields'),
+    buttonView = 'normal',
 }: FieldsSelectorProps<K>) => {
     const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
     const [open, toggleOpen] = useToggle(false);
@@ -37,7 +39,13 @@ export const FieldsSelector = <K extends string = string>({
 
     return (
         <>
-            <Button ref={setButtonElement} onClick={toggleOpen} aria-label={buttonLabel}>
+            <Button
+                view={buttonView}
+                size="m"
+                ref={setButtonElement}
+                onClick={toggleOpen}
+                aria-label={buttonLabel}
+            >
                 <Icon data={GearIcon} size={16} />
             </Button>
             <Popup

@@ -1,11 +1,4 @@
-import {
-    type CancellationToken,
-    Emitter,
-    type IEvent,
-    type Position,
-    type editor,
-    languages,
-} from 'monaco-editor';
+import {Emitter, type IEvent, languages} from 'monaco-editor';
 
 interface ILang extends languages.ILanguageExtensionPoint {
     loader: () => Promise<ILangImpl>;
@@ -14,20 +7,6 @@ interface ILang extends languages.ILanguageExtensionPoint {
 interface ILangImpl {
     conf: languages.LanguageConfiguration;
     language: languages.IMonarchLanguage;
-    provideSuggestionsFunction?: (
-        model: editor.ITextModel,
-        monacoCursorPosition: Position,
-        _context: languages.CompletionContext,
-        _token: CancellationToken,
-    ) =>
-        | {suggestions: languages.CompletionItem[]}
-        | Promise<{suggestions: languages.CompletionItem[]}>;
-    provideInlineSuggestionsFunction?: (
-        model: editor.ITextModel,
-        monacoCursorPosition: Position,
-        _context: languages.InlineCompletionContext,
-        _token: CancellationToken,
-    ) => Promise<{items: languages.InlineCompletion[]}>;
 }
 
 const languageDefinitions: {[languageId: string]: ILang} = {};
@@ -87,20 +66,6 @@ export function registerLanguage(def: ILang): void {
         lazyLanguageLoader.load().then((mod) => {
             languages.setLanguageConfiguration(languageId, mod.conf);
         });
-    });
-    lazyLanguageLoader.whenLoaded().then((mod) => {
-        if (mod.provideSuggestionsFunction) {
-            languages.registerCompletionItemProvider(languageId, {
-                triggerCharacters: ['`', ':', '/', '', ' '],
-                provideCompletionItems: mod.provideSuggestionsFunction,
-            });
-        }
-        if (mod.provideInlineSuggestionsFunction) {
-            languages.registerInlineCompletionsProvider(languageId, {
-                provideInlineCompletions: mod.provideInlineSuggestionsFunction,
-                disposeInlineCompletions: () => {},
-            });
-        }
     });
 }
 

@@ -80,6 +80,8 @@ Do not report style-only nits. Order findings from highest to lowest severity.
 
 ## Response Format
 
+Attach a rationale to every conclusion, including findings, existing-comment statuses, and a conclusion that no issues were found. Cite concrete evidence (file and line references, relevant contracts, or check results) and explain how it supports the conclusion. Distinguish verified facts from assumptions; for a no-findings conclusion, state the reviewed scope and verification limits rather than implying proof of correctness.
+
 Lead with confirmed findings. For each finding include:
 
 - **Location:** `path/to/file:line`
@@ -87,6 +89,7 @@ Lead with confirmed findings. For each finding include:
 - **Finding:** concise description of the defect
 - **Condition:** input or execution path that triggers it
 - **Impact:** observable consequence
+- **Rationale:** concrete evidence and the causal link between the triggering condition and the impact
 - **Recommendation:** specific fix or mitigation
 
 For existing PR comments, also include **Status** using the vocabulary required by `github-pr-review`.

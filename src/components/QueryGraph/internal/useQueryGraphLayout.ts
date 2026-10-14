@@ -1,6 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {type ConverterResult, useLayeredLayout} from '@gravity-ui/graph';
 
+import {QUERY_GRAPH_LAYOUT_OPTIONS} from '../helpers/layout';
+
 type QueryGraphLayoutInput = {
     structureKey: string;
     blocks: Array<{id: string; width: number; height: number}>;
@@ -30,7 +32,12 @@ export function useQueryGraphLayout({
         setError(nextError);
         onErrorRef.current?.(nextError);
     }, []);
-    const {result, isLoading} = useLayeredLayout({blocks, connections, onError: handleError});
+    const {result, isLoading} = useLayeredLayout({
+        blocks,
+        connections,
+        layoutOptions: QUERY_GRAPH_LAYOUT_OPTIONS,
+        onError: handleError,
+    });
 
     useEffect(() => {
         setError(undefined);

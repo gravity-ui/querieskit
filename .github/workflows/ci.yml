@@ -21,8 +21,20 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
+            - name: Run unit and component tests
+              run: npm test
+
             - name: Check TypeScript types
               run: npx tsc --noEmit
 
             - name: Build and check widget tree-shaking
               run: npm run test:tree-shaking
+
+            - name: Check browser test types
+              run: npx tsc --noEmit -p tests/browser/tsconfig.json
+
+            - name: Install test browser
+              run: npx playwright install --with-deps chromium
+
+            - name: Check Monaco browser integration
+              run: npm run test:editors:browser

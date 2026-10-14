@@ -1,0 +1,77 @@
+import type {ReactNode} from 'react';
+import type {NavigationMetaProps} from '../modules/NavigationMeta';
+import type {DashboardChartsProps} from './dashboardCharts';
+import type {ErrorTreeProps} from './errorTree';
+import type {NavigationMetaItem} from './navigation';
+import type {QueryProgressProps} from './queryGraph';
+import type {QueryResultsProps} from './queryResults';
+import type {QueryStatisticsProps} from './queryStatistics';
+
+export type QueryExecutionTabBase = {
+    /** Unique, non-empty and stable within one execution. */
+    id: string;
+    disabled?: boolean;
+};
+
+export type QueryExecutionTabRenderContext = {active: boolean};
+
+export type QueryExecutionTab<
+    TRow extends Record<string, unknown> = Record<string, unknown>,
+    TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+> = QueryExecutionTabBase &
+    (
+        | {type: 'result'; title?: ReactNode; props: QueryResultsProps<TRow>}
+        | {type: 'progress'; title?: ReactNode; props: QueryProgressProps}
+        | {type: 'info'; props?: ErrorTreeProps}
+        | {type: 'statistics'; title?: ReactNode; props: QueryStatisticsProps}
+        | {type: 'meta'; title?: ReactNode; props: NavigationMetaProps<TMetaItem>}
+        | ({
+              type: 'charts';
+              title?: ReactNode;
+          } & (
+              | {props: DashboardChartsProps; renderContent?: never}
+              | {
+                    props?: never;
+                    renderContent: (context: QueryExecutionTabRenderContext) => ReactNode;
+                }
+          ))
+        | {
+              type: 'custom';
+              title: ReactNode;
+              renderContent: (context: QueryExecutionTabRenderContext) => ReactNode;
+          }
+    );
+
+export type QueryExecutionPanelProps<
+    TRow extends Record<string, unknown> = Record<string, unknown>,
+    TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+> = {
+    /** Whether this retained panel is visible in its parent workspace. Defaults to true. */
+    active?: boolean;
+    /** Array order is display order. Keep each tab's id and type stable. */
+    tabs: QueryExecutionTab<TRow, TMetaItem>[];
+    /** Do not switch between controlled and uncontrolled modes after mounting. */
+    activeTab?: string;
+    defaultActiveTab?: string;
+    /** Followed until the first manual selection in uncontrolled mode. */
+    preferredActiveTab?: string;
+    /** Called on changes after initialization; never called with an empty selection. */
+    onActiveTabChange?: (id: string) => void;
+    /** Values are formatted by the application, including its timezone. */
+    execution?: {startedAt?: ReactNode; author?: ReactNode};
+    expanded?: boolean;
+    onExpandedChange?: (expanded: boolean) => void;
+    /** Collapse to the header without unmounting visited tabs. */
+    collapsed?: boolean;
+    defaultCollapsed?: boolean;
+    onCollapsedChange?: (collapsed: boolean) => void;
+    /** @deprecated Use onCollapsedChange. Called when collapsing; do not unmount the panel. */
+    onClose?: () => void;
+    /** Hide the content while the panel is loading, preserving visited tabs. */
+    loading?: boolean;
+    /** Panel loading failure, distinct from query execution messages in the Info tab. */
+    error?: boolean;
+    onRetry?: () => void;
+    emptyContent?: ReactNode;
+    className?: string;
+};

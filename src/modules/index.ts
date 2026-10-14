@@ -1,4 +1,5 @@
 export {HistoryHeader} from './HistoryHeader';
+export {QueryTabs} from './QueryTabs';
 export {HistoryLayout} from './HistoryLayout';
 export {HistoryComparisonActions} from './HistoryComparisonActions';
 export type {HistoryComparisonActionsProps} from './HistoryComparisonActions';
@@ -44,11 +45,37 @@ export type {
     QueryStatisticsProps,
     QueryStatisticsValues,
 } from './QueryStatistics';
-export {NavigationPreview, buildPreviewColumns, filterPreviewRows} from './NavigationPreview';
+export {NavigationPreview, filterPreviewRows} from './NavigationPreview';
 export type {NavigationPreviewProps, NavigationPreviewViewConfig} from './NavigationPreview';
 export {NavigationMeta, buildMetaGroups} from './NavigationMeta';
 export type {NavigationMetaProps, NavigationMetaViewConfig} from './NavigationMeta';
 export {NavigationView, buildViewColumns} from './NavigationView';
 export type {NavigationViewProps, NavigationViewViewConfig} from './NavigationView';
-
 export {ParameterWizard} from './ParameterWizard';
+export {QueryTimeline} from './QueryTimeline';
+export {QueryResults} from './QueryResults';
+export type {QueryResultsProps} from './QueryResults';
+export {QueriesHistory} from './QueriesHistory';
+export type {QueriesHistoryProps} from './QueriesHistory';
+export {SavedQueries} from './SavedQueries';
+export type {SavedQueriesProps} from './SavedQueries';
+export {TutorialsHistory} from './TutorialsHistory';
+export type {TutorialsHistoryProps} from './TutorialsHistory';
+export {
+    QueriesNavigation,
+    createTableDetailConfig,
+    createNavigationDetailResolver,
+} from './QueriesNavigation';
+export type {
+    QueriesNavigationProps,
+    CreateTableDetailConfigOptions,
+    NavigationPreviewResolver,
+    NavigationPreviewViewResolver,
+    NavigationSchemaResolver,
+} from './QueriesNavigation';
+export {QueryShare} from './QueryShare';
+export {QuerySettings} from './QuerySettings';
+export {QueryParameters} from './QueryParameters';
+export {ChartFieldsEditor} from './ChartFieldsEditor';
+export type {ChartFieldsEditorProps} from './ChartFieldsEditor';
+export * from './QueryComparison';

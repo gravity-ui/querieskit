@@ -17,6 +17,7 @@ type ExtendedTutorial = TutorialHistoryRow & {source: string};
 const lazyListState = vi.hoisted(() => ({
     props: undefined as
         | {
+              items: QueryListItem<ExtendedTutorial>[];
               selectedItemIndex?: unknown;
               renderItem: (
                   item: QueryListItem<ExtendedTutorial>,
@@ -89,9 +90,13 @@ describe('RowsList tutorial data', () => {
             renderLink,
         });
 
-        lazyListState.props?.renderItem(ITEMS[0], false, 0);
+        const listProps = lazyListState.props!;
+        expect(listProps.items[0]).toEqual({...ITEMS[0], disabled: true});
+        expect(ITEMS[0]).not.toHaveProperty('disabled');
+        listProps.renderItem(listProps.items[0], false, 0);
         expect(renderRow).toHaveBeenLastCalledWith(
             expect.objectContaining({item: ITEMS[0], index: 0, isActive: false}),
         );
+        expect(renderRow.mock.calls.at(-1)?.[0].item).toBe(ITEMS[0]);
     });
 });

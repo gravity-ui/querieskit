@@ -74,6 +74,55 @@ export function DataTable<T>(props: DataTableProps<T>) {
 
     const isEmpty = loaded && data.length === 0;
     const displayIndices = settings?.displayIndices !== false;
+    const containerRef = React.useRef<HTMLDivElement>(null);
+    const tableRef = React.useRef<BaseDataTable<T>>(null);
+
+    React.useEffect(() => {
+        if (!settings?.stickyHead || !settings.syncHeadOnResize || !globalThis.ResizeObserver) {
+            return undefined;
+        }
+
+        // Observe the data table, not the separately rendered sticky header: updating
+        // header widths must not schedule another resize of its own.
+        const table = containerRef.current?.querySelector('.data-table__box table');
+        if (!table) {
+            return undefined;
+        }
+
+        let frame: number | undefined;
+        let previousWidth: number | undefined;
+        let previousHeight: number | undefined;
+        const observer = new ResizeObserver(([entry]) => {
+            if (!entry) {
+                return;
+            }
+            const {width, height} = entry.contentRect;
+            if (width === previousWidth && height === previousHeight) {
+                return;
+            }
+            previousWidth = width;
+            previousHeight = height;
+            if (frame === undefined) {
+                frame = requestAnimationFrame(() => {
+                    frame = undefined;
+                    tableRef.current?.resize();
+                });
+            }
+        });
+        observer.observe(table);
+
+        return () => {
+            observer.disconnect();
+            if (frame !== undefined) {
+                cancelAnimationFrame(frame);
+            }
+        };
+    }, [
+        settings?.stickyHead,
+        settings?.syncHeadOnResize,
+        settings?.dynamicRender,
+        settings?.dynamicRenderType,
+    ]);
 
     const renderEmptyRow = () => {
         if (loading && !loaded) {
@@ -84,9 +133,10 @@ export function DataTable<T>(props: DataTableProps<T>) {
     };
 
     return (
-        <div className={block(null, className)}>
+        <div ref={containerRef} className={block(null, className)}>
             <BaseDataTable
                 {...rest}
+                ref={tableRef}
                 columns={columns}
                 data={data}
                 settings={settings}

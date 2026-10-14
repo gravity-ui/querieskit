@@ -16,9 +16,18 @@ declare module '*.svg' {
 
 declare module '@gravity-ui/unipika' {
     type UnipikaSettings = Record<string, unknown>;
+    type UnipikaNode = {$tag?: string; $incomplete?: boolean; [key: string]: unknown};
 
     type Unipika = {
         formatFromYQL(data: [unknown, unknown], settings?: UnipikaSettings): string;
+        format(data: UnipikaNode, settings?: UnipikaSettings): string;
+        converters: {
+            yql(
+                data: [unknown, unknown],
+                settings?: UnipikaSettings,
+                flags?: {incomplete?: boolean},
+            ): UnipikaNode;
+        };
     };
 
     export default function createUnipika(settings?: UnipikaSettings): Unipika;

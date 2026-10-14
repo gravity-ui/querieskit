@@ -1,0 +1,20 @@
+.qp-comparison-toolbar {
+    min-width: 0;
+
+    &__versions {
+        flex: 1 1 480px;
+        max-width: 724px;
+        min-width: 0;
+    }
+
+    &__select {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 340px;
+    }
+
+    &__actions {
+        flex-shrink: 0;
+        max-width: 100%;
+    }
+}

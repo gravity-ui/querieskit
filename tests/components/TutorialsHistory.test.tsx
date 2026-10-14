@@ -7,7 +7,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import type {RowsListProps} from '../../src/modules/RowsList';
 import type {QueryListLinkRenderer, QueryListRowRenderData} from '../../src/types/queryList';
 import type {TutorialHistoryRow} from '../../src/types/tutorial';
-import {TutorialsHistory} from '../../src/widgets/TutorialsHistory/TutorialsHistory';
+import {TutorialsHistory} from '../../src/modules/TutorialsHistory/TutorialsHistory';
 
 const rowsListState = vi.hoisted(() => ({
     mountCount: 0,
@@ -38,10 +38,10 @@ vi.mock('../../src/modules/RowsList', async () => {
         },
     };
 });
-vi.mock('../../src/widgets/TutorialsHistory/i18n', () => ({
+vi.mock('../../src/modules/TutorialsHistory/i18n', () => ({
     default: () => 'Tutorials',
 }));
-vi.mock('../../src/widgets/TutorialsHistory/TutorialRowContent', () => ({
+vi.mock('../../src/modules/TutorialsHistory/TutorialRowContent', () => ({
     TutorialRowContent: () => null,
 }));
 

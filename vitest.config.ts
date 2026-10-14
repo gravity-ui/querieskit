@@ -5,7 +5,11 @@ export default defineConfig({
         include: ['tests/**/*.test.{ts,tsx}'],
         server: {
             deps: {
-                inline: ['@gravity-ui/uikit'],
+                inline: [
+                    '@gravity-ui/uikit',
+                    '@gravity-ui/timeline',
+                    '@gravity-ui/date-components',
+                ],
             },
         },
     },

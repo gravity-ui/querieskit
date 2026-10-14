@@ -40,7 +40,7 @@ export type {SearchRowLayoutProps} from './SearchRowLayout';
 export {SearchWithButtons} from './SearchWithButtons';
 export type {SearchWithButtonsProps} from './SearchWithButtons';
 export {MonacoEditor} from './MonacoEditor';
-export type {MonacoEditorConfig} from './MonacoEditor';
+export type {MonacoEditorConfig, MonacoEditorProps} from './MonacoEditor';
 export {AddChartButton, DEFAULT_ADD_CHART_BUTTON_OPTIONS} from './AddChartButton';
 export type {
     AddChartButtonOption,
@@ -48,6 +48,31 @@ export type {
     DefaultAddChartButtonValue,
 } from './AddChartButton';
 export {ChartEditorForm} from './ChartEditorForm';
+export {FormField} from './FormField';
+export type {FormFieldProps} from './FormField';
+export {ChartFieldsForm} from './ChartFieldsForm';
+export {ChartConfigFields} from './ChartConfigFields';
+export type {
+    ChartFieldsFormProps,
+    ChartFieldsFormValues,
+    ChartFieldsFormLabels,
+    ChartFieldItem,
+    ChartFieldsChartType,
+    ChartFieldRole,
+    ChartFieldOptionsContext,
+    ChartSelectedFormValues,
+    ChartXYType,
+    ChartXYFormValues,
+    ChartPieFormValues,
+    ChartTreemapFormValues,
+    ChartSankeyFormValues,
+    ChartAppearanceValues,
+} from './ChartFieldsForm';
+export type {
+    ChartConfigFieldsProps,
+    ChartConfigValues,
+    ChartConfigLabels,
+} from './ChartConfigFields';
 export type {
     ChartEditorFormProps,
     ChartEditorFormValues,
@@ -73,3 +98,4 @@ export {QueryGraph} from './QueryGraph';
 export type {QueryGraphProps} from './QueryGraph';
 export {DataTypePopup} from './DataTypePopup';
 export type {DataTypePopupProps} from './DataTypePopup';
+export * from './MonacoDiffEditor';

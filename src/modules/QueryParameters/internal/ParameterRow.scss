@@ -1,0 +1,31 @@
+.qp-parameter-row {
+    min-width: 0;
+
+    &__header {
+        min-height: 24px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__title {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    &__menu {
+        flex-shrink: 0;
+        opacity: 0;
+    }
+
+    &:hover &__menu,
+    &:focus-within &__menu {
+        opacity: 1;
+    }
+
+    @media (hover: none) {
+        &__menu {
+            opacity: 1;
+        }
+    }
+}

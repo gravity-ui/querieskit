@@ -1,0 +1,13 @@
+{
+  "title_queries": "Queries",
+  "action_add-tab": "New query",
+  "action_close-tab": "Close tab {{title}}",
+  "context_modified": "Query has changes",
+  "context_comparison": "Query comparison",
+  "title_comparison": "Compare {{leftTitle}} with {{rightTitle}}",
+  "value_draft": "Not started",
+  "value_running": "Running",
+  "value_completed": "Completed",
+  "value_failed": "Failed",
+  "value_aborted": "Aborted"
+}

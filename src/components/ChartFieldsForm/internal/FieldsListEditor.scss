@@ -1,0 +1,14 @@
+.qp-fields-list-editor {
+    &__select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__action {
+        flex-shrink: 0;
+    }
+
+    &__add {
+        align-self: flex-start;
+    }
+}

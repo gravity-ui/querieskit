@@ -1,11 +1,61 @@
 {
   "name": "@gravity-ui/querieskit",
-  "version": "1.8.0",
+  "version": "2.6.0",
   "description": "Query page component library",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "types": "./build/esm/index.d.ts",
   "exports": {
+    "./modules/QueryShare": {
+      "import": {
+        "types": "./build/esm/modules/QueryShare/index.d.ts",
+        "default": "./build/esm/modules/QueryShare/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryShare/index.d.ts",
+        "default": "./build/cjs/modules/QueryShare/index.js"
+      }
+    },
+    "./modules/QueryEditor/presets/ytsaurus": {
+      "import": {
+        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
+      }
+    },
+    "./modules/QuerySettings": {
+      "import": {
+        "types": "./build/esm/modules/QuerySettings/index.d.ts",
+        "default": "./build/esm/modules/QuerySettings/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QuerySettings/index.d.ts",
+        "default": "./build/cjs/modules/QuerySettings/index.js"
+      }
+    },
+    "./modules/QueryEditor": {
+      "import": {
+        "types": "./build/esm/widgets/QueryEditor/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryEditor/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/index.js"
+      }
+    },
+    "./modules/QueryTabs": {
+      "import": {
+        "types": "./build/esm/modules/QueryTabs/index.d.ts",
+        "default": "./build/esm/modules/QueryTabs/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryTabs/index.d.ts",
+        "default": "./build/cjs/modules/QueryTabs/index.js"
+      }
+    },
     ".": {
       "import": {
         "types": "./build/esm/index.d.ts",
@@ -28,52 +78,42 @@
     "./package.json": "./package.json",
     "./widgets/QueriesHistory": {
       "import": {
-        "types": "./build/esm/widgets/QueriesHistory/index.d.ts",
-        "default": "./build/esm/widgets/QueriesHistory/index.js"
+        "types": "./build/esm/modules/QueriesHistory/index.d.ts",
+        "default": "./build/esm/modules/QueriesHistory/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/QueriesHistory/index.d.ts",
-        "default": "./build/cjs/widgets/QueriesHistory/index.js"
+        "types": "./build/cjs/modules/QueriesHistory/index.d.ts",
+        "default": "./build/cjs/modules/QueriesHistory/index.js"
       }
     },
     "./widgets/SavedQueries": {
       "import": {
-        "types": "./build/esm/widgets/SavedQueries/index.d.ts",
-        "default": "./build/esm/widgets/SavedQueries/index.js"
+        "types": "./build/esm/modules/SavedQueries/index.d.ts",
+        "default": "./build/esm/modules/SavedQueries/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/SavedQueries/index.d.ts",
-        "default": "./build/cjs/widgets/SavedQueries/index.js"
+        "types": "./build/cjs/modules/SavedQueries/index.d.ts",
+        "default": "./build/cjs/modules/SavedQueries/index.js"
       }
     },
     "./widgets/TutorialsHistory": {
       "import": {
-        "types": "./build/esm/widgets/TutorialsHistory/index.d.ts",
-        "default": "./build/esm/widgets/TutorialsHistory/index.js"
+        "types": "./build/esm/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/esm/modules/TutorialsHistory/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/TutorialsHistory/index.d.ts",
-        "default": "./build/cjs/widgets/TutorialsHistory/index.js"
+        "types": "./build/cjs/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/cjs/modules/TutorialsHistory/index.js"
       }
     },
     "./widgets/QueriesNavigation": {
       "import": {
-        "types": "./build/esm/widgets/QueriesNavigation/index.d.ts",
-        "default": "./build/esm/widgets/QueriesNavigation/index.js"
+        "types": "./build/esm/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/esm/modules/QueriesNavigation/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/QueriesNavigation/index.d.ts",
-        "default": "./build/cjs/widgets/QueriesNavigation/index.js"
-      }
-    },
-    "./widgets/QueryResults": {
-      "import": {
-        "types": "./build/esm/widgets/QueryResults/index.d.ts",
-        "default": "./build/esm/widgets/QueryResults/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/widgets/QueryResults/index.d.ts",
-        "default": "./build/cjs/widgets/QueryResults/index.js"
+        "types": "./build/cjs/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/cjs/modules/QueriesNavigation/index.js"
       }
     },
     "./widgets/DashboardCharts": {
@@ -84,6 +124,156 @@
       "require": {
         "types": "./build/cjs/widgets/DashboardCharts/index.d.ts",
         "default": "./build/cjs/widgets/DashboardCharts/index.js"
+      }
+    },
+    "./modules/QueryResults": {
+      "import": {
+        "types": "./build/esm/modules/QueryResults/index.d.ts",
+        "default": "./build/esm/modules/QueryResults/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryResults/index.d.ts",
+        "default": "./build/cjs/modules/QueryResults/index.js"
+      }
+    },
+    "./widgets/QueryExecutionPanel": {
+      "import": {
+        "types": "./build/esm/widgets/QueryExecutionPanel/index.d.ts",
+        "default": "./build/esm/widgets/QueryExecutionPanel/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryExecutionPanel/index.d.ts",
+        "default": "./build/cjs/widgets/QueryExecutionPanel/index.js"
+      }
+    },
+    "./modules/QueriesHistory": {
+      "import": {
+        "types": "./build/esm/modules/QueriesHistory/index.d.ts",
+        "default": "./build/esm/modules/QueriesHistory/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueriesHistory/index.d.ts",
+        "default": "./build/cjs/modules/QueriesHistory/index.js"
+      }
+    },
+    "./modules/QueriesNavigation": {
+      "import": {
+        "types": "./build/esm/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/esm/modules/QueriesNavigation/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueriesNavigation/index.d.ts",
+        "default": "./build/cjs/modules/QueriesNavigation/index.js"
+      }
+    },
+    "./modules/SavedQueries": {
+      "import": {
+        "types": "./build/esm/modules/SavedQueries/index.d.ts",
+        "default": "./build/esm/modules/SavedQueries/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/SavedQueries/index.d.ts",
+        "default": "./build/cjs/modules/SavedQueries/index.js"
+      }
+    },
+    "./modules/TutorialsHistory": {
+      "import": {
+        "types": "./build/esm/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/esm/modules/TutorialsHistory/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/TutorialsHistory/index.d.ts",
+        "default": "./build/cjs/modules/TutorialsHistory/index.js"
+      }
+    },
+    "./widgets/QueriesSidebar": {
+      "import": {
+        "types": "./build/esm/widgets/QueriesSidebar/index.d.ts",
+        "default": "./build/esm/widgets/QueriesSidebar/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueriesSidebar/index.d.ts",
+        "default": "./build/cjs/widgets/QueriesSidebar/index.js"
+      }
+    },
+    "./helpers/queryEditorPreset": {
+      "import": {
+        "types": "./build/esm/helpers/queryEditorPreset/index.d.ts",
+        "default": "./build/esm/helpers/queryEditorPreset/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/helpers/queryEditorPreset/index.d.ts",
+        "default": "./build/cjs/helpers/queryEditorPreset/index.js"
+      }
+    },
+    "./components/MonacoEditor": {
+      "import": {
+        "types": "./build/esm/components/MonacoEditor/index.d.ts",
+        "default": "./build/esm/components/MonacoEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/MonacoEditor/index.d.ts",
+        "default": "./build/cjs/components/MonacoEditor/index.js"
+      }
+    },
+    "./modules/QueryParameters": {
+      "import": {
+        "types": "./build/esm/modules/QueryParameters/index.d.ts",
+        "default": "./build/esm/modules/QueryParameters/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryParameters/index.d.ts",
+        "default": "./build/cjs/modules/QueryParameters/index.js"
+      }
+    },
+    "./widgets/QueryEditor": {
+      "import": {
+        "types": "./build/esm/widgets/QueryEditor/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryEditor/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/index.js"
+      }
+    },
+    "./widgets/QueryEditor/presets/ytsaurus": {
+      "import": {
+        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
+      }
+    },
+    "./pages/QueryPage": {
+      "import": {
+        "types": "./build/esm/pages/QueryPage/index.d.ts",
+        "default": "./build/esm/pages/QueryPage/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/pages/QueryPage/index.d.ts",
+        "default": "./build/cjs/pages/QueryPage/index.js"
+      }
+    },
+    "./components/MonacoDiffEditor": {
+      "import": {
+        "types": "./build/esm/components/MonacoDiffEditor/index.d.ts",
+        "default": "./build/esm/components/MonacoDiffEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/MonacoDiffEditor/index.d.ts",
+        "default": "./build/cjs/components/MonacoDiffEditor/index.js"
+      }
+    },
+    "./modules/QueryComparison": {
+      "import": {
+        "types": "./build/esm/modules/QueryComparison/index.d.ts",
+        "default": "./build/esm/modules/QueryComparison/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryComparison/index.d.ts",
+        "default": "./build/cjs/modules/QueryComparison/index.js"
       }
     }
   },
@@ -96,11 +286,18 @@
     "lint:all": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
-    "test": "npm run test:timezones && npm run test:components",
+    "test": "npm run test:timezones && npm run test:components && npm run test:timeline && npm run test:charts && npm run test:editor-helpers && npm run test:parameters && npm run test:types",
+    "test:charts": "vitest run tests/helpers/chartFieldsForm.test.ts tests/helpers/chartBindingsExamples.test.ts",
     "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
     "test:components": "vitest run tests/components",
     "prepublishOnly": "npm run build",
-    "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs"
+    "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs",
+    "test:timeline": "vitest run tests/helpers/queryTimeline.test.ts",
+    "test:editor-helpers": "vitest run tests/helpers/editorProviders.test.ts tests/helpers/queryEditorPreset.test.ts",
+    "test:editors:browser": "playwright test",
+    "test:parameters": "vitest run tests/helpers/queryParameters.test.ts tests/helpers/parameterDate.test.ts",
+    "test:types": "tsc -p tests/types",
+    "test:page:browser": "playwright test tests/browser/queryPage.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -114,18 +311,19 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^20.5.3",
     "@gravity-ui/app-builder": "^0.49.0",
-    "@gravity-ui/date-utils": "^2.7.1",
     "@gravity-ui/eslint-config": "^4.3.2",
     "@gravity-ui/icons": "^2.20.0",
     "@gravity-ui/prettier-config": "^1.1.1",
     "@gravity-ui/tsconfig": "^1.0.0",
     "@gravity-ui/uikit": "^7.45.1",
+    "@playwright/test": "^1.63.0",
     "@storybook/react": "^10.5.0",
     "@storybook/react-vite": "^10.5.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
     "@typescript-eslint/parser": "^8.64.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.39.5",
     "eslint-import-resolver-typescript": "^4.4.5",
     "jsdom": "^26.1.0",
@@ -137,12 +335,11 @@
     "typescript": "^6.0.3",
     "vite": "^8.1.5",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^3.2.4",
-    "esbuild": "^0.28.1"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "@gravity-ui/icons": ">=2.0.0",
-    "@gravity-ui/uikit": ">=7.0.0",
+    "@gravity-ui/uikit": ">=7.18.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
@@ -150,12 +347,16 @@
     "@gravity-ui/charts": "^1.57.2",
     "@gravity-ui/dashkit": "^10.4.0",
     "@gravity-ui/date-components": "^3.4.2",
-    "@gravity-ui/graph": "1.12.1",
+    "@gravity-ui/date-utils": "^2.7.1",
+    "@gravity-ui/graph": "1.12.2",
     "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/illustrations": "^2.1.1",
     "@gravity-ui/react-data-table": "^2.2.1",
+    "@gravity-ui/timeline": "1.32.2",
     "@gravity-ui/unipika": "^5.6.3",
+    "@gravity-ui/websql-autocomplete": "^13.16.0",
     "bem-cn-lite": "^4.1.0",
+    "lodash": "^4.18.1",
     "monaco-editor": "^0.56.0"
   },
   "overrides": {
@@ -166,6 +367,8 @@
   },
   "sideEffects": [
     "**/*.css",
+    "**/*.scss",
+    "./src/components/MonacoEditor/monaco-yql-languages/**/*.contribution.ts",
     "./build/*/components/MonacoEditor/monaco-yql-languages/monaco.contribution.js",
     "./build/*/components/MonacoEditor/monaco-yql-languages/clickhouse/clickhouse.contribution.js",
     "./build/*/components/MonacoEditor/monaco-yql-languages/yql/yql.contribution.js",

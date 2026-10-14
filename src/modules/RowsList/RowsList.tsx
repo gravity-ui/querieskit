@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import cn from 'bem-cn-lite';
-import {
+import type {
     QueryListComparisonConfig,
     QueryListEditingConfig,
     QueryListItem,
@@ -16,10 +16,11 @@ import {LazyList} from '../../components/LazyList';
 import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../../constants/row';
 import './RowsList.scss';
+import type {ListEmptyContentProps} from '../../types/listPanel';
 
 const block = cn('qp-rows-list');
 
-export type RowsListProps<T extends QueryListRow> = {
+export type RowsListProps<T extends QueryListRow> = ListEmptyContentProps & {
     items: QueryListItem<T>[];
     selectedRowId?: T['id'];
     rowVariant?: QueryListRowVariant;
@@ -47,6 +48,7 @@ export const RowsList = <T extends QueryListRow>({
     getRowActions,
     renderRow,
     showFiltersHint,
+    emptyContent,
     hasMore,
     loading,
     onLoadMore,
@@ -54,6 +56,10 @@ export const RowsList = <T extends QueryListRow>({
     className,
     onItemClick,
 }: RowsListProps<T>) => {
+    const listItems = useMemo(
+        () => items.map((item) => ('header' in item ? {...item, disabled: true} : item)),
+        [items],
+    );
     const getItemHeight = (item: QueryListItem<T>) =>
         rowVariant === 'search' && !('header' in item) ? SEARCH_ROW_HEIGHT : item.height;
     const selectedItemIndex =
@@ -74,12 +80,12 @@ export const RowsList = <T extends QueryListRow>({
     return (
         <LazyList<QueryListItem<T>>
             className={block(null, className)}
-            items={items}
+            items={listItems}
             itemHeight={getItemHeight}
-            renderItem={(item, isActive, index) =>
+            renderItem={(_item, isActive, index) =>
                 renderRow(
                     prepareRowData({
-                        item,
+                        item: items[index],
                         isActive,
                         index,
                         variant: rowVariant,
@@ -96,10 +102,14 @@ export const RowsList = <T extends QueryListRow>({
             loading={loading}
             onLoadMore={onLoadMore}
             emptyContent={
-                <EmptyContent
-                    variant={showFiltersHint ? 'nothing-found' : 'no-files'}
-                    className={className}
-                />
+                emptyContent === undefined ? (
+                    <EmptyContent
+                        variant={showFiltersHint ? 'nothing-found' : 'no-files'}
+                        className={className}
+                    />
+                ) : (
+                    emptyContent
+                )
             }
             onItemClick={handleItemClick}
         />

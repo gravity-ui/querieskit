@@ -1,4 +1,9 @@
 .qp-lazy-list {
+  &__item {
+    // Widen the virtualized rows, keeping both axes in the list's scroll container.
+    min-width: var(--qp-lazy-list-item-min-width, 0px);
+  }
+
   .g-list__item_selected:hover {
     background-color: var(--g-color-base-selection-hover);
   }

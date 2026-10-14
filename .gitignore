@@ -11,6 +11,8 @@ yarn-error.log*
 # Build outputs
 /dist
 /storybook-static
+/test-results
+/playwright-report
 
 # Personal
 .idea/

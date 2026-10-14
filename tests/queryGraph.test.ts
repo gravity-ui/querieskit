@@ -12,8 +12,10 @@ import {
 import {
     fitCanvasFontSize,
     fitCanvasText,
+    getQueryGraphLabelMaxWidth,
     getQueryGraphNodeContent,
     getScaleAdjustedFontSize,
+    shouldShowQueryGraphLabel,
 } from '../src/components/QueryGraph/helpers/presentation';
 import {
     getDefaultQueryGraphNodeIcon,
@@ -156,4 +158,16 @@ test('keeps graph text at its design size across camera scales', () => {
 test('shrinks counters that exceed the available node width', () => {
     assert.equal(fitCanvasFontSize(11, 40, 50), 11);
     assert.equal(fitCanvasFontSize(11, 100, 50), 5.5);
+});
+
+test('hides overview labels and bounds visible labels within compact layer spacing', () => {
+    for (const scale of [0.1, 0.25, 0.499]) assert.equal(shouldShowQueryGraphLabel(scale), false);
+    for (const scale of [0.5, 1]) {
+        assert.equal(shouldShowQueryGraphLabel(scale), true);
+        for (const width of [36, 65]) {
+            const labelScreenWidth = getQueryGraphLabelMaxWidth(width) * scale;
+            assert.ok(labelScreenWidth <= (width + 80 - 16) * scale);
+            assert.ok(labelScreenWidth <= 2 * width * scale);
+        }
+    }
 });

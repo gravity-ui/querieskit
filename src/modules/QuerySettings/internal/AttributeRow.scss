@@ -1,0 +1,30 @@
+.qp-settings-attribute-row {
+    min-width: 0;
+    border-radius: var(--g-border-radius-m);
+
+    &:not(&_editing):hover,
+    &:not(&_editing):focus-within {
+        background: var(--g-color-base-simple-hover);
+    }
+
+    &__text,
+    &__input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__text {
+        padding-left: var(--g-spacing-2);
+        overflow-wrap: anywhere;
+    }
+
+    &__actions {
+        flex-shrink: 0;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        &:not(&_editing):not(:hover):not(:focus-within) &__actions {
+            opacity: 0;
+        }
+    }
+}

@@ -1,9 +1,10 @@
 import React, {useMemo} from 'react';
-import type {ChartEditorFormProps, ChartEditorFormValues} from './types';
-import {Button, Flex, Select, Switch, Text, TextInput} from '@gravity-ui/uikit';
-import {Field} from './internal/Field';
+import type {ChartEditorFormProps, ChartEditorFormValues} from '../../types/chartEditor';
+import {Button, Flex, Select, Text} from '@gravity-ui/uikit';
+import {ChartConfigFields} from '../ChartConfigFields';
+import {FormField} from '../FormField';
 import {resolveLabels} from './helpers/resolveLabels';
-import {ChartAxisType} from '@gravity-ui/charts';
+import type {ChartAxisType} from '@gravity-ui/charts';
 import cn from 'bem-cn-lite';
 import './ChartEditorForm.scss';
 
@@ -46,7 +47,7 @@ export function ChartEditorForm({
 
             <Flex direction="column" gap={3} className={block('fields')}>
                 {needShowDataIdsSelector && (
-                    <Field label={resolvedLables.data}>
+                    <FormField label={resolvedLables.data}>
                         <Select
                             multiple
                             aria-label={resolvedLables.data}
@@ -56,10 +57,10 @@ export function ChartEditorForm({
                             disabled={disabled}
                             width="max"
                         />
-                    </Field>
+                    </FormField>
                 )}
 
-                <Field label={resolvedLables.axisType}>
+                <FormField label={resolvedLables.axisType}>
                     <Select<ChartAxisType>
                         aria-label={resolvedLables.axisType}
                         options={axisOptions}
@@ -70,40 +71,13 @@ export function ChartEditorForm({
                         disabled={disabled}
                         width="max"
                     />
-                </Field>
+                </FormField>
 
-                <Field label={resolvedLables.chartTitle}>
-                    <TextInput
-                        aria-label={resolvedLables.chartTitle}
-                        value={formValues.chartTitle}
-                        onUpdate={(chartTitle) => updateFormValues({chartTitle})}
-                        disabled={disabled}
-                    />
-                </Field>
-
-                <Field label={resolvedLables.xTitle}>
-                    <TextInput
-                        aria-label={resolvedLables.xTitle}
-                        value={formValues.xTitle}
-                        onUpdate={(xTitle) => updateFormValues({xTitle})}
-                        disabled={disabled}
-                    />
-                </Field>
-
-                <Field label={resolvedLables.yTitle}>
-                    <TextInput
-                        aria-label={resolvedLables.yTitle}
-                        value={formValues.yTitle}
-                        onUpdate={(yTitle) => updateFormValues({yTitle})}
-                        disabled={disabled}
-                    />
-                </Field>
-
-                <Switch
-                    checked={Boolean(formValues.showLegend)}
-                    onUpdate={(showLegend) => updateFormValues({showLegend})}
+                <ChartConfigFields
+                    formValues={formValues}
+                    onFormValuesChange={updateFormValues}
+                    labels={labels}
                     disabled={disabled}
-                    content={resolvedLables.showLegend}
                 />
             </Flex>
 

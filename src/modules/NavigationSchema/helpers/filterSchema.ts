@@ -12,6 +12,8 @@ export function filterSchema<TColumn extends NavigationSchemaColumn>(
     return columns.filter((column) => {
         return (
             column.name.toLowerCase().includes(query) ||
+            (column.description?.toLowerCase().includes(query) ?? false) ||
+            (column.datacatalogDescription?.toLowerCase().includes(query) ?? false) ||
             (column.type?.toLowerCase().includes(query) ?? false)
         );
     });

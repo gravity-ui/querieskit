@@ -98,6 +98,7 @@ export const LazyList = <T extends object>({
         <List<LazyListRow<T>>
             ref={listRef}
             className={block(null, className)}
+            itemClassName={block('item')}
             filterable={filterable}
             items={rows}
             itemHeight={getRowHeight}

@@ -1,0 +1,23 @@
+{
+  "title_form": "Добавить график",
+  "title_chart-config": "Настройки графика",
+  "field_chart-type": "Тип графика",
+  "field_x": "X",
+  "field_y": "Y",
+  "field_axis-type": "Тип оси",
+  "field_chart-title": "Заголовок",
+  "context_select-item": "Выберите поле",
+  "action_add-item": "Добавить поле",
+  "action_remove-item": "Удалить поле",
+  "action_close": "Закрыть",
+  "action_cancel": "Отменить",
+  "action_submit": "Добавить график",
+  "field_category": "Категории",
+  "field_value": "Значение",
+  "field_levels": "Уровни",
+  "field_source": "Источник",
+  "field_target": "Назначение",
+  "field_flow-value": "Величина потока",
+  "action_move-up": "Переместить вверх",
+  "action_move-down": "Переместить вниз"
+}

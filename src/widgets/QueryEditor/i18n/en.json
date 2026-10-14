@@ -1,0 +1,23 @@
+{
+  "action_run": "Run",
+  "action_format": "Format",
+  "action_validate": "Validate",
+  "action_more": "More actions",
+  "action_settings": "Settings",
+  "action_save": "Save",
+  "action_save-as": "Save as",
+  "action_share": "Share",
+  "action_code-assistant": "Code Assistant",
+  "action_close-settings": "Close Settings",
+  "field_cluster": "Cluster",
+  "field_engine": "Engine",
+  "title_settings": "Settings",
+  "field_query": "Query editor",
+  "action_attachments": "Attachments",
+  "title_attachments": "Attachments",
+  "action_close-attachments": "Close Attachments",
+  "action_resize-panel": "Resize panel",
+  "action_parameters": "Parameters",
+  "title_parameters": "Parameters",
+  "action_close-parameters": "Close Parameters"
+}

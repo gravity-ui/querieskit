@@ -1,0 +1,20 @@
+{
+  "title_general": "Общие",
+  "title_attributes": "Атрибуты",
+  "field_query-name": "Название запроса",
+  "field_access": "Доступ",
+  "field_tokens": "Токены",
+  "field_yt-operation-title": "Название операции YT",
+  "field_key": "Ключ",
+  "field_value": "Значение",
+  "field_attribute-key": "Ключ атрибута {{index}}",
+  "field_attribute-value": "Значение атрибута {{index}}",
+  "value_everyone": "Всем",
+  "value_only-me": "Только мне",
+  "context_select-token": "Выберите токен",
+  "action_add-attribute": "Добавить атрибут",
+  "action_remove-attribute": "Удалить атрибут {{index}}",
+  "action_edit-attribute": "Редактировать атрибут {{index}}",
+  "action_apply-attribute": "Применить атрибут {{index}}",
+  "action_cancel-attribute": "Отменить редактирование атрибута {{index}}"
+}

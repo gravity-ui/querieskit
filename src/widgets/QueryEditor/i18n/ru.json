@@ -1,0 +1,23 @@
+{
+  "action_run": "Запустить",
+  "action_format": "Форматировать",
+  "action_validate": "Проверить",
+  "action_more": "Дополнительные действия",
+  "action_settings": "Настройки",
+  "action_save": "Сохранить",
+  "action_save-as": "Сохранить как",
+  "action_share": "Поделиться",
+  "action_code-assistant": "Помощник по коду",
+  "action_close-settings": "Закрыть настройки",
+  "field_cluster": "Кластер",
+  "field_engine": "Движок",
+  "title_settings": "Настройки",
+  "field_query": "Редактор запроса",
+  "action_attachments": "Вложения",
+  "title_attachments": "Вложения",
+  "action_close-attachments": "Закрыть вложения",
+  "action_resize-panel": "Изменить ширину панели",
+  "action_parameters": "Параметры",
+  "title_parameters": "Параметры",
+  "action_close-parameters": "Закрыть параметры"
+}

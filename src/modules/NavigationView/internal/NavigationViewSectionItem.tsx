@@ -4,6 +4,7 @@ import cn from 'bem-cn-lite';
 import type {Column} from '../../../components/DataTable';
 import {DataTable} from '../../../components/DataTable';
 import {NavigationActionButtons} from '../../../components/NavigationActionButtons';
+import {filterNavigationRows} from '../../../helpers/filterNavigationRows';
 import type {NavigationViewRow, NavigationViewSection} from '../../../types/navigation';
 import {buildViewColumns} from '../helpers/buildViewColumns';
 import i18n from '../i18n';
@@ -12,12 +13,14 @@ const block = cn('qp-navigation-view');
 
 export type NavigationViewSectionItemProps<TRow extends NavigationViewRow = NavigationViewRow> = {
     section: NavigationViewSection<TRow>;
+    search?: string;
     tableColumns?: Array<Column<TRow>>;
     extraColumns?: Array<Column<TRow>>;
 };
 
 export function NavigationViewSectionItem<TRow extends NavigationViewRow = NavigationViewRow>({
     section,
+    search,
     tableColumns,
     extraColumns,
 }: NavigationViewSectionItemProps<TRow>) {
@@ -27,6 +30,10 @@ export function NavigationViewSectionItem<TRow extends NavigationViewRow = Navig
         }
         return [...buildViewColumns<TRow>(section.columns, i18n), ...(extraColumns ?? [])];
     }, [tableColumns, extraColumns, section.columns]);
+    const rows = useMemo(
+        () => filterNavigationRows(section.rows, section.columns, search),
+        [section.rows, section.columns, search],
+    );
 
     return (
         <Disclosure
@@ -59,7 +66,8 @@ export function NavigationViewSectionItem<TRow extends NavigationViewRow = Navig
                 ) : (
                     <DataTable<TRow>
                         columns={resolvedColumns}
-                        data={section.rows}
+                        data={rows}
+                        emptyVariant={search?.trim() ? 'nothing-found' : 'no-data'}
                         loading={section.loading}
                         loaded={section.loaded}
                         settings={{displayIndices: false}}

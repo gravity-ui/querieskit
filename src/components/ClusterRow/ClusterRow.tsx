@@ -1,6 +1,7 @@
 import React, {FC} from 'react';
 import {Avatar, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import './ClusterRow.scss';
 import {NavigationCluster} from '../../types/navigation';
 
 const block = cn('qp-cluster-row');

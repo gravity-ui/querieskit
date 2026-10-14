@@ -40,7 +40,7 @@ export const NavigationHeader: FC<NavigationHeaderProps> = ({
             {renderActions ? (
                 renderActions({location, actions: actions ?? []})
             ) : (
-                <NavigationActionButtons actions={actions} arg={location} />
+                <NavigationActionButtons size="m" actions={actions} arg={location} />
             )}
         </Flex>
     );

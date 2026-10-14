@@ -1,0 +1,19 @@
+{
+  "title_mode": "Режим сравнения",
+  "value_split": "Рядом",
+  "value_unified": "Вместе",
+  "action_collapse": "Свернуть",
+  "action_expand": "Развернуть",
+  "action_restore": "Восстановить файл",
+  "action_remove": "Удалить файл",
+  "value_missing-original": "В этой версии файла не было",
+  "value_missing-modified": "В этой версии файл удалён",
+  "value_empty": "Нет файлов для сравнения",
+  "value_pending": "Изменения вычисляются или сравнение недоступно",
+  "field_baseline": "Исходная версия",
+  "field_competitor": "Сравниваемая версия",
+  "action_swap": "Поменять версии местами",
+  "action_reset": "Сбросить изменения",
+  "action_save": "Сохранить изменения",
+  "action_create-query": "Создать запрос"
+}

@@ -1,33 +1,43 @@
 .qp-history-row {
-  height: 100%;
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  gap: 4px;
-
-  &_compared {
-    background-color: var(--g-color-base-utility-light);
-  }
-
-  &__icon {
-    flex: 0 0 20px;
-  }
-
-  &__header {
-    height: 20px;
-  }
-
-  &__right-column {
-    overflow: hidden;
-  }
-
-  &__data {
+    height: 100%;
     display: grid;
-    grid-template-columns: minmax(64px, max-content) 1fr;
-    grid-gap: 8px;
-  }
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 4px;
 
-  &__duration {
-    text-align: center;
-    white-space: nowrap;
-  }
+    &_compared {
+        background-color: var(--g-color-base-utility-light);
+    }
+
+    &__icon {
+        flex: 0 0 20px;
+    }
+
+    &__header {
+        height: 20px;
+    }
+
+    &__title {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    &__actions {
+        flex: 0 0 24px;
+    }
+
+    &__right-column {
+        overflow: hidden;
+    }
+
+    &__data {
+        display: grid;
+        grid-template-columns: minmax(64px, max-content) 1fr;
+        grid-gap: 8px;
+    }
+
+    &__duration {
+        text-align: center;
+        white-space: nowrap;
+    }
 }

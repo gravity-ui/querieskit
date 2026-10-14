@@ -1,0 +1,18 @@
+.qp-query-editor-toolbar {
+    padding: var(--g-spacing-1) var(--g-spacing-2);
+    border-bottom: 1px solid var(--g-color-line-generic);
+    &__selectors {
+        min-width: 0;
+    }
+    &__select {
+        max-width: 240px;
+        min-width: 120px;
+    }
+    &__actions {
+        margin-inline-start: auto;
+    }
+    &__divider {
+        height: 26px;
+        flex-shrink: 0;
+    }
+}

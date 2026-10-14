@@ -206,6 +206,37 @@ export const LargeGraph: Story = {
     },
 };
 
+// A tall graph with few layers must not stretch horizontally as branches are added.
+export const WideBranches: Story = {
+    args: {
+        nodes: [
+            {
+                id: 'source',
+                kind: 'input',
+                name: 'source',
+                label: 'warehouse/analytics/a-very-long-path/to/source-table',
+            },
+            ...Array.from({length: 16}, (_, index): QueryGraphNode => ({
+                id: `branch-${index}`,
+                kind: 'operation',
+                name: `Map branch ${index + 1}`,
+                operationType: 'map',
+                status: index % 2 ? 'running' : 'completed',
+                progress: {total: 100, completed: index % 2 ? 50 : 100},
+            })),
+            {id: 'sink', kind: 'output', name: 'result'},
+        ],
+        edges: [
+            ...Array.from({length: 16}, (_, index) => [
+                {id: `in-${index}`, source: 'source', target: `branch-${index}`},
+                {id: `out-${index}`, source: `branch-${index}`, target: 'sink'},
+            ]).flat(),
+            {id: 'skip-layer', source: 'source', target: 'sink'},
+        ],
+        largeGraphThreshold: false,
+    },
+};
+
 export const LargeGraphThreshold: Story = {
     args: {
         nodes: Array.from({length: 701}, (_, index) => ({
