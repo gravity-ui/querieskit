@@ -16,16 +16,6 @@
         "default": "./build/cjs/modules/QueryShare/index.js"
       }
     },
-    "./modules/QueryEditor/presets/ytsaurus": {
-      "import": {
-        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
-      }
-    },
     "./modules/QuerySettings": {
       "import": {
         "types": "./build/esm/modules/QuerySettings/index.d.ts",
@@ -236,14 +226,14 @@
         "default": "./build/cjs/widgets/QueryEditor/index.js"
       }
     },
-    "./widgets/QueryEditor/presets/ytsaurus": {
+    "./widgets/QueryEditor/presets/builtin": {
       "import": {
-        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
+        "types": "./build/esm/widgets/QueryEditor/presets/builtin/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/presets/builtin/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
+        "types": "./build/cjs/widgets/QueryEditor/presets/builtin/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/presets/builtin/index.js"
       }
     },
     "./pages/QueryPage": {

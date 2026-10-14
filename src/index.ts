@@ -10,7 +10,7 @@ export * from './types/queryEditor';
 export * from './types/queryShare';
 export * from './types/querySettings';
 export * from './types/queryParameters';
-export * from './types/ytsaurusQueryEngines';
+export * from './types/builtinQueryEngines';
 export type {MonacoEditorProps, MonacoEditorIntegrationProps} from './types/monacoEditor';
 export * from './types/editorProviders';
 export * from './types/queryEditorPreset';

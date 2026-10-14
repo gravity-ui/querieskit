@@ -3,13 +3,13 @@ import React, {act} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
 import {type SelectProps, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {createYtsaurusQueryEngines} from '../../src/widgets/QueryEditor/presets/ytsaurus';
+import {createBuiltinQueryEngines} from '../../src/widgets/QueryEditor/presets/builtin';
 import type {QueryEditorEngineSettingsContext} from '../../src/types/queryEditor';
 import type {
-    YtsaurusEngineSettings,
-    YtsaurusQueryEngineId,
-    YtsaurusQueryEnginesOptions,
-} from '../../src/types/ytsaurusQueryEngines';
+    BuiltinEngineSettings,
+    BuiltinQueryEngineId,
+    BuiltinQueryEnginesOptions,
+} from '../../src/types/builtinQueryEngines';
 import type {MonacoEditorProps} from '../../src/types/monacoEditor';
 import type * as Monaco from 'monaco-editor';
 import {QueryEditor} from '../../src/widgets/QueryEditor';
@@ -38,9 +38,9 @@ vi.mock('../../src/components/MonacoEditor', () => ({
     },
 }));
 
-type Custom = YtsaurusEngineSettings & {pool: string};
+type Custom = BuiltinEngineSettings & {pool: string};
 
-describe('createYtsaurusQueryEngines', () => {
+describe('createBuiltinQueryEngines', () => {
     let root: Root;
     let container: HTMLDivElement;
     let context: QueryEditorEngineSettingsContext<Custom>;
@@ -95,8 +95,8 @@ describe('createYtsaurusQueryEngines', () => {
         vi.unstubAllGlobals();
     });
 
-    function render(engineId: YtsaurusQueryEngineId, options: YtsaurusQueryEnginesOptions = {}) {
-        const engine = createYtsaurusQueryEngines<Custom>(options).find(
+    function render(engineId: BuiltinQueryEngineId, options: BuiltinQueryEnginesOptions = {}) {
+        const engine = createBuiltinQueryEngines<Custom>(options).find(
             (item) => item.id === engineId,
         );
         select.props = undefined;
@@ -120,17 +120,17 @@ describe('createYtsaurusQueryEngines', () => {
     }
 
     it('provides registered languages and respects explicit engine order including an empty list', () => {
-        expect(createYtsaurusQueryEngines().map(({id, language}) => ({id, language}))).toEqual([
+        expect(createBuiltinQueryEngines().map(({id, language}) => ({id, language}))).toEqual([
             {id: 'yql', language: 'yql'},
             {id: 'chyt', language: 'clickhouse'},
             {id: 'spyt', language: 'spyt'},
             {id: 'ql', language: 'ytql'},
         ]);
-        expect(createYtsaurusQueryEngines({engines: ['ql', 'chyt']}).map(({id}) => id)).toEqual([
+        expect(createBuiltinQueryEngines({engines: ['ql', 'chyt']}).map(({id}) => id)).toEqual([
             'ql',
             'chyt',
         ]);
-        expect(createYtsaurusQueryEngines({engines: []})).toEqual([]);
+        expect(createBuiltinQueryEngines({engines: []})).toEqual([]);
     });
 
     it.each(['yql', 'chyt', 'spyt', 'ql'] as const)(
@@ -143,7 +143,7 @@ describe('createYtsaurusQueryEngines', () => {
                 root.render(
                     <ThemeProvider>
                         <QueryEditor
-                            engines={createYtsaurusQueryEngines()}
+                            engines={createBuiltinQueryEngines()}
                             engineId={engineId}
                             clusters={[{id: 'primary', title: 'Primary'}]}
                             clusterId="primary"
@@ -353,7 +353,7 @@ describe('createYtsaurusQueryEngines', () => {
     it.each([undefined, false, true])(
         'shows mutually exclusive SPYT controls when connectAvailable is %s',
         (connectAvailable) => {
-            const engine = createYtsaurusQueryEngines<Custom>({spyt: {connectAvailable}}).find(
+            const engine = createBuiltinQueryEngines<Custom>({spyt: {connectAvailable}}).find(
                 ({id}) => id === 'spyt',
             )!;
             const engineContext = {...context, engineId: 'spyt'};
@@ -366,7 +366,7 @@ describe('createYtsaurusQueryEngines', () => {
     );
 
     function renderSpyt() {
-        const engine = createYtsaurusQueryEngines<Custom>({spyt: {connectAvailable: true}}).find(
+        const engine = createBuiltinQueryEngines<Custom>({spyt: {connectAvailable: true}}).find(
             ({id}) => id === 'spyt',
         );
         act(() =>

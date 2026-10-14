@@ -1,6 +1,6 @@
 import type {QueryParameter} from '../../../types/queryParameters';
 import type {QuerySettingsValue} from '../../../types/querySettings';
-import type {YtsaurusEngineSettings} from '../../../types/ytsaurusQueryEngines';
+import type {BuiltinEngineSettings} from '../../../types/builtinQueryEngines';
 import type {AttachItem} from '../../../types/attachments';
 
 export const QUERY = 'DECLARE $limit AS Int64;\nSELECT * FROM `//demo/events` LIMIT $limit;\n';
@@ -12,7 +12,7 @@ export const TAB_ENGINES = [
     {id: 'yql', title: 'YQL', language: 'yql'},
     {id: 'clickhouse', title: 'ClickHouse', language: 'clickhouse'},
 ];
-export const SETTINGS: QuerySettingsValue<YtsaurusEngineSettings> = {
+export const SETTINGS: QuerySettingsValue<BuiltinEngineSettings> = {
     queryName: 'Daily report',
     access: 'private',
     ytOperationTitle: 'Daily report',

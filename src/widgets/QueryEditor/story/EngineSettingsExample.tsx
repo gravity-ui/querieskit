@@ -4,11 +4,11 @@ import {action} from 'storybook/actions';
 import {FormField} from '../../../components/FormField';
 import type {QueryEditorEngine} from '../../../types/queryEditor';
 import type {QuerySettingsValue} from '../../../types/querySettings';
-import type {YtsaurusEngineSettings} from '../../../types/ytsaurusQueryEngines';
+import type {BuiltinEngineSettings} from '../../../types/builtinQueryEngines';
 import {QueryEditor} from '../QueryEditor';
-import {createYtsaurusQueryEngines} from '../presets/ytsaurus';
+import {createBuiltinQueryEngines} from '../presets/builtin';
 
-type Settings = YtsaurusEngineSettings & {warehouse?: string};
+type Settings = BuiltinEngineSettings & {warehouse?: string};
 export type EngineSettingsExampleProps = {
     engineId: string;
     onEngineChange: (engineId: string) => void;
@@ -47,7 +47,7 @@ export function EngineSettingsExample({
                     executor_cores: 2,
                     executor_memory: '8G',
                     num_executors: 3,
-                    spark_conf: {'spark.ytsaurus.network.project': 'spark'},
+                    spark_conf: {'spark.sql.shuffle.partitions': '8'},
                     cluster: 'hahn',
                 },
                 null,
@@ -64,7 +64,7 @@ export function EngineSettingsExample({
     const discoveryGroups = empty
         ? []
         : [{path: `//${clusterId}/spark/default`, title: `${clusterId} Spark`}];
-    const engines = createYtsaurusQueryEngines<Settings>({
+    const engines = createBuiltinQueryEngines<Settings>({
         yql: {versions: empty ? [] : ['stable', 'preview']},
         chyt: {loading, cliques: loading ? undefined : cliques},
         spyt: {connectAvailable, loading, discoveryGroups: loading ? undefined : discoveryGroups},

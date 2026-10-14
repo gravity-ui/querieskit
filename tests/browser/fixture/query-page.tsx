@@ -3,10 +3,10 @@ import {createRoot} from 'react-dom/client';
 import {TextInput, ThemeProvider, configure} from '@gravity-ui/uikit';
 import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
 import * as monaco from 'monaco-editor/editor/editor.api';
-import {createYtsaurusQueryEngines} from '../../../src/widgets/QueryEditor/presets/ytsaurus';
+import {createBuiltinQueryEngines} from '../../../src/widgets/QueryEditor/presets/builtin';
 import {createQueryEditorPreset} from '../../../src/helpers/queryEditorPreset';
 import type {EditorPreset} from '../../../src/types/editorProviders';
-import type {YtsaurusQueryEngineId} from '../../../src/types/ytsaurusQueryEngines';
+import type {BuiltinQueryEngineId} from '../../../src/types/builtinQueryEngines';
 import {QueryPage} from '../../../src/pages/QueryPage';
 import {setLang} from '../../../src/i18n';
 import '@gravity-ui/uikit/styles/styles.css';
@@ -14,7 +14,7 @@ import '@gravity-ui/uikit/styles/styles.css';
 self.MonacoEnvironment = {getWorker: () => new EditorWorker()};
 configure({lang: 'en'});
 setLang('en');
-const engines = createYtsaurusQueryEngines();
+const engines = createBuiltinQueryEngines();
 const refs: Record<string, React.RefObject<monaco.editor.IStandaloneCodeEditor | null>> = {
     '1': createRef(),
     '2': createRef(),
@@ -85,8 +85,8 @@ function Draft({label}: {label: string}) {
 }
 function Example() {
     const [queries, setQueries] = useState([
-        {id: '1', value: 'SELECT 1;', engineId: 'yql' as YtsaurusQueryEngineId, clusterId: 'c'},
-        {id: '2', value: 'SELECT 2;', engineId: 'yql' as YtsaurusQueryEngineId, clusterId: 'c'},
+        {id: '1', value: 'SELECT 1;', engineId: 'yql' as BuiltinQueryEngineId, clusterId: 'c'},
+        {id: '2', value: 'SELECT 2;', engineId: 'yql' as BuiltinQueryEngineId, clusterId: 'c'},
     ]);
     const [activeTab, setActiveTab] = useState('1');
     return (
@@ -144,7 +144,7 @@ function Example() {
                                 setQueries((items) =>
                                     items.map((item) =>
                                         item.id === query.id
-                                            ? {...item, engineId: engineId as YtsaurusQueryEngineId}
+                                            ? {...item, engineId: engineId as BuiltinQueryEngineId}
                                             : item,
                                     ),
                                 ),

@@ -81,7 +81,7 @@ const pending = [
     ...widgets.map((name) => path.join(root, 'src', unitPath(name), 'index.ts')),
     path.join(root, 'src/modules/QueryTimeline/index.ts'),
     path.join(root, 'src/modules/QueryProgress/index.ts'),
-    path.join(root, 'src/widgets/QueryEditor/presets/ytsaurus/index.ts'),
+    path.join(root, 'src/widgets/QueryEditor/presets/builtin/index.ts'),
 ];
 const visited = new Set();
 while (pending.length) {
@@ -164,16 +164,25 @@ const onChange: QueryEditorProps['onChange'] = (value) => {
     const invalid: number = value;
 };
 import {QueryEditor as SettingsEditor} from '${specifier}';
-import {createYtsaurusQueryEngines} from '${packageName}/widgets/QueryEditor/presets/ytsaurus';
-import {createYtsaurusQueryEngines as rootEngineFactory} from '${packageName}';
-import type {YtsaurusEngineSettings} from '${packageName}/widgets/QueryEditor/presets/ytsaurus';
+import {createBuiltinQueryEngines} from '${packageName}/widgets/QueryEditor/presets/builtin';
+import {createBuiltinQueryEngines as rootEngineFactory} from '${packageName}';
+import type {BuiltinEngineSettings} from '${packageName}/widgets/QueryEditor/presets/builtin';
 import type {QuerySettingsValue} from '${packageName}/modules/QuerySettings';
-type CustomSettings = YtsaurusEngineSettings & {applicationField: string};
+type CustomSettings = BuiltinEngineSettings & {applicationField: string};
 const engineSettings: QuerySettingsValue<CustomSettings> = {
     queryName: '', access: 'private', ytOperationTitle: '', tokenIds: [], attributes: [],
     custom: {yqlVersion: 'stable', applicationField: 'custom'},
 };
 const rootEngines: QueryEditorEngine<CustomSettings>[] = rootEngineFactory<CustomSettings>();
+// Application engines can be composed with an optional subset of built-in UI descriptions.
+type AppEngineSettings = BuiltinEngineSettings & {workspace?: string};
+const applicationEngine: QueryEditorEngine<AppEngineSettings> = {
+    id: 'application-sql', title: 'Application SQL', language: 'sql',
+};
+const applicationEngines: QueryEditorEngine<AppEngineSettings>[] = [
+    applicationEngine,
+    ...createBuiltinQueryEngines<AppEngineSettings>({engines: ['yql', 'chyt']}),
+];
 const engineWithSettings: QueryEditorEngine<CustomSettings> = {
     ...engine,
     renderSettingsFields(context) {
@@ -189,7 +198,7 @@ const engineWithSettings: QueryEditorEngine<CustomSettings> = {
 };
 const settingsEditorProps: QueryEditorProps<CustomSettings> = {
     value: '', onChange() {}, clusters: [], onClusterChange() {},
-    engines: [engineWithSettings, ...createYtsaurusQueryEngines<CustomSettings>()],
+    engines: [engineWithSettings, ...createBuiltinQueryEngines<CustomSettings>()],
     engineId: 'yql', onEngineChange() {}, onRun() {}, onFormat() {}, onValidate() {},
     settingsProps: {value: engineSettings, onChange(next) {
         const field: string = next.custom.applicationField;
@@ -573,14 +582,15 @@ for (const dialect of ['yql', 'clickhouse']) {
 console.info('✓ Query editor preset: standalone entrypoint and lazy SQL parsers');
 
 // Engine settings presets include the SPYT JSON editor, but not QueryEditor or SQL completion.
-const enginePresetPath = 'widgets/QueryEditor/presets/ytsaurus';
+const enginePresetPath = 'widgets/QueryEditor/presets/builtin';
 const enginePresetSpecifier = `${packageName}/${enginePresetPath}`;
-const legacyEnginePresetSpecifier = `${packageName}/modules/QueryEditor/presets/ytsaurus`;
-assert.equal(
-    import.meta.resolve(legacyEnginePresetSpecifier),
-    import.meta.resolve(enginePresetSpecifier),
-);
-assert.equal(require.resolve(legacyEnginePresetSpecifier), require.resolve(enginePresetSpecifier));
+const unsupportedEnginePresetSpecifier = `${packageName}/modules/QueryEditor/presets/builtin`;
+assert.throws(() => import.meta.resolve(unsupportedEnginePresetSpecifier), {
+    code: 'ERR_PACKAGE_PATH_NOT_EXPORTED',
+});
+assert.throws(() => require.resolve(unsupportedEnginePresetSpecifier), {
+    code: 'ERR_PACKAGE_PATH_NOT_EXPORTED',
+});
 assert.equal(
     fileURLToPath(import.meta.resolve(enginePresetSpecifier)),
     path.join(root, 'build/esm', enginePresetPath, 'index.js'),
@@ -626,7 +636,7 @@ for (const format of ['esm', 'cjs']) {
         'Engine settings preset pulls in SQL completion',
     );
 }
-console.info('✓ YTsaurus engine settings preset: standalone exports with SPYT editor and CSS');
+console.info('✓ Builtin engine settings preset: standalone exports with SPYT editor and CSS');
 
 // The page is an opt-in composition: its own entrypoint includes all three widgets.
 for (const specifier of [packageName, `${packageName}/pages/QueryPage`]) {

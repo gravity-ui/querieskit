@@ -5,13 +5,13 @@ import XmarkIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../../../../components/MonacoEditor';
 import type {QueryEditorEngineSettingsContext} from '../../../../../types/queryEditor';
-import type {YtsaurusEngineSettings} from '../../../../../types/ytsaurusQueryEngines';
+import type {BuiltinEngineSettings} from '../../../../../types/builtinQueryEngines';
 import i18n from '../i18n';
 import './SpytSettings.scss';
 
 const block = cn('qp-spyt-settings');
 
-export function SpytSettings<TCustom extends YtsaurusEngineSettings>({
+export function SpytSettings<TCustom extends BuiltinEngineSettings>({
     context: {value, onChange, errors, onFieldBlur, disabled, clusterId},
 }: {
     context: QueryEditorEngineSettingsContext<TCustom>;
