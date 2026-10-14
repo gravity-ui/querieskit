@@ -173,7 +173,7 @@ Every component/module/widget/page that needs styles owns an eponymous `.scss` f
 - External positioning relative to a parent or siblings belongs to the parent. When a parent needs to apply such styles directly to a child, the child accepts `className` and merges it with its root BEM class; the parent passes its own BEM element, e.g. `className={block('child')}`.
 - Prefer `Flex` from `@gravity-ui/uikit` for flexbox layouts when its props can express the required behavior. Use props such as `direction`, `gap`, and `alignItems` instead of duplicating them with `display: flex` in SCSS.
 - Prefer container layout such as `Flex` with `gap` when it expresses the relationship; do not add a child class solely to duplicate container spacing. Keep flex rules in SCSS only when the `Flex` API cannot express the required selectors or behavior.
-- Do not copy the current legacy patterns where `ClustersList.scss` defines `ClusterRow` styles or `NavigationItemsList.scss` defines `NavigationItemRow` styles. These are existing violations, not examples to follow.
+- `ClusterRow` and `NavigationItemRow` own and import their styles. Preserve this ownership when composing them in list modules.
 
 For the full ownership rules, examples, and review checklist, see [`plans/styles-rules.md`](plans/styles-rules.md).
 

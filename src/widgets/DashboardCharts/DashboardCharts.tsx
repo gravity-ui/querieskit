@@ -25,6 +25,7 @@ import {
     isXYFormValues,
 } from '../../helpers/chartFieldsForm';
 import i18n from './i18n';
+import {getChartTypeLabel} from '../../helpers/chartLabels';
 import './DashboardCharts.scss';
 
 const block = cn('qp-dashboard-charts');
@@ -103,7 +104,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
         setDraftChart(null);
     }, [editorMode]);
 
-    const chartOptions = useMemo(() => {
+    const chartOptions = (() => {
         if (props.editorMode === 'fields') {
             return props.chartFieldsEditorProps.chartTypeOptions
                 .filter((option) => isChartFieldsChartType(option.value))
@@ -116,11 +117,11 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
         }
         return (Object.keys(props.dataSource) as ChartSeries['type'][]).map((chartType) => ({
             value: chartType,
-            text: chartType,
+            text: getChartTypeLabel(chartType),
             disabled: !props.dataSource[chartType],
             icon: CHART_TYPE_ICONS[chartType],
         }));
-    }, [props.editorMode, props.dataSource, props.chartFieldsEditorProps]);
+    })();
 
     const handleChartSelect = (chartType: ChartSeries['type']) => {
         if (props.editorMode === 'fields') {
