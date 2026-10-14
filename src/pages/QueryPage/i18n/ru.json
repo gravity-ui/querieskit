@@ -2,5 +2,8 @@
   "action_hide-sidebar": "Скрыть боковую панель",
   "action_show-sidebar": "Показать боковую панель",
   "action_resize-sidebar": "Изменить ширину боковой панели",
-  "action_resize-results": "Изменить высоту результатов"
+  "action_resize-results": "Изменить высоту результатов",
+  "action_rename": "Переименовать",
+  "action_select-for-compare": "Выбрать для сравнения",
+  "action_delete": "Удалить"
 }

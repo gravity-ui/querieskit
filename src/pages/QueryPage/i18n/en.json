@@ -2,5 +2,8 @@
   "action_hide-sidebar": "Hide sidebar",
   "action_show-sidebar": "Show sidebar",
   "action_resize-sidebar": "Resize sidebar",
-  "action_resize-results": "Resize results"
+  "action_resize-results": "Resize results",
+  "action_rename": "Rename",
+  "action_select-for-compare": "Select for Compare",
+  "action_delete": "Delete"
 }

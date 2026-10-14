@@ -42,12 +42,13 @@ when minimum sizes do not fit; it does not automatically switch to a mobile layo
 | `tabsProps.items[].executionPanelProps` | Full `QueryExecutionPanelProps`, including typed results and metadata |
 | `className` | Optional class on the page root for application layout |
 
-Each item combines the existing `QueryTabItem` with its editor and execution panel
-props. Generics preserve custom sidebar data, editor settings, results rows, and
+Query items combine their tab metadata with editor and execution panel props.
+Comparison items use `comparisonProps: QueryComparisonProps` instead. Generics preserve custom sidebar data, editor settings, results rows, and
 metadata types. Mutually exclusive editor options remain exclusive: for example,
 provide either `settings` or `settingsProps`. Widget classes and callbacks remain available.
-A `comparison` item currently receives the same editor/results workspace as a `query`
-item; a dedicated comparison workspace is outside this API.
+A `comparison` item renders `QueryComparison` across the workspace, without an
+editor or execution panel. Its full props contract supports version selection,
+split/unified mode, editable blocks, and save/reset/create actions.
 
 The first visit mounts a workspace. Switching tabs hides the previous workspace
 without unmounting it, retaining its Monaco instance, undo history, internal forms,
@@ -110,3 +111,52 @@ Sidebar props and layout controls remain at page level.
 Data loading, execution, saving, routing, validation and persistence belong to the
 application. Global navigation, footer content and mobile layout remain outside
 this page's contract.
+
+## History actions and comparison
+
+History sidebar tabs receive Rename, Select for Compare, and Delete menu actions
+by default. Supply `historyActions.onRename(item, title, historyTabId)`,
+`onDelete(item, historyTabId)`, and `onCompare(original, modified, historyTabId)`
+to enable them. The page manages transient rename and pair-selection UI; the
+application updates history data and owns confirmation, persistence, data loading,
+and comparison tab creation. Missing callbacks disable their actions.
+
+```tsx
+historyActions={{
+  onRename: (item, title) => renameQuery(item.id, title),
+  onDelete: (item) => deleteQuery(item.id),
+  onCompare: (original, modified) => {
+    const id = createTabId();
+    setTabs((tabs) => [...tabs, {
+      id,
+      type: 'comparison',
+      leftTitle: original.title,
+      rightTitle: modified.title,
+      comparisonProps: {
+        items: buildComparisonItems(original, modified),
+      },
+    }]);
+    setActiveTab(id);
+  },
+}}
+```
+
+`buildComparisonItems` belongs to the application: it can include query text,
+configuration, and attachments, fetching missing contents as needed. Pass the
+complete `comparisonProps` to wire version selectors and editing actions.
+Without `onBlockChange`, comparisons are read-only. Keep the modified blocks in
+application state, update them from `onBlockChange`, and supply
+`actions.onCreateQuery` to open a query containing the current draft. The
+HistoryComparison story demonstrates editing, reset, save, and query creation.
+Changing only the baseline keeps the working draft intact.
+
+Custom history `getRowActions` replaces the default menu. Supplied `comparison`
+remains controlled by the consumer; its default selection action is disabled.
+An explicit `editing.rowId` also remains controlled; otherwise `editing.onSubmit`
+can supply rename persistence when `historyActions.onRename` is omitted.
+Selections are independent for each history sidebar tab; selecting a third row
+keeps the first row and replaces the second. Cancel clears the selection.
+
+`QueryPageQueryTab`, `QueryPageComparisonTab`, and `QueryPageHistoryActions` are
+exported from the root and page entrypoint. Existing comparison entries must
+replace `editorProps` and `executionPanelProps` with `comparisonProps`.

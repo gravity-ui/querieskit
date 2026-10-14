@@ -9,6 +9,8 @@ import type {TutorialHistoryRow} from '../../types/tutorial';
 import type {QueryPageProps} from '../../types/queryPage';
 import {QueriesSidebar} from '../../widgets/QueriesSidebar';
 import {QueryTabs} from '../../modules/QueryTabs';
+import {QueryComparison} from '../../modules/QueryComparison';
+import {useHistoryActions} from './internal/useHistoryActions';
 import {QueryWorkspace} from './internal/QueryWorkspace';
 import {QueryPagePanel} from './internal/QueryPagePanel';
 import {ResizeHandle} from './internal/ResizeHandle';
@@ -36,6 +38,7 @@ export function QueryPage<
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
 >({
     sidebarProps,
+    historyActions,
     tabsProps,
     className,
     sidebarWidth,
@@ -45,6 +48,7 @@ export function QueryPage<
     defaultSidebarCollapsed = false,
     onSidebarCollapsedChange,
 }: QueryPageProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TCustom, TRow, TMetaItem>) {
+    const sidebarTabs = useHistoryActions(sidebarProps.tabs, historyActions);
     const sidebarId = useId();
     const panelPrefix = useId();
     const [rootRef, rootSize] = useElementSize();
@@ -77,7 +81,7 @@ export function QueryPage<
                 }}
             >
                 <div id={sidebarId} hidden={sidebarHidden} className={block('sidebar')}>
-                    <QueriesSidebar {...sidebarProps} />
+                    <QueriesSidebar {...sidebarProps} tabs={sidebarTabs} />
                 </div>
                 <div className={block('sidebar-divider')} hidden={sidebarHidden}>
                     <ResizeHandle
@@ -126,7 +130,11 @@ export function QueryPage<
                                 className={block('panel')}
                                 active={tab.id === selected}
                             >
-                                <QueryWorkspace tab={tab} active={tab.id === selected} />
+                                {tab.type === 'comparison' ? (
+                                    <QueryComparison {...tab.comparisonProps} />
+                                ) : (
+                                    <QueryWorkspace tab={tab} active={tab.id === selected} />
+                                )}
                             </QueryPagePanel>
                         ))}
                     </div>
