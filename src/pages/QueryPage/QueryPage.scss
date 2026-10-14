@@ -1,0 +1,51 @@
+.qp-query-page {
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    background: var(--g-color-base-background);
+
+    &__layout {
+        display: grid;
+        height: 100%;
+        min-height: 0;
+    }
+
+    &__sidebar {
+        min-width: 0;
+        min-height: 0;
+        border-inline-end: 1px solid var(--g-color-line-generic);
+    }
+
+    &__sidebar-divider {
+        display: grid;
+        min-height: 0;
+        min-width: 0;
+    }
+
+    &__workspace {
+        grid-column: 3;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+    }
+
+    &__tabs,
+    &__panels,
+    &__panel {
+        min-width: 0;
+        min-height: 0;
+    }
+
+    &__panel {
+        height: 100%;
+    }
+
+    &__sidebar[hidden],
+    &__sidebar-divider[hidden],
+    &__panel[hidden] {
+        display: none;
+    }
+}

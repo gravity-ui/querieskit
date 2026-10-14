@@ -32,6 +32,7 @@ export function QueryExecutionPanel<
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
 >({
+    active = true,
     tabs: inputTabs,
     activeTab,
     defaultActiveTab,
@@ -182,7 +183,7 @@ export function QueryExecutionPanel<
                             <QueryExecutionTabContent
                                 key={tab.type}
                                 tab={tab}
-                                active={!collapsed && tab.id === selected && !showState}
+                                active={active && !collapsed && tab.id === selected && !showState}
                             />
                         </TabPanel>
                     ))}

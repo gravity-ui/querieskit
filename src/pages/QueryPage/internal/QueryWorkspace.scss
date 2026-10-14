@@ -1,0 +1,34 @@
+.qp-query-workspace {
+    display: grid;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+
+    &_expanded {
+        grid-template-rows: minmax(120px, 1fr);
+    }
+
+    &__editor-region {
+        display: grid;
+        grid-template-rows: minmax(160px, 1fr);
+        min-width: 0;
+        min-height: 0;
+    }
+
+    &__editor,
+    &__results {
+        min-width: 0;
+        min-height: 0;
+    }
+
+    &__results-divider {
+        display: grid;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    &__editor-region[hidden],
+    &__results-divider[hidden] {
+        display: none;
+    }
+}

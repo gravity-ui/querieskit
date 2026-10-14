@@ -47,23 +47,24 @@ See [UIKit docs](https://github.com/gravity-ui/uikit#styles) for theming and i18
 
 ## Architecture
 
-The public API has three levels:
+The public API has four levels:
 
 | Level | Path | Role |
 | --- | --- | --- |
+| **Pages** | `src/pages` | Compositions of widgets with shared screen layout |
 | **Widgets** | `src/widgets` | Ready-to-use feature blocks for a queries page |
 | **Modules** | `src/modules` | Scenario blocks composed from components and other modules (lists, rows, headers) |
 | **Components** | `src/components` | Small reusable UI pieces with a stable props contract |
 
-Cross-level imports flow one way: `widgets → modules → components`. Modules may compose other modules without dependency cycles.
+Cross-level imports flow one way: `pages → widgets → modules → components`. Modules may compose other modules without dependency cycles.
 
-Prefer widgets for product screens. Use modules and components when you need a custom layout or only a part of a scenario.
+Use pages for a complete screen layout, widgets for independent feature blocks, and modules or components for custom compositions.
 
 ## Usage
 
 ### Individual imports
 
-Widgets and modules support both root and individual imports:
+Pages, widgets, and modules support both root and individual imports:
 
 ```tsx
 import {SavedQueries} from '@gravity-ui/querieskit';
@@ -76,7 +77,7 @@ import {SavedQueries} from '@gravity-ui/querieskit/modules/SavedQueries';
 import type {SavedQueriesProps} from '@gravity-ui/querieskit/modules/SavedQueries';
 ```
 
-Individual entrypoints are available for `QueriesHistory`, `SavedQueries`,
+Individual entrypoints are available for `QueryPage` under `pages/`, `QueriesHistory`, `SavedQueries`,
 `TutorialsHistory`, `QueriesNavigation` under `modules/`, and `QueriesSidebar`,
 `QueryEditor`, `QueryExecutionPanel`, `DashboardCharts` under `widgets/`.
 They expose each unit's existing public exports, including its props and helpers.
@@ -89,6 +90,39 @@ Keep CSS processing enabled so that the selected widget's styles are included.
 Some bundlers, including esbuild, retain CSS from unused root re-exports even when
 their JavaScript is removed. Individual widget imports avoid introducing those
 unrelated styles.
+
+### QueryPage
+
+Composes a shared `QueriesSidebar` with `QueryTabs`. Each query tab owns an independent
+`QueryEditor` and `QueryExecutionPanel`, including its results layout. Visited workspaces
+stay mounted when switching tabs; removing a tab releases its workspace. The query tab
+strip stays visible when results expand. Your application owns the tab list, selection,
+query data, actions, and navigation. See [the QueryPage guide](src/pages/QueryPage/README.md)
+for the full API and migration from the previous single-workspace props.
+
+```tsx
+import {QueryPage} from '@gravity-ui/querieskit/pages/QueryPage';
+
+<div style={{height: 800}}>
+  <QueryPage
+    sidebarProps={sidebarProps}
+    tabsProps={{
+      activeTab: activeQueryId,
+      onActiveTabChange: setActiveQueryId,
+      onAddTab: addQuery,
+      onCloseTab: closeQuery,
+      items: queries.map((query) => ({
+        id: query.id,
+        type: 'query',
+        title: query.title,
+        status: query.status,
+        editorProps: query.editorProps,
+        executionPanelProps: query.executionPanelProps,
+      })),
+    }}
+  />
+</div>;
+```
 
 ### QueriesSidebar
 

@@ -46,6 +46,8 @@ export type QueryExecutionPanelProps<
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
 > = {
+    /** Whether this retained panel is visible in its parent workspace. Defaults to true. */
+    active?: boolean;
     /** Array order is display order. Keep each tab's id and type stable. */
     tabs: QueryExecutionTab<TRow, TMetaItem>[];
     /** Do not switch between controlled and uncontrolled modes after mounting. */

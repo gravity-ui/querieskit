@@ -81,3 +81,8 @@ as selected without emitting `onActiveTabChange`.
 `actions` accepts a `ReactNode` for the right-hand area. Each supplied button or
 menu owns its event handlers; there is no shared action callback. `className`
 allows parent-owned positioning. Tab content is rendered separately by the app.
+
+When composing tabs with content panels, set `item.panelId` to the corresponding
+panel element ID. The tab links it with `aria-controls`. Without `panelId`, the
+standalone strip does not reference a nonexistent content panel. `QueryPage`
+provides these IDs automatically.
