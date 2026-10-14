@@ -12,6 +12,7 @@ type Props = {
     readOnly?: boolean;
     language?: string;
     theme?: string;
+    onUpdate?: (value: string) => void;
     onClick?: (e: monaco.editor.IEditorMouseEvent) => void;
     monacoConfig?: MonacoEditorConfig;
     className?: string;
@@ -30,6 +31,7 @@ export const MonacoEditor: FC<Props> = ({
     theme,
     readOnly,
     onClick,
+    onUpdate,
     monacoConfig,
     className,
 }) => {
@@ -40,6 +42,9 @@ export const MonacoEditor: FC<Props> = ({
     // on every render (avoids stale closures without extra effect churn).
     const onClickRef = useRef(onClick);
     onClickRef.current = onClick;
+    const onUpdateRef = useRef(onUpdate);
+    onUpdateRef.current = onUpdate;
+    const syncingValueRef = useRef(false);
 
     // Create the editor + model once per mount, dispose both on unmount.
     useEffect(() => {
@@ -69,7 +74,12 @@ export const MonacoEditor: FC<Props> = ({
             onClickRef.current?.(e);
         });
 
+        const contentSubscription = editorInstance.onDidChangeModelContent(() => {
+            if (!syncingValueRef.current) onUpdateRef.current?.(model.getValue());
+        });
+
         return () => {
+            contentSubscription.dispose();
             mouseDownSubscription.dispose();
             editorInstance.dispose();
             model.dispose();
@@ -83,7 +93,12 @@ export const MonacoEditor: FC<Props> = ({
     useEffect(() => {
         const model = modelRef.current;
         if (model && model.getValue() !== value) {
-            model.setValue(value);
+            syncingValueRef.current = true;
+            try {
+                model.setValue(value);
+            } finally {
+                syncingValueRef.current = false;
+            }
         }
     }, [value]);
 

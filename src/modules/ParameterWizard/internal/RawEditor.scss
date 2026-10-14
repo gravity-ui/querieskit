@@ -1,0 +1,19 @@
+.qp-parameter-raw-editor {
+    min-width: 0;
+
+    &_disabled {
+        opacity: 0.5;
+    }
+
+    &__editor {
+        height: 240px;
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+
+        &_invalid {
+            border-color: var(--g-color-line-danger);
+        }
+    }
+}
