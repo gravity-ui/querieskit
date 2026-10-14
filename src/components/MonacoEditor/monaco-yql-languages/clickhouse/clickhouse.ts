@@ -203,6 +203,8 @@ function caseInsensitiveRegExp(pattern: string) {
 }
 
 function getCaseInsensitiveRegExp(patterns: string[]) {
+    // Empty alternatives must never match: a zero-width token cannot advance Monarch.
+    if (patterns.length === 0) return '(?!)';
     return `(${patterns
         .map((pattern) => caseInsensitiveRegExp(pattern).replace(/\s+/g, '\\s'))
         .join('|')})`;

@@ -204,7 +204,6 @@ in a request.
 For custom content, use `parameters={<CustomParameters />}` instead;
 `parameters` and `parametersProps` are mutually exclusive, just like settings.
 
-
 ## Storybook examples
 
 `Default` combines editable settings, parameters, attachments, and sharing using local
@@ -223,3 +222,7 @@ Storybook toolbar. The `Extensions` group contains the specialized Monaco exampl
 Use `@gravity-ui/querieskit/widgets/QueryEditor` and its `presets/ytsaurus` subpath.
 The previous `modules/QueryEditor` and `modules/QueryEditor/presets/ytsaurus` package
 subpaths remain aliases of these widget entrypoints. Root imports are unchanged.
+
+### Monaco language services
+
+The engine factory maps YQL to `yql`, CHYT to `clickhouse`, SPYT to `spyt`, and YT QL to `ytql`. Pass `preset={createQueryEditorPreset(...)}` alongside `engines` to enable completion and reference navigation for all four. The factory alone configures the engine selector and settings, not language providers. Older SPYT/QL descriptors used `s-expression`/`yql_ansi`; update custom provider language checks when migrating.

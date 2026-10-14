@@ -11,6 +11,10 @@ import type {
     YtsaurusQueryEnginesOptions,
 } from '../../src/types/ytsaurusQueryEngines';
 import type {MonacoEditorProps} from '../../src/types/monacoEditor';
+import type * as Monaco from 'monaco-editor';
+import {QueryEditor} from '../../src/widgets/QueryEditor';
+import {createQueryEditorPreset} from '../../src/helpers/queryEditorPreset';
+import type {EditorSetupContext} from '../../src/types/editorProviders';
 import {setLang} from '../../src/i18n';
 
 // Exercise the adapter contract without relying on popup positioning in jsdom.
@@ -45,6 +49,16 @@ describe('createYtsaurusQueryEngines', () => {
 
     beforeEach(() => {
         globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+        vi.stubGlobal(
+            'matchMedia',
+            vi.fn(() => ({
+                matches: false,
+                addListener: vi.fn(),
+                removeListener: vi.fn(),
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+            })),
+        );
         configure({lang: 'en'});
         setLang('en');
         onChange.mockClear();
@@ -78,6 +92,7 @@ describe('createYtsaurusQueryEngines', () => {
         act(() => root.unmount());
         container.remove();
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
 
     function render(engineId: YtsaurusQueryEngineId, options: YtsaurusQueryEnginesOptions = {}) {
@@ -108,8 +123,8 @@ describe('createYtsaurusQueryEngines', () => {
         expect(createYtsaurusQueryEngines().map(({id, language}) => ({id, language}))).toEqual([
             {id: 'yql', language: 'yql'},
             {id: 'chyt', language: 'clickhouse'},
-            {id: 'spyt', language: 's-expression'},
-            {id: 'ql', language: 'yql_ansi'},
+            {id: 'spyt', language: 'spyt'},
+            {id: 'ql', language: 'ytql'},
         ]);
         expect(createYtsaurusQueryEngines({engines: ['ql', 'chyt']}).map(({id}) => id)).toEqual([
             'ql',
@@ -117,6 +132,115 @@ describe('createYtsaurusQueryEngines', () => {
         ]);
         expect(createYtsaurusQueryEngines({engines: []})).toEqual([]);
     });
+
+    it.each(['yql', 'chyt', 'spyt', 'ql'] as const)(
+        'connects the %s factory engine through QueryEditor to catalog, references and cleanup',
+        async (engineId) => {
+            const listPathChildren = vi.fn(() => [{name: 'events', kind: 'table' as const}]);
+            const onReferenceClick = vi.fn();
+            const preset = createQueryEditorPreset({listPathChildren, onReferenceClick});
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QueryEditor
+                            engines={createYtsaurusQueryEngines()}
+                            engineId={engineId}
+                            clusters={[{id: 'primary', title: 'Primary'}]}
+                            clusterId="primary"
+                            value="SELECT * FROM events"
+                            preset={preset}
+                            providerContext={{data: {tenant: 'integration'}}}
+                            onChange={vi.fn()}
+                            onEngineChange={vi.fn()}
+                            onClusterChange={vi.fn()}
+                            onRun={vi.fn()}
+                            onFormat={vi.fn()}
+                            onValidate={vi.fn()}
+                        />
+                    </ThemeProvider>,
+                ),
+            );
+            const props = editor.props;
+            if (!props?.preset || !props.providerContext)
+                throw new Error('Missing preset integration');
+            expect(props.preset).toBe(preset);
+            expect(props.providerContext).toMatchObject({
+                engineId,
+                clusterId: 'primary',
+                data: {tenant: 'integration'},
+            });
+            let query = 'SELECT * FROM ';
+            const model = {
+                getValue: () => query,
+                getLanguageId: () => props.language,
+                getOffsetAt: ({column}: Monaco.Position) => column - 1,
+                getPositionAt: (offset: number) => ({lineNumber: 1, column: offset + 1}),
+            } as Monaco.editor.ITextModel;
+            const mouse = vi.fn();
+            const releaseMouse = vi.fn();
+            const releaseLanguage = vi.fn();
+            const monaco = {
+                languages: {
+                    CompletionItemKind: {
+                        Keyword: 1,
+                        TypeParameter: 2,
+                        Function: 3,
+                        Variable: 4,
+                        Folder: 5,
+                        Struct: 6,
+                        Field: 7,
+                    },
+                    CompletionItemInsertTextRule: {InsertAsSnippet: 4},
+                    getLanguages: () => [],
+                    register: vi.fn(),
+                    setMonarchTokensProvider: () => ({dispose: releaseLanguage}),
+                    setLanguageConfiguration: () => ({dispose: releaseLanguage}),
+                },
+                editor: {MouseTargetType: {CONTENT_TEXT: 6}},
+            } as unknown as EditorSetupContext['monaco'];
+            const instance = props.preset.create({
+                model,
+                monaco,
+                context: props.providerContext,
+                editor: {
+                    onMouseDown: mouse.mockReturnValue({dispose: releaseMouse}),
+                } as unknown as Monaco.editor.IStandaloneCodeEditor,
+            });
+            try {
+                const completion = instance.providers?.completion;
+                if (!completion) throw new Error('Missing completion provider');
+                const result = await completion.provideCompletionItems(
+                    model,
+                    {lineNumber: 1, column: query.length + 1} as Monaco.Position,
+                    {triggerKind: 0},
+                    {isCancellationRequested: false} as Monaco.CancellationToken,
+                );
+                expect(result?.suggestions.some(({label}) => label === 'events')).toBe(true);
+                expect(listPathChildren).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        engineId,
+                        language: props.language,
+                        clusterId: 'primary',
+                        data: {tenant: 'integration'},
+                    }),
+                );
+                query += 'events';
+                mouse.mock.calls[0][0]({
+                    target: {type: 6, position: {lineNumber: 1, column: 16}},
+                    event: {ctrlKey: true},
+                });
+                expect(onReferenceClick).toHaveBeenCalledWith(
+                    expect.objectContaining({identifier: 'events', clusterId: 'primary'}),
+                );
+            } finally {
+                instance.dispose?.();
+            }
+            expect(releaseMouse).toHaveBeenCalledTimes(1);
+            expect(releaseLanguage).toHaveBeenCalledTimes(
+                engineId === 'spyt' || engineId === 'ql' ? 2 : 0,
+            );
+        },
+    );
 
     it('hides YQL without versions and renders no engine field for QL or SPYT Connect', () => {
         expect(render('yql')).toBeUndefined();

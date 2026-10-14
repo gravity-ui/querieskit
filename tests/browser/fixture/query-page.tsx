@@ -1,7 +1,12 @@
-import React, {useState} from 'react';
+import React, {createRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {TextInput, ThemeProvider, configure} from '@gravity-ui/uikit';
 import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
+import * as monaco from 'monaco-editor/editor/editor.api';
+import {createYtsaurusQueryEngines} from '../../../src/widgets/QueryEditor/presets/ytsaurus';
+import {createQueryEditorPreset} from '../../../src/helpers/queryEditorPreset';
+import type {EditorPreset} from '../../../src/types/editorProviders';
+import type {YtsaurusQueryEngineId} from '../../../src/types/ytsaurusQueryEngines';
 import {QueryPage} from '../../../src/pages/QueryPage';
 import {setLang} from '../../../src/i18n';
 import '@gravity-ui/uikit/styles/styles.css';
@@ -9,14 +14,79 @@ import '@gravity-ui/uikit/styles/styles.css';
 self.MonacoEnvironment = {getWorker: () => new EditorWorker()};
 configure({lang: 'en'});
 setLang('en');
+const engines = createYtsaurusQueryEngines();
+const refs: Record<string, React.RefObject<monaco.editor.IStandaloneCodeEditor | null>> = {
+    '1': createRef(),
+    '2': createRef(),
+};
+const requests: {engineId?: string; language?: string; clusterId?: string}[] = [];
+const lifecycle = {created: 0, disposed: 0};
+const basePreset = createQueryEditorPreset({
+    listPathChildren(request) {
+        requests.push({
+            engineId: request.engineId,
+            language: request.language,
+            clusterId: request.clusterId,
+        });
+        return [{name: `catalog_${request.clusterId}_${request.engineId}`, kind: 'table'}];
+    },
+});
+const preset: EditorPreset = {
+    create(context) {
+        lifecycle.created++;
+        const instance = basePreset.create(context);
+        return {
+            ...instance,
+            dispose() {
+                lifecycle.disposed++;
+                instance.dispose?.();
+            },
+        };
+    },
+};
+const queryPageTest = {
+    snapshot() {
+        return {
+            models: monaco.editor
+                .getModels()
+                .map((model) => ({uri: model.uri.toString(), language: model.getLanguageId()})),
+            editors: Object.fromEntries(
+                Object.entries(refs).map(([id, ref]) => [
+                    id,
+                    {
+                        language: ref.current?.getModel()?.getLanguageId(),
+                        uri: ref.current?.getModel()?.uri.toString(),
+                    },
+                ]),
+            ),
+            requests: [...requests],
+            lifecycle: {...lifecycle},
+        };
+    },
+    suggest(id: string) {
+        const editor = refs[id]?.current;
+        if (!editor) throw new Error(`Missing editor ${id}`);
+        editor.setValue('SELECT * FROM catalog_');
+        editor.setPosition({lineNumber: 1, column: 23});
+        editor.focus();
+        editor.trigger('test', 'editor.action.triggerSuggest', {});
+    },
+};
+declare global {
+    interface Window {
+        queryPageTest: typeof queryPageTest;
+    }
+}
+window.queryPageTest = queryPageTest;
+
 function Draft({label}: {label: string}) {
     const [value, setValue] = useState('');
     return <TextInput controlProps={{'aria-label': label}} value={value} onUpdate={setValue} />;
 }
 function Example() {
     const [queries, setQueries] = useState([
-        {id: '1', value: 'SELECT 1;'},
-        {id: '2', value: 'SELECT 2;'},
+        {id: '1', value: 'SELECT 1;', engineId: 'yql' as YtsaurusQueryEngineId, clusterId: 'c'},
+        {id: '2', value: 'SELECT 2;', engineId: 'yql' as YtsaurusQueryEngineId, clusterId: 'c'},
     ]);
     const [activeTab, setActiveTab] = useState('1');
     return (
@@ -57,12 +127,29 @@ function Example() {
                                         item.id === query.id ? {...item, value} : item,
                                     ),
                                 ),
-                            clusters: [{id: 'c', title: 'Cluster'}],
-                            clusterId: 'c',
-                            onClusterChange() {},
-                            engines: [{id: 'e', title: 'SQL', language: 'sql'}],
-                            engineId: 'e',
-                            onEngineChange() {},
+                            clusters: [
+                                {id: 'c', title: 'Cluster'},
+                                {id: 'secondary', title: 'Secondary'},
+                            ],
+                            clusterId: query.clusterId,
+                            onClusterChange: (clusterId) =>
+                                setQueries((items) =>
+                                    items.map((item) =>
+                                        item.id === query.id ? {...item, clusterId} : item,
+                                    ),
+                                ),
+                            engines,
+                            engineId: query.engineId,
+                            onEngineChange: (engineId) =>
+                                setQueries((items) =>
+                                    items.map((item) =>
+                                        item.id === query.id
+                                            ? {...item, engineId: engineId as YtsaurusQueryEngineId}
+                                            : item,
+                                    ),
+                                ),
+                            preset,
+                            editorRef: refs[query.id],
                             onRun() {},
                             onFormat() {},
                             onValidate() {},
