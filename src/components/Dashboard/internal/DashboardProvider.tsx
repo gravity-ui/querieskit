@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useMemo} from 'react';
-import type {DashboardRenderItem} from '../types';
+import type {DashboardRenderItem} from '../../../types/dashboard';
 
 type DashboardContextValue = {
     items: DashboardRenderItem[];

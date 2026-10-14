@@ -1,26 +1,14 @@
+import cn from 'bem-cn-lite';
 import React, {FC, useEffect, useState} from 'react';
-import {FullSearchToggleButton} from './internal/FullSearchToggleButton';
 import {HistoryFilter} from '../../components/HistoryFilter';
 import {SearchWithButtons} from '../../components/SearchWithButtons';
-import type {QueryListFilterConfig} from '../../types/queryList';
-import i18n from './i18n';
-import cn from 'bem-cn-lite';
-import type {HistoryPanelVariant} from '../../types/listPanel';
+import type {HistoryHeaderProps as Props} from '../../types/historyHeaderProps';
 import './HistoryHeader.scss';
+import i18n from './i18n';
+import {FullSearchToggleButton} from './internal/FullSearchToggleButton';
+export type {HistoryHeaderProps as Props} from '../../types/historyHeaderProps';
 
 const block = cn('qp-history-header');
-
-type Props = {
-    search?: string;
-    fullSearch?: boolean;
-    fullSearchAvailable?: boolean;
-    hasClear?: boolean;
-    filter?: QueryListFilterConfig;
-    actions?: React.ReactNode;
-    onUpdate: (data: {value: string; fullSearch: boolean}) => void;
-    className?: string;
-    variant?: HistoryPanelVariant;
-};
 
 export const HistoryHeader: FC<Props> = ({
     search,

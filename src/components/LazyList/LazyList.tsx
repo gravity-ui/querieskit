@@ -1,9 +1,11 @@
-import React, {useLayoutEffect, useMemo, useRef} from 'react';
 import {Flex, List, Loader} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {useLayoutEffect, useMemo, useRef} from 'react';
 import {useLoadMoreSentinel} from '../../helpers/useLoadMoreSentinel';
+import type {LazyListProps} from '../../types/lazyListProps';
 import {ListSpinner} from '../ListSpinner';
 import './LazyList.scss';
+export type {LazyListProps} from '../../types/lazyListProps';
 
 const block = cn('qp-lazy-list');
 
@@ -15,22 +17,6 @@ type LazyListRow<T> = T | SentinelRow;
 
 const isSentinelRow = <T,>(row: LazyListRow<T>): row is SentinelRow =>
     Boolean(row) && typeof row === 'object' && '__sentinel' in (row as object);
-
-export type LazyListProps<T extends object> = {
-    items: T[];
-    itemHeight: (item: T) => number;
-    renderItem: (item: T, isActive: boolean, index: number) => React.ReactNode;
-    hasMore?: boolean;
-    onLoadMore?: () => void;
-    onItemClick?: (item: T, index: number) => void;
-    selectedItemIndex?: T[keyof T] | number;
-    filterable?: boolean;
-    loading?: boolean;
-    error?: React.ReactNode;
-    emptyContent?: React.ReactNode;
-    isEmpty?: boolean;
-    className?: string;
-};
 
 export const LazyList = <T extends object>({
     items,

@@ -1,14 +1,7 @@
+import {Button, Flex} from '@gravity-ui/uikit';
 import React from 'react';
-import {Button, type ButtonProps, Flex} from '@gravity-ui/uikit';
-import type {NavigationAction} from '../../types/navigation';
-
-export type NavigationActionButtonsProps<TArg> = {
-    actions?: Array<NavigationAction<TArg>>;
-    arg: TArg;
-    className?: string;
-    buttonClassName?: string;
-    size?: ButtonProps['size'];
-};
+import type {NavigationActionButtonsProps} from '../../types/navigationActionButtonsProps';
+export type {NavigationActionButtonsProps} from '../../types/navigationActionButtonsProps';
 
 export function NavigationActionButtons<TArg>({
     actions,

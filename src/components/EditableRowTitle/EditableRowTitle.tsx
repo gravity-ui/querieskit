@@ -1,11 +1,8 @@
-import React, {KeyboardEvent, useEffect, useState} from 'react';
 import {Text, TextInput} from '@gravity-ui/uikit';
-import {QueryListEditingRenderData, QueryListRow} from '../../types/queryList';
-
-export type EditableRowTitleProps<T extends QueryListRow = QueryListRow> = {
-    item: T;
-    editing?: QueryListEditingRenderData<T>;
-};
+import React, {KeyboardEvent, useEffect, useState} from 'react';
+import type {EditableRowTitleProps} from '../../types/editableRowTitleProps';
+import {QueryListRow} from '../../types/queryList';
+export type {EditableRowTitleProps} from '../../types/editableRowTitleProps';
 
 export const EditableRowTitle = <T extends QueryListRow>({
     item,

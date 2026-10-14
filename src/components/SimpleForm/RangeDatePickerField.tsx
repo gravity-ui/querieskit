@@ -1,15 +1,7 @@
+import type {DateValue, RangeDatePickerFieldProps} from '../../types/simpleFormProps';
 import React, {FC} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import {DatePicker, RangeValue} from '@gravity-ui/date-components';
-import {DateTime} from '@gravity-ui/date-utils';
-
-type DateValue = DateTime | null;
-
-export type RangeDatePickerFieldProps = {
-    value: RangeValue<DateValue>;
-    title?: string;
-    onChange: (value: RangeValue<DateValue>) => void;
-};
+import {DatePicker} from '@gravity-ui/date-components';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 

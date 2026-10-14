@@ -1,30 +1,17 @@
-import React, {useState} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import type {Column} from '../../components/DataTable';
+import React, {useState} from 'react';
 import {EmptyContent} from '../../components/EmptyContent';
-import {SkeletonRows} from '../../components/SkeletonRows';
 import {SearchWithButtons} from '../../components/SearchWithButtons';
-import type {NavigationViewConfig, NavigationViewRow} from '../../types/navigation';
-import {NavigationViewSectionItem} from './internal/NavigationViewSectionItem';
+import {SkeletonRows} from '../../components/SkeletonRows';
+import type {NavigationViewRow} from '../../types/navigation';
+import type {NavigationViewProps} from '../../types/navigationViewProps';
 import i18n from './i18n';
+import {NavigationViewSectionItem} from './internal/NavigationViewSectionItem';
 import './NavigationView.scss';
+export type {NavigationViewProps, NavigationViewViewConfig} from '../../types/navigationViewProps';
 
 const block = cn('qp-navigation-view');
-
-export type NavigationViewViewConfig<TRow extends NavigationViewRow = NavigationViewRow> = {
-    tableColumns?: Array<Column<TRow>>;
-    extraColumns?: Array<Column<TRow>>;
-};
-
-export type NavigationViewProps<TRow extends NavigationViewRow = NavigationViewRow> = {
-    data: NavigationViewConfig<TRow>;
-    view?: NavigationViewViewConfig<TRow>;
-    search?: string;
-    onSearchUpdate?: (value: string) => void;
-    searchPlaceholder?: string;
-    className?: string;
-};
 
 export function NavigationView<TRow extends NavigationViewRow = NavigationViewRow>({
     data,

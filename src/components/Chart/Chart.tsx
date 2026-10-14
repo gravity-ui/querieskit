@@ -1,33 +1,16 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {
-    type ChartRef,
-    Chart as GravityChart,
-    type ChartProps as GravityChartProps,
-} from '@gravity-ui/charts';
+import {type ChartRef, Chart as GravityChart} from '@gravity-ui/charts';
 import {ChevronsCollapseUpRight, ChevronsExpandUpRight, Ellipsis, Pencil} from '@gravity-ui/icons';
 import {Button, DropdownMenu, type DropdownMenuItem, Icon, Portal} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import type {ChartProps} from '../../types/chartProps';
+export type {ChartAction, ChartProps} from '../../types/chartProps';
 
 import i18n from './i18n';
 
 import './Chart.scss';
 
 const block = cn('qp-chart');
-
-export type ChartAction = {
-    text: React.ReactNode;
-    icon?: React.ReactNode;
-    hidden?: boolean;
-    disabled?: boolean;
-    onClick: () => void;
-};
-
-export type ChartProps = GravityChartProps & {
-    actions?: readonly ChartAction[];
-    onPencilEdit?: () => void;
-    controlsVisibility?: 'always' | 'hover';
-    className?: string;
-};
 
 export const Chart = React.forwardRef<ChartRef, ChartProps>(function ChartComponent(
     {actions, onPencilEdit, controlsVisibility = 'always', className, ...chartProps},

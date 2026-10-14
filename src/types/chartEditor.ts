@@ -184,3 +184,16 @@ export type ChartFieldsEditorProps = Pick<
     emptyDataLabel?: string;
     formProps?: Pick<ChartFieldsFormProps, 'disabled' | 'submitDisabled' | 'labels' | 'className'>;
 };
+
+export type ChartEditorProps = Pick<ChartEditorFormProps, 'axisVariants'> & {
+    className?: string;
+    emptyDataLabel?: string;
+    chartSeriesMap?: {
+        [chartId in string]: ChartSeries;
+    };
+    formProps?: Pick<ChartEditorFormProps, 'disabled' | 'className' | 'labels'>;
+    formValues?: ChartEditorFormProps['formValues'];
+    onChange?: (formValues: ChartEditorFormProps['formValues']) => void;
+    onSubmit?: (chartData: ChartData) => void;
+    onCancel?: () => void;
+};

@@ -1,39 +1,19 @@
+import type {
+    EditLinkErrors,
+    EditLinkItemProps,
+    EditLinkValues,
+} from '../../../../types/attachmentsEditor';
 import React, {useId, useRef, useState} from 'react';
 import {Box, Button, Flex, Icon, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
 import {useLabelRef} from '../../hooks/useLabelRef';
 import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
-import {ObjectLinkValidator, objectLinkValidator} from '../../helpers/objectLinkValidator';
+import {objectLinkValidator} from '../../helpers/objectLinkValidator';
 import cn from 'bem-cn-lite';
 
 import i18n from '../../i18n';
 
 import './EditLinkItem.scss';
-
-export type EditLinkValues = {
-    link: string;
-    token: string;
-    name: string;
-};
-
-type EditLinkErrors = {
-    link: string;
-    token: string;
-    name: string;
-};
-
-export type EditLinkItemProps = {
-    linkLabel?: string;
-    tokenLabel?: string;
-    nameLabel?: string;
-    onAccept?: (values: EditLinkValues) => void;
-    onCancel?: () => void;
-    onChange?: (pathedValues: EditLinkValues) => void;
-    tokens?: {value: string; title: string}[];
-    values?: EditLinkValues;
-    defaultValues?: EditLinkValues;
-    validator?: ObjectLinkValidator;
-};
 
 const block = cn('edit-link-item');
 

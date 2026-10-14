@@ -1,17 +1,13 @@
-import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import type {QueryListLinkRenderer} from '../../types/queryList';
-import type {TutorialHistoryRow} from '../../types/tutorial';
-import {RowLink} from '../../components/RowLink';
 import cn from 'bem-cn-lite';
+import React from 'react';
+import {RowLink} from '../../components/RowLink';
+import type {TutorialHistoryRow} from '../../types/tutorial';
+import type {TutorialRowProps} from '../../types/tutorialRowProps';
 import './TutorialRow.scss';
+export type {TutorialRowProps} from '../../types/tutorialRowProps';
 
 const block = cn('qp-tutorial-row');
-
-export type TutorialRowProps<T extends TutorialHistoryRow = TutorialHistoryRow> = {
-    item: T;
-    renderLink?: QueryListLinkRenderer;
-};
 
 export const TutorialRow = <T extends TutorialHistoryRow>({
     item,

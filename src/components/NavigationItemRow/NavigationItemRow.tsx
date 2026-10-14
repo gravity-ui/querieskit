@@ -1,15 +1,12 @@
-import React, {FC} from 'react';
 import {Flex, Icon, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import './NavigationItemRow.scss';
-import {NavigationItem} from '../../types/navigation';
+import React, {FC} from 'react';
 import {getDefaultNavigationIcon} from '../../helpers/getDefaultNavigationIcon';
+import type {NavigationItemRowProps} from '../../types/navigationItemRowProps';
+import './NavigationItemRow.scss';
+export type {NavigationItemRowProps} from '../../types/navigationItemRowProps';
 
 const block = cn('qp-navigation-item-row');
-
-export type NavigationItemRowProps = {
-    item: NavigationItem;
-};
 
 export const NavigationItemRow: FC<NavigationItemRowProps> = ({item}) => {
     return (

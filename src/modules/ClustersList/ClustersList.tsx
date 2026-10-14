@@ -1,23 +1,13 @@
-import React from 'react';
 import cn from 'bem-cn-lite';
-import type {NavigationCluster, RenderNavigationCluster} from '../../types/navigation';
+import React from 'react';
 import {ClusterRow} from '../../components/ClusterRow';
 import {LazyList} from '../../components/LazyList';
 import {NAVIGATION_ROW_HEIGHT} from '../../constants/row';
+import type {ClustersListProps} from '../../types/clustersListProps';
+import type {NavigationCluster} from '../../types/navigation';
+export type {ClustersListProps} from '../../types/clustersListProps';
 
 const block = cn('qp-clusters-list');
-
-export type ClustersListProps<T extends NavigationCluster = NavigationCluster> = {
-    items: T[];
-    loading?: boolean;
-    error?: React.ReactNode;
-    hasMore?: boolean;
-    onLoadMore?: () => void;
-    emptyContent?: React.ReactNode;
-    renderRowItem?: RenderNavigationCluster<T>;
-    onItemClick?: (cluster: T) => void;
-    className?: string;
-};
 
 export const ClustersList = <T extends NavigationCluster = NavigationCluster>({
     items,

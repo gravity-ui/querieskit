@@ -1,24 +1,13 @@
-import React, {ReactNode, useState} from 'react';
-import {Button, type ButtonProps, Flex, Icon, Popup, Text} from '@gravity-ui/uikit';
-import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import CheckIcon from '@gravity-ui/icons/svgs/check.svg';
-import {useToggle} from '../../helpers/useToggle';
-import i18n from './i18n';
-import './FieldsSelector.scss';
+import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
+import {Button, Flex, Icon, Popup, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-
-export type FieldsSelectorOption<K extends string = string> = {
-    id: K;
-    title: ReactNode;
-};
-
-export type FieldsSelectorProps<K extends string = string> = {
-    fields: FieldsSelectorOption<K>[];
-    value: K[];
-    onChange: (value: K[]) => void;
-    buttonLabel?: string;
-    buttonView?: ButtonProps['view'];
-};
+import React, {useState} from 'react';
+import {useToggle} from '../../helpers/useToggle';
+import type {FieldsSelectorProps} from '../../types/fieldsSelectorProps';
+import './FieldsSelector.scss';
+import i18n from './i18n';
+export type {FieldsSelectorOption, FieldsSelectorProps} from '../../types/fieldsSelectorProps';
 
 const block = cn('qp-fields-selector');
 

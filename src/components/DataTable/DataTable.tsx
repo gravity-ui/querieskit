@@ -1,12 +1,11 @@
-import React from 'react';
-import BaseDataTable, {
-    DataTableProps as BaseDataTableProps,
-    Column,
-} from '@gravity-ui/react-data-table';
+import BaseDataTable, {Column} from '@gravity-ui/react-data-table';
 import {Skeleton} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React from 'react';
+import type {DataTableProps} from '../../types/dataTableProps';
+export type {DataTableProps} from '../../types/dataTableProps';
 
-import {EmptyContent, EmptyContentVariant} from '../EmptyContent';
+import {EmptyContent} from '../EmptyContent';
 
 import './DataTable.scss';
 
@@ -15,13 +14,6 @@ export type {Column};
 const block = cn('qp-data-table');
 
 const SKELETON_ROWS_COUNT = 4;
-
-export type DataTableProps<T> = {
-    loading?: boolean;
-    loaded?: boolean;
-    className?: string;
-    emptyVariant?: EmptyContentVariant;
-} & Omit<BaseDataTableProps<T>, 'theme'>;
 
 function getSkeletonWidth(rowIndex: number, columnIndex: number) {
     const widths = [72, 120, 180, 96];

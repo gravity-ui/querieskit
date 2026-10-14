@@ -1,6 +1,4 @@
-import {FormField} from '../SimpleForm';
-
-type FormValues = Record<string, any>;
+import type {FormField, FormValues} from '../../../types/simpleFormProps';
 
 export function getInitialValues(fields: FormField[], initialValues?: FormValues): FormValues {
     return {

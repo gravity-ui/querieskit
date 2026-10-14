@@ -1,14 +1,6 @@
+import type {CheckboxGroupFieldProps} from '../../types/simpleFormProps';
 import React, {FC} from 'react';
 import {Checkbox, Flex, Text} from '@gravity-ui/uikit';
-
-type CheckboxGroupItem = {id: string; title?: string};
-
-type CheckboxGroupFieldProps = {
-    value: string[];
-    items: CheckboxGroupItem[];
-    title?: string;
-    onChange: (value: string[]) => void;
-};
 
 export const CheckboxGroupField: FC<CheckboxGroupFieldProps> = ({
     value = [],

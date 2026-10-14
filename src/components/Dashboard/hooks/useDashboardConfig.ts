@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {createDefaultLayout} from '../helpers/createDefaultLayout';
-import type {DashboardProps, DashboardRenderItem} from '../types';
+import type {DashboardProps, DashboardRenderItem} from '../../../types/dashboard';
 import type {Config, ConfigLayout, DashKitGroup, ReactGridLayoutProps} from '@gravity-ui/dashkit';
 
 export const DASHBOARD_PLUGIN_TYPE = 'querieskit-dashboard-item';

@@ -11,7 +11,7 @@ import {
     Text,
 } from '@gravity-ui/uikit';
 import {AttachmentList, EditAttachmentItem} from '../../components/AttachmentList';
-import type {EditLinkValues} from '../../components/AttachmentList';
+import type {EditLinkValues} from '../../types/attachmentsEditor';
 import {AttachmentListPlaceholder} from '../../components/AttachmentListPlaceholder';
 import type {AttachItem, AttachmentsProps} from '../../types/attachments';
 import {createUuid} from '../../helpers/createUuid';

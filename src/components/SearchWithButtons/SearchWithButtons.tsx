@@ -1,18 +1,9 @@
-import React, {FC} from 'react';
-import {Flex, type FlexProps, TextInput} from '@gravity-ui/uikit';
+import {Flex, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {FC} from 'react';
+import type {SearchWithButtonsProps} from '../../types/searchWithButtonsProps';
 import './SearchWithButtons.scss';
-
-export type SearchWithButtonsProps = {
-    value?: string;
-    placeholder?: string;
-    hasClear?: boolean;
-    innerButtons?: React.ReactNode[];
-    endButtons?: React.ReactNode[];
-    onUpdate?: (value: string) => void;
-    className?: string;
-    gap?: FlexProps['gap'];
-};
+export type {SearchWithButtonsProps} from '../../types/searchWithButtonsProps';
 
 const block = cn('qp-search-with-buttons');
 

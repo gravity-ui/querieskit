@@ -1,19 +1,16 @@
-import React, {FC} from 'react';
-import {Icon, IconData, Spin} from '@gravity-ui/uikit';
 import CircleCheckIcon from '@gravity-ui/icons/svgs/circle-check.svg';
 import CircleExclamationIcon from '@gravity-ui/icons/svgs/circle-exclamation.svg';
-import FileIcon from '@gravity-ui/icons/svgs/file.svg';
-import CircleStopIcon from '@gravity-ui/icons/svgs/circle-stop.svg';
 import CirclePlayIcon from '@gravity-ui/icons/svgs/circle-play.svg';
-import {QueryStatus} from '../../types/history';
+import CircleStopIcon from '@gravity-ui/icons/svgs/circle-stop.svg';
+import FileIcon from '@gravity-ui/icons/svgs/file.svg';
+import {Icon, IconData, Spin} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import './QueryStatusIcon.scss';
+import React, {FC} from 'react';
 import {ProgressQueryStatuses} from '../../constants/query';
-
-type Props = {
-    status: QueryStatus;
-    className?: string;
-};
+import {QueryStatus} from '../../types/history';
+import type {QueryStatusIconProps as Props} from '../../types/queryStatusIconProps';
+import './QueryStatusIcon.scss';
+export type {QueryStatusIconProps as Props} from '../../types/queryStatusIconProps';
 
 const STATUS_ICONS: Record<QueryStatus, IconData> = {
     completed: CircleCheckIcon,

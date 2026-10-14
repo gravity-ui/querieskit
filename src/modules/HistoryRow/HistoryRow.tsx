@@ -1,21 +1,18 @@
-import React from 'react';
-import type {QueryListRowRenderData} from '../../types/queryList';
-import type {QueryHistoryRow} from '../../types/history';
 import {Flex, Text} from '@gravity-ui/uikit';
-import './HistoryRow.scss';
 import cn from 'bem-cn-lite';
+import React from 'react';
 import {EditableRowTitle} from '../../components/EditableRowTitle';
 import {HistoryPrivateIcon} from '../../components/HistoryPrivateIcon';
 import {QueryDuration} from '../../components/QueryDuration';
 import {QueryStatusIcon} from '../../components/QueryStatusIcon';
 import {RowActionsMenu} from '../../components/RowActionsMenu';
 import {RowLink} from '../../components/RowLink';
-import {formatTime} from '../../helpers/time';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
-
-export type Props<T extends QueryHistoryRow> = {
-    item: T;
-} & Omit<QueryListRowRenderData<T>, 'item' | 'variant'>;
+import {formatTime} from '../../helpers/time';
+import type {QueryHistoryRow} from '../../types/history';
+import type {HistoryRowProps as Props} from '../../types/historyRowProps';
+import './HistoryRow.scss';
+export type {HistoryRowProps as Props} from '../../types/historyRowProps';
 
 const block = cn('qp-history-row');
 

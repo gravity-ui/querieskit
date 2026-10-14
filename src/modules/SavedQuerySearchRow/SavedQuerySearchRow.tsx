@@ -1,20 +1,16 @@
-import React from 'react';
 import {Avatar, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React from 'react';
 import {MonacoLanguage} from '../../components/MonacoEditor';
 import {SearchRowLayout} from '../../components/SearchRowLayout';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
 import {formatDateCanonical} from '../../helpers/time';
-import type {QueryListRowRenderData} from '../../types/queryList';
 import type {SavedQuery} from '../../types/savedQueries';
+import type {SavedQuerySearchRowProps} from '../../types/savedQuerySearchRowProps';
 import './SavedQuerySearchRow.scss';
+export type {SavedQuerySearchRowProps} from '../../types/savedQuerySearchRowProps';
 
 const block = cn('qp-saved-query-search-row');
-
-export type SavedQuerySearchRowProps<T extends SavedQuery = SavedQuery> = {
-    item: T;
-    renderAuthor?: (item: T) => React.ReactNode;
-} & Omit<QueryListRowRenderData<T>, 'item' | 'variant'>;
 
 export const SavedQuerySearchRow = <T extends SavedQuery>({
     item,

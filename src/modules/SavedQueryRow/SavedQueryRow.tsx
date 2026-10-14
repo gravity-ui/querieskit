@@ -1,21 +1,17 @@
-import React from 'react';
 import {Avatar, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React from 'react';
 import {EditableRowTitle} from '../../components/EditableRowTitle';
 import {RowActionsMenu} from '../../components/RowActionsMenu';
 import {RowLink} from '../../components/RowLink';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
 import {formatDateCanonical} from '../../helpers/time';
-import type {QueryListRowRenderData} from '../../types/queryList';
 import type {SavedQuery} from '../../types/savedQueries';
+import type {SavedQueryRowProps} from '../../types/savedQueryRowProps';
 import './SavedQueryRow.scss';
+export type {SavedQueryRowProps} from '../../types/savedQueryRowProps';
 
 const block = cn('qp-saved-query-row');
-
-export type SavedQueryRowProps<T extends SavedQuery = SavedQuery> = {
-    item: T;
-    renderAuthor?: (item: T) => React.ReactNode;
-} & Omit<QueryListRowRenderData<T>, 'item' | 'variant'>;
 
 export const SavedQueryRow = <T extends SavedQuery>({
     item,

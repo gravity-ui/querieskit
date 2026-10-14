@@ -1,14 +1,11 @@
-import React, {FC} from 'react';
 import {Avatar, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {FC} from 'react';
+import type {ClusterRowProps} from '../../types/clusterRowProps';
 import './ClusterRow.scss';
-import {NavigationCluster} from '../../types/navigation';
+export type {ClusterRowProps} from '../../types/clusterRowProps';
 
 const block = cn('qp-cluster-row');
-
-export type ClusterRowProps = {
-    cluster: NavigationCluster;
-};
 
 export const ClusterRow: FC<ClusterRowProps> = ({
     cluster: {icon, title, color, backgroundColor, description},
