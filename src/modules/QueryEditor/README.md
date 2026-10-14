@@ -173,7 +173,7 @@ The paperclip opens Attachments; the gear opens Settings. Only one panel is visi
 | Active panel    | `activePanel`   | `defaultActivePanel` (`null`) | `onActivePanelChange` |
 | Preferred width | `panelWidth`    | `defaultPanelWidth` (320 px)  | `onPanelWidthChange`  |
 
-`QueryEditorPanel` is `'settings' | 'attachments' | null`. A controlled parent must update the corresponding prop in response to its callback; prop updates do not emit events. Panel and width control are independent.
+`QueryEditorPanel` is `'settings' | 'attachments' | 'parameters' | null`. A controlled parent must update the corresponding prop in response to its callback; prop updates do not emit events. Panel and width control are independent.
 
 The shared preferred width is retained across closing and switching panels; the displayed width is constrained to available space. Panels have a minimum width of 240 px and the editor 320 px. A narrower container scrolls horizontally. Drag the separator or focus it and press the arrow keys to resize in 16 px steps (64 px with Shift); Home and End select the minimum and maximum width.
 
@@ -203,3 +203,17 @@ in a request.
 
 For custom content, use `parameters={<CustomParameters />}` instead;
 `parameters` and `parametersProps` are mutually exclusive, just like settings.
+
+
+## Storybook examples
+
+`Default` combines editable settings, parameters, attachments, and sharing using local
+state. Save and Save as update a local snapshot; Run sends the complete request to
+Actions. Format trims surrounding whitespace, and Validate highlights the word
+`unknown` to demonstrate application-supplied diagnostics. These actions do not call a backend.
+
+Use `EngineSettings` Controls to explore engine-specific loading, empty, disabled,
+and error states. `ControlledSplitView`, `CustomPanels`, and `WithQueryTabs` demonstrate
+integration contracts. `NarrowWithLongTitles`, `EmptyOptions`, and `ActionStates` keep
+layout and unavailable-control cases directly reproducible. Theme is selected in the
+Storybook toolbar. The `Extensions` group contains the specialized Monaco examples.
