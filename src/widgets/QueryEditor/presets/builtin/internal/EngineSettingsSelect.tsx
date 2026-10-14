@@ -3,11 +3,11 @@ import {Select} from '@gravity-ui/uikit';
 import type {SelectOption} from '@gravity-ui/uikit';
 import {FormField} from '../../../../../components/FormField';
 import type {QueryEditorEngineSettingsContext} from '../../../../../types/queryEditor';
-import type {YtsaurusEngineSettings} from '../../../../../types/ytsaurusQueryEngines';
+import type {BuiltinEngineSettings} from '../../../../../types/builtinQueryEngines';
 
-type Props<TCustom extends YtsaurusEngineSettings> = {
+type Props<TCustom extends BuiltinEngineSettings> = {
     context: QueryEditorEngineSettingsContext<TCustom>;
-    field: keyof YtsaurusEngineSettings;
+    field: keyof BuiltinEngineSettings;
     title: string;
     options: SelectOption[];
     displayedValue?: string;
@@ -15,7 +15,7 @@ type Props<TCustom extends YtsaurusEngineSettings> = {
     hasClear?: boolean;
 };
 
-export function EngineSettingsSelect<TCustom extends YtsaurusEngineSettings>({
+export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings>({
     context: {value, onChange, errors, onFieldBlur, disabled},
     field,
     title,

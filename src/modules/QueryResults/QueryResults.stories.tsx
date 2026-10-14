@@ -184,7 +184,7 @@ export const StandardCellTypes: Story = {
                     optional: ['Present'],
                     binary: {val: 'AP8=', b64: true},
                     list: [1, 2, 3],
-                    url: 'https://ytsaurus.tech/',
+                    url: 'https://example.com/',
                     image: {val: '', inc: true},
                 },
                 {

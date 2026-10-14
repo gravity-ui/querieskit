@@ -4,12 +4,12 @@ import {MarkerSeverity} from 'monaco-editor/editor/editor.api';
 import {action} from 'storybook/actions';
 import type {QueryEditorProps} from '../../../types/queryEditor';
 import type {QueryShareLink} from '../../../types/queryShare';
-import type {YtsaurusEngineSettings} from '../../../types/ytsaurusQueryEngines';
+import type {BuiltinEngineSettings} from '../../../types/builtinQueryEngines';
 import {QueryEditor} from '../QueryEditor';
-import {createYtsaurusQueryEngines} from '../presets/ytsaurus';
+import {createBuiltinQueryEngines} from '../presets/builtin';
 import {ATTACHMENTS, CLUSTERS, DELETED_ATTACHMENTS, PARAMETERS, QUERY, SETTINGS} from './demoData';
 
-type EditorProps = QueryEditorProps<YtsaurusEngineSettings>;
+type EditorProps = QueryEditorProps<BuiltinEngineSettings>;
 export type QueryEditorExampleProps = Pick<
     EditorProps,
     | 'readOnly'
@@ -74,7 +74,7 @@ export function QueryEditorExample({
             expiresAt: permanent ? null : Date.now() + 24 * 60 * 60 * 1000,
         });
     };
-    const engines = createYtsaurusQueryEngines({
+    const engines = createBuiltinQueryEngines({
         yql: {versions: ['stable', 'preview']},
         chyt: {cliques: [{alias: `${clusterId}-analytics`, state: 'active', health: 'good'}]},
         spyt: {

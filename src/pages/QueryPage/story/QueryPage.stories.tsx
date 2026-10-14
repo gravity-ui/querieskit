@@ -8,12 +8,12 @@ import type {QueryHistoryRow} from '../../../types/history';
 import {BASE_ITEMS} from '../../../modules/QueriesHistory/QueriesHistory.stories.data';
 import {useQueriesSidebarTabs} from '../../../widgets/QueriesSidebar/QueriesSidebar.stories.data';
 import {CLUSTERS, PARAMETERS, QUERY, SETTINGS} from '../../../widgets/QueryEditor/story/demoData';
-import {createYtsaurusQueryEngines} from '../../../widgets/QueryEditor/presets/ytsaurus';
+import {createBuiltinQueryEngines} from '../../../widgets/QueryEditor/presets/builtin';
 import {createQueryEditorPreset} from '../../../helpers/queryEditorPreset';
 import {designTabs} from '../../../widgets/QueryExecutionPanel/story/designReference';
 import './QueryPage.stories.scss';
 
-const engines = createYtsaurusQueryEngines({
+const engines = createBuiltinQueryEngines({
     yql: {versions: ['stable', 'preview']},
     chyt: {cliques: [{alias: 'analytics', state: 'active', health: 'good'}]},
     spyt: {discoveryGroups: [{path: '//sys/spark/clusters/demo', title: 'Demo Spark'}]},

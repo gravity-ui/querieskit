@@ -1,24 +1,24 @@
 import React from 'react';
 import type {QueryEditorEngine} from '../../../../types/queryEditor';
 import type {
-    YtsaurusEngineSettings,
-    YtsaurusQueryClique,
-    YtsaurusQueryEngineId,
-    YtsaurusQueryEnginesOptions,
-} from '../../../../types/ytsaurusQueryEngines';
+    BuiltinEngineSettings,
+    BuiltinQueryClique,
+    BuiltinQueryEngineId,
+    BuiltinQueryEnginesOptions,
+} from '../../../../types/builtinQueryEngines';
 import {SpytSettings} from './internal/SpytSettings';
 import {EngineSettingsSelect} from './internal/EngineSettingsSelect';
 import i18n from './i18n';
 
-const defaultEngines: YtsaurusQueryEngineId[] = ['yql', 'chyt', 'spyt', 'ql'];
-const isActive = (clique: YtsaurusQueryClique) =>
+const defaultEngines: BuiltinQueryEngineId[] = ['yql', 'chyt', 'spyt', 'ql'];
+const isActive = (clique: BuiltinQueryClique) =>
     clique.state === 'active' && clique.health === 'good';
 
 /** Creates engine descriptors from already loaded data; never fetches or initializes settings. */
-export function createYtsaurusQueryEngines<
-    TCustom extends YtsaurusEngineSettings = YtsaurusEngineSettings,
->(options: YtsaurusQueryEnginesOptions = {}): QueryEditorEngine<TCustom>[] {
-    const engines: Record<YtsaurusQueryEngineId, QueryEditorEngine<TCustom>> = {
+export function createBuiltinQueryEngines<
+    TCustom extends BuiltinEngineSettings = BuiltinEngineSettings,
+>(options: BuiltinQueryEnginesOptions = {}): QueryEditorEngine<TCustom>[] {
+    const engines: Record<BuiltinQueryEngineId, QueryEditorEngine<TCustom>> = {
         yql: {
             id: 'yql',
             title: 'YQL',
