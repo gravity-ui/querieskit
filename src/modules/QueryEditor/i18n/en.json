@@ -16,5 +16,8 @@
   "action_attachments": "Attachments",
   "title_attachments": "Attachments",
   "action_close-attachments": "Close Attachments",
-  "action_resize-panel": "Resize panel"
+  "action_resize-panel": "Resize panel",
+  "action_parameters": "Parameters",
+  "title_parameters": "Parameters",
+  "action_close-parameters": "Close Parameters"
 }

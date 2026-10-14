@@ -3,9 +3,10 @@ import type {IconProps} from '@gravity-ui/uikit';
 import type {AttachmentsProps} from './attachments';
 import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
 import type {QuerySettingsCustomFieldsContext, QuerySettingsProps} from './querySettings';
+import type {QueryParametersProps} from './queryParameters';
 import type {QueryShareProps} from './queryShare';
 
-export type QueryEditorPanel = 'settings' | 'attachments' | null;
+export type QueryEditorPanel = 'settings' | 'attachments' | 'parameters' | null;
 
 export type QueryEditorCluster = {id: string; title: string; disabled?: boolean};
 
@@ -70,7 +71,7 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
         onCodeAssistantClick?: () => void;
         readOnly?: boolean;
         editorOptions?: QueryEditorOptions;
-        /** Controlled active panel; null closes both. Omit to manage it internally. */
+        /** Controlled active panel; null closes all panels. Omit to manage it internally. */
         activePanel?: QueryEditorPanel;
         /** Initial uncontrolled panel. Defaults to null (closed). */
         defaultActivePanel?: QueryEditorPanel;
@@ -104,5 +105,20 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
                   attachments?: never;
                   /** Forwarded to Attachments, including both lists and their change callback. */
                   attachmentsProps: AttachmentsProps;
+              }
+        ) &
+        (
+            | {
+                  /** Custom content below the Parameters heading; excludes the built-in module. */
+                  parameters?: ReactNode;
+                  parametersProps?: never;
+              }
+            | {
+                  parameters?: never;
+                  /** Controlled parameters form. The editor owns the panel heading and close action. */
+                  parametersProps: Omit<
+                      QueryParametersProps,
+                      'onClose' | 'expanded' | 'onExpandedChange'
+                  >;
               }
         );

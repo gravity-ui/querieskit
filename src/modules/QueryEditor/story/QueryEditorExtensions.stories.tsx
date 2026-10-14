@@ -63,6 +63,15 @@ function Example({
                 onFormat={action('format')}
                 onValidate={action('validate')}
                 {...props}
+                {...(props.settingsProps
+                    ? {settings: undefined, settingsProps: props.settingsProps}
+                    : {settings: props.settings, settingsProps: undefined})}
+                {...(props.attachmentsProps
+                    ? {attachments: undefined, attachmentsProps: props.attachmentsProps}
+                    : {attachments: props.attachments, attachmentsProps: undefined})}
+                {...(props.parametersProps
+                    ? {parameters: undefined, parametersProps: props.parametersProps}
+                    : {parameters: props.parameters, parametersProps: undefined})}
             />
         </div>
     );

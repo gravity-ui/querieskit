@@ -186,3 +186,20 @@ The `WithQueryTabs` story demonstrates application-owned tabs, text and selectio
 The application computes `isModified` by comparing the current text with the saved baseline. `QueryTabs.onCloseTab` requests closure: the application may show a confirmation modal before removing the tab. Cancelling leaves the editor mounted and its state intact. Saving updates the baseline. If cluster or engine changes also count as unsaved work in your product, include them in that comparison.
 
 Query results, assistant content, settings state and validation, tab persistence and navigation-away protection belong to the consuming application or a future widget.
+
+## Parameters
+
+The sliders button opens the Parameters side panel. It shares the active panel and
+resizable width with Settings and Attachments (`activePanel="parameters"` or
+`defaultActivePanel="parameters"`). Switching or closing panels keeps the form mounted
+and preserves unsaved edits.
+
+Pass `parametersProps={{value: parameters, onChange: setParameters}}` to use the
+controlled `QueryParameters` form, including its optional refresh, validation, disabled,
+and loading props. The editor supplies the heading and close button. With no parameters
+props, the empty form manages its saved values locally. Query execution and persistence
+remain the application's responsibility; use controlled values to include parameters
+in a request.
+
+For custom content, use `parameters={<CustomParameters />}` instead;
+`parameters` and `parametersProps` are mutually exclusive, just like settings.

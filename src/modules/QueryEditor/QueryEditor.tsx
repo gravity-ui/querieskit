@@ -4,6 +4,8 @@ import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../components/MonacoEditor';
 import {Attachments} from '../Attachments';
+import {QueryParameters} from '../QueryParameters';
+import type {QueryParameter} from '../../types/queryParameters';
 import {QuerySettings} from '../QuerySettings';
 import {QueryShare} from '../QueryShare';
 import type {QueryEditorPanel, QueryEditorProps} from '../../types/queryEditor';
@@ -33,6 +35,8 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     }, [sharingEnabled]);
     const activePanel = controlledPanel === undefined ? localPanel : controlledPanel;
     const panelWidth = controlledWidth ?? localWidth;
+    const [localParameters, setLocalParameters] = useState<QueryParameter[]>([]);
+    const parametersId = useId();
     const settingsId = useId();
     const attachmentsId = useId();
     const theme = useThemeValue();
@@ -97,6 +101,18 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
                 onWidthChange={changeWidth}
                 onClose={() => changePanel(null)}
                 settings={settings}
+                parametersId={parametersId}
+                parameters={
+                    props.parameters === undefined ? (
+                        <QueryParameters
+                            value={localParameters}
+                            onChange={setLocalParameters}
+                            {...props.parametersProps}
+                        />
+                    ) : (
+                        props.parameters
+                    )
+                }
                 attachmentsId={attachmentsId}
                 attachments={
                     props.attachments === undefined ? (
@@ -109,6 +125,7 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
                 <QueryEditorToolbar
                     {...props}
                     activePanel={activePanel}
+                    parametersId={parametersId}
                     settingsId={settingsId}
                     attachmentsId={attachmentsId}
                     onPanelToggle={togglePanel}

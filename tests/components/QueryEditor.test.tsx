@@ -197,6 +197,7 @@ describe('QueryEditor', () => {
             expect(callback).toHaveBeenCalledTimes(1);
         }
         expect(button('Settings')).toBeTruthy();
+        expect(button('Parameters')).toBeTruthy();
         expect(button('Attachments')).toBeTruthy();
         expect(container.querySelector('[aria-label="More actions"]')).toBeNull();
         expect(container.querySelector('[aria-label="Save"]')).toBeNull();
@@ -595,7 +596,7 @@ describe('QueryEditor', () => {
         expect(divider.getAttribute('aria-valuenow')).toBe('290');
         expect(divider.setPointerCapture).toHaveBeenCalledWith(1);
     });
-    function panel(name: 'Settings' | 'Attachments') {
+    function panel(name: 'Settings' | 'Attachments' | 'Parameters') {
         const element = container.querySelector<HTMLElement>(
             `[role="region"][aria-label="${name}"]`,
         );
@@ -603,8 +604,8 @@ describe('QueryEditor', () => {
         return element;
     }
     function textButton(label: string, scope: ParentNode = container) {
-        const element = [...scope.querySelectorAll<HTMLButtonElement>('button')].find(
-            (candidate) => candidate.textContent?.trim() === label,
+        const element = [...scope.querySelectorAll<HTMLButtonElement>('button')].find((candidate) =>
+            candidate.textContent?.trim().endsWith(label),
         );
         if (!element) throw new Error(`Missing button ${label}`);
         return element;
@@ -699,6 +700,96 @@ describe('QueryEditor', () => {
         expect(settings.value).toBe('unsaved setting');
         expect(panel('Attachments').querySelector('.qp-attachments')).toBeNull();
         expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('connects Parameters to the shared panel and preserves its local draft and saved values', async () => {
+        render();
+        expect(panel('Parameters').hidden).toBe(true);
+        expect(button('Parameters').getAttribute('aria-controls')).toBe(panel('Parameters').id);
+        click(button('Parameters'));
+        expect(button('Parameters').getAttribute('aria-expanded')).toBe('true');
+        expect(separator().getAttribute('aria-controls')).toBe(panel('Parameters').id);
+        expect(panel('Parameters').textContent).toContain('No parameters');
+        expect(panel('Parameters').querySelector('.qp-query-parameters__header')).toBeNull();
+        click(textButton('Add parameter', panel('Parameters')));
+        const name = document.querySelector<HTMLInputElement>(
+            'input[aria-label="Parameter name 1"]',
+        )!;
+        updateInput(name, 'limit');
+        click(textButton('Apply', document));
+        const valueInput = panel('Parameters').querySelector<HTMLInputElement>(
+            'input[aria-label="$limit"]',
+        )!;
+        updateInput(valueInput, 'unsaved value');
+        key('ArrowLeft');
+        click(button('Settings'));
+        expect(panel('Parameters').hidden).toBe(true);
+        click(button('Parameters'));
+        expect(separator().getAttribute('aria-valuenow')).toBe('336');
+        click(button('Close Parameters'));
+        click(button('Parameters'));
+        expect(panel('Parameters').querySelector('input[aria-label="$limit"]')).toBe(valueInput);
+        expect(valueInput.value).toBe('unsaved value');
+        await act(async () => textButton('Save', panel('Parameters')).click());
+        click(button('Attachments'));
+        click(button('Parameters'));
+        expect(panel('Parameters').textContent).toContain('limit');
+        expect(textButton('Edit', panel('Parameters'))).toBeTruthy();
+        expect(props.onChange).not.toHaveBeenCalled();
+        expect(editor.mount).toHaveBeenCalledTimes(1);
+    });
+    it('requests controlled Parameters visibility without changing the supplied active panel', () => {
+        const onActivePanelChange = vi.fn();
+        render({activePanel: 'settings', onActivePanelChange});
+        click(button('Parameters'));
+        expect(onActivePanelChange).toHaveBeenLastCalledWith('parameters');
+        expect(panel('Parameters').hidden).toBe(true);
+        render({activePanel: 'parameters', onActivePanelChange});
+        expect(onActivePanelChange).toHaveBeenCalledTimes(1);
+        expect(panel('Parameters').hidden).toBe(false);
+        expect(panel('Settings').hidden).toBe(true);
+        click(button('Close Parameters'));
+        expect(onActivePanelChange).toHaveBeenLastCalledWith(null);
+        expect(panel('Parameters').hidden).toBe(false);
+    });
+    it('forwards parameter saves and refreshes independently of readOnly query text', async () => {
+        const onChange = vi.fn();
+        const onUpdate = vi.fn();
+        render({
+            defaultActivePanel: 'parameters',
+            readOnly: true,
+            parametersProps: {
+                value: [{id: 'limit', name: 'limit', type: {kind: 'String'}, value: '10'}],
+                onChange,
+                onUpdate,
+            },
+        });
+        await act(async () => textButton('Update', panel('Parameters')).click());
+        expect(onUpdate).toHaveBeenCalledTimes(1);
+        click(textButton('Edit', panel('Parameters')));
+        updateInput(
+            panel('Parameters').querySelector<HTMLInputElement>('input[aria-label="$limit"]')!,
+            '20',
+        );
+        await act(async () => textButton('Save', panel('Parameters')).click());
+        expect(onChange).toHaveBeenCalledWith([
+            {id: 'limit', name: 'limit', type: {kind: 'String'}, value: '20'},
+        ]);
+        expect(props.onChange).not.toHaveBeenCalled();
+    });
+    it('preserves a custom parameters slot across switching and closing', () => {
+        render({
+            parameters: <input data-testid="raw-parameters" defaultValue="draft" />,
+            defaultActivePanel: 'parameters',
+        });
+        const input = panel('Parameters').querySelector<HTMLInputElement>('input')!;
+        updateInput(input, 'unsaved');
+        click(button('Settings'));
+        click(button('Parameters'));
+        click(button('Close Parameters'));
+        click(button('Parameters'));
+        expect(panel('Parameters').querySelector('input')).toBe(input);
+        expect(input.value).toBe('unsaved');
+        expect(panel('Parameters').querySelector('.qp-query-parameters')).toBeNull();
     });
     it('provides default empty attachments and preserves an unfinished file draft and selected tab', () => {
         render({defaultActivePanel: 'attachments'});

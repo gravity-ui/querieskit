@@ -16,5 +16,8 @@
   "action_attachments": "Вложения",
   "title_attachments": "Вложения",
   "action_close-attachments": "Закрыть вложения",
-  "action_resize-panel": "Изменить ширину панели"
+  "action_resize-panel": "Изменить ширину панели",
+  "action_parameters": "Параметры",
+  "title_parameters": "Параметры",
+  "action_close-parameters": "Закрыть параметры"
 }
