@@ -1,11 +1,16 @@
 import React from 'react';
-import {Calendar} from '@gravity-ui/date-components';
+import {Calendar, DatePicker} from '@gravity-ui/date-components';
 import CalendarIcon from '@gravity-ui/icons/svgs/calendar.svg';
 import {Button, Icon, Popup, TextInput} from '@gravity-ui/uikit';
 
 import i18n from '../i18n';
 
-import {getParameterCalendarDate, updateParameterDate} from './parameterDate';
+import {
+    getParameterCalendarDate,
+    getParameterPickerDate,
+    parameterDateFormat,
+    updateParameterDate,
+} from './parameterDate';
 
 interface ParameterDateInputProps {
     value: string;
@@ -28,6 +33,29 @@ export function ParameterDateInput({
 }: ParameterDateInputProps) {
     const [open, setOpen] = React.useState(false);
     const [anchor, setAnchor] = React.useState<HTMLButtonElement | null>(null);
+
+    if (kind === 'Date' || kind === 'Datetime') {
+        const date = getParameterPickerDate(value, kind);
+        // Keep unrepresentable incoming values visible and editable as text.
+        if (!value || date) {
+            return (
+                <DatePicker
+                    value={date}
+                    format={parameterDateFormat(kind)}
+                    timeZone="UTC"
+                    size="m"
+                    hasClear
+                    disabled={disabled}
+                    aria-label={label}
+                    validationState={error ? 'invalid' : undefined}
+                    errorMessage={error}
+                    onUpdate={(next) =>
+                        onUpdate(next?.timeZone('UTC').format(parameterDateFormat(kind)) ?? '')
+                    }
+                />
+            );
+        }
+    }
 
     return (
         <>
