@@ -233,3 +233,10 @@ for the contract and expansion lifecycle. Only supplied columns can be displayed
 The `Widgets/QueryExecutionPanel/Schema` story uses the real Result module and
 opens Schema with no result rows, including optional String, Int64 and Float
 columns and a nested structure with modifiers.
+
+### Retained inactive workspaces
+
+Set `active={false}` when a parent retains this panel in a hidden query tab. This
+keeps its content mounted while reporting inactive state to custom content, progress
+and charts. The default is `true`. `QueryPage` combines its selected tab with this
+flag, so an explicit `false` remains inactive. The parent owns hiding the panel.

@@ -50,15 +50,16 @@ Instructions for agents on the code structure of `@gravity-ui/querieskit`.
   working directory see the same edits. When independent, stable previews
   are required, use a separate git worktree and its own Storybook instance.
 
-## Three levels of the public API
+## Four levels of the public API
 
-The library is organized into three levels of abstraction. Every new and existing widget must follow this structure:
+The library is organized into four levels of abstraction. Every new and existing unit must follow this structure:
 
 ```text
 src/
   components/   — basic atomic components
   modules/      — assemblies of several components into a reusable scenario block
   widgets/      — ready-made product widgets
+  pages/        — compositions of widgets with page-level layout
   types/        — public types
   helpers/      — shared helpers not tied to a specific widget
   index.ts
@@ -117,19 +118,26 @@ widgets/
     index.ts
 ```
 
+### `src/pages` — pages
+
+Pages compose independent widgets into a complete screen and own their shared layout, including resizing and visibility. They preserve the widgets' full props contracts rather than duplicating or flattening them. Data loading, query execution, persistence, and routing remain the application's responsibility.
+
+A page follows the same unit structure: `pages/PageName/PageName.tsx`, an optional owned `PageName.scss` and `i18n/`, and a mandatory `index.ts`. See [`QueryPage`](src/pages/QueryPage/README.md).
+
 ## Import rules between levels
 
-- `widgets` import `modules` and `components`.
+- `pages` import concrete `widgets`, `modules`, and `components`.
+- `widgets` import `modules` and `components`, never `pages`.
 - `modules` import `components` and may compose other `modules` without dependency cycles.
-- `modules` do not import `widgets`.
-- `components` do not import `modules` or `widgets`.
+- `modules` do not import `widgets` or `pages`.
+- `components` do not import `modules`, `widgets`, or `pages`.
 
 Violating this order (e.g. importing a widget inside a module) is not allowed — it breaks the readability of the abstraction levels.
 
 ### Internal imports and tree-shaking
 
 - In production code under `src`, import concrete units through their own entrypoints, e.g. `../../modules/QueriesList` or `../../components/FieldsSelector`.
-- Do not import from paths resolving to `src/components/index.ts`, `src/modules/index.ts`, `src/widgets/index.ts`, or `src/index.ts`. This includes explicit `/index` paths, aliases, and self-imports from `@gravity-ui/querieskit`.
+- Do not import from paths resolving to `src/components/index.ts`, `src/modules/index.ts`, `src/widgets/index.ts`, `src/pages/index.ts`, or `src/index.ts`. This includes explicit `/index` paths, aliases, and self-imports from `@gravity-ui/querieskit`.
 - Use `import type` for type-only dependencies, importing from the relevant file in `src/types` or a concrete unit entrypoint. The same restriction on common barrels applies to type imports.
 - Preserve public barrels and their re-exports: the root entrypoint may re-export the level barrels, and level barrels may re-export units. Consumer-facing examples, stories, and tests may use public barrels to exercise the public API.
 - When changing imports or adding dependencies, check that the affected production dependency chain does not introduce common barrel imports. Existing legacy imports are not examples to copy; unrelated units do not need to be migrated as part of the same change.
@@ -145,21 +153,21 @@ import type {QueryHistoryRow} from '../../types/history';
 
 ## Naming
 
-- `components` / `modules` / `widgets` are fixed level names. Do not use `blocks` (conflicts with the project's BEM terminology, see `bem-cn-lite`), and do not use `compositions` or `features` (less conventional / do not match the meaning of the entities).
+- `components` / `modules` / `widgets` / `pages` are fixed level names. Do not use `blocks` (conflicts with the project's BEM terminology, see `bem-cn-lite`), and do not use `compositions` or `features` (less conventional / do not match the meaning of the entities).
 - Every unit at any level is a `PascalCase` folder with an implementation file of the same name and a mandatory `index.ts` that re-exports the folder's public API.
 
 ## Barrel exports
 
-- Each level (`components`, `modules`, `widgets`) must have its own `index.ts` that explicitly re-exports the public units of that level. Do not use self-referencing or circular constructs like `export * from '.'`.
-- [`src/index.ts`](src/index.ts:1) is the entry point, re-exporting the public parts of all three levels and the public types from `src/types`.
+- Each level (`components`, `modules`, `widgets`, `pages`) must have its own `index.ts` that explicitly re-exports the public units of that level. Do not use self-referencing or circular constructs like `export * from '.'`.
+- [`src/index.ts`](src/index.ts:1) is the entry point, re-exporting the public parts of all four levels and the public types from `src/types`.
 
 ## Types
 
-Public types that are part of the props contract of components/modules/widgets must live in `src/types` and be re-exported via `src/index.ts` if the library consumer needs them to type their own data (e.g. `QueryHistoryRow`, `QueryHistoryItem`).
+Public types that are part of the props contract of components/modules/widgets/pages must live in `src/types` and be re-exported via `src/index.ts` if the library consumer needs them to type their own data (e.g. `QueryHistoryRow`, `QueryHistoryItem`).
 
 ## Styles
 
-Every component/module/widget that needs styles owns an eponymous `.scss` file next to its `.tsx` file and imports that stylesheet itself. A parent stylesheet must not define a child's BEM block or act as the shared loading point for child styles.
+Every component/module/widget/page that needs styles owns an eponymous `.scss` file next to its `.tsx` file and imports that stylesheet itself. A parent stylesheet must not define a child's BEM block or act as the shared loading point for child styles.
 
 - Internal appearance and layout belong to the component's own stylesheet.
 - External positioning relative to a parent or siblings belongs to the parent. When a parent needs to apply such styles directly to a child, the child accepts `className` and merges it with its root BEM class; the parent passes its own BEM element, e.g. `className={block('child')}`.
@@ -171,7 +179,7 @@ For the full ownership rules, examples, and review checklist, see [`plans/styles
 
 ## i18n
 
-Every widget/module/component with its own reusable scenario keeps its localization in an `i18n/` subfolder (`en.json`, `ru.json`, `dicts.ts`, `index.ts`), registers its keyset via [`addI18Keysets`](src/i18n/index.ts:11) with a name like `` `qp:widget-name` ``, and uses the typed `t`/`i18n(...)` function — see the example in [`QueriesHistory`](src/modules/QueriesHistory/i18n/index.ts:1).
+Every page/widget/module/component with its own reusable scenario keeps its localization in an `i18n/` subfolder (`en.json`, `ru.json`, `dicts.ts`, `index.ts`), registers its keyset via [`addI18Keysets`](src/i18n/index.ts:11) with a name like `` `qp:widget-name` ``, and uses the typed `t`/`i18n(...)` function — see the example in [`QueriesHistory`](src/modules/QueriesHistory/i18n/index.ts:1).
 
 Brief naming notes:
 
@@ -182,14 +190,14 @@ Brief naming notes:
 
 For the full keyset and key naming rules with an example table, see [`plans/i18n-rules.md`](plans/i18n-rules.md).
 
-## Checklist when adding a new widget
+## Checklist when adding a new widget or page
 
-When adding a new widget to the library:
+When adding a new widget or page to the library:
 
-1. Determine which parts are standalone `components`, which are `modules`, and what belongs only to the `widget` itself.
+1. Determine which parts are standalone `components`, which are `modules`, and what belongs only to the `widget` itself, and whether a composition of independent widgets belongs in `pages`.
 2. Do not move internal details into `components` without a real standalone usage scenario.
 3. Create/update `index.ts` at every affected level.
-4. Make sure cross-level imports flow in a single direction only: `widgets → modules → components`, module composition has no dependency cycles, and internal imports use concrete units rather than common barrels.
+4. Make sure cross-level imports flow in a single direction only: `pages → widgets → modules → components`, module composition has no dependency cycles, and internal imports use concrete units rather than common barrels.
 5. Verify the build and Storybook after the changes.
 
 For a detailed example of applying these rules to the existing `QueriesHistory` widget, see [`plans/queries-history-structure.md`](plans/queries-history-structure.md).

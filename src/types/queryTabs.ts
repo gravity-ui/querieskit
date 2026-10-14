@@ -4,6 +4,8 @@ import type {QueryStatus} from './history';
 export type QueryTabItem = {
     /** Unique, stable ID within the strip. */
     id: string;
+    /** Optional ID of the content panel owned by the surrounding composition. */
+    panelId?: string;
 } & (
     | {type: 'query'; title: string; status: QueryStatus; isModified?: boolean}
     | {type: 'comparison'; leftTitle: string; rightTitle: string}

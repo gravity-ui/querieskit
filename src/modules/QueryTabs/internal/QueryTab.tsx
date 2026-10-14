@@ -45,6 +45,7 @@ export function QueryTab({item, active, closable, onSelect, onClose}: Props) {
             <StripTab
                 component={QueryTabButton}
                 value={item.id}
+                data-query-panel-id={item.panelId}
                 title={title}
                 aria-label={title}
                 aria-describedby={descriptionId}

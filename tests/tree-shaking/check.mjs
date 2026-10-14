@@ -24,7 +24,9 @@ const widgets = [
 ];
 const sections = new Set(widgets.slice(0, 4));
 const unitPath = (name) =>
-    `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QuerySettings' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
+    name === 'QueryPage'
+        ? 'pages/QueryPage'
+        : `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QuerySettings' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
 const monacoUnits = new Set([...widgets.slice(0, 3), 'QueriesSidebar', 'QueryEditor']);
 const contributions = [
     'clickhouse/clickhouse.contribution.js',
@@ -66,11 +68,16 @@ const config = ts.readConfigFile(path.join(root, 'tsconfig.json'), ts.sys.readFi
 assert.equal(config.error, undefined);
 const {options} = ts.parseJsonConfigFileContent(config.config, ts.sys, root);
 const barrels = new Set(
-    ['index.ts', 'components/index.ts', 'modules/index.ts', 'widgets/index.ts'].map((p) =>
-        path.join(root, 'src', p),
-    ),
+    [
+        'index.ts',
+        'components/index.ts',
+        'modules/index.ts',
+        'widgets/index.ts',
+        'pages/index.ts',
+    ].map((p) => path.join(root, 'src', p)),
 );
 const pending = [
+    path.join(root, 'src/pages/QueryPage/index.ts'),
     ...widgets.map((name) => path.join(root, 'src', unitPath(name), 'index.ts')),
     path.join(root, 'src/modules/QueryTimeline/index.ts'),
     path.join(root, 'src/modules/QueryProgress/index.ts'),
@@ -620,3 +627,42 @@ for (const format of ['esm', 'cjs']) {
     );
 }
 console.info('✓ YTsaurus engine settings preset: standalone exports with SPYT editor and CSS');
+
+// The page is an opt-in composition: its own entrypoint includes all three widgets.
+for (const specifier of [packageName, `${packageName}/pages/QueryPage`]) {
+    for (const mode of ['bundler', 'import', 'require']) checkTypes(specifier, 'QueryPage', mode);
+}
+for (const format of ['esm', 'cjs']) {
+    const specifier = `${packageName}/pages/QueryPage`;
+    const entry =
+        format === 'esm'
+            ? fileURLToPath(import.meta.resolve(specifier))
+            : require.resolve(specifier);
+    assert.equal(entry, path.join(root, 'build', format, 'pages/QueryPage/index.js'));
+    const result = await build({
+        absWorkingDir: root,
+        entryPoints: [entry],
+        bundle: true,
+        write: false,
+        format,
+        platform: 'browser',
+        packages: 'external',
+        metafile: true,
+        outfile: path.join(root, `build/tree-shaking/query-page-${format}.js`),
+        logLevel: 'silent',
+    });
+    const inputs = new Set(Object.keys(result.metafile.inputs));
+    for (const widget of ['QueriesSidebar', 'QueryEditor', 'QueryExecutionPanel']) {
+        assert(
+            inputs.has(`build/${format}/widgets/${widget}/${widget}.js`),
+            `${format}: missing page widget ${widget}`,
+        );
+    }
+    assert(
+        result.outputFiles.some(
+            (file) => file.path.endsWith('.css') && file.text.includes('.qp-query-page'),
+        ),
+        `${format}: missing QueryPage CSS`,
+    );
+}
+console.info('✓ QueryPage: composition, CSS, standalone ESM/CJS exports and types');
