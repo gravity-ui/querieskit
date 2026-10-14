@@ -8,7 +8,7 @@ import type {QueryEditorExampleProps} from './QueryEditorExample';
 import {QueryEditorTabsExample} from './QueryEditorTabsExample';
 
 const meta = {
-    title: 'Modules/QueryEditor',
+    title: 'Widgets/QueryEditor',
     component: QueryEditorExample,
     tags: ['autodocs'],
     parameters: {

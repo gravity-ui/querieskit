@@ -3,7 +3,7 @@ import React, {act} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
 import {type SelectProps, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {createYtsaurusQueryEngines} from '../../src/modules/QueryEditor/presets/ytsaurus';
+import {createYtsaurusQueryEngines} from '../../src/widgets/QueryEditor/presets/ytsaurus';
 import type {QueryEditorEngineSettingsContext} from '../../src/types/queryEditor';
 import type {
     YtsaurusEngineSettings,

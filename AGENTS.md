@@ -84,7 +84,7 @@ components/
 
 ### `src/modules` — modules
 
-Blocks that assemble several `components` and define an interaction scenario within a single widget (search, list, a row with its own selection/editing logic, etc.).
+Blocks that assemble `components` and, when needed, other `modules` to define an interaction scenario within a single widget (search, list, a row with its own selection/editing logic, etc.).
 
 A module is usually not intended to be used separately from its widget — it is an internal building block, but is factored out into a separate public level for import readability and potential reuse across widgets.
 
@@ -120,7 +120,8 @@ widgets/
 ## Import rules between levels
 
 - `widgets` import `modules` and `components`.
-- `modules` import `components`.
+- `modules` import `components` and may compose other `modules` without dependency cycles.
+- `modules` do not import `widgets`.
 - `components` do not import `modules` or `widgets`.
 
 Violating this order (e.g. importing a widget inside a module) is not allowed — it breaks the readability of the abstraction levels.
@@ -188,7 +189,7 @@ When adding a new widget to the library:
 1. Determine which parts are standalone `components`, which are `modules`, and what belongs only to the `widget` itself.
 2. Do not move internal details into `components` without a real standalone usage scenario.
 3. Create/update `index.ts` at every affected level.
-4. Make sure imports flow in a single direction only: `widgets → modules → components`, and internal imports use concrete units rather than common barrels.
+4. Make sure cross-level imports flow in a single direction only: `widgets → modules → components`, module composition has no dependency cycles, and internal imports use concrete units rather than common barrels.
 5. Verify the build and Storybook after the changes.
 
 For a detailed example of applying these rules to the existing `QueriesHistory` widget, see [`plans/queries-history-structure.md`](plans/queries-history-structure.md).

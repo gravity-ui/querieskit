@@ -52,10 +52,10 @@ The public API has three levels:
 | Level | Path | Role |
 | --- | --- | --- |
 | **Widgets** | `src/widgets` | Ready-to-use feature blocks for a queries page |
-| **Modules** | `src/modules` | Scenario blocks composed from components (lists, rows, headers) |
+| **Modules** | `src/modules` | Scenario blocks composed from components and other modules (lists, rows, headers) |
 | **Components** | `src/components` | Small reusable UI pieces with a stable props contract |
 
-Import direction is one-way: `widgets → modules → components`.
+Cross-level imports flow one way: `widgets → modules → components`. Modules may compose other modules without dependency cycles.
 
 Prefer widgets for product screens. Use modules and components when you need a custom layout or only a part of a scenario.
 
@@ -78,7 +78,7 @@ import type {SavedQueriesProps} from '@gravity-ui/querieskit/modules/SavedQuerie
 
 Individual entrypoints are available for `QueriesHistory`, `SavedQueries`,
 `TutorialsHistory`, `QueriesNavigation` under `modules/`, and `QueriesSidebar`,
-`QueryExecutionPanel`, `DashboardCharts` under `widgets/`.
+`QueryEditor`, `QueryExecutionPanel`, `DashboardCharts` under `widgets/`.
 They expose each unit's existing public exports, including its props and helpers.
 Shared data types remain available from the package root.
 
@@ -103,9 +103,18 @@ See [the API and migration guide](src/widgets/QueriesSidebar/README.md).
 extensions, diagnostics, line navigation, and access to the editor instance.
 Use `createQueryEditorPreset` for optional language completion with catalog and
 schema adapters, or replace individual capabilities with your own Monaco providers.
-See [the editor integration guide](docs/editor-extensions.md) and the QueryEditor
+See [the QueryEditor guide](src/widgets/QueryEditor/README.md),
+[the editor integration guide](docs/editor-extensions.md), and the QueryEditor
 Extensions stories. Individual imports are available from `components/MonacoEditor`,
-`modules/QueryEditor`, and `helpers/queryEditorPreset`.
+`widgets/QueryEditor`, and `helpers/queryEditorPreset`.
+
+```tsx
+import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
+```
+
+The YTsaurus preset is available from `widgets/QueryEditor/presets/ytsaurus`.
+The previous package subpaths `modules/QueryEditor` and
+`modules/QueryEditor/presets/ytsaurus` remain supported as compatibility aliases.
 
 ### QueryExecutionPanel
 

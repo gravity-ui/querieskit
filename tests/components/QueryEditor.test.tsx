@@ -3,7 +3,7 @@ import React, {act, useEffect} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
 import {TextInput, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {QueryEditor} from '../../src/modules/QueryEditor';
+import {QueryEditor} from '../../src/widgets/QueryEditor';
 import {QuerySettings} from '../../src/modules/QuerySettings';
 import type {QueryEditorEngine, QueryEditorProps} from '../../src/types/queryEditor';
 import type {AttachmentsProps} from '../../src/types/attachments';

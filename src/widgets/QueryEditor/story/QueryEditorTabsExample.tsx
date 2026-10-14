@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {Button, Flex, Modal, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
-import {QueryTabs} from '../../QueryTabs';
+import {QueryTabs} from '../../../modules/QueryTabs';
 import {QueryEditor} from '../QueryEditor';
 import {CLUSTERS, TAB_ENGINES} from './demoData';
 

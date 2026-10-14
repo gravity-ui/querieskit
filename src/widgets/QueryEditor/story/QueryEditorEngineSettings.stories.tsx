@@ -6,7 +6,7 @@ import {EngineSettingsExample} from './EngineSettingsExample';
 import type {EngineSettingsExampleProps} from './EngineSettingsExample';
 
 const meta = {
-    title: 'Modules/QueryEditor',
+    title: 'Widgets/QueryEditor',
     component: EngineSettingsExample,
     parameters: {layout: 'padded'},
     args: {
