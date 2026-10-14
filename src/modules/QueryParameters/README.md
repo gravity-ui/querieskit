@@ -127,7 +127,10 @@ Date values use `YYYY-MM-DD`; Datetime adds `THH:mm:ssZ`, and Timestamp addition
 accepts fractional seconds up to 6 digits. The `Z` suffix is mandatory for Datetime
 and Timestamp. Extended types support negative and longer years. The form checks
 format and component bounds; the server checks engine ranges and calendar rules.
-Calendar selection changes only the date portion and preserves the time suffix.
+Date and Datetime use a UTC date picker (Datetime includes time to seconds).
+Incoming values that the picker cannot represent remain editable as text.
+Extended date types and Timestamp retain text input with a calendar; calendar
+selection changes only the date portion and preserves the time suffix and microseconds.
 Interval values use duration text such as `PT1M30S`, `-P1D` or `PT0.123456S`:
 weeks, days, hours, minutes and seconds are accepted; calendar years/months and empty
 durations are not. New intervals default to `PT0S`. Tz types and Utf8 are unchecked

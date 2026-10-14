@@ -913,6 +913,50 @@ describe('QueryParameters', () => {
         expect(lastValue()[0].value).toEqual([{id: 'entry', key: 'key', value: 'first\nsecond'}]);
     });
 
+    it.each([
+        ['Date', '2025-01-01', '2025-01-02'],
+        ['Datetime', '2025-01-01T12:30:00Z', '2025-01-02T12:30:00Z'],
+    ])('selects and saves a %s with the date picker', async (kind, value, expected) => {
+        render({value: [{id: 'date', name: 'date', type: {kind}, value}]});
+        await click('Edit');
+        expect(field('$date').getAttribute('role')).toBe('combobox');
+        await click('Calendar');
+        const secondDay = [
+            ...dialog().querySelectorAll<HTMLElement>('[role="gridcell"] [role="button"]'),
+        ].find((node) => node.textContent === '2');
+        expect(secondDay).toBeDefined();
+        await act(async () => secondDay!.click());
+        expect(field('$date').value.replace(/[\u2066-\u2069]/g, '')).toBe(expected);
+        await click('Save');
+        expect(lastValue()[0].value).toBe(expected);
+    });
+
+    it('blocks saving a cleared date and accepts a new calendar selection', async () => {
+        render({value: [{id: 'date', name: 'date', type: {kind: 'Date'}, value: '2025-01-01'}]});
+        await click('Edit');
+        change('$date', '');
+        await click('Save');
+        expect(onChange).not.toHaveBeenCalled();
+        expect(field('$date').getAttribute('role')).toBe('combobox');
+        await click('Calendar');
+        const day = [
+            ...dialog().querySelectorAll<HTMLElement>('[role="gridcell"] [role="button"]'),
+        ].find((node) => node.textContent === '15');
+        expect(day).toBeDefined();
+        await act(async () => day!.click());
+        const selected = field('$date').value.replace(/[\u2066-\u2069]/g, '');
+        expect(selected).toMatch(/^\d{4}-\d{2}-15$/);
+        await click('Save');
+        expect(lastValue()[0].value).toBe(selected);
+    });
+
+    it('keeps an invalid incoming date editable without normalizing it', async () => {
+        render({value: [{id: 'date', name: 'date', type: {kind: 'Date'}, value: '2025-02-30'}]});
+        await click('Edit');
+        expect(field('$date').value).toBe('2025-02-30');
+        expect(field('$date').getAttribute('role')).not.toBe('combobox');
+    });
+
     it('chooses a calendar date without changing microseconds or the UTC suffix', async () => {
         render({
             value: [

@@ -2,10 +2,35 @@ import {describe, expect, it} from 'vitest';
 
 import {
     getParameterCalendarDate,
+    getParameterPickerDate,
+    parameterDateFormat,
     updateParameterDate,
 } from '../../src/modules/QueryParameters/internal/parameterDate';
 
 describe('parameter calendar dates', () => {
+    it.each([
+        ['Date', '2026-03-10'],
+        ['Datetime', '2026-03-10T23:34:56Z'],
+        ['Date', '0099-03-10'],
+    ] as const)('round-trips %s through the picker in UTC', (kind, value) => {
+        const date = getParameterPickerDate(value, kind);
+        expect(date?.format(parameterDateFormat(kind))).toBe(value);
+        expect(date?.utcOffset()).toBe(0);
+    });
+
+    it.each([
+        ['Date', '2026-02-30'],
+        ['Date', '0000-01-01'],
+        ['Date', '-1-01-01'],
+        ['Date', '10000-01-01'],
+        ['Datetime', '2026-03-10T23:34:56.123456Z'],
+        ['Datetime', '2026-03-10T23:34:56+03:00'],
+        ['Datetime', '2026-03-10T24:00:00Z'],
+        ['Date', ''],
+    ] as const)('keeps unrepresentable %s value %s out of the picker', (kind, value) => {
+        expect(getParameterPickerDate(value, kind)).toBeNull();
+    });
+
     it.each([
         ['Timestamp64', '-1-02-15T12:34:56.123456Z', '2026-03-10T12:34:56.123456Z'],
         ['Timestamp', '2025-02-15T12:34:56.123456Z', '2026-03-10T12:34:56.123456Z'],
