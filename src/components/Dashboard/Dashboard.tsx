@@ -26,6 +26,8 @@ export const Dashboard = ({
     focusable = false,
     className,
     onLayoutChange,
+    onItemFocus,
+    onItemBlur,
 }: DashboardProps) => {
     const {config, gridGroups} = useDashboardConfig(items, customerGridState, defaultLayout);
 
@@ -44,6 +46,14 @@ export const Dashboard = ({
                     draggableHandleClassName={DRAG_HANDLE_CLASSNAME}
                     focusable={focusable}
                     onChange={handleChange}
+                    onItemFocus={({id}) => {
+                        const index = items.findIndex((item) => item.id === id);
+                        if (index !== -1) onItemFocus?.(items[index].content, index);
+                    }}
+                    onItemBlur={({id}) => {
+                        const index = items.findIndex((item) => item.id === id);
+                        if (index !== -1) onItemBlur?.(items[index].content, index);
+                    }}
                 />
             </DashboardProvider>
         </Flex>

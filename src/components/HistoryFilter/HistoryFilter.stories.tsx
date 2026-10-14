@@ -1,3 +1,5 @@
+import React from 'react';
+import {Button, Flex, Text} from '@gravity-ui/uikit';
 import type {Meta, StoryObj} from '@storybook/react';
 import {FormField} from '../SimpleForm';
 import {HistoryFilter} from './HistoryFilter';
@@ -67,3 +69,28 @@ export const WithInitialValues: Story = {
         onReset: () => alert('Reset'),
     },
 };
+
+function ExternalUpdatesExample() {
+    const [values, setValues] = React.useState<Record<string, unknown>>({onlyMine: false});
+    const [applied, setApplied] = React.useState<Record<string, unknown>>({});
+    return (
+        <Flex direction="column" gap={3} alignItems="flex-start">
+            <HistoryFilter
+                fields={fields}
+                values={{...values}}
+                onApply={setApplied}
+                onReset={() => setApplied({})}
+            />
+            <Flex gap={2}>
+                <Button onClick={() => setValues({onlyMine: true, checkobxGroup: ['yql']})}>
+                    Load saved filters
+                </Button>
+                <Button onClick={() => setValues({...values})}>Rerender equivalent values</Button>
+            </Flex>
+            <Text>Applied: {JSON.stringify(applied)}</Text>
+        </Flex>
+    );
+}
+
+/** Edit multiple fields, Apply or Reset, and replace the values externally. */
+export const ExternalUpdates: Story = {render: () => <ExternalUpdatesExample />};

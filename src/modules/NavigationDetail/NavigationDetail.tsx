@@ -33,6 +33,13 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
     const [activeTabState, setActiveTabState] = useState(() =>
         getInitialTab(visibleTabs, config.defaultTab),
     );
+    if (
+        !isTabControlled &&
+        !visibleTabs.some((tab) => tab.id === activeTabState && !tab.disabled)
+    ) {
+        const nextTab = getInitialTab(visibleTabs, config.defaultTab);
+        if (nextTab !== activeTabState) setActiveTabState(nextTab);
+    }
     const [searchState, setSearchState] = useState('');
 
     const activeTab = isTabControlled ? activeTabProp : activeTabState;
@@ -70,7 +77,7 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
           null)
         : null;
 
-    const hasTabs = visibleTabs.length > 0;
+    const hasTabs = visibleTabs.some((tab) => !tab.disabled);
 
     return (
         <Flex direction="column" gap={2} className={block(null, className)}>
