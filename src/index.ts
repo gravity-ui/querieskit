@@ -34,3 +34,5 @@ export type {QueriesNavigationProps} from './types/queriesNavigation';
 export type {SavedQueriesProps} from './types/savedQueriesProps';
 export type {TutorialsHistoryProps} from './types/tutorialsHistory';
 export type {AttachmentsProps, AttachItem} from './types/attachments';
+export * from './types/monacoDiffEditor';
+export * from './types/queryComparison';
