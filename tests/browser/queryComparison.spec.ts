@@ -74,6 +74,23 @@ test('external values do not echo changes and removed blocks dispose their model
     expect(await page.evaluate(() => window.comparisonTest.snapshot().changes)).toEqual([]);
 });
 
+test('remaining editor can open its context menu after another diff editor is removed', async ({
+    page,
+}) => {
+    await page.evaluate(() =>
+        window.comparisonTest.replace([
+            {id: 'query', title: 'Query', original: 'SELECT 1;', modified: 'SELECT 2;'},
+        ]),
+    );
+    await expect
+        .poll(() => page.evaluate(() => window.comparisonTest.snapshot().modelCount))
+        .toBe(2);
+    await page.evaluate(() => window.comparisonTest.showContextMenu('query'));
+    await expect(page.getByRole('menu')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toBeHidden();
+});
+
 test('restores and removes absent files while retaining empty files', async ({page}) => {
     await page.evaluate(() =>
         window.comparisonTest.replace([
