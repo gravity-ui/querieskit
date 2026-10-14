@@ -1,21 +1,12 @@
-import React, {ReactNode} from 'react';
-import {Button, Flex, Icon, Link, Text} from '@gravity-ui/uikit';
-import {Folder} from '@gravity-ui/illustrations';
 import {Plus} from '@gravity-ui/icons';
+import {Folder} from '@gravity-ui/illustrations';
+import {Button, Flex, Icon, Link, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import i18n from './i18n';
+import React from 'react';
+import type {AttachmentListPlaceholderProps} from '../../types/attachmentListPlaceholderProps';
 import './AttachmentListPlaceholder.scss';
-
-export type AttachmentListPlaceholderProps = {
-    title?: ReactNode;
-    description?: ReactNode;
-    linkForDoc?: string;
-    linkText?: string;
-    className?: string;
-    onAddFile?: () => void;
-    onAddLink?: () => void;
-    qa?: string;
-};
+import i18n from './i18n';
+export type {AttachmentListPlaceholderProps} from '../../types/attachmentListPlaceholderProps';
 
 const block = cn('qp-attachment-list-placeholder');
 

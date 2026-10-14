@@ -1,15 +1,5 @@
+import type {EditLinkErrors} from '../../../types/attachmentsEditor';
 import {stringRequiredValidator} from './stringRequiredValidator';
-
-export type EditLinkErrors = Partial<{
-    link: string;
-    token: string;
-    name: string;
-}>;
-
-export type ObjectLinkValidator = (
-    values: Record<string, unknown>,
-    isTokenRequired?: boolean,
-) => EditLinkErrors | null;
 
 export const objectLinkValidator = (values: Record<string, unknown>, isTokenRequired?: boolean) => {
     const patchErrors: Partial<EditLinkErrors> = {};

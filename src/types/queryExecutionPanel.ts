@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import type {NavigationMetaProps} from '../modules/NavigationMeta';
+import type {NavigationMetaProps} from './navigationMetaProps';
 import type {DashboardChartsProps} from './dashboardCharts';
 import type {ErrorTreeProps} from './errorTree';
 import type {NavigationMetaItem} from './navigation';

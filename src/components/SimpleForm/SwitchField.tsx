@@ -1,11 +1,6 @@
+import type {SwitchFieldProps} from '../../types/simpleFormProps';
 import React, {FC} from 'react';
 import {Flex, Switch, Text} from '@gravity-ui/uikit';
-
-export type SwitchFieldProps = {
-    value: boolean;
-    title?: string;
-    onChange: (value: boolean) => void;
-};
 
 export const SwitchField: FC<SwitchFieldProps> = ({title, value, onChange}) => {
     return (

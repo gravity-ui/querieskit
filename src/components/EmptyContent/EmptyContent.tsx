@@ -1,19 +1,13 @@
-import React, {FC} from 'react';
-import {Flex, Text} from '@gravity-ui/uikit';
 import {Folder, NoSearchResults} from '@gravity-ui/illustrations';
+import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import i18n from './i18n';
+import React, {FC} from 'react';
+import type {EmptyContentProps, EmptyContentVariant} from '../../types/emptyContentProps';
 import './EmptyContent.scss';
-import type {EmptyContentTextOverrides} from '../../types/listPanel';
+import i18n from './i18n';
+export type {EmptyContentProps, EmptyContentVariant} from '../../types/emptyContentProps';
 
 const block = cn('qp-empty-content');
-
-export type EmptyContentVariant = 'no-files' | 'no-clusters' | 'nothing-found' | 'no-data';
-
-export type EmptyContentProps = EmptyContentTextOverrides & {
-    variant: EmptyContentVariant;
-    className?: string;
-};
 
 type EmptyContentConfig = {
     icon: FC<{height?: number}>;

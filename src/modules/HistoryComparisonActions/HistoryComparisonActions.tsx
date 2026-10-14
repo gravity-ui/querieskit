@@ -1,15 +1,12 @@
-import React from 'react';
-import {Button, Flex, Icon} from '@gravity-ui/uikit';
 import ArrowRightArrowLeftIcon from '@gravity-ui/icons/svgs/arrow-right-arrow-left.svg';
 import ArrowRotateRightIcon from '@gravity-ui/icons/svgs/arrow-rotate-right.svg';
-import {QueryListComparisonConfig, QueryListRow} from '../../types/queryList';
+import {Button, Flex, Icon} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React from 'react';
+import type {HistoryComparisonActionsProps} from '../../types/historyComparisonActionsProps';
+import {QueryListRow} from '../../types/queryList';
 import './HistoryComparisonActions.scss';
-
-export type HistoryComparisonActionsProps<T extends QueryListRow = QueryListRow> = {
-    comparison: QueryListComparisonConfig<T>;
-    className?: string;
-};
+export type {HistoryComparisonActionsProps} from '../../types/historyComparisonActionsProps';
 
 const block = cn('qp-history-comparison-actions');
 

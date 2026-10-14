@@ -1,18 +1,14 @@
-import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import type {QueryListLinkRenderer} from '../../types/queryList';
-import type {TutorialHistoryRow} from '../../types/tutorial';
+import cn from 'bem-cn-lite';
+import React from 'react';
 import {MonacoLanguage} from '../../components/MonacoEditor';
 import {SearchRowLayout} from '../../components/SearchRowLayout';
+import type {TutorialHistoryRow} from '../../types/tutorial';
+import type {TutorialSearchRowProps} from '../../types/tutorialSearchRowProps';
 import './TutorialSearchRow.scss';
-import cn from 'bem-cn-lite';
+export type {TutorialSearchRowProps} from '../../types/tutorialSearchRowProps';
 
 const block = cn('qp-tutorial-search-row');
-
-export type TutorialSearchRowProps<T extends TutorialHistoryRow = TutorialHistoryRow> = {
-    item: T;
-    renderLink?: QueryListLinkRenderer;
-};
 
 export const TutorialSearchRow = <T extends TutorialHistoryRow>({
     item,

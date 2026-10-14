@@ -6,7 +6,7 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
 
 import {Dashboard} from './Dashboard';
-import type {DashboardRenderItem} from './types';
+import type {DashboardRenderItem} from '../../types/dashboard';
 
 import './Dashboard.stories.scss';
 

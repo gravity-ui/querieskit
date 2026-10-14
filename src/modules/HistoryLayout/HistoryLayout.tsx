@@ -1,21 +1,11 @@
-import React, {FC, ReactNode} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import type {HistoryPanelVariant} from '../../types/listPanel';
+import React, {FC} from 'react';
+import type {HistoryLayoutProps} from '../../types/historyLayoutProps';
 import './HistoryLayout.scss';
+export type {HistoryLayoutProps} from '../../types/historyLayoutProps';
 
 const block = cn('qp-history-layout');
-
-export type HistoryLayoutProps = {
-    title?: ReactNode;
-    logo?: ReactNode;
-    actions?: ReactNode;
-    header?: ReactNode;
-    footer?: ReactNode;
-    className?: string;
-    variant?: HistoryPanelVariant;
-    children: ReactNode;
-};
 
 export const HistoryLayout: FC<HistoryLayoutProps> = ({
     title,

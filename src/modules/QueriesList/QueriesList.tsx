@@ -1,26 +1,16 @@
-import React, {useState} from 'react';
 import cn from 'bem-cn-lite';
+import React, {useState} from 'react';
+import {EmptyContent} from '../../components/EmptyContent';
 import {FieldsSelector} from '../../components/FieldsSelector';
 import {useListKey} from '../../helpers/useListKey';
-import type {
-    QueryListComparisonConfig,
-    QueryListEditingConfig,
-    QueryListFilterConfig,
-    QueryListItem,
-    QueryListLinkRenderer,
-    QueryListRow,
-    QueryListRowAction,
-    QueryListRowRenderData,
-    QueryListSearchConfig,
-    QueryListVisibleFieldsConfig,
-} from '../../types/queryList';
+import type {QueriesListProps} from '../../types/queriesListProps';
+import type {QueryListRow, QueryListSearchConfig} from '../../types/queryList';
 import {HistoryComparisonActions} from '../HistoryComparisonActions';
 import {HistoryHeader} from '../HistoryHeader';
 import {HistoryLayout} from '../HistoryLayout';
 import {RowsList} from '../RowsList';
 import './QueriesList.scss';
-import {EmptyContent} from '../../components/EmptyContent';
-import type {QueryListPanelOptions} from '../../types/listPanel';
+export type {QueriesListProps} from '../../types/queriesListProps';
 
 const block = cn('qp-queries-list');
 
@@ -28,26 +18,6 @@ const getPanelEmptyContent = (hasSearchOrFilter: boolean, emptyContent: React.Re
     if (hasSearchOrFilter) return <EmptyContent variant="nothing-found" />;
     if (emptyContent === undefined) return <EmptyContent variant="no-data" />;
     return emptyContent;
-};
-
-export type QueriesListProps<T extends QueryListRow> = QueryListPanelOptions & {
-    className?: string;
-    title: React.ReactNode;
-    logo?: React.ReactNode;
-    search: QueryListSearchConfig;
-    filter?: QueryListFilterConfig;
-    items: QueryListItem<T>[];
-    selectedRowId?: T['id'];
-    editing?: QueryListEditingConfig<T>;
-    comparison?: QueryListComparisonConfig<T>;
-    visibleFields?: QueryListVisibleFieldsConfig<T>;
-    getRowActions?: (item: T) => QueryListRowAction<T>[];
-    renderRow: (data: QueryListRowRenderData<T>) => React.ReactNode;
-    onListItemClick?: (item: QueryListItem<T>) => void;
-    hasMore?: boolean;
-    loading?: boolean;
-    onLoadMore?: () => void;
-    renderLink?: QueryListLinkRenderer;
 };
 
 export const QueriesList = <T extends QueryListRow>({

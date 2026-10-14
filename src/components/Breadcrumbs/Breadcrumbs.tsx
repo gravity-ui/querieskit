@@ -1,23 +1,14 @@
-import React, {FC, useState} from 'react';
-import {Button, Flex, Breadcrumbs as GravityBreadcrumbs, Icon, Text} from '@gravity-ui/uikit';
 import FolderTreeIcon from '@gravity-ui/icons/svgs/folder-tree.svg';
 import PencilIcon from '@gravity-ui/icons/svgs/pencil.svg';
+import {Button, Flex, Breadcrumbs as GravityBreadcrumbs, Icon, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {parsePathSegments} from './helpers/parsePathSegments';
-import type {GetNavigationBreadcrumbHref, NavigationLocation} from '../../types/navigation';
-import type {LoadPathSuggestions} from '../../types/pathEditor';
+import React, {FC, useState} from 'react';
+import type {BreadcrumbsProps} from '../../types/breadcrumbsProps';
 import {PathEditor} from '../PathEditor';
-import i18n from './i18n';
 import './Breadcrumbs.scss';
-
-export type BreadcrumbsProps = {
-    location: NavigationLocation;
-    hideResetButton?: boolean;
-    className?: string;
-    onUpdate: (location: NavigationLocation) => void;
-    getBreadcrumbHref?: GetNavigationBreadcrumbHref;
-    onLoadSuggestions?: LoadPathSuggestions;
-};
+import {parsePathSegments} from './helpers/parsePathSegments';
+import i18n from './i18n';
+export type {BreadcrumbsProps} from '../../types/breadcrumbsProps';
 
 const block = cn('qp-breadcrumbs');
 

@@ -3,7 +3,7 @@ import {Button, Flex, Icon, Popup} from '@gravity-ui/uikit';
 import FunnelIcon from '@gravity-ui/icons/svgs/funnel.svg';
 import ArrowRotateLeftIcon from '@gravity-ui/icons/svgs/arrow-rotate-left.svg';
 import {useToggle} from '../../helpers/useToggle';
-import type {QueryListFilterConfig} from '../../types/queryList';
+import type {HistoryFilterProps} from '../../types/historyFilter';
 import cn from 'bem-cn-lite';
 import {SimpleForm} from '../SimpleForm';
 import i18n from './i18n';
@@ -11,7 +11,7 @@ import './HistoryFilter.scss';
 
 const block = cn('qp-history-filter');
 
-export const HistoryFilter: FC<QueryListFilterConfig & {buttonView?: 'normal' | 'flat'}> = ({
+export const HistoryFilter: FC<HistoryFilterProps> = ({
     fields = [],
     values,
     initialValues,

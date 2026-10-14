@@ -1,19 +1,10 @@
+import type {AttachmentItemProps} from '../../../../types/attachmentsEditor';
 import React, {useMemo, useState} from 'react';
 import {Button, Flex, Icon, Text} from '@gravity-ui/uikit';
 import {ArrowRotateLeft, Link, Pencil, TrashBin} from '@gravity-ui/icons';
 import {getAttachmentIcon} from '../../helpers/getIconByAttachmentName';
 import cn from 'bem-cn-lite';
 import './AttachmentItem.scss';
-
-export type AttachmentItemProps = {
-    attachment: {id: string; name: string; link?: string};
-    wasEdited?: boolean;
-    wasAdded?: boolean;
-    onEdit?: (attachment: AttachmentItemProps['attachment']) => void;
-    onDelete?: (attachment: AttachmentItemProps['attachment']) => void;
-    onRevert?: (attachment: AttachmentItemProps['attachment']) => void;
-    isDeleted?: boolean;
-};
 
 const block = cn('qp-attachment-item');
 

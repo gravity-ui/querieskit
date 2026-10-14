@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import type {EmptyContentVariant} from '../components/EmptyContent';
+import type {EmptyContentVariant} from './emptyContentProps';
 import type {AlignType, Settings} from '@gravity-ui/react-data-table';
 
 export type QueryResultDataTypeParameter =

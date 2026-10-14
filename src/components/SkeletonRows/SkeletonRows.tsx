@@ -1,11 +1,7 @@
-import React, {FC} from 'react';
 import {Flex, Skeleton} from '@gravity-ui/uikit';
-
-export type SkeletonRowsProps = {
-    count?: number;
-    className?: string;
-    rowClassName?: string;
-};
+import React, {FC} from 'react';
+import type {SkeletonRowsProps} from '../../types/skeletonRowsProps';
+export type {SkeletonRowsProps} from '../../types/skeletonRowsProps';
 
 const DEFAULT_ROWS_COUNT = 4;
 

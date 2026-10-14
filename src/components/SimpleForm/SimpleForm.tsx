@@ -1,24 +1,19 @@
-import React, {useMemo, useState} from 'react';
-import {RegisteredFormFields} from '../../types/forms';
-import {getControl, getInitialValues, registerFormControl} from './helpers';
-import {SwitchField} from './SwitchField';
-import {RangeDatePickerField} from './RangeDatePickerField';
 import {Flex} from '@gravity-ui/uikit';
+import React, {useMemo, useState} from 'react';
+import type {FormValues, SimpleFormProps} from '../../types/simpleFormProps';
 import {CheckboxGroupField} from './CheckboxGroupField';
+import {getControl, getInitialValues, registerFormControl} from './helpers';
+import {RangeDatePickerField} from './RangeDatePickerField';
 import {SelectField} from './SelectField';
+import {SwitchField} from './SwitchField';
+export type {FormField} from '../../types/simpleFormProps';
 
-export type FormField = RegisteredFormFields;
-
-type FormValues = Record<string, any>;
-
-type Props = {
-    fields: FormField[];
-    values?: FormValues;
-    initialValues?: FormValues;
-    onValuesChange?: (values: FormValues) => void;
-};
-
-export const SimpleForm: React.FC<Props> = ({fields, values, initialValues, onValuesChange}) => {
+export const SimpleForm: React.FC<SimpleFormProps> = ({
+    fields,
+    values,
+    initialValues,
+    onValuesChange,
+}) => {
     const isControlled = values !== undefined;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

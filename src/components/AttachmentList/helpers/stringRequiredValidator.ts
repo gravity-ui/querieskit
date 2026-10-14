@@ -1,8 +1,7 @@
+import type {Validator} from '../../../types/attachmentsEditor';
 import i18n from '../i18n';
 
 const DEFAULT_MAX_LENGTH = 256;
-
-export type Validator = (value: unknown) => string | null;
 
 export const stringRequiredValidator: Validator = (
     value: unknown,

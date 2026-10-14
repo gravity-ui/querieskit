@@ -1,6 +1,6 @@
 import React from 'react';
 import type {Config} from '@gravity-ui/dashkit';
-import type {DashboardProps} from './types';
+import type {DashboardProps} from '../../types/dashboard';
 import {Flex} from '@gravity-ui/uikit';
 import {DRAG_HANDLE_CLASSNAME, DashPlate} from './internal/DashPlate';
 import {DashboardProvider} from './internal/DashboardProvider';

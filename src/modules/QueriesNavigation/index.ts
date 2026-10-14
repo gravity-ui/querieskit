@@ -9,6 +9,6 @@ export type {
     NavigationPreviewViewResolver,
     NavigationSchemaResolver,
     NavigationViewResolver,
-} from './helpers/createTableDetailConfig';
+} from '../../types/navigationDetailResolvers';
 export {createEmptyDetailConfig} from './helpers/createEmptyDetailConfig';
 export {createNavigationDetailResolver} from './helpers/createNavigationDetailResolver';

@@ -1,12 +1,6 @@
+import type {SelectFieldProps} from '../../types/simpleFormProps';
 import React, {FC} from 'react';
-import {Flex, Select, SelectProps, Text} from '@gravity-ui/uikit';
-
-export type SelectFieldProps = {
-    value: SelectProps['value'];
-    options: SelectProps['options'];
-    title?: string;
-    onChange: (value: string[]) => void;
-};
+import {Flex, Select, Text} from '@gravity-ui/uikit';
 
 export const SelectField: FC<SelectFieldProps> = ({value, options, title, onChange}) => {
     return (

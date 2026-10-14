@@ -1,3 +1,5 @@
+import {Icon, Popup, Text, TextInput} from '@gravity-ui/uikit';
+import cn from 'bem-cn-lite';
 import React, {
     FC,
     type FocusEvent,
@@ -10,15 +12,9 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import {Icon, Popup, Text, TextInput} from '@gravity-ui/uikit';
-import cn from 'bem-cn-lite';
-import type {
-    LoadPathSuggestions,
-    PathEditorEventPayload,
-    PathEditorSuggestion,
-    PathEditorSuggestionFilter,
-} from '../../types/pathEditor';
 import {getDefaultNavigationIcon} from '../../helpers/getDefaultNavigationIcon';
+import type {PathEditorSuggestion} from '../../types/pathEditor';
+import type {PathEditorProps} from '../../types/pathEditorProps';
 import {
     filterByCurrentPath,
     getCompletedPath,
@@ -28,30 +24,10 @@ import {
 } from './helpers/suggestions';
 import i18n from './i18n';
 import './PathEditor.scss';
+export type {PathEditorProps} from '../../types/pathEditorProps';
 
 const DEBOUNCE_MS = 300;
 const block = cn('qp-path-editor');
-
-export type PathEditorProps = {
-    className?: string;
-    placeholder?: string;
-    defaultPath?: string;
-    disabled?: boolean;
-    autoFocus?: boolean;
-    hasClear?: boolean;
-    showErrors?: boolean;
-    customFilter?: PathEditorSuggestionFilter;
-    cluster?: string;
-    suggestions?: PathEditorSuggestion[];
-    suggestionsError?: boolean;
-    errorMessage?: string;
-    onLoadSuggestions?: LoadPathSuggestions;
-    onChange?: (path: string) => void;
-    onFocus?: (event: FocusEvent<HTMLInputElement>, payload: PathEditorEventPayload) => void;
-    onBlur?: (path: string) => void;
-    onApply?: (path: string) => void;
-    onCancel?: () => void;
-};
 
 export const PathEditor: FC<PathEditorProps> = ({
     className,

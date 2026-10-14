@@ -1,22 +1,19 @@
-import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
-import type {QueryListRowRenderData} from '../../types/queryList';
-import type {QueryHistoryRow} from '../../types/history';
+import cn from 'bem-cn-lite';
+import React from 'react';
 import {HistoryPrivateIcon} from '../../components/HistoryPrivateIcon';
 import {QueryDuration} from '../../components/QueryDuration';
 import {QueryStatusIcon} from '../../components/QueryStatusIcon';
 import {SearchRowLayout} from '../../components/SearchRowLayout';
-import {formatTimeCanonical} from '../../helpers/time';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
+import {formatTimeCanonical} from '../../helpers/time';
+import type {QueryHistoryRow} from '../../types/history';
+import type {HistorySearchRowProps as Props} from '../../types/historySearchRowProps';
 import {resolveMonacoLanguage} from './helpers/resolveMonacoLanguage';
 import './HistorySearchRow.scss';
-import cn from 'bem-cn-lite';
+export type {HistorySearchRowProps as Props} from '../../types/historySearchRowProps';
 
 const block = cn('qp-history-search-row');
-
-export type Props<T extends QueryHistoryRow> = {
-    item: T;
-} & Omit<QueryListRowRenderData<T>, 'item' | 'variant'>;
 
 export const HistorySearchRow = <T extends QueryHistoryRow>({
     item,
