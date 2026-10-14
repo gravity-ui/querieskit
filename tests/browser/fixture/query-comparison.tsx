@@ -166,6 +166,11 @@ const api = {
     undo(id: string) {
         getEditor(id, 'modified').trigger('test', 'undo', null);
     },
+    showContextMenu(id: string) {
+        const instance = getEditor(id, 'modified');
+        instance.focus();
+        instance.trigger('test', 'editor.action.showContextMenu', null);
+    },
     snapshot() {
         return {
             items,

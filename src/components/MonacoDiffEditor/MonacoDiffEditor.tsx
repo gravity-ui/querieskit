@@ -8,6 +8,7 @@ import 'monaco-editor/languages/features/json/register';
 import '../MonacoEditor/monaco-yql-languages/monaco.contribution';
 import {MONACO_THEME_BY_UI} from '../MonacoEditor/MonacoEditorThemes';
 import type {MonacoDiffEditorProps} from '../../types/monacoDiffEditor';
+import {restoreHoverDelegateFactory} from './helpers/restoreHoverDelegateFactory';
 import './MonacoDiffEditor.scss';
 
 const block = cn('qp-monaco-diff-editor');
@@ -80,6 +81,7 @@ export function MonacoDiffEditor({
             renderLineHighlight: 'none',
             padding: {top: 8, bottom: 8},
         });
+        restoreHoverDelegateFactory();
         editorRef.current = instance;
         modelsRef.current = models;
         // Own the view model explicitly so pending worker computations are cancelled
@@ -158,6 +160,8 @@ export function MonacoDiffEditor({
             cancelAnimationFrame(frame);
             resizeRef.current = null;
             subscriptions.forEach((subscription) => subscription.dispose());
+            // Detach both models while the diff editor's reactive consumers are still alive.
+            instance.setModel(null);
             instance.dispose();
             viewModel.dispose();
             models.original.dispose();
