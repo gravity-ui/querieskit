@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {Button, Flex, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Flex, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryPage} from '..';
 import type {QueryPageComparisonTab, QueryPageQueryTab} from '../../../types/queryPage';
@@ -41,18 +41,6 @@ const preset = createQueryEditorPreset({
               ],
     onReferenceClick: action('navigateToTable'),
 });
-
-function Notes() {
-    const [value, setValue] = useState('');
-    return (
-        <TextInput
-            controlProps={{'aria-label': 'Execution notes'}}
-            placeholder="These notes survive collapsing and expanding results"
-            value={value}
-            onUpdate={setValue}
-        />
-    );
-}
 
 type ExampleProps = {
     sidebarHidden?: boolean;
@@ -353,15 +341,7 @@ function Example({
                                         },
                                     },
                                     executionPanelProps: {
-                                        tabs: [
-                                            ...designTabs,
-                                            {
-                                                id: 'notes',
-                                                type: 'custom' as const,
-                                                title: 'Notes',
-                                                renderContent: () => <Notes />,
-                                            },
-                                        ],
+                                        tabs: designTabs,
                                         execution: {
                                             startedAt: '11 Dec 2025, 12:07:27',
                                             author: `query-${draft.id}-author`,
@@ -423,7 +403,7 @@ export const IndependentTabs: Story = {
     parameters: {
         docs: {
             description: {
-                story: 'Edit Query 1, open its Notes results tab, then switch to Query 2. Each query retains its editor, settings, notes and results layout. Closing a query removes its workspace; adding a query creates a fresh one.',
+                story: 'Edit Query 1, then switch to Query 2. Each query retains its editor, settings and results layout. Closing a query removes its workspace; adding a query creates a fresh one.',
             },
         },
     },
