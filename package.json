@@ -18,12 +18,12 @@
     },
     "./modules/QueryEditor/presets/ytsaurus": {
       "import": {
-        "types": "./build/esm/modules/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/esm/modules/QueryEditor/presets/ytsaurus/index.js"
+        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
       },
       "require": {
-        "types": "./build/cjs/modules/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/cjs/modules/QueryEditor/presets/ytsaurus/index.js"
+        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
       }
     },
     "./modules/QuerySettings": {
@@ -38,12 +38,12 @@
     },
     "./modules/QueryEditor": {
       "import": {
-        "types": "./build/esm/modules/QueryEditor/index.d.ts",
-        "default": "./build/esm/modules/QueryEditor/index.js"
+        "types": "./build/esm/widgets/QueryEditor/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/index.js"
       },
       "require": {
-        "types": "./build/cjs/modules/QueryEditor/index.d.ts",
-        "default": "./build/cjs/modules/QueryEditor/index.js"
+        "types": "./build/cjs/widgets/QueryEditor/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/index.js"
       }
     },
     "./modules/QueryTabs": {
@@ -224,6 +224,26 @@
       "require": {
         "types": "./build/cjs/modules/QueryParameters/index.d.ts",
         "default": "./build/cjs/modules/QueryParameters/index.js"
+      }
+    },
+    "./widgets/QueryEditor": {
+      "import": {
+        "types": "./build/esm/widgets/QueryEditor/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryEditor/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/index.js"
+      }
+    },
+    "./widgets/QueryEditor/presets/ytsaurus": {
+      "import": {
+        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
       }
     }
   },

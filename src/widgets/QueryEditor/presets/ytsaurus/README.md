@@ -5,7 +5,7 @@ fields and a separate SPYT configuration section. It is independent of Monaco pr
 `createQueryEditorPreset`.
 
 ```tsx
-import {createYtsaurusQueryEngines} from '@gravity-ui/querieskit/modules/QueryEditor/presets/ytsaurus';
+import {createYtsaurusQueryEngines} from '@gravity-ui/querieskit/widgets/QueryEditor/presets/ytsaurus';
 
 const engines = createYtsaurusQueryEngines({
   engines: ['yql', 'chyt', 'spyt', 'ql'],

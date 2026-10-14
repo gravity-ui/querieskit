@@ -34,7 +34,7 @@ const preset = createQueryEditorPreset({
 });
 
 const meta: Meta<typeof QueryEditor> = {
-    title: 'Modules/QueryEditor/Extensions',
+    title: 'Widgets/QueryEditor/Extensions',
     component: QueryEditor,
     parameters: {layout: 'padded'},
 };

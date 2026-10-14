@@ -1,9 +1,9 @@
 # QueryEditor
 
-A reusable module that combines a query toolbar, an editable Monaco editor, a footer and a resizable side panel for Settings and Attachments. It does not execute, format, validate or save queries itself.
+A product widget that combines a query toolbar, an editable Monaco editor, a footer and a resizable side panel for Settings, Parameters and Attachments. It does not execute, format, validate or save queries itself.
 
 ```tsx
-import {QueryEditor} from '@gravity-ui/querieskit/modules/QueryEditor';
+import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
 
 <div style={{height: 480}}>
   <QueryEditor
@@ -32,9 +32,9 @@ The parent must supply a bounded height. `className` can apply parent layout con
 - `additionalActions` supplies `{id, title, onClick, disabled?}` menu items. The overflow button appears only for a nonempty list.
 - `rightActions` supplies ordered buttons with the same fields plus a Gravity `Icon`-compatible `icon` and optional `loading`. Attachments and Settings are always available.
 - `onCodeAssistantClick` adds a footer button. The footer remains present without it.
-- `readOnly` controls text editing. `editorOptions` accepts Monaco configuration except for model, value, language, theme, readOnly and automaticLayout, which the module owns.
+- `readOnly` controls text editing. `editorOptions` accepts Monaco configuration except for model, value, language, theme, readOnly and automaticLayout, which the widget owns.
 
-Public types, including `QueryEditorProps`, `QueryEditorCluster`, `QueryEditorEngine` and action types, are exported from the package root and the module entrypoint.
+Public types, including `QueryEditorProps`, `QueryEditorCluster`, `QueryEditorEngine` and action types, are exported from the package root and the widget entrypoint.
 
 ## Saving
 
@@ -78,7 +78,7 @@ props after each operation. Sharing remains available in read-only editors. Remo
 `shareProps` closes the popup and hides the button; restoring it leaves the popup closed.
 The expiration pencil opens an inline date/time picker; Save calls `onExpirationChange`
 with a Unix timestamp in milliseconds, while Cancel discards the draft.
-For standalone use and the full contract, see [QueryShare](../QueryShare/README.md).
+For standalone use and the full contract, see [QueryShare](../../modules/QueryShare/README.md).
 
 ## Settings
 
@@ -86,8 +86,8 @@ Pass `settingsProps` to use the built-in `QuerySettings` form. Its generic custo
 
 ```tsx
 import {useState} from 'react';
-import {QueryEditor} from '@gravity-ui/querieskit/modules/QueryEditor';
-import {createYtsaurusQueryEngines} from '@gravity-ui/querieskit/modules/QueryEditor/presets/ytsaurus';
+import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
+import {createYtsaurusQueryEngines} from '@gravity-ui/querieskit/widgets/QueryEditor/presets/ytsaurus';
 import type {YtsaurusEngineSettings, QuerySettingsValue} from '@gravity-ui/querieskit';
 
 const [settings, setSettings] = useState<QuerySettingsValue<YtsaurusEngineSettings>>({
@@ -121,7 +121,7 @@ The editor never resets settings when engine or cluster changes. The application
 
 For a completely custom panel, use `settings={<YourSettings />}` instead. `settings` and `settingsProps` are mutually exclusive; the raw slot does not automatically render engine fields. Without either prop, the panel contains its heading and close action. The panel owns heading, closing and resizing in both modes.
 
-See [QuerySettings validation examples](../QuerySettings/README.md). The editor's existing Run button remains the only built-in execution action.
+See [QuerySettings validation examples](../../modules/QuerySettings/README.md). The editor's existing Run button remains the only built-in execution action.
 
 ### YTsaurus engine preset
 
@@ -181,7 +181,7 @@ This API replaces the previous settings-specific visibility and width props with
 
 ## Composition with QueryTabs
 
-The `WithQueryTabs` story demonstrates application-owned tabs, text and selection state. Each editor stays mounted under a stable tab ID while inactive wrappers are hidden, preserving its cursor and Undo history. Removing the tab unmounts its editor and releases its Monaco resources. Keeping many tabs mounted has a memory cost; this module provides no model registry or eviction policy.
+The `WithQueryTabs` story demonstrates application-owned tabs, text and selection state. Each editor stays mounted under a stable tab ID while inactive wrappers are hidden, preserving its cursor and Undo history. Removing the tab unmounts its editor and releases its Monaco resources. Keeping many tabs mounted has a memory cost; this widget provides no model registry or eviction policy.
 
 The application computes `isModified` by comparing the current text with the saved baseline. `QueryTabs.onCloseTab` requests closure: the application may show a confirmation modal before removing the tab. Cancelling leaves the editor mounted and its state intact. Saving updates the baseline. If cluster or engine changes also count as unsaved work in your product, include them in that comparison.
 
@@ -217,3 +217,9 @@ and error states. `ControlledSplitView`, `CustomPanels`, and `WithQueryTabs` dem
 integration contracts. `NarrowWithLongTitles`, `EmptyOptions`, and `ActionStates` keep
 layout and unavailable-control cases directly reproducible. Theme is selected in the
 Storybook toolbar. The `Extensions` group contains the specialized Monaco examples.
+
+## Import compatibility
+
+Use `@gravity-ui/querieskit/widgets/QueryEditor` and its `presets/ytsaurus` subpath.
+The previous `modules/QueryEditor` and `modules/QueryEditor/presets/ytsaurus` package
+subpaths remain aliases of these widget entrypoints. Root imports are unchanged.

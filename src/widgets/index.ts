@@ -13,3 +13,5 @@ export type {
     QueriesSidebarTabBase,
     QueriesSidebarTabRenderContext,
 } from './QueriesSidebar';
+export {QueryEditor} from './QueryEditor';
+export {createYtsaurusQueryEngines} from './QueryEditor/presets/ytsaurus';

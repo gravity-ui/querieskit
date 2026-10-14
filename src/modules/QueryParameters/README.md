@@ -17,7 +17,7 @@ export function ParametersForm() {
 
 Every parameter has a stable `id`, a `name` without the leading `$`, a `type`, and a `value`. Keep IDs stable when updating external data. Collection items, dictionary entries and variant options also have stable IDs.
 
-The application owns parsing `DECLARE`, adapting engine-specific types and values, persisting changes, and updating the controlled `value`. This module neither reads nor rewrites the query text. It does not yet integrate with QueryEditor. Optional panel controls provide a title, expand/collapse button and close button; the application owns panel placement and sizing.
+The application owns parsing `DECLARE`, adapting engine-specific types and values, persisting changes, and updating the controlled `value`. This module neither reads nor rewrites the query text. Optional panel controls provide a title, expand/collapse button and close button; the application owns panel placement and sizing.
 
 | Prop                             | Purpose                                                                   |
 | -------------------------------- | ------------------------------------------------------------------------- |
@@ -50,6 +50,16 @@ For asynchronous persistence, update state after the operation succeeds:
 ```
 
 External changes during editing create a conflict. Save is blocked until the user explicitly reloads the external version, discarding the draft, or cancels editing. The editing footer provides Save and Update. Update asks for confirmation during editing and discards the draft only after `onUpdate` succeeds; a rejected refresh preserves the draft and shows an error. Reset actions restore only the corresponding value or nested group from the snapshot taken on entry to editing; they do not change the parameter name or type.
+
+## QueryEditor integration
+
+Pass `parametersProps={{value, onChange: setValue}}` to the
+[QueryEditor widget](../../widgets/QueryEditor/README.md#parameters) to use this form
+in its resizable side panel. The editor owns the panel heading and close action
+and keeps the form mounted when panels are switched or closed. Parsing query text
+and persisting parameters remain the application's responsibility. Use
+`parameters={<CustomParameters />}` for custom content instead; `parameters` and
+`parametersProps` are mutually exclusive.
 
 ## Expanded panel
 

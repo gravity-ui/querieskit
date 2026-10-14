@@ -24,7 +24,7 @@ const widgets = [
 ];
 const sections = new Set(widgets.slice(0, 4));
 const unitPath = (name) =>
-    `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QueryEditor' || name === 'QuerySettings' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
+    `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QuerySettings' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
 const monacoUnits = new Set([...widgets.slice(0, 3), 'QueriesSidebar', 'QueryEditor']);
 const contributions = [
     'clickhouse/clickhouse.contribution.js',
@@ -74,7 +74,7 @@ const pending = [
     ...widgets.map((name) => path.join(root, 'src', unitPath(name), 'index.ts')),
     path.join(root, 'src/modules/QueryTimeline/index.ts'),
     path.join(root, 'src/modules/QueryProgress/index.ts'),
-    path.join(root, 'src/modules/QueryEditor/presets/ytsaurus/index.ts'),
+    path.join(root, 'src/widgets/QueryEditor/presets/ytsaurus/index.ts'),
 ];
 const visited = new Set();
 while (pending.length) {
@@ -147,7 +147,7 @@ function checkTypes(specifier, widget, mode) {
 import type {QueryEditorProps, QueryEditorEngine, QueryEditorOptions} from '${specifier}';
 const engine = {id: 'yql', title: 'YQL', language: 'yql'} satisfies QueryEditorEngine;
 const options: QueryEditorOptions = {fontSize: 14, wordWrap: 'on'};
-// @ts-expect-error The module owns its model.
+// @ts-expect-error The widget owns its model.
 const invalidOptions: QueryEditorOptions = {model: null};
 // @ts-expect-error Every engine must specify a language.
 const invalidEngine: QueryEditorEngine = {id: 'yql', title: 'YQL'};
@@ -157,9 +157,9 @@ const onChange: QueryEditorProps['onChange'] = (value) => {
     const invalid: number = value;
 };
 import {QueryEditor as SettingsEditor} from '${specifier}';
-import {createYtsaurusQueryEngines} from '${packageName}/modules/QueryEditor/presets/ytsaurus';
+import {createYtsaurusQueryEngines} from '${packageName}/widgets/QueryEditor/presets/ytsaurus';
 import {createYtsaurusQueryEngines as rootEngineFactory} from '${packageName}';
-import type {YtsaurusEngineSettings} from '${packageName}/modules/QueryEditor/presets/ytsaurus';
+import type {YtsaurusEngineSettings} from '${packageName}/widgets/QueryEditor/presets/ytsaurus';
 import type {QuerySettingsValue} from '${packageName}/modules/QuerySettings';
 type CustomSettings = YtsaurusEngineSettings & {applicationField: string};
 const engineSettings: QuerySettingsValue<CustomSettings> = {
@@ -362,6 +362,7 @@ for (const widget of widgets) {
         packageName,
         `${packageName}/${unitPath(widget)}`,
         ...(sections.has(widget) ? [`${packageName}/widgets/${widget}`] : []),
+        ...(widget === 'QueryEditor' ? [`${packageName}/modules/QueryEditor`] : []),
     ]) {
         const esmEntry = fileURLToPath(import.meta.resolve(specifier));
         const cjsEntry = require.resolve(specifier);
@@ -565,8 +566,14 @@ for (const dialect of ['yql', 'clickhouse']) {
 console.info('✓ Query editor preset: standalone entrypoint and lazy SQL parsers');
 
 // Engine settings presets include the SPYT JSON editor, but not QueryEditor or SQL completion.
-const enginePresetPath = 'modules/QueryEditor/presets/ytsaurus';
+const enginePresetPath = 'widgets/QueryEditor/presets/ytsaurus';
 const enginePresetSpecifier = `${packageName}/${enginePresetPath}`;
+const legacyEnginePresetSpecifier = `${packageName}/modules/QueryEditor/presets/ytsaurus`;
+assert.equal(
+    import.meta.resolve(legacyEnginePresetSpecifier),
+    import.meta.resolve(enginePresetSpecifier),
+);
+assert.equal(require.resolve(legacyEnginePresetSpecifier), require.resolve(enginePresetSpecifier));
 assert.equal(
     fileURLToPath(import.meta.resolve(enginePresetSpecifier)),
     path.join(root, 'build/esm', enginePresetPath, 'index.js'),

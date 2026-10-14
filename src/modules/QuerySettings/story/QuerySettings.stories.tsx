@@ -9,7 +9,7 @@ import type {
     QuerySettingsHiddenField,
     QuerySettingsValue,
 } from '../../../types/querySettings';
-import {QueryEditor} from '../../QueryEditor';
+import {QueryEditor} from '../../../widgets/QueryEditor';
 import type {QueryEditorPanel} from '../../../types/queryEditor';
 import {QuerySettings} from '../QuerySettings';
 
