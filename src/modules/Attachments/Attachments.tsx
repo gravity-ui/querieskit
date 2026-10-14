@@ -78,83 +78,32 @@ export const Attachments = ({
         setWasEditedIds([...wasEdited, attachId]);
     };
 
-    const handleAddEmptyFile = () => {
+    const addEmptyAttachment = (values: Omit<AttachItem, 'id'>) => {
         const id = createUuid();
-
-        const patchAttachList = [
-            ...attachList.filter((a) => !a.isNew),
-            {id, name: '', isNew: true},
-        ];
-
+        const patchAttachList = [...attachList.filter((a) => !a.isNew), {id, ...values}];
         setInnerAttachList(patchAttachList);
         setWasAddedIds([...wasAddedIds, id]);
         setEditingIds([...editingIds, id]);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: deletedAttachList,
-        });
+        onChange?.({attachments: patchAttachList, deletedAttachments: deletedAttachList});
     };
 
-    const handleAddEmptyLink = () => {
-        const id = createUuid();
+    const handleAddEmptyFile = () => addEmptyAttachment({name: '', isNew: true});
+    const handleAddEmptyLink = () =>
+        addEmptyAttachment({name: '', token: '', link: '', isNew: true});
 
-        const patchAttachList = [
-            ...attachList.filter((a) => !a.isNew),
-            {id, name: '', token: '', link: '', isNew: true},
-        ];
-
+    const acceptAttachment = (nextAttachment: AttachItem) => {
+        if (!attachList.some((attach) => attach.id === nextAttachment.id)) return;
+        const patchAttachList = attachList.map((attach) =>
+            attach.id === nextAttachment.id ? nextAttachment : attach,
+        );
+        setEditingIds(editingIds.filter((id) => id !== nextAttachment.id));
         setInnerAttachList(patchAttachList);
-        setWasAddedIds([...wasAddedIds, id]);
-        setEditingIds([...editingIds, id]);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: deletedAttachList,
-        });
+        onChange?.({attachments: patchAttachList, deletedAttachments: deletedAttachList});
+        runAfterAttachAdded(nextAttachment.id, nextAttachment);
     };
 
-    const handleAcceptFile = (fileId: string, fileName: string) => {
-        const patchedFile = attachList.find((a) => a.id === fileId);
-        if (!patchedFile) return;
-
-        const patchEditingIds = editingIds.filter((id) => id !== fileId);
-        const patchAttachList = attachList.map((attach) => {
-            if (attach.id === fileId) return {id: fileId, name: fileName};
-            return attach;
-        });
-
-        setEditingIds(patchEditingIds);
-        setInnerAttachList(patchAttachList);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: deletedAttachList,
-        });
-
-        runAfterAttachAdded(fileId, {id: fileId, name: fileName});
-    };
-
-    const handleAcceptLink = (linkId: string, link: EditLinkValues) => {
-        const patchedLink = attachList.find((a) => a.id === linkId);
-        if (!patchedLink) return;
-
-        const patchEditingIds = editingIds.filter((id) => id !== linkId);
-        const patchAttachList = attachList.map((attach) => {
-            if (attach.id === linkId) return {id: linkId, ...link};
-            return attach;
-        });
-
-        setEditingIds(patchEditingIds);
-        setInnerAttachList(patchAttachList);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: deletedAttachList,
-        });
-
-        runAfterAttachAdded(linkId, {id: linkId, ...link});
-    };
+    const handleAcceptFile = (id: string, name: string) => acceptAttachment({id, name});
+    const handleAcceptLink = (id: string, link: EditLinkValues) => acceptAttachment({id, ...link});
 
     const handleCancelEdit = (fileId: string) => {
         const patchEditingIds = editingIds.filter((id) => id !== fileId);

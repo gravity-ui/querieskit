@@ -293,3 +293,28 @@ export const ControlledLayout: Story = {render: () => <ControlledLayoutStory />}
 export const CustomGrid: Story = {render: () => <NarrowGridStory />};
 
 export const AddItems: Story = {render: () => <DynamicAddItemsStory />};
+
+function FocusEventsExample() {
+    const [items, setItems] = React.useState(baseItems);
+    const [event, setEvent] = React.useState('Focus a card to inspect its current index.');
+    return (
+        <StoryFrame
+            title="Focus events"
+            description={event}
+            actions={<Button onClick={() => setItems([...items].reverse())}>Reverse items</Button>}
+        >
+            <Dashboard
+                items={items}
+                focusable
+                onItemFocus={(_content, index) =>
+                    setEvent(`Focused ${items[index].id}, index ${index}`)
+                }
+                onItemBlur={(_content, index) =>
+                    setEvent(`Blurred ${items[index].id}, index ${index}`)
+                }
+            />
+        </StoryFrame>
+    );
+}
+
+export const FocusEvents: Story = {render: () => <FocusEventsExample />};
