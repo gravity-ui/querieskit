@@ -4,15 +4,26 @@ $search-row-header-height: 20px;
 $search-row-gap: 8px;
 
 .qp-search-row-layout {
-  height: $search-row-height;
+    height: $search-row-height;
 
-  &__content {
-    height: 100%;
-  }
+    &__content {
+        height: 100%;
+    }
 
-  &__monaco {
-    height: $search-row-height - 2 * $search-row-vertical-padding - $search-row-header-height -
-      $search-row-gap;
-    border: 1px solid var(--g-color-line-generic-accent);
-  }
+    // Keep preview dimensions stable when the lazy editor stylesheet arrives.
+    & &__monaco {
+        box-sizing: border-box;
+        height: $search-row-height - 2 * $search-row-vertical-padding - $search-row-header-height -
+            $search-row-gap;
+        border: 1px solid var(--g-color-line-generic-accent);
+
+        &_loading {
+            margin: 0;
+            overflow: hidden;
+            font-family: var(--g-font-family-monospace);
+            font-size: 12px;
+            line-height: 18px;
+            white-space: pre;
+        }
+    }
 }

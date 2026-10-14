@@ -30,6 +30,20 @@ jobs:
             - name: Build and check widget tree-shaking
               run: npm run test:tree-shaking
 
+            - name: Check published package contracts
+              run: npm run test:package-contract
+
+            - name: Bundle isolated package consumers
+              run: npm run test:consumer
+
+            - name: Upload consumer bundle statistics
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: consumer-bundle-stats
+                  path: build/consumer
+                  if-no-files-found: ignore
+
             - name: Check browser test types
               run: npx tsc --noEmit -p tests/browser/tsconfig.json
 

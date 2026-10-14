@@ -68,7 +68,7 @@ describe('tutorial row links', () => {
         container.remove();
     });
 
-    it('uses the custom link renderer for default and search rows', () => {
+    it('uses the custom link renderer for default and search rows', async () => {
         const renderLink = vi.fn<QueryListLinkRenderer>((props) => (
             <a {...props} data-router-link />
         ));
@@ -79,7 +79,9 @@ describe('tutorial row links', () => {
         );
         expect(container.textContent).toContain(`${ITEM.id}.`);
 
-        renderContent({item: ITEM, variant: 'search', renderLink});
+        await act(async () => {
+            renderContent({item: ITEM, variant: 'search', renderLink});
+        });
         expect(container.querySelector('a[data-router-link]')?.getAttribute('href')).toBe(
             ITEM.href,
         );

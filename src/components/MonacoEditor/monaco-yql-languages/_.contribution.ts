@@ -1,12 +1,16 @@
-import {Emitter, type IEvent, languages} from 'monaco-editor';
+import type {IEvent, languages as MonacoLanguages} from 'monaco-editor';
+// @ts-ignore Monaco's deep entrypoint does not expose its bundled declarations.
+import * as monaco from 'monaco-editor/editor/editor.api';
 
-interface ILang extends languages.ILanguageExtensionPoint {
+const {Emitter, languages} = monaco as typeof import('monaco-editor');
+
+interface ILang extends MonacoLanguages.ILanguageExtensionPoint {
     loader: () => Promise<ILangImpl>;
 }
 
 interface ILangImpl {
-    conf: languages.LanguageConfiguration;
-    language: languages.IMonarchLanguage;
+    conf: MonacoLanguages.LanguageConfiguration;
+    language: MonacoLanguages.IMonarchLanguage;
 }
 
 const languageDefinitions: {[languageId: string]: ILang} = {};

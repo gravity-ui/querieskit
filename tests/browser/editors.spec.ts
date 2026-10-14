@@ -134,3 +134,58 @@ test('context and language changes cancel stale results; unmount releases owned 
     expect(after.first.created).toBe(after.first.disposed);
     expect(after.second.created).toBe(after.second.disposed);
 });
+
+test('editor contributions preserve typing, undo, redo, find and hover', async ({page}) => {
+    await page.evaluate(() => window.editorTest.type('first', 'SELECT 1;'));
+    expect((await page.evaluate(() => window.editorTest.snapshot())).first.value).toBe('SELECT 1;');
+    await page.evaluate(() => window.editorTest.command('first', 'undo'));
+    await expect.poll(() => page.evaluate(() => window.editorTest.snapshot().first.value)).toBe('');
+    await page.evaluate(() => window.editorTest.command('first', 'redo'));
+    await expect
+        .poll(() => page.evaluate(() => window.editorTest.snapshot().first.value))
+        .toBe('SELECT 1;');
+    await page.evaluate(() => window.editorTest.find('first'));
+    await expect(page.getByTestId('first').locator('.find-widget')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => window.editorTest.replaceHover('first'));
+    await page.evaluate(() => window.editorTest.hover('first'));
+    await expect(page.getByTestId('first').locator('.monaco-hover')).toContainText('custom hover');
+});
+
+test('only query languages and JSON register automatically; applications can add Python', async ({
+    page,
+}) => {
+    expect(await page.evaluate(() => window.editorTest.languages())).toEqual(
+        ['plaintext', 'json', 'yql', 'yql_ansi', 'clickhouse', 's-expression'].sort(),
+    );
+    await page.evaluate(() => window.editorTest.registerPython());
+    await page.evaluate(() => window.editorTest.update('first', {language: 'python'}));
+    await page.evaluate(() => window.editorTest.type('first', 'def hello(): pass'));
+    await expect
+        .poll(() => page.evaluate(() => window.editorTest.snapshot().first.language))
+        .toBe('python');
+    await expect
+        .poll(() =>
+            page.evaluate(() =>
+                window.editorTest
+                    .tokens('first')[0]
+                    .some((token) => token.type === 'keyword.python'),
+            ),
+        )
+        .toBe(true);
+});
+
+test('JSON tokenization and worker diagnostics remain available', async ({page}) => {
+    await page.evaluate(() => window.editorTest.update('first', {language: 'json'}));
+    await page.evaluate(() => window.editorTest.type('first', '{"key": invalid}'));
+    await expect
+        .poll(() =>
+            page.evaluate(() =>
+                window.editorTest.tokens('first')[0].some((token) => token.type.includes('string')),
+            ),
+        )
+        .toBe(true);
+    await expect
+        .poll(() => page.evaluate(() => window.editorTest.markers('first').length))
+        .toBeGreaterThan(0);
+});

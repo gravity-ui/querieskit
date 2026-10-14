@@ -1,7 +1,7 @@
 import {Avatar, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import React from 'react';
-import {MonacoLanguage} from '../../components/MonacoEditor';
+import {MonacoLanguage} from '../../components/MonacoEditor/monaco-yql-languages/constants';
 import {SearchRowLayout} from '../../components/SearchRowLayout';
 import {isFieldVisible} from '../../helpers/isFieldVisible';
 import {formatDateCanonical} from '../../helpers/time';

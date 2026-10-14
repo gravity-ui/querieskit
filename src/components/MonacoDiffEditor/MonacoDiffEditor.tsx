@@ -4,8 +4,7 @@ import cn from 'bem-cn-lite';
 import type {editor} from 'monaco-editor';
 // @ts-ignore Monaco's deep entrypoint does not expose its bundled declarations.
 import * as monaco from 'monaco-editor/editor/editor.api';
-import 'monaco-editor/languages/features/json/register';
-import '../MonacoEditor/monaco-yql-languages/monaco.contribution';
+import '../MonacoEditor/initialize';
 import {MONACO_THEME_BY_UI} from '../MonacoEditor/MonacoEditorThemes';
 import type {MonacoDiffEditorProps} from '../../types/monacoDiffEditor';
 import {restoreHoverDelegateFactory} from './helpers/restoreHoverDelegateFactory';
