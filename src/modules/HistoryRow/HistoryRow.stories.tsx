@@ -59,6 +59,21 @@ export const Default: Story = {
     },
 };
 
+/** Actions keep their space next to a truncated title in a narrow sidebar. */
+export const Narrow: Story = {
+    args: {
+        item: makeRow({title: 'Query with a long title in a narrow history sidebar'}),
+        isActive: true,
+    },
+    decorators: [
+        (Story) => (
+            <div style={{width: 280}}>
+                <Story />
+            </div>
+        ),
+    ],
+};
+
 /** Comparison mode — row highlighted as checked, menu is hidden */
 export const ComparisonMode: Story = {
     args: {

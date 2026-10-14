@@ -32,7 +32,7 @@ export const HistoryRow = <T extends QueryHistoryRow>({
     const isEditing = Boolean(editing?.enabled);
     const isComparisonMode = Boolean(comparison?.enabled);
     const isChecked = Boolean(comparison?.checked);
-    const showMenu = isActive && Boolean(actions?.length) && !isComparisonMode;
+    const hasMenu = Boolean(actions?.length) && !isComparisonMode;
 
     return (
         <RowLink
@@ -43,9 +43,15 @@ export const HistoryRow = <T extends QueryHistoryRow>({
         >
             <QueryStatusIcon status={status} />
             <Flex direction="column" gap={1} className={block('right-column')}>
-                <Flex justifyContent="space-between" className={block('header')}>
-                    <EditableRowTitle item={item} editing={editing} />
-                    {showMenu && <RowActionsMenu item={item} actions={actions} />}
+                <Flex gap={1} className={block('header')}>
+                    <Flex className={block('title')}>
+                        <EditableRowTitle item={item} editing={editing} />
+                    </Flex>
+                    {hasMenu && (
+                        <div className={block('actions')}>
+                            {isActive && <RowActionsMenu item={item} actions={actions} />}
+                        </div>
+                    )}
                 </Flex>
                 <div className={block('data')}>
                     {isFieldVisible<QueryHistoryRow>(visibleFields, 'duration') &&
