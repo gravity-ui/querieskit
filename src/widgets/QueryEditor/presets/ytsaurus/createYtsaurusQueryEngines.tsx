@@ -77,7 +77,7 @@ export function createYtsaurusQueryEngines<
         spyt: {
             id: 'spyt',
             title: 'SPYT',
-            language: 's-expression',
+            language: 'spyt',
             renderSettingsSections: (context) =>
                 options.spyt?.connectAvailable ? <SpytSettings context={context} /> : null,
             renderSettingsFields: (context) =>
@@ -97,7 +97,7 @@ export function createYtsaurusQueryEngines<
                     />
                 ),
         },
-        ql: {id: 'ql', title: 'YT QL', language: 'yql_ansi'},
+        ql: {id: 'ql', title: 'YT QL', language: 'ytql'},
     };
 
     return (options.engines ?? defaultEngines).map((engine) => engines[engine]);

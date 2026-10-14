@@ -7,15 +7,40 @@ import type {QueryPageComparisonTab, QueryPageQueryTab} from '../../../types/que
 import type {QueryHistoryRow} from '../../../types/history';
 import {BASE_ITEMS} from '../../../modules/QueriesHistory/QueriesHistory.stories.data';
 import {useQueriesSidebarTabs} from '../../../widgets/QueriesSidebar/QueriesSidebar.stories.data';
-import {
-    CLUSTERS,
-    PARAMETERS,
-    QUERY,
-    SETTINGS,
-    TAB_ENGINES,
-} from '../../../widgets/QueryEditor/story/demoData';
+import {CLUSTERS, PARAMETERS, QUERY, SETTINGS} from '../../../widgets/QueryEditor/story/demoData';
+import {createYtsaurusQueryEngines} from '../../../widgets/QueryEditor/presets/ytsaurus';
+import {createQueryEditorPreset} from '../../../helpers/queryEditorPreset';
 import {designTabs} from '../../../widgets/QueryExecutionPanel/story/designReference';
 import './QueryPage.stories.scss';
+
+const engines = createYtsaurusQueryEngines({
+    yql: {versions: ['stable', 'preview']},
+    chyt: {cliques: [{alias: 'analytics', state: 'active', health: 'good'}]},
+    spyt: {discoveryGroups: [{path: '//sys/spark/clusters/demo', title: 'Demo Spark'}]},
+});
+const preset = createQueryEditorPreset({
+    listPathChildren: ({language, token}) =>
+        token.isCancellationRequested
+            ? []
+            : [
+                  {
+                      name: 'events',
+                      path:
+                          language === 'spyt' || language === 'clickhouse'
+                              ? 'events'
+                              : '//demo/events',
+                      kind: 'table',
+                  },
+              ],
+    getTableSchema: ({token}) =>
+        token.isCancellationRequested
+            ? []
+            : [
+                  {name: 'region', type: 'String'},
+                  {name: 'event_id', type: 'Uint64'},
+              ],
+    onReferenceClick: action('navigateToTable'),
+});
 
 function Notes() {
     const [value, setValue] = useState('');
@@ -34,6 +59,9 @@ type ExampleProps = {
     resultsCollapsed?: boolean;
     resultsExpanded?: boolean;
     controlled?: boolean;
+    fourEngines?: boolean;
+    initialComparison?: boolean;
+    initialActiveTab?: string;
 };
 
 function Example({
@@ -41,6 +69,9 @@ function Example({
     resultsCollapsed = false,
     resultsExpanded = false,
     controlled = false,
+    fourEngines = false,
+    initialComparison = false,
+    initialActiveTab = '1',
 }: ExampleProps) {
     const createDraft = (id: string) => ({
         id,
@@ -49,16 +80,20 @@ function Example({
         savedValue:
             id === '2' ? 'SELECT region, COUNT(*) FROM `//demo/events` GROUP BY region;\n' : QUERY,
         clusterId: CLUSTERS[id === '2' ? 1 : 0].id,
-        engineId: TAB_ENGINES[0].id,
+        engineId: fourEngines ? engines[(Number(id) - 1) % engines.length].id : engines[0].id,
         parameters: PARAMETERS.map((parameter) => ({...parameter})),
         settings: {...SETTINGS, queryName: `Query ${id}`},
         executionPanelHeight: 300,
         collapsed: resultsCollapsed,
         expanded: resultsExpanded,
     });
-    const [drafts, setDrafts] = useState(() => [createDraft('1'), createDraft('2')]);
-    const [activeId, setActiveId] = useState('1');
-    const nextId = useRef(3);
+    const [drafts, setDrafts] = useState(() =>
+        (fourEngines ? ['1', '2', '3', '4'] : ['1', '2']).map(createDraft),
+    );
+    const [activeId, setActiveId] = useState(
+        initialComparison ? 'comparison-initial' : initialActiveTab,
+    );
+    const nextId = useRef(fourEngines ? 5 : 3);
     const [comparisons, setComparisons] = useState<
         {
             id: string;
@@ -67,7 +102,19 @@ function Example({
             value: string | null;
             savedValue: string | null;
         }[]
-    >([]);
+    >(() => {
+        if (!initialComparison) return [];
+        const rows = BASE_ITEMS.filter((item): item is QueryHistoryRow => 'id' in item);
+        return [
+            {
+                id: 'comparison-initial',
+                original: rows[0],
+                modified: rows[1],
+                value: rows[1].query ?? null,
+                savedValue: rows[1].query ?? null,
+            },
+        ];
+    });
     const [historyItems, setHistoryItems] = useState(BASE_ITEMS);
     const historyRows = historyItems.filter((item): item is QueryHistoryRow => 'id' in item);
     const versionId = (row: QueryHistoryRow) => `${typeof row.id}:${row.id}`;
@@ -273,7 +320,8 @@ function Example({
                                         clusterId: draft.clusterId,
                                         onClusterChange: (clusterId) =>
                                             updateDraft(draft.id, {clusterId}),
-                                        engines: TAB_ENGINES,
+                                        engines,
+                                        preset,
                                         engineId: draft.engineId,
                                         onEngineChange: (engineId) =>
                                             updateDraft(draft.id, {engineId}),
@@ -361,15 +409,17 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const HistoryComparison: Story = {
+    args: {initialComparison: true},
     parameters: {
         docs: {
             description: {
-                story: 'Open a history row menu, choose Select for Compare, select a second row, then compare. Rename and Delete update the demo history. Comparison tabs support editing the right-hand draft, reset/save, creating a query from the current draft, version selectors, and split/unified modes.',
+                story: 'Starts with an editable comparison. To open another, use Select for Compare in the history row menu. Rename and Delete update the demo history. Comparison tabs support editing the right-hand draft, reset/save, creating a query from the current draft, version selectors, and split/unified modes.',
             },
         },
     },
 };
 export const IndependentTabs: Story = {
+    args: {initialActiveTab: '2'},
     parameters: {
         docs: {
             description: {
@@ -382,3 +432,5 @@ export const HiddenSidebar: Story = {args: {sidebarHidden: true}};
 export const CollapsedResults: Story = {args: {resultsCollapsed: true}};
 export const ExpandedResults: Story = {args: {resultsExpanded: true}};
 export const ControlledLayout: Story = {args: {controlled: true}};
+
+export const FourEngines: Story = {args: {fourEngines: true}};

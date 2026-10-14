@@ -1,4 +1,5 @@
 import {expect, test} from '@playwright/test';
+import type {} from './fixture/query-page';
 
 test.beforeEach(async ({page}) => {
     await page.goto('/query-page.html');
@@ -185,4 +186,77 @@ test('tab header toggle hides the entire sidebar and restores its width', async 
     await expect(page.getByRole('textbox', {name: 'Sidebar draft', exact: true})).toHaveValue(
         'retained',
     );
+});
+
+test('factory engines activate their presets in each QueryPage editor and release them on close', async ({
+    page,
+}) => {
+    const first = page.getByRole('tabpanel', {name: 'Query 1', exact: true, includeHidden: true});
+    const pageErrors: string[] = [];
+    page.on('pageerror', (error) => pageErrors.push(error.message));
+    const initial = await page.evaluate(() => window.queryPageTest.snapshot());
+    await first.getByRole('combobox', {name: 'Cluster', exact: true}).click();
+    await page.getByRole('option', {name: 'Secondary', exact: true}).click();
+    for (const [engineId, title, language] of [
+        ['yql', 'YQL', 'yql'],
+        ['chyt', 'CHYT', 'clickhouse'],
+        ['spyt', 'SPYT', 'spyt'],
+        ['ql', 'YT QL', 'ytql'],
+    ]) {
+        if (engineId !== 'yql') {
+            await first.getByRole('combobox', {name: 'Engine', exact: true}).click();
+            await page.getByRole('option', {name: title, exact: true}).click();
+        }
+        await expect
+            .poll(
+                async () =>
+                    (await page.evaluate(() => window.queryPageTest.snapshot())).editors['1']
+                        .language,
+            )
+            .toBe(language);
+        await page.evaluate(() => window.queryPageTest.suggest('1'));
+        await expect(
+            first
+                .locator('.suggest-widget .monaco-list-row')
+                .filter({hasText: `catalog_secondary_${engineId}`}),
+        ).toBeVisible();
+        await expect
+            .poll(
+                async () =>
+                    (await page.evaluate(() => window.queryPageTest.snapshot())).requests.slice(
+                        -1,
+                    )[0],
+            )
+            .toEqual({engineId, language, clusterId: 'secondary'});
+        await page.keyboard.press('Escape');
+        const current = await page.evaluate(() => window.queryPageTest.snapshot());
+        expect(current.editors['1'].uri).toBe(initial.editors['1'].uri);
+        expect(current.models).toHaveLength(initial.models.length);
+        expect(current.lifecycle.created - current.lifecycle.disposed).toBe(1);
+    }
+    await page.getByRole('tab', {name: 'Query 2', exact: true}).click();
+    await expect
+        .poll(
+            async () =>
+                (await page.evaluate(() => window.queryPageTest.snapshot())).editors['2'].language,
+        )
+        .toBe('yql');
+    await page.evaluate(() => window.queryPageTest.suggest('2'));
+    await expect(
+        page
+            .getByRole('tabpanel', {name: 'Query 2', exact: true})
+            .locator('.suggest-widget .monaco-list-row')
+            .filter({hasText: 'catalog_c_yql'}),
+    ).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', {name: 'Close tab Query 1', exact: true}).click();
+    await expect
+        .poll(
+            async () => (await page.evaluate(() => window.queryPageTest.snapshot())).models.length,
+        )
+        .toBe(initial.models.length);
+    const closed = await page.evaluate(() => window.queryPageTest.snapshot());
+    expect(closed.models.some(({uri}) => uri === initial.editors['1'].uri)).toBe(false);
+    expect(closed.lifecycle.created - closed.lifecycle.disposed).toBe(1);
+    expect(pageErrors).toEqual([]);
 });

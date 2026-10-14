@@ -20,6 +20,8 @@ vi.mock('../../src/widgets/QueriesSidebar/QueriesSidebar.stories.data', () => ({
     ],
 }));
 vi.mock('../../src/widgets/QueryExecutionPanel/story/designReference', () => ({designTabs: []}));
+// The story configures real engine descriptors; Monaco itself is exercised in browser tests.
+vi.mock('../../src/components/MonacoEditor', () => ({MonacoEditor: () => null}));
 vi.mock('storybook/actions', () => ({action: () => vi.fn()}));
 
 const Example = meta.component;

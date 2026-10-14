@@ -53,3 +53,7 @@ text to their backend format when submitting the query.
 For JSON language services, route the `json` label in your Monaco environment
 worker configuration to `monaco-editor/languages/features/json/json.worker`.
 Use the worker setup appropriate for your bundler, alongside the editor worker.
+
+### Monaco language services
+
+The engine factory maps YQL to `yql`, CHYT to `clickhouse`, SPYT to `spyt`, and YT QL to `ytql`. Pass `preset={createQueryEditorPreset(...)}` alongside `engines` to enable completion and reference navigation for all four. The factory alone configures the engine selector and settings, not language providers. Older SPYT/QL descriptors used `s-expression`/`yql_ansi`; update custom provider language checks when migrating.
