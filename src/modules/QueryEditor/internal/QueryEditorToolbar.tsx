@@ -4,6 +4,7 @@ import PlayIcon from '@gravity-ui/icons/svgs/play.svg';
 import SquareDashedTextIcon from '@gravity-ui/icons/svgs/square-dashed-text.svg';
 import CheckIcon from '@gravity-ui/icons/svgs/list-check.svg';
 import PaperclipIcon from '@gravity-ui/icons/svgs/paperclip.svg';
+import ParametersIcon from '@gravity-ui/icons/svgs/sliders-vertical.svg';
 import GearIcon from '@gravity-ui/icons/svgs/gear.svg';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
 import SaveIcon from '@gravity-ui/icons/svgs/floppy-disk.svg';
@@ -38,6 +39,7 @@ type Props = Pick<
     activePanel: QueryEditorPanel;
     attachmentsId: string;
     settingsId: string;
+    parametersId: string;
     onPanelToggle: (panel: Exclude<QueryEditorPanel, null>) => void;
     onShareClick?: () => void;
     shareButtonRef?: React.Ref<HTMLButtonElement>;
@@ -199,6 +201,18 @@ export function QueryEditorToolbar(props: Props) {
                     onClick={() => props.onPanelToggle('attachments')}
                 >
                     <Icon data={PaperclipIcon} size={16} />
+                </Button>
+                <Button
+                    view="flat"
+                    size="m"
+                    title={i18n('action_parameters')}
+                    aria-label={i18n('action_parameters')}
+                    selected={props.activePanel === 'parameters'}
+                    aria-expanded={props.activePanel === 'parameters'}
+                    aria-controls={props.parametersId}
+                    onClick={() => props.onPanelToggle('parameters')}
+                >
+                    <Icon data={ParametersIcon} size={16} />
                 </Button>
                 <Button
                     view="flat"

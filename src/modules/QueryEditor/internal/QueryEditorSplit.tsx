@@ -16,6 +16,8 @@ type Props = {
     children: React.ReactNode;
     settings?: React.ReactNode;
     attachments?: React.ReactNode;
+    parameters?: React.ReactNode;
+    parametersId: string;
     attachmentsId: string;
     activePanel: QueryEditorPanel;
     settingsId: string;
@@ -30,12 +32,34 @@ export function QueryEditorSplit({
     settings,
     attachments,
     attachmentsId,
+    parameters,
+    parametersId,
     activePanel,
     settingsId,
     width,
     onWidthChange,
     onClose,
 }: Props) {
+    const panels = {
+        settings: {
+            id: settingsId,
+            content: settings,
+            title: i18n('title_settings'),
+            closeLabel: i18n('action_close-settings'),
+        },
+        attachments: {
+            id: attachmentsId,
+            content: attachments,
+            title: i18n('title_attachments'),
+            closeLabel: i18n('action_close-attachments'),
+        },
+        parameters: {
+            id: parametersId,
+            content: parameters,
+            title: i18n('title_parameters'),
+            closeLabel: i18n('action_close-parameters'),
+        },
+    };
     const open = activePanel !== null;
     const rootRef = useRef<HTMLDivElement>(null);
     const drag = useRef<{pointerId: number; x: number; width: number} | undefined>(undefined);
@@ -73,7 +97,7 @@ export function QueryEditorSplit({
                         tabIndex={0}
                         aria-orientation="vertical"
                         aria-label={i18n('action_resize-panel')}
-                        aria-controls={activePanel === 'attachments' ? attachmentsId : settingsId}
+                        aria-controls={activePanel ? panels[activePanel].id : undefined}
                         aria-valuemin={MIN_PANEL}
                         aria-valuemax={maxWidth}
                         aria-valuenow={renderedWidth}
@@ -118,33 +142,23 @@ export function QueryEditorSplit({
                         }}
                     />
                 )}
-                {(['settings', 'attachments'] as const).map((panel) => (
+                {(['settings', 'attachments', 'parameters'] as const).map((panel) => (
                     <div
                         key={panel}
-                        id={panel === 'settings' ? settingsId : attachmentsId}
+                        id={panels[panel].id}
                         role="region"
-                        aria-label={i18n(
-                            panel === 'settings' ? 'title_settings' : 'title_attachments',
-                        )}
+                        aria-label={panels[panel].title}
                         hidden={activePanel !== panel}
                         className={block('panel')}
                         style={{width: renderedWidth}}
                     >
                         <Flex direction="column" className={block('panel-layout')}>
                             <PanelHeader
-                                title={i18n(
-                                    panel === 'settings' ? 'title_settings' : 'title_attachments',
-                                )}
-                                closeLabel={i18n(
-                                    panel === 'settings'
-                                        ? 'action_close-settings'
-                                        : 'action_close-attachments',
-                                )}
+                                title={panels[panel].title}
+                                closeLabel={panels[panel].closeLabel}
                                 onClose={onClose}
                             />
-                            <div className={block('content')}>
-                                {panel === 'settings' ? settings : attachments}
-                            </div>
+                            <div className={block('content')}>{panels[panel].content}</div>
                         </Flex>
                     </div>
                 ))}
