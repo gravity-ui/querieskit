@@ -25,14 +25,30 @@ Instructions for agents on the code structure of `@gravity-ui/querieskit`.
 - Before finishing, inspect delegated changes, reconcile findings,
   and run the appropriate checks on the integrated result.
 
-## Storybook cleanup
+## Storybook server lifecycle
 
+- Before starting Storybook, check whether this project's Storybook is
+  already available at the user-provided URL or the configured port
+  (6006 by default). Confirm that it belongs to this project; an occupied
+  port alone is not enough.
+- Reuse an existing project Storybook for verification. Do not restart,
+  reconfigure, or stop a server started by the user or another task,
+  including when it is unhealthy or verification fails. If ownership or
+  project identity is unclear, leave that process untouched.
+- If no usable project Storybook is available, start your own instance
+  on a free port. Never terminate another process to free a port. Record
+  the URL and process or session you started, and share them with subagents
+  so they reuse the same instance instead of starting duplicates.
 - After testing or visual verification, stop any Storybook server started
   by you or your subagents, including when verification fails or is blocked.
 - Track the server's process or session and verify that it has exited
   before finishing the task. Do not stop servers started by the user or
   other tasks, and do not use broad process-kill commands.
-- Leave Storybook running only when the user explicitly asks you to.
+- Leave an instance started by you or your subagents running only when
+  the user explicitly asks you to. Leave pre-existing servers running.
+- Separate ports do not isolate source changes: servers in the same
+  working directory see the same edits. When independent, stable previews
+  are required, use a separate git worktree and its own Storybook instance.
 
 ## Three levels of the public API
 
