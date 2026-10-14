@@ -13,6 +13,28 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [2.6.0](https://github.com/gravity-ui/querieskit/compare/v2.5.0...v2.6.0) (2026-10-14)
+
+
+### Features
+
+* **QueryComparison:** add multi-block code comparison module ([340ed6d](https://github.com/gravity-ui/querieskit/commit/340ed6de4131a67c05e8f3c9827cf07c64a6812d))
+* **QueryComparison:** add version selection and header actions ([9817720](https://github.com/gravity-ui/querieskit/commit/98177203cbf90bf91b5ef1651f5d87b098bbaa7a))
+* **QueryEditor:** integrate parameters side panel ([c603a98](https://github.com/gravity-ui/querieskit/commit/c603a984592015e32db9b8a9023a0abfa79f0eec))
+* **QueryPage:** add tabbed query workspaces with resizable layout ([01a580b](https://github.com/gravity-ui/querieskit/commit/01a580ba8af3158ed4ad863fdfd72c336cb8f389))
+* **QueryPage:** integrate editable history comparisons ([d395567](https://github.com/gravity-ui/querieskit/commit/d3955671597f5421e47743fb24c3cc56c1ca3413))
+* **QueryParameters:** add expanded panel and view layouts ([6d9c6ef](https://github.com/gravity-ui/querieskit/commit/6d9c6ef10b4705596d6cdda74831bf2da4e9ea52))
+* **QueryParameters:** add query parameter editor ([795fa06](https://github.com/gravity-ui/querieskit/commit/795fa06731fd2323e77254fb72b77024373cb8a5))
+* **QueryParameters:** align editors and nullable values with design ([ba953cb](https://github.com/gravity-ui/querieskit/commit/ba953cbceec889980d30a0c851c4619b2aa3c993))
+* **QueryParameters:** support all parameter field types ([4c1bbc0](https://github.com/gravity-ui/querieskit/commit/4c1bbc061220b333bf80b1f5b6bc6e0441774e15))
+* **QueryParameters:** use date picker for Date and Datetime ([2453fde](https://github.com/gravity-ui/querieskit/commit/2453fde7ae9640214aae7c57283551381bb2d9b8))
+
+
+### Bug Fixes
+
+* keep Monaco hover service alive after diff editor disposal ([6a04298](https://github.com/gravity-ui/querieskit/commit/6a04298b139be40991f3f1db7d984f2b3895e449))
+* reserve space for history row actions ([c817173](https://github.com/gravity-ui/querieskit/commit/c817173b912457ac93f5525692864bc4ee8c2eba))
+
 ## [2.5.0](https://github.com/gravity-ui/querieskit/compare/v2.4.0...v2.5.0) (2026-10-13)
 
 
