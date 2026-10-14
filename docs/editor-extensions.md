@@ -7,6 +7,10 @@ container. Existing use without these props keeps its existing behavior.
 
 ## Language preset and application data
 
+QueriesKit calls the supplied completion and reference callbacks. The application
+provides the data (from local state or its own loading logic) and implements navigation.
+The library itself does not fetch catalog data or execute queries.
+
 ```tsx
 import {QueryEditor} from '@gravity-ui/querieskit';
 import {createQueryEditorPreset} from '@gravity-ui/querieskit/helpers/queryEditorPreset';

@@ -87,10 +87,10 @@ Pass `settingsProps` to use the built-in `QuerySettings` form. Its generic custo
 ```tsx
 import {useState} from 'react';
 import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
-import {createYtsaurusQueryEngines} from '@gravity-ui/querieskit/widgets/QueryEditor/presets/ytsaurus';
-import type {YtsaurusEngineSettings, QuerySettingsValue} from '@gravity-ui/querieskit';
+import {createBuiltinQueryEngines} from '@gravity-ui/querieskit/widgets/QueryEditor/presets/builtin';
+import type {BuiltinEngineSettings, QuerySettingsValue} from '@gravity-ui/querieskit';
 
-const [settings, setSettings] = useState<QuerySettingsValue<YtsaurusEngineSettings>>({
+const [settings, setSettings] = useState<QuerySettingsValue<BuiltinEngineSettings>>({
   queryName: '',
   access: 'private',
   ytOperationTitle: '',
@@ -98,7 +98,7 @@ const [settings, setSettings] = useState<QuerySettingsValue<YtsaurusEngineSettin
   attributes: [],
   custom: {yqlVersion: 'stable'}, // Application-supplied default.
 });
-const engines = createYtsaurusQueryEngines({
+const engines = createBuiltinQueryEngines({
   yql: {versions: ['stable', 'preview']},
   chyt: {cliques, loading: cliquesLoading},
   spyt: {discoveryGroups, loading: discoveryLoading, connectAvailable},
@@ -115,17 +115,17 @@ const engines = createYtsaurusQueryEngines({
 
 `QueryEditorEngine<TCustom>.renderSettingsFields` receives the `QuerySettings` context (`value`, `onChange`, `errors`, `onFieldBlur`, `disabled`) plus `engineId` and `clusterId`. The selected engine's fields appear after Query name, followed by `settingsProps.renderCustomFields` for application-wide fields. Missing or unknown engines add no fields. Render callbacks own accessibility, localization and error presentation for their controls.
 
-Use `renderSettingsSections` on an engine for separate sections after Attributes, followed by the application's `settingsProps.renderCustomSections`. Both callbacks receive the same context as their field counterparts. The YTsaurus preset uses this slot for the SPYT JSON configuration with Save and Cancel actions.
+Use `renderSettingsSections` on an engine for separate sections after Attributes, followed by the application's `settingsProps.renderCustomSections`. Both callbacks receive the same context as their field counterparts. The built-in preset uses this slot for the SPYT JSON configuration with Save and Cancel actions.
 
 The editor never resets settings when engine or cluster changes. The application owns loading, defaults, validation, and any reset/migration in `onEngineChange` or `onClusterChange`. Settings changes use `settingsProps.onChange`; the editor's `onChange` remains text-only. Closing the panel keeps its content mounted.
 
 For a completely custom panel, use `settings={<YourSettings />}` instead. `settings` and `settingsProps` are mutually exclusive; the raw slot does not automatically render engine fields. Without either prop, the panel contains its heading and close action. The panel owns heading, closing and resizing in both modes.
 
-See [QuerySettings validation examples](../../modules/QuerySettings/README.md). The editor's existing Run button remains the only built-in execution action.
+See [QuerySettings validation examples](../../modules/QuerySettings/README.md). The editor's Run button invokes the application's `onRun` callback; the editor itself does not execute queries.
 
-### YTsaurus engine preset
+### Built-in engine preset
 
-`createYtsaurusQueryEngines<TCustom extends YtsaurusEngineSettings>()` returns ordinary engine descriptions, which can be filtered, extended or combined with application engines. Options `engines` selects their order; the default order is YQL, CHYT, SPYT, YT QL.
+`createBuiltinQueryEngines<TCustom extends BuiltinEngineSettings>()` returns ordinary engine descriptions, which can be filtered, extended or combined with application engines. The `engines` option selects their order; the default order is YQL, CHYT, SPYT, YT QL.
 
 | Engine | Field                                                 | Custom value     |
 | ------ | ----------------------------------------------------- | ---------------- |
@@ -134,11 +134,32 @@ See [QuerySettings validation examples](../../modules/QuerySettings/README.md). 
 | SPYT   | Discovery path unless `spyt.connectAvailable` is true | `discoveryGroup` |
 | YT QL  | No additional field                                   | —                |
 
-Supply already-loaded options for the selected cluster. CHYT cliques use `{alias, operationId?, state?, health?, disabled?}`; discovery groups use `{path, title?, disabled?}`. Loading and empty states are explicit. The preset makes no requests, selects no defaults and includes no SPYT Connect JSON editor.
+Supply already-loaded options for the selected cluster. CHYT cliques use `{alias, operationId?, state?, health?, disabled?}`; discovery groups use `{path, title?, disabled?}`. Loading and empty states are explicit. The preset makes no requests and selects no defaults. SPYT Connect replaces the discovery selector with a JSON configuration editor.
 
-These are form values, not a backend request schema. At submission, the application maps `yqlVersion` to `yql_version`, `discoveryGroup` to `discovery_group` and `clique` to the backend clique setting, including only fields appropriate for the selected engine. General settings, tokens and attributes also need the application's API adapter.
+These are UI form values. The application decides how to store or use them, including any conversion required for query execution. QueriesKit does not construct or send execution requests. The built-in descriptions are optional; applications can supply their own engines or combine them with this set.
 
-This factory is separate from `createQueryEditorPreset`: that helper configures Monaco language services, completion and navigation; this factory configures the engine list and settings controls.
+This factory is separate from `createQueryEditorPreset`: that helper configures Monaco language services, completion and navigation; this factory configures the engine list and settings controls. The library calls application-supplied completion and reference callbacks; the application supplies catalog data and handles navigation.
+
+For example, combine an application engine with selected built-in descriptions:
+
+```tsx
+import {createBuiltinQueryEngines} from '@gravity-ui/querieskit/widgets/QueryEditor/presets/builtin';
+import type {BuiltinEngineSettings, QueryEditorEngine} from '@gravity-ui/querieskit';
+
+type AppEngineSettings = BuiltinEngineSettings & {workspace?: string};
+
+const applicationEngine: QueryEditorEngine<AppEngineSettings> = {
+  id: 'application-sql',
+  title: 'Application SQL',
+  language: 'sql', // A Monaco language registered by the application.
+};
+const engines: QueryEditorEngine<AppEngineSettings>[] = [
+  applicationEngine,
+  ...createBuiltinQueryEngines<AppEngineSettings>({engines: ['yql', 'chyt']}),
+];
+```
+
+Pass this array through `QueryEditor.engines` and keep the selected ID in application state. The ID is a UI selection key; `onRun` remains an application callback. Custom engines can provide `renderSettingsFields` and `renderSettingsSections` for their own controls. Use your own Monaco providers for languages outside the optional language preset.
 
 ## Attachments
 
@@ -219,9 +240,10 @@ Storybook toolbar. The `Extensions` group contains the specialized Monaco exampl
 
 ## Import compatibility
 
-Use `@gravity-ui/querieskit/widgets/QueryEditor` and its `presets/ytsaurus` subpath.
-The previous `modules/QueryEditor` and `modules/QueryEditor/presets/ytsaurus` package
-subpaths remain aliases of these widget entrypoints. Root imports are unchanged.
+Use `@gravity-ui/querieskit/widgets/QueryEditor` and its `presets/builtin` subpath.
+The previous `modules/QueryEditor` package subpath remains an alias of the widget.
+There is no `modules` alias for the built-in preset. The former branded factory,
+types and preset paths have been removed; use the `Builtin` names and widget preset path.
 
 ### Monaco language services
 

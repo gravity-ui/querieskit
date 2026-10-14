@@ -1,6 +1,8 @@
 # QueriesKit · [![npm package](https://img.shields.io/npm/v/@gravity-ui/querieskit?logo=npm)](https://www.npmjs.com/package/@gravity-ui/querieskit) [![CI](https://img.shields.io/github/actions/workflow/status/gravity-ui/querieskit/ci.yml?branch=main&label=CI&logo=github)](https://github.com/gravity-ui/querieskit/actions/workflows/ci.yml?query=branch:main) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685?logo=storybook)](https://preview.gravity-ui.com/querieskit/)
 
-React component library for building **query pages** — history, tutorials, editors, and related UI. Part of the [Gravity UI](https://gravity-ui.com) design system.
+React component library for displaying query data and building **query pages** — history, tutorials, editors, and related UI. Part of the [Gravity UI](https://gravity-ui.com) design system.
+
+Applications supply data through props and handle callbacks. QueriesKit manages presentation and local UI interactions; it does not fetch data or execute queries. Data loading, query execution, persistence and routing belong to the application.
 
 The library is under active development and its public API is not yet stable.
 API changes may be released without a major version bump. Check the changelog
@@ -146,9 +148,10 @@ Extensions stories. Individual imports are available from `components/MonacoEdit
 import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
 ```
 
-The YTsaurus preset is available from `widgets/QueryEditor/presets/ytsaurus`.
-The previous package subpaths `modules/QueryEditor` and
-`modules/QueryEditor/presets/ytsaurus` remain supported as compatibility aliases.
+Optional engine UI configurations are available from `widgets/QueryEditor/presets/builtin`.
+They define language selection, labels and settings controls using application-supplied data.
+The previous package subpath `modules/QueryEditor` remains a compatibility alias for the widget.
+The built-in preset is available only under the widget subpath.
 
 ### QueryExecutionPanel
 
