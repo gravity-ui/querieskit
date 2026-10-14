@@ -1,0 +1,15 @@
+{
+  "value_area": "С областями",
+  "value_bar-x": "Вертикальные столбцы",
+  "value_bar-y": "Горизонтальные столбцы",
+  "value_line": "Линейный",
+  "value_pie": "Круговой",
+  "value_scatter": "Точечный",
+  "value_waterfall": "Водопад",
+  "value_funnel": "Воронка",
+  "value_heatmap": "Тепловая карта",
+  "value_radar": "Радар",
+  "value_sankey": "Санкей",
+  "value_treemap": "Древовидная карта",
+  "value_x-range": "Диапазоны"
+}

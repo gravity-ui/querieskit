@@ -22,12 +22,10 @@ import './Child.scss';
 const block = cn('qp-child');
 
 export type ChildProps = {
-    className?: string;
+  className?: string;
 };
 
-export const Child = ({className}: ChildProps) => (
-    <div className={block(null, className)}>...</div>
-);
+export const Child = ({className}: ChildProps) => <div className={block(null, className)}>...</div>;
 ```
 
 ```scss
@@ -47,10 +45,10 @@ export const Child = ({className}: ChildProps) => (
 import {Flex} from '@gravity-ui/uikit';
 
 export const Parent = () => (
-    <Flex direction="column" gap={2} alignItems="center">
-        <Child />
-        <AnotherChild />
-    </Flex>
+  <Flex direction="column" gap={2} alignItems="center">
+    <Child />
+    <AnotherChild />
+  </Flex>
 );
 ```
 
@@ -118,12 +116,12 @@ export const Parent = () => <Child className={block('child')} />;
 
 Такой подход связывает внешний вид ребёнка с конкретным родителем: при самостоятельном использовании или переносе ребёнка его стили не загрузятся. Родительский SCSS должен описывать BEM-блок родителя и его элементы, но не BEM-блоки самостоятельных дочерних компонентов.
 
-В текущем коде есть исторические нарушения этого правила:
+Ранее стили `ClusterRow` и `NavigationItemRow` загружались через родительские списки. Теперь каждый компонент владеет своим SCSS-файлом и импортирует его самостоятельно:
 
-- [`ClustersList.scss`](../src/modules/ClustersList/ClustersList.scss) объявляет блок `.qp-cluster-row`, принадлежащий [`ClusterRow`](../src/components/ClusterRow/ClusterRow.tsx).
-- [`NavigationItemsList.scss`](../src/modules/NavigationItemsList/NavigationItemsList.scss) объявляет блок `.qp-navigation-item-row`, принадлежащий [`NavigationItemRow`](../src/components/NavigationItemRow/NavigationItemRow.tsx).
+- [`ClusterRow.scss`](../src/components/ClusterRow/ClusterRow.scss) импортируется из [`ClusterRow.tsx`](../src/components/ClusterRow/ClusterRow.tsx).
+- [`NavigationItemRow.scss`](../src/components/NavigationItemRow/NavigationItemRow.scss) импортируется из [`NavigationItemRow.tsx`](../src/components/NavigationItemRow/NavigationItemRow.tsx).
 
-Эти места зафиксированы как анти-примеры и не должны использоваться как образец для нового кода. Их исправление выполняется отдельно.
+Сохраняйте это разделение при изменении списков: родитель отвечает за внешнюю компоновку, ребёнок — за собственное оформление.
 
 ## Чек-лист
 

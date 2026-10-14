@@ -1,8 +1,8 @@
 import React from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 
-import {demoEdges, demoNodes} from '../../components/QueryGraph/QueryGraph.stories';
-import {timelineItems, timelineStatuses} from '../QueryTimeline/QueryTimeline.stories';
+import {demoEdges, demoNodes} from '../../components/QueryGraph/story/demoData';
+import {timelineItems, timelineStatuses} from '../QueryTimeline/story/demoData';
 import {QueryProgress} from './QueryProgress';
 
 const meta: Meta<typeof QueryProgress> = {

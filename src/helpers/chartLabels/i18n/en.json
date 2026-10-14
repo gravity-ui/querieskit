@@ -1,0 +1,15 @@
+{
+  "value_area": "Area",
+  "value_bar-x": "Vertical bars",
+  "value_bar-y": "Horizontal bars",
+  "value_line": "Line",
+  "value_pie": "Pie",
+  "value_scatter": "Scatter",
+  "value_waterfall": "Waterfall",
+  "value_funnel": "Funnel",
+  "value_heatmap": "Heatmap",
+  "value_radar": "Radar",
+  "value_sankey": "Sankey",
+  "value_treemap": "Treemap",
+  "value_x-range": "Range"
+}

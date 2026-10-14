@@ -7,7 +7,7 @@ import type {ErrorTreeSeverity} from '../../../types/errorTree';
 import {DashboardCharts} from '../../DashboardCharts';
 import {lineSeriesMap} from '../../DashboardCharts/story/mockData';
 import {fieldsChartItems, fieldsEditorProps} from '../../DashboardCharts/story/fieldsData';
-import {demoEdges, demoNodes} from '../../../components/QueryGraph/QueryGraph.stories';
+import {demoEdges, demoNodes} from '../../../components/QueryGraph/story/demoData';
 import {createQueryTrackerPanel} from './queryTrackerAdapter';
 import type {ExampleQuery} from './queryTrackerAdapter';
 import {designTabs} from './designReference';
