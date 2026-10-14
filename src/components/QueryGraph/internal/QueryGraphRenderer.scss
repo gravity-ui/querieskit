@@ -1,0 +1,50 @@
+@use './queryGraphLayout' as layout;
+
+.qp-query-graph {
+    @include layout.root;
+    &__canvas {
+        width: 100%;
+        height: 100%;
+        min-height: 360px;
+    }
+
+    &__toolbox {
+        position: absolute;
+        z-index: 4;
+        top: var(--g-spacing-4);
+        left: var(--g-spacing-4);
+        display: flex;
+        width: 28px;
+        flex-direction: column;
+    }
+
+    &__toolbox-button {
+        &_position_top {
+            --g-button-border-radius: var(--g-border-radius-s) var(--g-border-radius-s) 0 0;
+        }
+
+        &_position_bottom {
+            --g-button-border-radius: 0 0 var(--g-border-radius-s) var(--g-border-radius-s);
+        }
+    }
+
+    &__hover-anchor {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+    }
+
+    &__popup {
+        position: absolute;
+        z-index: 5;
+        width: min(440px, calc(100% - var(--g-spacing-8)));
+        max-height: calc(100% - var(--g-spacing-8));
+        overflow: auto;
+        padding: var(--g-spacing-4);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-l);
+        box-shadow: 0 4px 24px var(--g-color-sfx-shadow);
+        background: var(--g-color-base-float);
+    }
+}

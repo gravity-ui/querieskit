@@ -1,0 +1,38 @@
+@use './parameterValueLayout' as layout;
+
+.qp-parameter-value {
+    @include layout.root;
+    &_nullable {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        min-height: 52px;
+
+        > .qp-parameter-value__content {
+            grid-column: 1 / -1;
+        }
+    }
+    &__null-controls {
+        min-height: 28px;
+    }
+    @container (min-width: 720px) {
+        &_nullable#{&}_horizontal {
+            grid-template-columns: 240px minmax(0, 1fr);
+            row-gap: var(--g-spacing-1);
+
+            > .qp-parameter-value__header {
+                grid-row: 1 / 3;
+            }
+
+            > .qp-parameter-value__null-controls {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            > .qp-parameter-value__content {
+                grid-column: 2;
+                grid-row: 2;
+            }
+        }
+    }
+}
