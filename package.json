@@ -255,6 +255,26 @@
         "types": "./build/cjs/pages/QueryPage/index.d.ts",
         "default": "./build/cjs/pages/QueryPage/index.js"
       }
+    },
+    "./components/MonacoDiffEditor": {
+      "import": {
+        "types": "./build/esm/components/MonacoDiffEditor/index.d.ts",
+        "default": "./build/esm/components/MonacoDiffEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/MonacoDiffEditor/index.d.ts",
+        "default": "./build/cjs/components/MonacoDiffEditor/index.js"
+      }
+    },
+    "./modules/QueryComparison": {
+      "import": {
+        "types": "./build/esm/modules/QueryComparison/index.d.ts",
+        "default": "./build/esm/modules/QueryComparison/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryComparison/index.d.ts",
+        "default": "./build/cjs/modules/QueryComparison/index.js"
+      }
     }
   },
   "files": [
