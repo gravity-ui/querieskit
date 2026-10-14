@@ -5,8 +5,7 @@ import type {editor} from 'monaco-editor';
 // @ts-ignore monaco-editor ships its own types but the default resolution
 // doesn't pick them up for this deep import path in this project setup.
 import * as monaco from 'monaco-editor/editor/editor.api';
-import 'monaco-editor/languages/features/json/register';
-import './monaco-yql-languages/monaco.contribution';
+import './initialize';
 import {MONACO_THEME_BY_UI, MonacoThemeName, YT_LIGHT_MONACO_THEME} from './MonacoEditorThemes';
 import type {MonacoEditorProps} from '../../types/monacoEditor';
 import type {EditorExtension} from '../../types/editorProviders';

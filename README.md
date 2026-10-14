@@ -66,7 +66,16 @@ Use pages for a complete screen layout, widgets for independent feature blocks, 
 
 ### Individual imports
 
-Pages, widgets, and modules support both root and individual imports:
+All public components, modules, widgets, and pages support both root and individual imports.
+Prefer individual imports to keep the dependency graph and extracted CSS focused on the units you use:
+
+```tsx
+import {QueryStatusIcon} from '@gravity-ui/querieskit/components/QueryStatusIcon';
+import {QueriesHistory} from '@gravity-ui/querieskit/modules/QueriesHistory';
+import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
+```
+
+Root imports remain supported:
 
 ```tsx
 import {SavedQueries} from '@gravity-ui/querieskit';
@@ -79,9 +88,8 @@ import {SavedQueries} from '@gravity-ui/querieskit/modules/SavedQueries';
 import type {SavedQueriesProps} from '@gravity-ui/querieskit/modules/SavedQueries';
 ```
 
-Individual entrypoints are available for `QueryPage` under `pages/`, `QueriesHistory`, `SavedQueries`,
-`TutorialsHistory`, `QueriesNavigation` under `modules/`, and `QueriesSidebar`,
-`QueryEditor`, `QueryExecutionPanel`, `DashboardCharts` under `widgets/`.
+Every public unit re-exported by the four level barrels has an individual entrypoint
+under its corresponding level (`components/`, `modules/`, `widgets/`, or `pages/`).
 They expose each unit's existing public exports, including its props and helpers.
 Shared data types remain available from the package root.
 
@@ -90,8 +98,22 @@ Both forms support tree-shaking with an ESM-aware bundler; individual imports do
 not necessarily produce a smaller bundle. Existing root imports remain supported.
 Keep CSS processing enabled so that the selected widget's styles are included.
 Some bundlers, including esbuild, retain CSS from unused root re-exports even when
-their JavaScript is removed. Individual widget imports avoid introducing those
+their JavaScript is removed. Individual unit imports avoid introducing those
 unrelated styles.
+
+For browser builds, preserve ESM imports through to the bundler. Requiring the
+package root as CommonJS eagerly traverses its re-exports and can retain unrelated
+widgets and dependencies. Individual CJS entrypoints reduce that scope, but the
+published CJS build does not preserve the ESM code-splitting boundaries.
+
+Search previews in `QueriesHistory`, `SavedQueries`, and `TutorialsHistory` load Monaco
+on demand. While the editor chunk loads, the row displays the query as plain text
+without changing its height or link. Configure production code splitting to retain
+this loading boundary; a single-file bundle still contains the editor. Chunk-loading
+errors propagate to the application's error boundary.
+
+See [the next-major migration notes](docs/migrations/next-major.md) for the explicit
+Monaco language registrations and how to connect additional languages.
 
 ### QueryPage
 
