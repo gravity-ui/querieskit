@@ -3,6 +3,9 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {Button, Flex, Text, TextInput} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryPage} from '..';
+import type {QueryPageComparisonTab, QueryPageQueryTab} from '../../../types/queryPage';
+import type {QueryHistoryRow} from '../../../types/history';
+import {BASE_ITEMS} from '../../../modules/QueriesHistory/QueriesHistory.stories.data';
 import {useQueriesSidebarTabs} from '../../../widgets/QueriesSidebar/QueriesSidebar.stories.data';
 import {
     CLUSTERS,
@@ -56,6 +59,86 @@ function Example({
     const [drafts, setDrafts] = useState(() => [createDraft('1'), createDraft('2')]);
     const [activeId, setActiveId] = useState('1');
     const nextId = useRef(3);
+    const [comparisons, setComparisons] = useState<
+        {
+            id: string;
+            original: QueryHistoryRow;
+            modified: QueryHistoryRow;
+            value: string | null;
+            savedValue: string | null;
+        }[]
+    >([]);
+    const [historyItems, setHistoryItems] = useState(BASE_ITEMS);
+    const historyRows = historyItems.filter((item): item is QueryHistoryRow => 'id' in item);
+    const versionId = (row: QueryHistoryRow) => `${typeof row.id}:${row.id}`;
+    const comparisonTabs: QueryPageComparisonTab[] = comparisons.map((comparison) => {
+        const {id, original, modified, value, savedValue} = comparison;
+        const updateComparison = (update: Partial<typeof comparison>) => {
+            setComparisons((current) =>
+                current.map((tab) => (tab.id === id ? {...tab, ...update} : tab)),
+            );
+        };
+        return {
+            id,
+            type: 'comparison',
+            leftTitle: original.title,
+            rightTitle: modified.title,
+            comparisonProps: {
+                items: [
+                    {
+                        id: 'query',
+                        title: 'Query',
+                        language: 'sql',
+                        original: original.query ?? null,
+                        modified: value,
+                    },
+                ],
+                onBlockChange: (_blockId, nextValue) => updateComparison({value: nextValue}),
+                actions: {
+                    hasChanges: value !== savedValue,
+                    onReset: () => updateComparison({value: savedValue}),
+                    onSave: () => {
+                        const saved = {...modified, query: value ?? undefined};
+                        setHistoryItems((current) =>
+                            current.map((row) =>
+                                'id' in row && row.id === modified.id ? saved : row,
+                            ),
+                        );
+                        updateComparison({modified: saved, savedValue: value});
+                    },
+                    onCreateQuery: () => {
+                        const queryId = String(nextId.current++);
+                        const draft = createDraft(queryId);
+                        setDrafts((current) => [
+                            ...current,
+                            {...draft, value: value ?? '', savedValue: ''},
+                        ]);
+                        setActiveId(queryId);
+                    },
+                },
+                versionSelection: {
+                    originalId: versionId(original),
+                    modifiedId: versionId(modified),
+                    options: historyRows.map((row) => ({id: versionId(row), title: row.title})),
+                    onChange: ({originalId, modifiedId}) => {
+                        const left = historyRows.find((row) => versionId(row) === originalId);
+                        const right = historyRows.find((row) => versionId(row) === modifiedId);
+                        if (left && right) {
+                            // Changing only the baseline preserves the working draft.
+                            const changedTarget = modifiedId !== versionId(modified);
+                            updateComparison({
+                                original: left,
+                                modified: right,
+                                ...(changedTarget
+                                    ? {value: right.query ?? null, savedValue: right.query ?? null}
+                                    : {}),
+                            });
+                        }
+                    },
+                },
+            },
+        };
+    });
     const activeDraft = drafts.find(({id}) => id === activeId) ?? drafts[0];
     const updateDraft = (id: string, update: Partial<(typeof drafts)[number]>) => {
         setDrafts((current) =>
@@ -100,7 +183,52 @@ function Example({
                     sidebarProps={{
                         header: <Text variant="subheader-2">Queries</Text>,
                         keepMounted: true,
-                        tabs: sidebarTabs,
+                        tabs: sidebarTabs.map((tab) =>
+                            tab.type === 'history'
+                                ? {
+                                      ...tab,
+                                      props: {
+                                          ...tab.props,
+                                          items: historyItems.filter(
+                                              (item) =>
+                                                  !('id' in item) ||
+                                                  item.title
+                                                      .toLowerCase()
+                                                      .includes(
+                                                          tab.props.search.value?.toLowerCase() ??
+                                                              '',
+                                                      ),
+                                          ),
+                                      },
+                                  }
+                                : tab,
+                        ),
+                    }}
+                    historyActions={{
+                        onRename: (item, title) =>
+                            setHistoryItems((current) =>
+                                current.map((row) =>
+                                    'id' in row && row.id === item.id ? {...row, title} : row,
+                                ),
+                            ),
+                        onDelete: (item) =>
+                            setHistoryItems((current) =>
+                                current.filter((row) => !('id' in row) || row.id !== item.id),
+                            ),
+                        onCompare: (original, modified) => {
+                            const id = `comparison-${nextId.current++}`;
+                            setComparisons((current) => [
+                                ...current,
+                                {
+                                    id,
+                                    original,
+                                    modified,
+                                    value: modified.query ?? null,
+                                    savedValue: modified.query ?? null,
+                                },
+                            ]);
+                            setActiveId(id);
+                        },
                     }}
                     tabsProps={{
                         activeTab: activeId,
@@ -112,84 +240,101 @@ function Example({
                             setActiveId(id);
                         },
                         onCloseTab: (id) => {
+                            if (comparisons.some((tab) => tab.id === id)) {
+                                setComparisons((current) => current.filter((tab) => tab.id !== id));
+                                if (activeId === id) setActiveId(drafts[0].id);
+                                return;
+                            }
                             if (drafts.length === 1) return;
                             const remaining = drafts.filter((item) => item.id !== id);
                             setDrafts(remaining);
                             if (activeId === id) setActiveId(remaining[0].id);
                         },
-                        items: drafts.map((draft) => ({
-                            id: draft.id,
-                            title: `Query ${draft.id}`,
-                            type: 'query',
-                            status: 'draft',
-                            isModified: draft.value !== draft.savedValue,
-                            executionPanelHeight: controlled
-                                ? draft.executionPanelHeight
-                                : undefined,
-                            onExecutionPanelHeightChange: (height) => {
-                                if (controlled)
-                                    updateDraft(draft.id, {executionPanelHeight: height});
-                                action('executionPanelHeight')({id: draft.id, height});
-                            },
-                            editorProps: {
-                                value: draft.value,
-                                onChange: (value) => updateDraft(draft.id, {value}),
-                                clusters: CLUSTERS,
-                                clusterId: draft.clusterId,
-                                onClusterChange: (clusterId) => updateDraft(draft.id, {clusterId}),
-                                engines: TAB_ENGINES,
-                                engineId: draft.engineId,
-                                onEngineChange: (engineId) => updateDraft(draft.id, {engineId}),
-                                onRun: () =>
-                                    action('run')({
-                                        id: draft.id,
-                                        value: draft.value,
-                                        parameters: draft.parameters,
-                                    }),
-                                onFormat: () =>
-                                    updateDraft(draft.id, {value: draft.value.trim() + '\n'}),
-                                onValidate: () => action('validate')(draft.id),
-                                saveProps: {
-                                    onSave: () => updateDraft(draft.id, {savedValue: draft.value}),
-                                    onSaveAs: () => action('saveAs')(draft.id),
-                                },
-                                parametersProps: {
-                                    value: draft.parameters,
-                                    onChange: (parameters) => updateDraft(draft.id, {parameters}),
-                                },
-                                settingsProps: {
-                                    value: draft.settings,
-                                    onChange: (settings: typeof SETTINGS) =>
-                                        updateDraft(draft.id, {settings}),
-                                },
-                            },
-                            executionPanelProps: {
-                                tabs: [
-                                    ...designTabs,
-                                    {
-                                        id: 'notes',
-                                        type: 'custom',
-                                        title: 'Notes',
-                                        renderContent: () => <Notes />,
+                        items: [
+                            ...drafts.map(
+                                (draft): QueryPageQueryTab<(typeof SETTINGS)['custom']> => ({
+                                    id: draft.id,
+                                    title: `Query ${draft.id}`,
+                                    type: 'query' as const,
+                                    status: 'draft' as const,
+                                    isModified: draft.value !== draft.savedValue,
+                                    executionPanelHeight: controlled
+                                        ? draft.executionPanelHeight
+                                        : undefined,
+                                    onExecutionPanelHeightChange: (height) => {
+                                        if (controlled)
+                                            updateDraft(draft.id, {executionPanelHeight: height});
+                                        action('executionPanelHeight')({id: draft.id, height});
                                     },
-                                ],
-                                execution: {
-                                    startedAt: '11 Dec 2025, 12:07:27',
-                                    author: `query-${draft.id}-author`,
-                                },
-                                defaultCollapsed: resultsCollapsed,
-                                collapsed: controlled ? draft.collapsed : undefined,
-                                onCollapsedChange: (collapsed) => {
-                                    if (controlled) updateDraft(draft.id, {collapsed});
-                                    action('resultsCollapsed')({id: draft.id, collapsed});
-                                },
-                                expanded: expandedControlled ? draft.expanded : undefined,
-                                onExpandedChange: (expanded) => {
-                                    if (expandedControlled) updateDraft(draft.id, {expanded});
-                                    action('resultsExpanded')({id: draft.id, expanded});
-                                },
-                            },
-                        })),
+                                    editorProps: {
+                                        value: draft.value,
+                                        onChange: (value) => updateDraft(draft.id, {value}),
+                                        clusters: CLUSTERS,
+                                        clusterId: draft.clusterId,
+                                        onClusterChange: (clusterId) =>
+                                            updateDraft(draft.id, {clusterId}),
+                                        engines: TAB_ENGINES,
+                                        engineId: draft.engineId,
+                                        onEngineChange: (engineId) =>
+                                            updateDraft(draft.id, {engineId}),
+                                        onRun: () =>
+                                            action('run')({
+                                                id: draft.id,
+                                                value: draft.value,
+                                                parameters: draft.parameters,
+                                            }),
+                                        onFormat: () =>
+                                            updateDraft(draft.id, {
+                                                value: draft.value.trim() + '\n',
+                                            }),
+                                        onValidate: () => action('validate')(draft.id),
+                                        saveProps: {
+                                            onSave: () =>
+                                                updateDraft(draft.id, {savedValue: draft.value}),
+                                            onSaveAs: () => action('saveAs')(draft.id),
+                                        },
+                                        parametersProps: {
+                                            value: draft.parameters,
+                                            onChange: (parameters) =>
+                                                updateDraft(draft.id, {parameters}),
+                                        },
+                                        settingsProps: {
+                                            value: draft.settings,
+                                            onChange: (settings: typeof SETTINGS) =>
+                                                updateDraft(draft.id, {settings}),
+                                        },
+                                    },
+                                    executionPanelProps: {
+                                        tabs: [
+                                            ...designTabs,
+                                            {
+                                                id: 'notes',
+                                                type: 'custom' as const,
+                                                title: 'Notes',
+                                                renderContent: () => <Notes />,
+                                            },
+                                        ],
+                                        execution: {
+                                            startedAt: '11 Dec 2025, 12:07:27',
+                                            author: `query-${draft.id}-author`,
+                                        },
+                                        defaultCollapsed: resultsCollapsed,
+                                        collapsed: controlled ? draft.collapsed : undefined,
+                                        onCollapsedChange: (collapsed) => {
+                                            if (controlled) updateDraft(draft.id, {collapsed});
+                                            action('resultsCollapsed')({id: draft.id, collapsed});
+                                        },
+                                        expanded: expandedControlled ? draft.expanded : undefined,
+                                        onExpandedChange: (expanded) => {
+                                            if (expandedControlled)
+                                                updateDraft(draft.id, {expanded});
+                                            action('resultsExpanded')({id: draft.id, expanded});
+                                        },
+                                    },
+                                }),
+                            ),
+                            ...comparisonTabs,
+                        ],
                     }}
                 />
             </div>
@@ -215,6 +360,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const HistoryComparison: Story = {
+    parameters: {
+        docs: {
+            description: {
+                story: 'Open a history row menu, choose Select for Compare, select a second row, then compare. Rename and Delete update the demo history. Comparison tabs support editing the right-hand draft, reset/save, creating a query from the current draft, version selectors, and split/unified modes.',
+            },
+        },
+    },
+};
 export const IndependentTabs: Story = {
     parameters: {
         docs: {

@@ -4,7 +4,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QueryPage} from '../../src/pages/QueryPage';
-import type {QueryPageProps, QueryPageTab} from '../../src/types/queryPage';
+import type {QueryPageProps, QueryPageQueryTab} from '../../src/types/queryPage';
 
 const editorPropsSeen = vi.hoisted(() => vi.fn());
 vi.mock('../../src/components/MonacoEditor', () => ({
@@ -12,6 +12,13 @@ vi.mock('../../src/components/MonacoEditor', () => ({
         editorPropsSeen(props);
         return <Counter name="editor" />;
     },
+}));
+vi.mock('../../src/modules/QueryComparison', () => ({
+    QueryComparison: ({className}: {className?: string}) => (
+        <div className={className}>
+            <Counter name="comparison" />
+        </div>
+    ),
 }));
 vi.mock('../../src/modules/QueryResults', () => ({QueryResults: () => null}));
 vi.mock('../../src/modules/QueryProgress', () => ({QueryProgress: () => null}));
@@ -27,7 +34,11 @@ function Counter({name}: {name: string}) {
     );
 }
 
-function createProps(): QueryPageProps {
+type QueryOnlyProps = Omit<QueryPageProps, 'tabsProps'> & {
+    tabsProps: Omit<QueryPageProps['tabsProps'], 'items'> & {items: QueryPageQueryTab[]};
+};
+
+function createProps(): QueryOnlyProps {
     return {
         sidebarProps: {
             className: 'consumer-sidebar',
@@ -387,7 +398,7 @@ describe('QueryPage', () => {
             `.qp-query-page__panel[aria-label="${title}"]`,
         )!;
     }
-    function addSecondTab(value: QueryPageProps): QueryPageTab {
+    function addSecondTab(value: QueryOnlyProps): QueryPageQueryTab {
         const second = {...createProps().tabsProps.items[0], id: 'query-b', title: 'Query B'};
         value.tabsProps.items.push(second);
         return second;
@@ -502,5 +513,40 @@ describe('QueryPage', () => {
         second.executionPanelProps.active = false;
         render(value);
         expect(activityB).toHaveBeenLastCalledWith({active: false});
+    });
+    it('renders and retains a comparison workspace without an editor or results', () => {
+        const value: QueryPageProps = createProps();
+        value.tabsProps.items.push({
+            id: 'comparison',
+            type: 'comparison',
+            leftTitle: 'A',
+            rightTitle: 'B',
+            comparisonProps: {items: [], className: 'consumer-comparison'},
+        });
+        render(value);
+        expect(container.querySelector('[data-counter="comparison"]')).toBeNull();
+        const editor = panel('Query A').querySelector('[data-counter="editor"]');
+        value.tabsProps.activeTab = 'comparison';
+        render(value);
+        const comparisonPanel = panel('A / B');
+        expect(comparisonPanel.hidden).toBe(false);
+        expect(comparisonPanel.querySelector('.consumer-comparison')).not.toBeNull();
+        expect(comparisonPanel.querySelector('.qp-query-workspace')).toBeNull();
+        expect(comparisonPanel.querySelector('[data-counter="results"]')).toBeNull();
+        const counter = comparisonPanel.querySelector<HTMLButtonElement>(
+            '[data-counter="comparison"]',
+        )!;
+        act(() => counter.click());
+        value.tabsProps.activeTab = 'query-a';
+        render(value);
+        expect(panel('Query A').querySelector('[data-counter="editor"]')).toBe(editor);
+        expect(comparisonPanel.hidden).toBe(true);
+        value.tabsProps.activeTab = 'comparison';
+        render(value);
+        expect(counter.textContent).toBe('comparison: 1');
+        value.tabsProps.items = value.tabsProps.items.filter((tab) => tab.id !== 'comparison');
+        render(value);
+        expect(container.contains(counter)).toBe(false);
+        expect(panel('Query A').hidden).toBe(false);
     });
 });

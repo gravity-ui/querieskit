@@ -29,7 +29,8 @@ type Row = {eventId: string; eventCount: number};
 type Meta = NavigationMetaItem & {sourceId: string};
 
 type Props = QueryPageProps<History, Saved, Item, Cluster, Tutorial, Settings, Row, Meta>;
-type Tab = Props['tabsProps']['items'][number];
+type PageTab = Props['tabsProps']['items'][number];
+type Tab = Extract<PageTab, {type: 'query'}>;
 type Equal<A, B> =
     (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
 type Assert<T extends true> = T;
@@ -37,7 +38,7 @@ type Assert<T extends true> = T;
 // Exact equality protects the original widget contracts, including callbacks,
 // extension points, controlled state and each of the eight custom data types.
 export type ContractChecks = [
-    Assert<Equal<Tab, QueryPageTab<Settings, Row, Meta>>>,
+    Assert<Equal<PageTab, QueryPageTab<Settings, Row, Meta>>>,
     Assert<
         Equal<Props['sidebarProps'], QueriesSidebarProps<History, Saved, Item, Cluster, Tutorial>>
     >,
@@ -117,3 +118,18 @@ export const invalidSettingsType: Tab['editorProps'] = wrongSettings;
 declare const wrongRows: QueryExecutionPanelProps<{eventId: number; eventCount: number}, Meta>;
 // @ts-expect-error The result row generic must not be widened or erased by the page.
 export const invalidRowType: Tab['executionPanelProps'] = wrongRows;
+
+export const comparisonTab: QueryPageTab = {
+    id: 'comparison',
+    type: 'comparison',
+    leftTitle: 'Baseline',
+    rightTitle: 'Competitor',
+    comparisonProps: {items: []},
+};
+// @ts-expect-error Comparison tabs require comparisonProps.
+export const invalidComparison: QueryPageTab = {
+    id: 'diff',
+    type: 'comparison',
+    leftTitle: 'A',
+    rightTitle: 'B',
+};

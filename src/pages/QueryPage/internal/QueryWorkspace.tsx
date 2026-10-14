@@ -1,7 +1,7 @@
 import React, {useId} from 'react';
 import cn from 'bem-cn-lite';
 import type {NavigationMetaItem} from '../../../types/navigation';
-import type {QueryPageTab} from '../../../types/queryPage';
+import type {QueryPageQueryTab} from '../../../types/queryPage';
 import {QueryEditor} from '../../../widgets/QueryEditor';
 import {QueryExecutionPanel} from '../../../widgets/QueryExecutionPanel';
 import {ResizeHandle} from './ResizeHandle';
@@ -18,7 +18,7 @@ export function QueryWorkspace<
     TCustom extends object,
     TRow extends Record<string, unknown>,
     TMetaItem extends NavigationMetaItem,
->({tab, active}: {tab: QueryPageTab<TCustom, TRow, TMetaItem>; active: boolean}) {
+>({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
     const {editorProps, executionPanelProps} = tab;
     const resultsId = useId();
     const [rootRef, rootSize] = useElementSize();
