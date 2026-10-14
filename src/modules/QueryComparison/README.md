@@ -45,8 +45,53 @@ or unavailable, rather than zero changes.
 
 Give the parent a bounded height. The list scrolls; individual editors grow with
 their content up to `maxBlockHeight` (600 pixels by default), then scroll internally.
-`header` accepts application-owned version selectors and actions. The application
-owns drafts, save/reset/create callbacks, loading states and unsaved-change prompts.
+
+## Version selection and actions
+
+The built-in toolbar follows the design: Baseline, swap, Competitor on the left;
+Split/Unified, reset, save and Create Query on the right.
+
+```tsx
+<QueryComparison
+  items={items}
+  onBlockChange={updateDraft}
+  versionSelection={{
+    options: versions.map((version) => ({id: version.id, title: version.title})),
+    originalId,
+    modifiedId,
+    onChange: ({originalId, modifiedId}) => selectVersions(originalId, modifiedId),
+  }}
+  actions={{
+    hasChanges,
+    onReset: resetDraft,
+    onSave: saveDraft,
+    onCreateQuery: createQueryFromDraft,
+    pendingAction, // 'save' | 'create' | undefined
+  }}
+/>
+```
+
+Version IDs and options are controlled. Include all selectable query versions in
+`options`, using titles that distinguish both the query and its version. Choosing
+one side preserves the other ID. Swap sends one callback with the two IDs exchanged;
+swapping identical IDs is disabled. The application loads the requested pair and
+supplies updated `items`; the module does not change drafts before the application
+accepts the request. Confirmation of unsaved-change loss also belongs to the application.
+
+Reset restores the selected **modified** version, not the original side. Reset and
+save require `hasChanges: true` and their callbacks. Create Query requires its
+callback and can also create a copy of an unchanged version. Buttons without
+callbacks remain visible but disabled. During `pendingAction`, the corresponding
+button shows a loader and actions plus version selection are disabled. Explicit
+`actions.disabled` and `versionSelection.disabled` can disable these groups
+independently. Callbacks perform no built-in persistence and receive no redundant
+copy of the controlled data.
+
+The legacy `header` slot replaces the left-hand version controls when supplied;
+it does not replace the right-hand mode switch and actions. Omit `versionSelection`
+for a standalone text comparison without selectors. The toolbar wraps on narrow
+containers. See the interactive Storybook example for in-memory switching, swapping,
+resetting, saving, and creating a query.
 
 `MonacoDiffEditor` is also exported independently from
 `@gravity-ui/querieskit/components/MonacoDiffEditor`. Configure Monaco workers as

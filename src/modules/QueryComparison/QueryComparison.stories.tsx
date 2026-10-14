@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {Button, Text} from '@gravity-ui/uikit';
-import type {QueryComparisonItem, QueryComparisonProps} from '../../types/queryComparison';
+import type {
+    QueryComparisonItem,
+    QueryComparisonProps,
+    QueryComparisonVersionPair,
+} from '../../types/queryComparison';
 import {QueryComparison} from './QueryComparison';
 
 const items: QueryComparisonItem[] = [
@@ -26,23 +29,80 @@ const items: QueryComparisonItem[] = [
 ];
 
 function Example(props: QueryComparisonProps) {
-    const [draft, setDraft] = useState(props.items);
+    const [versions, setVersions] = useState(() => [
+        {
+            id: 'baseline',
+            title: 'Query · version 1',
+            values: props.items.map((item) => item.original),
+        },
+        {
+            id: 'working',
+            title: 'Query · version 2',
+            values: props.items.map((item) => item.modified),
+        },
+        {
+            id: 'latest',
+            title: 'Query · version 3',
+            values: props.items.map((item) =>
+                item.language === 'yql' && item.modified !== null
+                    ? `${item.modified}\n-- Latest version`
+                    : item.modified,
+            ),
+        },
+    ]);
+    const [selection, setSelection] = useState<QueryComparisonVersionPair>({
+        originalId: 'baseline',
+        modifiedId: 'working',
+    });
+    const [draft, setDraft] = useState(() => props.items.map((item) => item.modified));
+    const getVersion = (id: string) => {
+        const version = versions.find((candidate) => candidate.id === id);
+        if (!version) throw new Error(`Missing version ${id}`);
+        return version;
+    };
+    const original = getVersion(selection.originalId);
+    const modified = getVersion(selection.modifiedId);
+    const selectVersions = (next: QueryComparisonVersionPair) => {
+        setSelection(next);
+        setDraft(getVersion(next.modifiedId).values);
+    };
+    const hasChanges = draft.some((value, index) => value !== modified.values[index]);
     return (
         <div style={{height: 800}}>
             <QueryComparison
                 {...props}
-                items={draft}
-                onBlockChange={(id, modified) =>
+                items={props.items.map((item, index) => ({
+                    ...item,
+                    original: original.values[index],
+                    modified: draft[index],
+                }))}
+                onBlockChange={(id, value) =>
                     setDraft((current) =>
-                        current.map((item) => (item.id === id ? {...item, modified} : item)),
+                        current.map((text, index) => (props.items[index].id === id ? value : text)),
                     )
                 }
-                header={
-                    <>
-                        <Text>Baseline → Working copy</Text>
-                        <Button onClick={() => setDraft(props.items)}>Reset draft</Button>
-                    </>
-                }
+                versionSelection={{options: versions, ...selection, onChange: selectVersions}}
+                actions={{
+                    hasChanges,
+                    disabled: props.readOnly,
+                    onReset: () => setDraft(modified.values),
+                    onSave: () =>
+                        setVersions((current) =>
+                            current.map((version) =>
+                                version.id === selection.modifiedId
+                                    ? {...version, values: [...draft]}
+                                    : version,
+                            ),
+                        ),
+                    onCreateQuery: () => {
+                        const id = `created-${versions.length}`;
+                        setVersions((current) => [
+                            ...current,
+                            {id, title: `New query ${versions.length - 2}`, values: [...draft]},
+                        ]);
+                        setSelection((current) => ({...current, modifiedId: id}));
+                    },
+                }}
             />
         </div>
     );

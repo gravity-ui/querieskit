@@ -5,7 +5,10 @@ import type {editor} from 'monaco-editor';
 import * as monaco from 'monaco-editor/editor/editor.api';
 import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
 import {QueryComparison} from '../../../src/modules/QueryComparison';
-import type {QueryComparisonItem} from '../../../src/types/queryComparison';
+import type {
+    QueryComparisonItem,
+    QueryComparisonVersionPair,
+} from '../../../src/types/queryComparison';
 import {setLang} from '../../../src/i18n';
 import '@gravity-ui/uikit/styles/styles.css';
 
@@ -17,6 +20,31 @@ let items: QueryComparisonItem[] = [
     {id: 'query', title: 'Query', language: 'sql', original: 'SELECT 1;', modified: 'SELECT 2;'},
     {id: 'config', title: 'Configuration', original: 'alpha\nbeta', modified: 'alpha\nbeta\ngamma'},
 ];
+const versions = [
+    {id: 'v1', title: 'Query · version 1', values: ['SELECT 1;', 'alpha\nbeta']},
+    {id: 'v2', title: 'Query · version 2', values: ['SELECT 2;', 'alpha\nbeta\ngamma']},
+    {id: 'v3', title: 'Query · version 3', values: ['SELECT 3;', 'alpha\ndelta']},
+];
+function getVersion(id: string) {
+    const version = versions.find((candidate) => candidate.id === id);
+    if (!version) throw new Error(`Missing version ${id}`);
+    return version;
+}
+let headerEnabled = false;
+let selection: QueryComparisonVersionPair = {originalId: 'v1', modifiedId: 'v2'};
+let pendingAction: 'save' | 'create' | undefined;
+const selections: QueryComparisonVersionPair[] = [];
+const actionCalls: string[] = [];
+function selectVersions(next: QueryComparisonVersionPair) {
+    selections.push(next);
+    selection = next;
+    items = items.map((item, index) => ({
+        ...item,
+        original: getVersion(next.originalId).values[index],
+        modified: getVersion(next.modifiedId).values[index],
+    }));
+    render();
+}
 let mounted = true;
 let readOnly = false;
 let theme: 'light' | 'dark' = 'light';
@@ -33,6 +61,43 @@ function render() {
                         <QueryComparison
                             items={items}
                             readOnly={readOnly}
+                            versionSelection={
+                                headerEnabled
+                                    ? {options: versions, ...selection, onChange: selectVersions}
+                                    : undefined
+                            }
+                            actions={
+                                headerEnabled
+                                    ? {
+                                          hasChanges: items.some(
+                                              (item, index) =>
+                                                  item.modified !==
+                                                  getVersion(selection.modifiedId).values[index],
+                                          ),
+                                          pendingAction,
+                                          onReset: () => {
+                                              actionCalls.push('reset');
+                                              items = items.map((item, index) => ({
+                                                  ...item,
+                                                  modified: getVersion(selection.modifiedId).values[
+                                                      index
+                                                  ],
+                                              }));
+                                              render();
+                                          },
+                                          onSave: () => {
+                                              actionCalls.push('save');
+                                              pendingAction = 'save';
+                                              render();
+                                          },
+                                          onCreateQuery: () => {
+                                              actionCalls.push('create');
+                                              pendingAction = 'create';
+                                              render();
+                                          },
+                                      }
+                                    : undefined
+                            }
                             onBlockChange={(id, value) => {
                                 changes.push({id, value});
                                 items = items.map((item) =>
@@ -61,6 +126,14 @@ function getEditor(id: string, side: 'original' | 'modified') {
     return result;
 }
 const api = {
+    enableHeader() {
+        headerEnabled = true;
+        render();
+    },
+    finishAction() {
+        pendingAction = undefined;
+        render();
+    },
     replace(next: QueryComparisonItem[]) {
         items = next;
         render();
@@ -97,6 +170,9 @@ const api = {
         return {
             items,
             changes,
+            selection,
+            selections,
+            actionCalls,
             modelCount: monaco.editor.getModels().length,
             uris: monaco.editor.getModels().map((model: editor.ITextModel) => model.uri.toString()),
         };

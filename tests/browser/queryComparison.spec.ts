@@ -127,3 +127,91 @@ test('native revert transfers a changed fragment to the modified model', async (
         {id: 'query', value: 'SELECT 1;'},
     ]);
 });
+
+test('selects versions and swaps both sides in one controlled update', async ({page}) => {
+    await page.evaluate(() => window.comparisonTest.enableHeader());
+    await page.getByRole('combobox', {name: 'Baseline', exact: true}).click();
+    await page.getByRole('option', {name: 'Query · version 3', exact: true}).click();
+    await expect
+        .poll(() => page.evaluate(() => window.comparisonTest.snapshot().items[0].original))
+        .toBe('SELECT 3;');
+    await page.getByRole('combobox', {name: 'Competitor', exact: true}).click();
+    const competitorPopup = await page
+        .getByRole('combobox', {name: 'Competitor', exact: true})
+        .getAttribute('aria-controls');
+    await page
+        .locator(`[id="${competitorPopup}"]`)
+        .getByRole('option', {name: 'Query · version 1', exact: true})
+        .click();
+    await expect
+        .poll(() => page.evaluate(() => window.comparisonTest.snapshot().items[0].modified))
+        .toBe('SELECT 1;');
+    await page.getByRole('button', {name: 'Swap versions', exact: true}).click();
+    const snapshot = await page.evaluate(() => window.comparisonTest.snapshot());
+    expect(snapshot.selections).toEqual([
+        {originalId: 'v3', modifiedId: 'v2'},
+        {originalId: 'v3', modifiedId: 'v1'},
+        {originalId: 'v1', modifiedId: 'v3'},
+    ]);
+    expect(snapshot.items[0]).toMatchObject({original: 'SELECT 1;', modified: 'SELECT 3;'});
+    expect(snapshot.changes).toEqual([]);
+    await expect(page.getByRole('option')).toHaveCount(0);
+    await expect(
+        page
+            .getByRole('region', {name: 'Query', exact: true})
+            .locator('.qp-comparison-block__added'),
+    ).toHaveText('+1');
+    await page.screenshot({
+        path: '/tmp/querieskit-comparison-header.png',
+        fullPage: true,
+        animations: 'disabled',
+    });
+    await page.evaluate(() => window.comparisonTest.setTheme('dark'));
+    await expect(page.locator('.g-root')).toHaveClass(/theme_dark/);
+    await page.screenshot({
+        path: '/tmp/querieskit-comparison-header-dark.png',
+        fullPage: true,
+        animations: 'disabled',
+    });
+});
+
+test('reset restores selected version and actions guard clean and pending states', async ({
+    page,
+}) => {
+    const reset = page.getByRole('button', {name: 'Reset changes', exact: true});
+    const save = page.getByRole('button', {name: 'Save changes', exact: true});
+    const create = page.getByRole('button', {name: 'Create Query', exact: true});
+    await expect(reset).toBeDisabled();
+    await expect(save).toBeDisabled();
+    await expect(create).toBeDisabled();
+    await page.evaluate(() => window.comparisonTest.enableHeader());
+    await expect(reset).toBeDisabled();
+    await expect(save).toBeDisabled();
+    await expect(create).toBeEnabled();
+    await page.evaluate(() => window.comparisonTest.edit('query', 'SELECT 42;'));
+    await expect(reset).toBeEnabled();
+    await expect(save).toBeEnabled();
+    await reset.click();
+    await expect
+        .poll(() => page.evaluate(() => window.comparisonTest.snapshot().items[0].modified))
+        .toBe('SELECT 2;');
+    await expect(reset).toBeDisabled();
+    await page.evaluate(() => window.comparisonTest.edit('query', 'SELECT 99;'));
+    await save.click();
+    await expect(reset).toBeDisabled();
+    await expect(save).toBeDisabled();
+    await expect(create).toBeDisabled();
+    await expect(page.getByRole('combobox', {name: 'Baseline', exact: true})).toBeDisabled();
+    await expect(page.getByRole('combobox', {name: 'Competitor', exact: true})).toBeDisabled();
+    await expect(page.getByRole('button', {name: 'Swap versions', exact: true})).toBeDisabled();
+    await expect(page.getByRole('radio', {name: 'Unified', exact: true})).toBeEnabled();
+    await page.evaluate(() => window.comparisonTest.finishAction());
+    await create.click();
+    await expect(save).toBeDisabled();
+    await expect(create).toBeDisabled();
+    expect(await page.evaluate(() => window.comparisonTest.snapshot().actionCalls)).toEqual([
+        'reset',
+        'save',
+        'create',
+    ]);
+});
