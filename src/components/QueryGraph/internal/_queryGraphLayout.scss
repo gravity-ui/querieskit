@@ -1,0 +1,7 @@
+@mixin root {
+    position: relative;
+    min-height: 360px;
+    height: 100%;
+    overflow: hidden;
+    background: var(--g-color-base-background);
+}

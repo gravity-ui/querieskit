@@ -1,0 +1,20 @@
+@use './parameterValueLayout' as layout;
+
+.qp-parameter-value {
+    @include layout.cell;
+    &__box-header > &__cell {
+        flex: 0 1 auto;
+    }
+    &__box-header > &__actions {
+        margin-inline-start: auto;
+    }
+    &__count {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    &__list-toggle {
+        --g-button-padding: 0px;
+        --g-button-icon-space: var(--g-spacing-3);
+        --g-button-icon-offset: var(--g-spacing-1);
+    }
+}
