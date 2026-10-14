@@ -1,6 +1,6 @@
 # QueryTimeline
 
-A backend-independent execution timeline with a virtualized list, expandable stages,
+A visual execution timeline for application-supplied data, with a virtualized list, expandable stages,
 status and name filters, live intervals, and a synchronized time range.
 
 ```tsx

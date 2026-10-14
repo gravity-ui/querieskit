@@ -1,8 +1,9 @@
 # QueryExecutionPanel
 
-A panel for one query execution. Requires the application's Gravity UI styles and
-`ThemeProvider`. Data loading, backend normalization and panel placement belong to
-the application.
+A panel displaying the results and progress of one query execution. Requires the
+application's Gravity UI styles and `ThemeProvider`. The application supplies tab
+data and handles callbacks; data loading, execution, normalization and panel
+placement belong to the application.
 
 Use `loading` to display a centered loader, or `error` with `onRetry` to display
 the loading error illustration and Refresh action. Loading takes precedence over
@@ -196,7 +197,7 @@ positioning and give the container a height for graph/timeline layouts.
 
 The application constructs `tabs` and `preferredActiveTab` separately. See
 [the example adapter](./story/queryTrackerAdapter.tsx) and the QueryTrackerLifecycle
-story. Its input is already normalized; no YTsaurus package is required.
+story. Its input is already normalized application data; the widget performs no data loading or query execution.
 
 For the Query Tracker policy, build the array in this order:
 

@@ -43,7 +43,7 @@
 * **QueryEditor:** add query link sharing dialog ([47c454d](https://github.com/gravity-ui/querieskit/commit/47c454daca5d1cfb9fb2001371701240585a53b9))
 * **QueryEditor:** add save menu and simplify stories ([3062817](https://github.com/gravity-ui/querieskit/commit/3062817b75c080987726e1dda20788017c02767c))
 * **QueryEditor:** integrate attachments in shared side panel ([c9e7c62](https://github.com/gravity-ui/querieskit/commit/c9e7c6298bd773efd435bc31762945f7c79f7f51))
-* **QueryEditor:** integrate settings and YTsaurus engine preset ([9c5a040](https://github.com/gravity-ui/querieskit/commit/9c5a0409de1ad51766b50b8572f9e4b448455886))
+* **QueryEditor:** integrate settings and built-in engine preset ([9c5a040](https://github.com/gravity-ui/querieskit/commit/9c5a0409de1ad51766b50b8572f9e4b448455886))
 * **QuerySettings:** add extensible query settings form ([5d7321d](https://github.com/gravity-ui/querieskit/commit/5d7321db8b34f54a37f1ac18d3a7287ed40aa791))
 
 
