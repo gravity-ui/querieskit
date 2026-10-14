@@ -162,10 +162,6 @@ export const MonacoEditor: FC<MonacoEditorProps> = ({
             if (!syncingValueRef.current) onChangeRef.current?.(model.getValue());
         });
 
-        const contentSubscription = editorInstance.onDidChangeModelContent(() => {
-            if (!syncingValueRef.current) onUpdateRef.current?.(model.getValue());
-        });
-
         return () => {
             for (const release of [...ownedCleanups]) {
                 try {
