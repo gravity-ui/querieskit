@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import type {Meta, StoryObj} from '@storybook/react';
 import {Flex, Text, TextInput} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {FormField} from '../../../components/FormField';
@@ -10,29 +9,28 @@ import {QueryEditor} from '../QueryEditor';
 import {createYtsaurusQueryEngines} from '../presets/ytsaurus';
 
 type Settings = YtsaurusEngineSettings & {warehouse?: string};
-type ExampleProps = {
-    initialEngine?: string;
+export type EngineSettingsExampleProps = {
+    engineId: string;
+    onEngineChange: (engineId: string) => void;
     loading?: boolean;
     empty?: boolean;
     connectAvailable?: boolean;
     disabled?: boolean;
     withErrors?: boolean;
     customEngine?: boolean;
-    narrow?: boolean;
 };
 
-function Example({
-    initialEngine = 'yql',
+export function EngineSettingsExample({
+    engineId,
+    onEngineChange,
     loading = false,
     empty = false,
     connectAvailable = false,
     disabled = false,
     withErrors = false,
     customEngine = false,
-    narrow = false,
-}: ExampleProps) {
+}: EngineSettingsExampleProps) {
     const [query, setQuery] = useState('SELECT 1;');
-    const [engineId, setEngineId] = useState(initialEngine);
     const [clusterId, setClusterId] = useState('production');
     // Defaults belong to the application, including the initial YQL version.
     const [settings, setSettings] = useState<QuerySettingsValue<Settings>>({
@@ -107,7 +105,7 @@ function Example({
                 Switch engines and clusters in the toolbar. This application preserves settings when
                 switching; cluster options come from the parent.
             </Text>
-            <div style={{height: 540, width: narrow ? 600 : '100%', maxWidth: '100%'}}>
+            <div style={{height: 540}}>
                 <QueryEditor<Settings>
                     value={query}
                     onChange={setQuery}
@@ -119,12 +117,12 @@ function Example({
                     onClusterChange={setClusterId}
                     engines={engines}
                     engineId={engineId}
-                    onEngineChange={setEngineId}
+                    onEngineChange={onEngineChange}
                     onRun={() => action('run')({query, engineId, clusterId, settings})}
                     onValidate={action('validate')}
                     onFormat={action('format')}
                     defaultActivePanel="settings"
-                    defaultPanelWidth={narrow ? 240 : 360}
+                    defaultPanelWidth={360}
                     settingsProps={{
                         value: settings,
                         onChange: setSettings,
@@ -152,29 +150,3 @@ function Example({
         </Flex>
     );
 }
-
-const meta: Meta<typeof Example> = {
-    title: 'Modules/QueryEditor/Settings',
-    component: Example,
-    parameters: {layout: 'padded'},
-};
-export default meta;
-type Story = StoryObj<typeof Example>;
-
-export const YtsaurusPreset: Story = {};
-export const Clique: Story = {args: {initialEngine: 'chyt'}};
-export const Discovery: Story = {args: {initialEngine: 'spyt'}};
-export const LoadingOptions: Story = {args: {initialEngine: 'chyt', loading: true}};
-export const EmptyOptions: Story = {args: {initialEngine: 'spyt', empty: true}};
-export const SpytConnect: Story = {args: {initialEngine: 'spyt', connectAvailable: true}};
-export const SpytDisabled: Story = {
-    args: {initialEngine: 'spyt', connectAvailable: true, disabled: true},
-};
-export const SpytDarkAndNarrow: Story = {
-    args: {initialEngine: 'spyt', connectAvailable: true, narrow: true},
-    globals: {theme: 'dark'},
-};
-export const ExternalErrors: Story = {args: {withErrors: true}};
-export const Disabled: Story = {args: {initialEngine: 'chyt', disabled: true}};
-export const CustomEngine: Story = {args: {initialEngine: 'custom', customEngine: true}};
-export const DarkAndNarrow: Story = {args: {narrow: true}, globals: {theme: 'dark'}};
