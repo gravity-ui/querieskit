@@ -57,7 +57,7 @@ export type {RowLinkProps} from './types/rowLinkProps';
 export type {SearchRowLayoutProps} from './types/searchRowLayoutProps';
 export type {SearchWithButtonsProps} from './types/searchWithButtonsProps';
 export type {
-    FormField,
+    FormField as SimpleFormField,
     FormValues,
     SimpleFormProps,
     SwitchFieldProps,
