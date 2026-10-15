@@ -4,7 +4,7 @@ import {Button, Flex, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryPage} from '..';
 import type {QueryPageComparisonTab, QueryPageQueryTab} from '../../../types/queryPage';
-import type {QueryHistoryRow} from '../../../types/history';
+import type {QueryHistoryRow, QueryStatus} from '../../../types/history';
 import {BASE_ITEMS} from '../../../modules/QueriesHistory/QueriesHistory.stories.data';
 import {useQueriesSidebarTabs} from '../../../widgets/QueriesSidebar/QueriesSidebar.stories.data';
 import {CLUSTERS, PARAMETERS, QUERY, SETTINGS} from '../../../widgets/QueryEditor/story/demoData';
@@ -51,6 +51,7 @@ type ExampleProps = {
     fourEngines?: boolean;
     initialComparison?: boolean;
     initialActiveTab?: string;
+    emptyQuery?: boolean;
 };
 
 function Example({
@@ -61,9 +62,11 @@ function Example({
     fourEngines = false,
     initialComparison = false,
     initialActiveTab = '1',
+    emptyQuery = false,
 }: ExampleProps) {
     const createDraft = (id: string) => ({
         id,
+        status: 'draft' as QueryStatus,
         value:
             id === '2' ? 'SELECT region, COUNT(*) FROM `//demo/events` GROUP BY region;\n' : QUERY,
         savedValue:
@@ -76,13 +79,18 @@ function Example({
         collapsed: resultsCollapsed,
         expanded: resultsExpanded,
     });
+    const defaultIds = fourEngines ? ['1', '2', '3', '4'] : ['1', '2'];
+    const initialIds = emptyQuery ? ['1'] : defaultIds;
     const [drafts, setDrafts] = useState(() =>
-        (fourEngines ? ['1', '2', '3', '4'] : ['1', '2']).map(createDraft),
+        initialIds.map((id) => ({
+            ...createDraft(id),
+            status: (emptyQuery ? 'draft' : 'completed') as QueryStatus,
+        })),
     );
     const [activeId, setActiveId] = useState(
         initialComparison ? 'comparison-initial' : initialActiveTab,
     );
-    const nextId = useRef(fourEngines ? 5 : 3);
+    const nextId = useRef(initialIds.length + 1);
     const [comparisons, setComparisons] = useState<
         {
             id: string;
@@ -292,7 +300,7 @@ function Example({
                                     id: draft.id,
                                     title: `Query ${draft.id}`,
                                     type: 'query' as const,
-                                    status: 'draft' as const,
+                                    status: draft.status,
                                     isModified: draft.value !== draft.savedValue,
                                     executionPanelHeight: controlled
                                         ? draft.executionPanelHeight
@@ -314,12 +322,17 @@ function Example({
                                         engineId: draft.engineId,
                                         onEngineChange: (engineId) =>
                                             updateDraft(draft.id, {engineId}),
-                                        onRun: () =>
+                                        onRun: () => {
+                                            updateDraft(draft.id, {status: 'running'});
                                             action('run')({
                                                 id: draft.id,
                                                 value: draft.value,
                                                 parameters: draft.parameters,
-                                            }),
+                                            });
+                                        },
+                                        actionStates: {
+                                            run: {disabled: draft.status === 'running'},
+                                        },
                                         onFormat: () =>
                                             updateDraft(draft.id, {
                                                 value: draft.value.trim() + '\n',
@@ -342,11 +355,24 @@ function Example({
                                         },
                                     },
                                     executionPanelProps: {
-                                        tabs: designTabs,
-                                        execution: {
-                                            startedAt: '11 Dec 2025, 12:07:27',
-                                            author: `query-${draft.id}-author`,
-                                        },
+                                        tabs: draft.status === 'completed' ? designTabs : [],
+                                        execution:
+                                            draft.status === 'draft'
+                                                ? undefined
+                                                : {
+                                                      startedAt: '11 Dec 2025, 12:07:27',
+                                                      author: `query-${draft.id}-author`,
+                                                  },
+                                        loading: draft.status === 'running',
+                                        headerActions: draft.status === 'running' && (
+                                            <Button
+                                                onClick={() =>
+                                                    updateDraft(draft.id, {status: 'completed'})
+                                                }
+                                            >
+                                                Complete demo execution
+                                            </Button>
+                                        ),
                                         defaultCollapsed: resultsCollapsed,
                                         collapsed: controlled ? draft.collapsed : undefined,
                                         onCollapsedChange: (collapsed) => {
@@ -389,6 +415,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const EmptyQuery: Story = {
+    args: {emptyQuery: true},
+    parameters: {
+        docs: {
+            description: {
+                story: 'Starts with one unmodified draft and no execution panel. Click Run to reveal the panel, then Complete demo execution to show results. Added queries also start without execution data.',
+            },
+        },
+    },
+};
 export const HistoryComparison: Story = {
     args: {initialComparison: true},
     parameters: {

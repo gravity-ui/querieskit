@@ -160,6 +160,15 @@ export const HideCloseOnLastTab: Story = {
     render: () => (
         <InteractiveTabs
             hideCloseOnLastTab
+            initialItems={[{id: 'draft', type: 'query', title: 'New Query', status: 'draft'}]}
+        />
+    ),
+};
+
+export const HideCloseOnLastModifiedTab: Story = {
+    render: () => (
+        <InteractiveTabs
+            hideCloseOnLastTab
             initialItems={[
                 {
                     id: 'modified',
