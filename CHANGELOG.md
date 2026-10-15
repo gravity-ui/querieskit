@@ -17,6 +17,13 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [3.1.1](https://github.com/gravity-ui/querieskit/compare/v3.1.0...v3.1.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **QueryPage:** hide empty execution panels and balance tab spacing ([80634e6](https://github.com/gravity-ui/querieskit/commit/80634e68a19e4e9f796e6b57bc62532b435e0132))
+
 ## [3.1.0](https://github.com/gravity-ui/querieskit/compare/v3.0.0...v3.1.0) (2026-10-15)
 
 
