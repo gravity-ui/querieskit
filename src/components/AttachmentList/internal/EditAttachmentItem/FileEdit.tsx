@@ -1,20 +1,11 @@
+import type {EditFileItemProps} from '../../../../types/attachmentsEditor';
 import React, {useRef, useState} from 'react';
 import {Button, Flex, Icon, TextInput} from '@gravity-ui/uikit';
 import {Check, Xmark} from '@gravity-ui/icons';
 import {useKeyDownFormControl} from '../../hooks/useKeyDownFormControl';
-import {Validator, stringRequiredValidator} from '../../helpers/stringRequiredValidator';
+import {stringRequiredValidator} from '../../helpers/stringRequiredValidator';
 
 import i18n from '../../i18n';
-
-export type EditFileItemProps = {
-    fileName?: string;
-    fileLabel?: string;
-    defaultFileName?: string;
-    onChangeFileName?: (fileName: string) => void;
-    onAccept?: (newFileName: string) => void;
-    onCancel?: () => void;
-    validator?: Validator;
-};
 
 export const FileEdit = ({
     fileLabel: customerFileLabel,

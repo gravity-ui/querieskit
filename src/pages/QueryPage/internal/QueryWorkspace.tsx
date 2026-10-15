@@ -19,6 +19,15 @@ export function QueryWorkspace<
     TRow extends Record<string, unknown>,
     TMetaItem extends NavigationMetaItem,
 >({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
+    const children = <StandardQueryWorkspace tab={tab} active={active} />;
+    return tab.renderWorkspace ? tab.renderWorkspace({children, active}) : children;
+}
+
+function StandardQueryWorkspace<
+    TCustom extends object,
+    TRow extends Record<string, unknown>,
+    TMetaItem extends NavigationMetaItem,
+>({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
     const {editorProps, executionPanelProps} = tab;
     const resultsId = useId();
     const [rootRef, rootSize] = useElementSize();
@@ -37,7 +46,16 @@ export function QueryWorkspace<
         false,
         executionPanelProps.onExpandedChange,
     );
-    const showExpanded = expanded && !collapsed;
+    const showResults =
+        tab.status !== 'draft' ||
+        executionPanelProps.tabs.length > 0 ||
+        Boolean(
+            executionPanelProps.execution ||
+            executionPanelProps.statusContent ||
+            executionPanelProps.loading ||
+            executionPanelProps.error,
+        );
+    const showExpanded = showResults && expanded && !collapsed;
     const maxHeight = rootSize.height
         ? Math.max(MIN_RESULTS, rootSize.height - MIN_EDITOR_HEIGHT - DIVIDER)
         : undefined;
@@ -56,7 +74,7 @@ export function QueryWorkspace<
                 showExpanded
                     ? undefined
                     : {
-                          gridTemplateRows: `minmax(${MIN_EDITOR_HEIGHT}px, 1fr) ${collapsed ? 'auto' : `${DIVIDER}px ${height}px`}`,
+                          gridTemplateRows: `minmax(${MIN_EDITOR_HEIGHT}px, 1fr)${showResults ? ` ${collapsed ? 'auto' : `${DIVIDER}px ${height}px`}` : ''}`,
                       }
             }
         >
@@ -65,7 +83,10 @@ export function QueryWorkspace<
                     <QueryEditor {...editorProps} />
                 </div>
             </div>
-            <div className={block('results-divider')} hidden={collapsed || showExpanded}>
+            <div
+                className={block('results-divider')}
+                hidden={!showResults || collapsed || showExpanded}
+            >
                 <ResizeHandle
                     orientation="horizontal"
                     value={height}
@@ -76,10 +97,10 @@ export function QueryWorkspace<
                     onChange={changeHeight}
                 />
             </div>
-            <div id={resultsId} className={block('results')}>
+            <div id={resultsId} className={block('results')} hidden={!showResults}>
                 <QueryExecutionPanel
                     {...executionPanelProps}
-                    active={active && executionPanelProps.active !== false}
+                    active={showResults && active && executionPanelProps.active !== false}
                     collapsed={collapsed}
                     expanded={expanded}
                     onCollapsedChange={changeCollapsed}

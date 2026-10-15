@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {Button, configure} from '@gravity-ui/uikit';
-import {settings} from '@gravity-ui/date-utils';
+import {Button} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
-import {setLang} from '../../../i18n';
 import type {QueryShareLink, QueryShareProps} from '../../../types/queryShare';
 import {QueryShare} from '../QueryShare';
 
@@ -13,10 +11,11 @@ const temporaryLink: QueryShareLink = {
 };
 
 function Example(args: QueryShareProps) {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(args.open);
     const [link, setLink] = useState(args.link);
 
     useEffect(() => setLink(args.link), [args.link]);
+    useEffect(() => setOpen(args.open), [args.open]);
 
     return (
         <React.Fragment>
@@ -24,44 +23,33 @@ function Example(args: QueryShareProps) {
             <QueryShare
                 {...args}
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={() => {
+                    args.onClose();
+                    setOpen(false);
+                }}
                 link={link}
-                onGenerate={() => setLink(temporaryLink)}
-                onRegenerate={() =>
+                onGenerate={() => {
+                    args.onGenerate?.();
+                    setLink(temporaryLink);
+                }}
+                onRegenerate={() => {
+                    args.onRegenerate?.();
                     setLink((current) => ({
                         ...(current ?? temporaryLink),
                         url: `https://yql.example.com/public/${Date.now()}`,
-                    }))
-                }
-                onMakePermanent={() =>
-                    setLink((current) => ({...(current ?? temporaryLink), expiresAt: null}))
-                }
+                    }));
+                }}
+                onMakePermanent={() => {
+                    args.onMakePermanent?.();
+                    setLink((current) => ({...(current ?? temporaryLink), expiresAt: null}));
+                }}
                 onExpirationChange={(expiresAt) => {
-                    action('onExpirationChange')(expiresAt);
+                    args.onExpirationChange?.(expiresAt);
                     setLink((current) => current && {...current, expiresAt});
                 }}
             />
         </React.Fragment>
     );
-}
-
-function RussianExample(args: QueryShareProps) {
-    const [ready, setReady] = useState(false);
-    useEffect(() => {
-        let active = true;
-        settings.loadLocale('ru').then(() => {
-            if (!active) return;
-            configure({lang: 'ru'});
-            setLang('ru');
-            setReady(true);
-        });
-        return () => {
-            active = false;
-            configure({lang: 'en'});
-            setLang('en');
-        };
-    }, []);
-    return ready ? <Example {...args} /> : null;
 }
 
 const meta: Meta<typeof QueryShare> = {
@@ -102,5 +90,5 @@ export const LongUrl: Story = {
 };
 export const Russian: Story = {
     args: {link: temporaryLink},
-    render: (args) => <RussianExample {...args} />,
+    globals: {locale: 'ru'},
 };

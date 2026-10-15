@@ -31,6 +31,8 @@ type Props = Pick<
     | 'onFormat'
     | 'onValidate'
     | 'actionStates'
+    | 'hiddenActions'
+    | 'hiddenPanels'
     | 'additionalActions'
     | 'rightActions'
     | 'saveProps'
@@ -65,20 +67,23 @@ export function QueryEditorToolbar(props: Props) {
     return (
         <Flex wrap alignItems="center" gap={2} className={block()}>
             <Flex gap={1} alignItems="center">
-                {actions.map(({id, title, icon, onClick}) => (
-                    <Button
-                        key={id}
-                        view={id === 'run' ? 'action' : 'flat'}
-                        size="m"
-                        title={title}
-                        aria-label={title}
-                        onClick={onClick}
-                        {...props.actionStates?.[id]}
-                    >
-                        <Icon data={icon} size={16} />
-                        {title}
-                    </Button>
-                ))}
+                {actions
+                    .filter(({id}) => !props.hiddenActions?.includes(id))
+                    .map(({id, title, icon, onClick}) => (
+                        <Button
+                            key={id}
+                            view={id === 'run' ? 'action' : 'flat'}
+                            size="m"
+                            title={title}
+                            aria-label={title}
+                            onClick={onClick}
+                            {...props.actionStates?.[id]}
+                            disabled={!onClick || props.actionStates?.[id]?.disabled}
+                        >
+                            <Icon data={icon} size={16} />
+                            {title}
+                        </Button>
+                    ))}
                 {Boolean(props.additionalActions?.length) && (
                     <DropdownMenu
                         items={props.additionalActions?.map(({id, title, onClick, disabled}) => ({
@@ -191,40 +196,46 @@ export function QueryEditorToolbar(props: Props) {
                         <Icon data={icon} size={16} />
                     </Button>
                 ))}
-                <Button
-                    view="flat"
-                    title={i18n('action_attachments')}
-                    aria-label={i18n('action_attachments')}
-                    selected={props.activePanel === 'attachments'}
-                    aria-expanded={props.activePanel === 'attachments'}
-                    aria-controls={props.attachmentsId}
-                    onClick={() => props.onPanelToggle('attachments')}
-                >
-                    <Icon data={PaperclipIcon} size={16} />
-                </Button>
-                <Button
-                    view="flat"
-                    size="m"
-                    title={i18n('action_parameters')}
-                    aria-label={i18n('action_parameters')}
-                    selected={props.activePanel === 'parameters'}
-                    aria-expanded={props.activePanel === 'parameters'}
-                    aria-controls={props.parametersId}
-                    onClick={() => props.onPanelToggle('parameters')}
-                >
-                    <Icon data={ParametersIcon} size={16} />
-                </Button>
-                <Button
-                    view="flat"
-                    title={i18n('action_settings')}
-                    aria-label={i18n('action_settings')}
-                    selected={props.activePanel === 'settings'}
-                    aria-expanded={props.activePanel === 'settings'}
-                    aria-controls={props.settingsId}
-                    onClick={() => props.onPanelToggle('settings')}
-                >
-                    <Icon data={GearIcon} size={16} />
-                </Button>
+                {!props.hiddenPanels?.includes('attachments') && (
+                    <Button
+                        view="flat"
+                        title={i18n('action_attachments')}
+                        aria-label={i18n('action_attachments')}
+                        selected={props.activePanel === 'attachments'}
+                        aria-expanded={props.activePanel === 'attachments'}
+                        aria-controls={props.attachmentsId}
+                        onClick={() => props.onPanelToggle('attachments')}
+                    >
+                        <Icon data={PaperclipIcon} size={16} />
+                    </Button>
+                )}
+                {!props.hiddenPanels?.includes('parameters') && (
+                    <Button
+                        view="flat"
+                        size="m"
+                        title={i18n('action_parameters')}
+                        aria-label={i18n('action_parameters')}
+                        selected={props.activePanel === 'parameters'}
+                        aria-expanded={props.activePanel === 'parameters'}
+                        aria-controls={props.parametersId}
+                        onClick={() => props.onPanelToggle('parameters')}
+                    >
+                        <Icon data={ParametersIcon} size={16} />
+                    </Button>
+                )}
+                {!props.hiddenPanels?.includes('settings') && (
+                    <Button
+                        view="flat"
+                        title={i18n('action_settings')}
+                        aria-label={i18n('action_settings')}
+                        selected={props.activePanel === 'settings'}
+                        aria-expanded={props.activePanel === 'settings'}
+                        aria-controls={props.settingsId}
+                        onClick={() => props.onPanelToggle('settings')}
+                    >
+                        <Icon data={GearIcon} size={16} />
+                    </Button>
+                )}
             </Flex>
         </Flex>
     );

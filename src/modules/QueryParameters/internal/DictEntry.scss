@@ -1,0 +1,6 @@
+@use './parameterValueLayout' as layout;
+
+.qp-parameter-value {
+    @include layout.cell;
+    @include layout.text;
+}

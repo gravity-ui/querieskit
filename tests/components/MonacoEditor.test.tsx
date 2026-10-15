@@ -92,8 +92,7 @@ vi.mock('monaco-editor/editor/editor.api', () => ({
         ) {}
     },
 }));
-vi.mock('../../src/components/MonacoEditor/monaco-yql-languages/monaco.contribution', () => ({}));
-vi.mock('monaco-editor/languages/features/json/register', () => ({}));
+vi.mock('../../src/components/MonacoEditor/initialize', () => ({}));
 
 describe('MonacoEditor', () => {
     let container: HTMLDivElement;
@@ -246,21 +245,29 @@ describe('MonacoEditor', () => {
         expect(cleanups[1]).toHaveBeenCalledTimes(1);
     });
 
-    it('reconnects the preset for context changes, not text changes, and releases both layers', () => {
-        const dispose = vi.fn();
-        const preset = {create: vi.fn(() => ({dispose}))};
-        render({preset, language: 'yql', providerContext: {clusterId: 'a'}});
-        render({preset, language: 'yql', value: 'SELECT 2', providerContext: {clusterId: 'a'}});
-        expect(preset.create).toHaveBeenCalledTimes(1);
-        render({preset, language: 'yql', providerContext: {clusterId: 'b'}});
-        expect(preset.create).toHaveBeenCalledTimes(2);
-        expect(dispose).toHaveBeenCalledTimes(1);
-        expect(providerMock.attach.mock.results[0].value.dispose).toHaveBeenCalledTimes(1);
-        act(() => root.unmount());
-        mounted = false;
-        expect(dispose).toHaveBeenCalledTimes(2);
-        expect(providerMock.attach.mock.results[1].value.dispose).toHaveBeenCalledTimes(1);
-    });
+    it.each(['clusterId', 'engineId'] as const)(
+        'reconnects the preset for %s changes, not text changes, and releases both layers',
+        (contextKey) => {
+            const dispose = vi.fn();
+            const preset = {create: vi.fn(() => ({dispose}))};
+            render({preset, language: 'yql', providerContext: {[contextKey]: 'a'}});
+            render({
+                preset,
+                language: 'yql',
+                value: 'SELECT 2',
+                providerContext: {[contextKey]: 'a'},
+            });
+            expect(preset.create).toHaveBeenCalledTimes(1);
+            render({preset, language: 'yql', providerContext: {[contextKey]: 'b'}});
+            expect(preset.create).toHaveBeenCalledTimes(2);
+            expect(dispose).toHaveBeenCalledTimes(1);
+            expect(providerMock.attach.mock.results[0].value.dispose).toHaveBeenCalledTimes(1);
+            act(() => root.unmount());
+            mounted = false;
+            expect(dispose).toHaveBeenCalledTimes(2);
+            expect(providerMock.attach.mock.results[1].value.dispose).toHaveBeenCalledTimes(1);
+        },
+    );
 
     it('updates provider overrides without recreating the preset and disposes providers before the preset', () => {
         const dispose = vi.fn(() => {

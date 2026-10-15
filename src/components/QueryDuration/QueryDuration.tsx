@@ -1,16 +1,10 @@
-import React, {FC} from 'react';
-import {QueryStatus} from '../../types/history';
 import {Label} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {FC} from 'react';
+import type {QueryDurationProps as Props} from '../../types/queryDurationProps';
 import './QueryDuration.scss';
 import {useQueryDuration} from './useQueryDuration';
-
-type Props = {
-    startTime?: string | number;
-    endTime?: string | number;
-    status: QueryStatus;
-    className?: string;
-};
+export type {QueryDurationProps as Props} from '../../types/queryDurationProps';
 
 const block = cn('qp-query-duration');
 

@@ -1,17 +1,8 @@
 import React from 'react';
-import {FieldsSelector, type FieldsSelectorOption} from '../FieldsSelector';
+import type {FieldsSearchToolbarProps} from '../../types/fieldsSearchToolbarProps';
+import {FieldsSelector} from '../FieldsSelector';
 import {SearchWithButtons} from '../SearchWithButtons';
-
-export type FieldsSearchToolbarProps<K extends string = string> = {
-    search?: string;
-    onSearchUpdate?: (value: string) => void;
-    searchPlaceholder?: string;
-    fields: FieldsSelectorOption<K>[];
-    visibleFields: K[];
-    onVisibleFieldsChange: (value: K[]) => void;
-    hideFieldsSelector?: boolean;
-    className?: string;
-};
+export type {FieldsSearchToolbarProps} from '../../types/fieldsSearchToolbarProps';
 
 export function FieldsSearchToolbar<K extends string = string>({
     search,

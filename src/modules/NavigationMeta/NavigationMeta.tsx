@@ -1,25 +1,16 @@
-import React, {useMemo} from 'react';
 import {DefinitionList, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {useMemo} from 'react';
 import {EmptyContent} from '../../components/EmptyContent';
 import {SkeletonRows} from '../../components/SkeletonRows';
-import type {NavigationMetaConfig, NavigationMetaItem} from '../../types/navigation';
+import type {NavigationMetaItem} from '../../types/navigation';
+import type {NavigationMetaProps} from '../../types/navigationMetaProps';
 import {buildMetaGroups} from './helpers/buildMetaGroups';
 import i18n from './i18n';
 import './NavigationMeta.scss';
+export type {NavigationMetaProps, NavigationMetaViewConfig} from '../../types/navigationMetaProps';
 
 const block = cn('qp-navigation-meta');
-
-export type NavigationMetaViewConfig<TItem extends NavigationMetaItem = NavigationMetaItem> = {
-    render?: (data: NavigationMetaConfig<TItem>) => React.ReactNode;
-    extraContent?: React.ReactNode;
-};
-
-export type NavigationMetaProps<TItem extends NavigationMetaItem = NavigationMetaItem> = {
-    data: NavigationMetaConfig<TItem>;
-    view?: NavigationMetaViewConfig<TItem>;
-    className?: string;
-};
 
 export function NavigationMeta<TItem extends NavigationMetaItem = NavigationMetaItem>({
     data,

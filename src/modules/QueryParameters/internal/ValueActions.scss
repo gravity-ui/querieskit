@@ -1,0 +1,8 @@
+.qp-parameter-value {
+    &__actions {
+        flex-shrink: 0;
+    }
+    &__raw {
+        --g-button-padding: var(--g-spacing-1);
+    }
+}

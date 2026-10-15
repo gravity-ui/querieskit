@@ -1,4 +1,4 @@
 export {EditAttachmentItem} from './EditAttachmentItem';
-export type {EditAttachmentItemProps} from './EditAttachmentItem';
-export type {EditLinkItemProps, EditLinkValues} from './EditLinkItem';
-export type {EditFileItemProps} from './FileEdit';
+export type {EditAttachmentItemProps} from '../../../../types/attachmentsEditor';
+export type {EditLinkItemProps, EditLinkValues} from '../../../../types/attachmentsEditor';
+export type {EditFileItemProps} from '../../../../types/attachmentsEditor';

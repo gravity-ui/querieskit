@@ -1,0 +1,8 @@
+@use './parameterValueLayout' as layout;
+
+.qp-parameter-value {
+    @include layout.cell;
+    &__add {
+        align-self: flex-start;
+    }
+}

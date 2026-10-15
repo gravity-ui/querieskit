@@ -1,6 +1,6 @@
 import React from 'react';
 import type {Config} from '@gravity-ui/dashkit';
-import type {DashboardProps} from './types';
+import type {DashboardProps} from '../../types/dashboard';
 import {Flex} from '@gravity-ui/uikit';
 import {DRAG_HANDLE_CLASSNAME, DashPlate} from './internal/DashPlate';
 import {DashboardProvider} from './internal/DashboardProvider';
@@ -26,6 +26,8 @@ export const Dashboard = ({
     focusable = false,
     className,
     onLayoutChange,
+    onItemFocus,
+    onItemBlur,
 }: DashboardProps) => {
     const {config, gridGroups} = useDashboardConfig(items, customerGridState, defaultLayout);
 
@@ -44,6 +46,14 @@ export const Dashboard = ({
                     draggableHandleClassName={DRAG_HANDLE_CLASSNAME}
                     focusable={focusable}
                     onChange={handleChange}
+                    onItemFocus={({id}) => {
+                        const index = items.findIndex((item) => item.id === id);
+                        if (index !== -1) onItemFocus?.(items[index].content, index);
+                    }}
+                    onItemBlur={({id}) => {
+                        const index = items.findIndex((item) => item.id === id);
+                        if (index !== -1) onItemBlur?.(items[index].content, index);
+                    }}
                 />
             </DashboardProvider>
         </Flex>

@@ -784,6 +784,35 @@ describe('QueryParameters', () => {
         expect(container.querySelector('[aria-busy="true"]')).toBeTruthy();
         expect(onChange).not.toHaveBeenCalled();
     });
+    it.each([1, 2, 5, 21])(
+        'localizes field and element counts without plural suffixes (%s)',
+        (count) => {
+            const fields = Array.from({length: count}, (_, index) => ({
+                id: `field-${index}`,
+                name: `field${index}`,
+                type: {kind: 'String' as const},
+            }));
+            const items = fields.map(({id}) => ({id, value: ''}));
+            const value: QueryParameter[] = [
+                {id: 'structure', name: 'structure', type: {kind: 'Struct', fields}, value: items},
+                {
+                    id: 'list',
+                    name: 'list',
+                    type: {kind: 'List', item: {kind: 'String'}},
+                    value: items,
+                },
+            ];
+            render({value});
+            expect(container.textContent).toContain(`Fields: ${count}`);
+            expect(container.textContent).toContain(`Elements: ${count}`);
+            setLang('ru');
+            configure({lang: 'ru'});
+            render({value});
+            expect(container.textContent).toContain(`Полей: ${count}`);
+            expect(container.textContent).toContain(`Элементов: ${count}`);
+        },
+    );
+
     it('localizes empty search results after the locale changes', () => {
         render();
         setLang('ru');

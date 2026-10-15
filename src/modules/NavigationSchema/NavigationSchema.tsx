@@ -1,39 +1,21 @@
-import React, {useMemo} from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import type {Column} from '../../components/DataTable';
+import React, {useMemo} from 'react';
 import {DataTable} from '../../components/DataTable';
 import {FieldsSearchToolbar} from '../../components/FieldsSearchToolbar';
 import {useVisibleColumns} from '../../helpers/useVisibleColumns';
-import type {NavigationSchemaColumn, NavigationSchemaConfig} from '../../types/navigation';
+import type {NavigationSchemaColumn} from '../../types/navigation';
+import type {NavigationSchemaProps} from '../../types/navigationSchemaProps';
 import {buildSchemaColumns} from './helpers/buildSchemaColumns';
 import {filterSchema} from './helpers/filterSchema';
 import i18n from './i18n';
 import './NavigationSchema.scss';
+export type {
+    NavigationSchemaProps,
+    NavigationSchemaViewConfig,
+} from '../../types/navigationSchemaProps';
 
 const block = cn('qp-navigation-schema');
-
-export type NavigationSchemaViewConfig<
-    TColumn extends NavigationSchemaColumn = NavigationSchemaColumn,
-> = {
-    tableColumns?: Array<Column<TColumn>>;
-    extraColumns?: Array<Column<TColumn>>;
-};
-
-export type NavigationSchemaProps<TColumn extends NavigationSchemaColumn = NavigationSchemaColumn> =
-    {
-        data: NavigationSchemaConfig<TColumn>;
-        view?: NavigationSchemaViewConfig<TColumn>;
-        search?: string;
-        onSearchUpdate?: (value: string) => void;
-        searchPlaceholder?: string;
-        visibleColumns?: string[];
-        onVisibleColumnsChange?: (value: string[]) => void;
-        defaultVisibleColumns?: string[];
-        hideToolbar?: boolean;
-        hideFieldsSelector?: boolean;
-        className?: string;
-    };
 
 export function NavigationSchema<TColumn extends NavigationSchemaColumn = NavigationSchemaColumn>({
     data,

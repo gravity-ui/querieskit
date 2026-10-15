@@ -39,6 +39,8 @@ export function QueryExecutionPanel<
     preferredActiveTab,
     onActiveTabChange,
     execution,
+    headerActions,
+    statusContent,
     expanded = false,
     onExpandedChange,
     collapsed: controlledCollapsed,
@@ -54,6 +56,9 @@ export function QueryExecutionPanel<
     const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
     const collapsed = controlledCollapsed ?? uncontrolledCollapsed;
     const contentId = useId();
+    const hasHeaderActions = React.Children.toArray(headerActions).some((child) => child !== '');
+    const hasStatusContent = React.Children.toArray(statusContent).some((child) => child !== '');
+    const hasSlots = hasHeaderActions || hasStatusContent;
 
     const changeCollapsed = (next: boolean) => {
         if (next === collapsed) return;
@@ -107,7 +112,7 @@ export function QueryExecutionPanel<
     };
 
     return (
-        <Flex direction="column" className={block({collapsed}, className)}>
+        <Flex direction="column" className={block({collapsed, 'with-slots': hasSlots}, className)}>
             <TabProvider value={collapsed ? '' : (selected ?? '')} onUpdate={selectAndReveal}>
                 <Flex wrap alignItems="center" gap={4} className={block('header')}>
                     <TabList className={block('tabs')} aria-label={i18n('title_tabs')}>
@@ -130,6 +135,16 @@ export function QueryExecutionPanel<
                     </TabList>
                     <Flex wrap alignItems="center" gap={2} className={block('details')}>
                         <ExecutionMetadata execution={execution} />
+                        {hasHeaderActions && (
+                            <Flex
+                                wrap
+                                alignItems="center"
+                                gap={2}
+                                className={block('header-actions')}
+                            >
+                                {headerActions}
+                            </Flex>
+                        )}
                         <Flex gap={2} className={block('actions')}>
                             {onExpandedChange && (
                                 <Button
@@ -164,6 +179,7 @@ export function QueryExecutionPanel<
                         </Flex>
                     </Flex>
                 </Flex>
+                {hasStatusContent && <div className={block('status')}>{statusContent}</div>}
                 <div
                     id={contentId}
                     className={block('content')}

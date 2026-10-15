@@ -1,38 +1,17 @@
-import React from 'react';
 import cn from 'bem-cn-lite';
-import type {
-    NavigationItem,
-    NavigationParentRowConfig,
-    NavigationSortOrder,
-    RenderNavigationItem,
-} from '../../types/navigation';
+import React from 'react';
 import {LazyList} from '../../components/LazyList';
 import {NavigationItemRow} from '../../components/NavigationItemRow';
-import {NavigationItemsListHeader} from './internal/NavigationItemsListHeader';
-import {NavigationItemsListEmptyState} from './internal/NavigationItemsListEmptyState';
-import {useParentRow} from './internal/useParentRow';
 import {NAVIGATION_ROW_HEIGHT} from '../../constants/row';
+import type {NavigationItem} from '../../types/navigation';
+import type {NavigationItemsListProps} from '../../types/navigationItemsListProps';
+import {NavigationItemsListEmptyState} from './internal/NavigationItemsListEmptyState';
+import {NavigationItemsListHeader} from './internal/NavigationItemsListHeader';
+import {useParentRow} from './internal/useParentRow';
 import './NavigationItemsList.scss';
+export type {NavigationItemsListProps} from '../../types/navigationItemsListProps';
 
 const block = cn('qp-navigation-items-list');
-
-export type NavigationItemsListProps<T extends NavigationItem = NavigationItem> = {
-    items: T[];
-    path?: string;
-    search?: string;
-    parentRow?: NavigationParentRowConfig;
-    sort?: NavigationSortOrder;
-    onSortUpdate?: (sort: NavigationSortOrder) => void;
-    titleLabel: string;
-    loading?: boolean;
-    error?: React.ReactNode;
-    hasMore?: boolean;
-    onLoadMore?: () => void;
-    emptyContent?: React.ReactNode;
-    renderRowItem?: RenderNavigationItem<T>;
-    onItemClick?: (item: T) => void;
-    className?: string;
-};
 
 export const NavigationItemsList = <T extends NavigationItem = NavigationItem>({
     items,

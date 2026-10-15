@@ -1,7 +1,9 @@
-import type {AttachmentItemProps, AttachmentListProps} from '../components/AttachmentList';
-import type {AttachmentListPlaceholderProps} from '../components/AttachmentListPlaceholder';
+import type {AttachmentListProps} from './attachmentListProps';
+import type {AttachmentListPlaceholderProps} from './attachmentListPlaceholderProps';
 
-export type AttachItem = AttachmentItemProps['attachment'] & {token?: string; isNew?: boolean};
+export type Attachment = {id: string; name: string; link?: string};
+
+export type AttachItem = Attachment & {token?: string; isNew?: boolean};
 
 export type AttachmentsProps = {
     tokens?: {value: string; title: string}[];

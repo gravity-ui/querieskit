@@ -1,6 +1,10 @@
+/// <reference types="vite/client" />
+
 import type {Decorator, Preview} from '@storybook/react';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {settings} from '@gravity-ui/date-utils';
+import {setLang} from '../src/i18n';
 import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
 import JsonWorker from 'monaco-editor/languages/features/json/json.worker?worker';
 
@@ -18,21 +22,51 @@ self.MonacoEnvironment = {
 
 configure({lang: 'en'});
 
-const withYtComponentsTheme: Decorator = (Story, context) => {
-    const globalsTheme = context.globals.theme;
-    const isDark = globalsTheme === 'dark';
-    const uikitTheme = isDark ? 'dark' : 'light';
+function LocalePreview({lang, children}: {lang: 'en' | 'ru'; children: React.ReactNode}) {
+    const [readyLang, setReadyLang] = useState<string>();
+    useEffect(() => {
+        let active = true;
+        settings.loadLocale(lang).then(() => {
+            if (!active) return;
+            settings.setLocale(lang);
+            configure({lang});
+            setLang(lang);
+            setReadyLang(lang);
+        });
+        return () => {
+            active = false;
+        };
+    }, [lang]);
+    return readyLang === lang ? <React.Fragment key={lang}>{children}</React.Fragment> : null;
+}
 
+const withYtComponentsTheme: Decorator = (Story, context) => {
+    const theme = context.globals.theme === 'dark' ? 'dark' : 'light';
+    const lang = context.globals.locale === 'ru' ? 'ru' : 'en';
     return (
-        <ThemeProvider theme={uikitTheme}>
-            <Story />
-        </ThemeProvider>
+        <LocalePreview lang={lang}>
+            <ThemeProvider theme={theme}>
+                <Story />
+            </ThemeProvider>
+        </LocalePreview>
     );
 };
 
 const preview: Preview = {
     decorators: [withYtComponentsTheme],
     globalTypes: {
+        locale: {
+            defaultValue: 'en',
+            toolbar: {
+                title: 'Language',
+                icon: 'globe',
+                items: [
+                    {value: 'en', title: 'English'},
+                    {value: 'ru', title: 'Русский'},
+                ],
+                dynamicTitle: true,
+            },
+        },
         theme: {
             defaultValue: 'light',
             toolbar: {

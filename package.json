@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/querieskit",
-  "version": "2.6.0",
+  "version": "3.1.1",
   "description": "Query page component library",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
@@ -14,16 +14,6 @@
       "require": {
         "types": "./build/cjs/modules/QueryShare/index.d.ts",
         "default": "./build/cjs/modules/QueryShare/index.js"
-      }
-    },
-    "./modules/QueryEditor/presets/ytsaurus": {
-      "import": {
-        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
-      },
-      "require": {
-        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
       }
     },
     "./modules/QuerySettings": {
@@ -236,14 +226,14 @@
         "default": "./build/cjs/widgets/QueryEditor/index.js"
       }
     },
-    "./widgets/QueryEditor/presets/ytsaurus": {
+    "./widgets/QueryEditor/presets/builtin": {
       "import": {
-        "types": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/esm/widgets/QueryEditor/presets/ytsaurus/index.js"
+        "types": "./build/esm/widgets/QueryEditor/presets/builtin/index.d.ts",
+        "default": "./build/esm/widgets/QueryEditor/presets/builtin/index.js"
       },
       "require": {
-        "types": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.d.ts",
-        "default": "./build/cjs/widgets/QueryEditor/presets/ytsaurus/index.js"
+        "types": "./build/cjs/widgets/QueryEditor/presets/builtin/index.d.ts",
+        "default": "./build/cjs/widgets/QueryEditor/presets/builtin/index.js"
       }
     },
     "./pages/QueryPage": {
@@ -275,10 +265,611 @@
         "types": "./build/cjs/modules/QueryComparison/index.d.ts",
         "default": "./build/cjs/modules/QueryComparison/index.js"
       }
+    },
+    "./components/DataTypePopup": {
+      "import": {
+        "types": "./build/esm/components/DataTypePopup/index.d.ts",
+        "default": "./build/esm/components/DataTypePopup/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/DataTypePopup/index.d.ts",
+        "default": "./build/cjs/components/DataTypePopup/index.js"
+      }
+    },
+    "./components/DataTable": {
+      "import": {
+        "types": "./build/esm/components/DataTable/index.d.ts",
+        "default": "./build/esm/components/DataTable/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/DataTable/index.d.ts",
+        "default": "./build/cjs/components/DataTable/index.js"
+      }
+    },
+    "./components/QueryResultsTable": {
+      "import": {
+        "types": "./build/esm/components/QueryResultsTable/index.d.ts",
+        "default": "./build/esm/components/QueryResultsTable/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/QueryResultsTable/index.d.ts",
+        "default": "./build/cjs/components/QueryResultsTable/index.js"
+      }
+    },
+    "./components/QueryStatusIcon": {
+      "import": {
+        "types": "./build/esm/components/QueryStatusIcon/index.d.ts",
+        "default": "./build/esm/components/QueryStatusIcon/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/QueryStatusIcon/index.d.ts",
+        "default": "./build/cjs/components/QueryStatusIcon/index.js"
+      }
+    },
+    "./components/QueryDuration": {
+      "import": {
+        "types": "./build/esm/components/QueryDuration/index.d.ts",
+        "default": "./build/esm/components/QueryDuration/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/QueryDuration/index.d.ts",
+        "default": "./build/cjs/components/QueryDuration/index.js"
+      }
+    },
+    "./components/LazyList": {
+      "import": {
+        "types": "./build/esm/components/LazyList/index.d.ts",
+        "default": "./build/esm/components/LazyList/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/LazyList/index.d.ts",
+        "default": "./build/cjs/components/LazyList/index.js"
+      }
+    },
+    "./components/ListSpinner": {
+      "import": {
+        "types": "./build/esm/components/ListSpinner/index.d.ts",
+        "default": "./build/esm/components/ListSpinner/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ListSpinner/index.d.ts",
+        "default": "./build/cjs/components/ListSpinner/index.js"
+      }
+    },
+    "./components/Breadcrumbs": {
+      "import": {
+        "types": "./build/esm/components/Breadcrumbs/index.d.ts",
+        "default": "./build/esm/components/Breadcrumbs/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/Breadcrumbs/index.d.ts",
+        "default": "./build/cjs/components/Breadcrumbs/index.js"
+      }
+    },
+    "./components/PathEditor": {
+      "import": {
+        "types": "./build/esm/components/PathEditor/index.d.ts",
+        "default": "./build/esm/components/PathEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/PathEditor/index.d.ts",
+        "default": "./build/cjs/components/PathEditor/index.js"
+      }
+    },
+    "./components/HistoryFilter": {
+      "import": {
+        "types": "./build/esm/components/HistoryFilter/index.d.ts",
+        "default": "./build/esm/components/HistoryFilter/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/HistoryFilter/index.d.ts",
+        "default": "./build/cjs/components/HistoryFilter/index.js"
+      }
+    },
+    "./components/HistoryPrivateIcon": {
+      "import": {
+        "types": "./build/esm/components/HistoryPrivateIcon/index.d.ts",
+        "default": "./build/esm/components/HistoryPrivateIcon/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/HistoryPrivateIcon/index.d.ts",
+        "default": "./build/cjs/components/HistoryPrivateIcon/index.js"
+      }
+    },
+    "./components/FieldsSelector": {
+      "import": {
+        "types": "./build/esm/components/FieldsSelector/index.d.ts",
+        "default": "./build/esm/components/FieldsSelector/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/FieldsSelector/index.d.ts",
+        "default": "./build/cjs/components/FieldsSelector/index.js"
+      }
+    },
+    "./components/EditableRowTitle": {
+      "import": {
+        "types": "./build/esm/components/EditableRowTitle/index.d.ts",
+        "default": "./build/esm/components/EditableRowTitle/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/EditableRowTitle/index.d.ts",
+        "default": "./build/cjs/components/EditableRowTitle/index.js"
+      }
+    },
+    "./components/RowActionsMenu": {
+      "import": {
+        "types": "./build/esm/components/RowActionsMenu/index.d.ts",
+        "default": "./build/esm/components/RowActionsMenu/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/RowActionsMenu/index.d.ts",
+        "default": "./build/cjs/components/RowActionsMenu/index.js"
+      }
+    },
+    "./components/FieldsSearchToolbar": {
+      "import": {
+        "types": "./build/esm/components/FieldsSearchToolbar/index.d.ts",
+        "default": "./build/esm/components/FieldsSearchToolbar/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/FieldsSearchToolbar/index.d.ts",
+        "default": "./build/cjs/components/FieldsSearchToolbar/index.js"
+      }
+    },
+    "./components/HistoryGroupHeader": {
+      "import": {
+        "types": "./build/esm/components/HistoryGroupHeader/index.d.ts",
+        "default": "./build/esm/components/HistoryGroupHeader/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/HistoryGroupHeader/index.d.ts",
+        "default": "./build/cjs/components/HistoryGroupHeader/index.js"
+      }
+    },
+    "./components/EmptyContent": {
+      "import": {
+        "types": "./build/esm/components/EmptyContent/index.d.ts",
+        "default": "./build/esm/components/EmptyContent/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/EmptyContent/index.d.ts",
+        "default": "./build/cjs/components/EmptyContent/index.js"
+      }
+    },
+    "./components/ClusterRow": {
+      "import": {
+        "types": "./build/esm/components/ClusterRow/index.d.ts",
+        "default": "./build/esm/components/ClusterRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ClusterRow/index.d.ts",
+        "default": "./build/cjs/components/ClusterRow/index.js"
+      }
+    },
+    "./components/NavigationItemRow": {
+      "import": {
+        "types": "./build/esm/components/NavigationItemRow/index.d.ts",
+        "default": "./build/esm/components/NavigationItemRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/NavigationItemRow/index.d.ts",
+        "default": "./build/cjs/components/NavigationItemRow/index.js"
+      }
+    },
+    "./components/NavigationActionButtons": {
+      "import": {
+        "types": "./build/esm/components/NavigationActionButtons/index.d.ts",
+        "default": "./build/esm/components/NavigationActionButtons/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/NavigationActionButtons/index.d.ts",
+        "default": "./build/cjs/components/NavigationActionButtons/index.js"
+      }
+    },
+    "./components/SkeletonRows": {
+      "import": {
+        "types": "./build/esm/components/SkeletonRows/index.d.ts",
+        "default": "./build/esm/components/SkeletonRows/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/SkeletonRows/index.d.ts",
+        "default": "./build/cjs/components/SkeletonRows/index.js"
+      }
+    },
+    "./components/RowLink": {
+      "import": {
+        "types": "./build/esm/components/RowLink/index.d.ts",
+        "default": "./build/esm/components/RowLink/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/RowLink/index.d.ts",
+        "default": "./build/cjs/components/RowLink/index.js"
+      }
+    },
+    "./components/SearchRowLayout": {
+      "import": {
+        "types": "./build/esm/components/SearchRowLayout/index.d.ts",
+        "default": "./build/esm/components/SearchRowLayout/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/SearchRowLayout/index.d.ts",
+        "default": "./build/cjs/components/SearchRowLayout/index.js"
+      }
+    },
+    "./components/SearchWithButtons": {
+      "import": {
+        "types": "./build/esm/components/SearchWithButtons/index.d.ts",
+        "default": "./build/esm/components/SearchWithButtons/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/SearchWithButtons/index.d.ts",
+        "default": "./build/cjs/components/SearchWithButtons/index.js"
+      }
+    },
+    "./components/AddChartButton": {
+      "import": {
+        "types": "./build/esm/components/AddChartButton/index.d.ts",
+        "default": "./build/esm/components/AddChartButton/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/AddChartButton/index.d.ts",
+        "default": "./build/cjs/components/AddChartButton/index.js"
+      }
+    },
+    "./components/ChartEditorForm": {
+      "import": {
+        "types": "./build/esm/components/ChartEditorForm/index.d.ts",
+        "default": "./build/esm/components/ChartEditorForm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ChartEditorForm/index.d.ts",
+        "default": "./build/cjs/components/ChartEditorForm/index.js"
+      }
+    },
+    "./components/FormField": {
+      "import": {
+        "types": "./build/esm/components/FormField/index.d.ts",
+        "default": "./build/esm/components/FormField/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/FormField/index.d.ts",
+        "default": "./build/cjs/components/FormField/index.js"
+      }
+    },
+    "./components/ChartFieldsForm": {
+      "import": {
+        "types": "./build/esm/components/ChartFieldsForm/index.d.ts",
+        "default": "./build/esm/components/ChartFieldsForm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ChartFieldsForm/index.d.ts",
+        "default": "./build/cjs/components/ChartFieldsForm/index.js"
+      }
+    },
+    "./components/ChartConfigFields": {
+      "import": {
+        "types": "./build/esm/components/ChartConfigFields/index.d.ts",
+        "default": "./build/esm/components/ChartConfigFields/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ChartConfigFields/index.d.ts",
+        "default": "./build/cjs/components/ChartConfigFields/index.js"
+      }
+    },
+    "./components/Dashboard": {
+      "import": {
+        "types": "./build/esm/components/Dashboard/index.d.ts",
+        "default": "./build/esm/components/Dashboard/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/Dashboard/index.d.ts",
+        "default": "./build/cjs/components/Dashboard/index.js"
+      }
+    },
+    "./components/Chart": {
+      "import": {
+        "types": "./build/esm/components/Chart/index.d.ts",
+        "default": "./build/esm/components/Chart/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/Chart/index.d.ts",
+        "default": "./build/cjs/components/Chart/index.js"
+      }
+    },
+    "./components/ErrorTree": {
+      "import": {
+        "types": "./build/esm/components/ErrorTree/index.d.ts",
+        "default": "./build/esm/components/ErrorTree/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ErrorTree/index.d.ts",
+        "default": "./build/cjs/components/ErrorTree/index.js"
+      }
+    },
+    "./components/AttachmentList": {
+      "import": {
+        "types": "./build/esm/components/AttachmentList/index.d.ts",
+        "default": "./build/esm/components/AttachmentList/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/AttachmentList/index.d.ts",
+        "default": "./build/cjs/components/AttachmentList/index.js"
+      }
+    },
+    "./components/AttachmentListPlaceholder": {
+      "import": {
+        "types": "./build/esm/components/AttachmentListPlaceholder/index.d.ts",
+        "default": "./build/esm/components/AttachmentListPlaceholder/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/AttachmentListPlaceholder/index.d.ts",
+        "default": "./build/cjs/components/AttachmentListPlaceholder/index.js"
+      }
+    },
+    "./components/QueryGraph": {
+      "import": {
+        "types": "./build/esm/components/QueryGraph/index.d.ts",
+        "default": "./build/esm/components/QueryGraph/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/QueryGraph/index.d.ts",
+        "default": "./build/cjs/components/QueryGraph/index.js"
+      }
+    },
+    "./modules/HistoryHeader": {
+      "import": {
+        "types": "./build/esm/modules/HistoryHeader/index.d.ts",
+        "default": "./build/esm/modules/HistoryHeader/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/HistoryHeader/index.d.ts",
+        "default": "./build/cjs/modules/HistoryHeader/index.js"
+      }
+    },
+    "./modules/HistoryLayout": {
+      "import": {
+        "types": "./build/esm/modules/HistoryLayout/index.d.ts",
+        "default": "./build/esm/modules/HistoryLayout/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/HistoryLayout/index.d.ts",
+        "default": "./build/cjs/modules/HistoryLayout/index.js"
+      }
+    },
+    "./modules/HistoryComparisonActions": {
+      "import": {
+        "types": "./build/esm/modules/HistoryComparisonActions/index.d.ts",
+        "default": "./build/esm/modules/HistoryComparisonActions/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/HistoryComparisonActions/index.d.ts",
+        "default": "./build/cjs/modules/HistoryComparisonActions/index.js"
+      }
+    },
+    "./modules/NavigationHeader": {
+      "import": {
+        "types": "./build/esm/modules/NavigationHeader/index.d.ts",
+        "default": "./build/esm/modules/NavigationHeader/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationHeader/index.d.ts",
+        "default": "./build/cjs/modules/NavigationHeader/index.js"
+      }
+    },
+    "./modules/RowsList": {
+      "import": {
+        "types": "./build/esm/modules/RowsList/index.d.ts",
+        "default": "./build/esm/modules/RowsList/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/RowsList/index.d.ts",
+        "default": "./build/cjs/modules/RowsList/index.js"
+      }
+    },
+    "./modules/QueriesList": {
+      "import": {
+        "types": "./build/esm/modules/QueriesList/index.d.ts",
+        "default": "./build/esm/modules/QueriesList/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueriesList/index.d.ts",
+        "default": "./build/cjs/modules/QueriesList/index.js"
+      }
+    },
+    "./modules/HistoryRow": {
+      "import": {
+        "types": "./build/esm/modules/HistoryRow/index.d.ts",
+        "default": "./build/esm/modules/HistoryRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/HistoryRow/index.d.ts",
+        "default": "./build/cjs/modules/HistoryRow/index.js"
+      }
+    },
+    "./modules/HistorySearchRow": {
+      "import": {
+        "types": "./build/esm/modules/HistorySearchRow/index.d.ts",
+        "default": "./build/esm/modules/HistorySearchRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/HistorySearchRow/index.d.ts",
+        "default": "./build/cjs/modules/HistorySearchRow/index.js"
+      }
+    },
+    "./modules/SavedQueryRow": {
+      "import": {
+        "types": "./build/esm/modules/SavedQueryRow/index.d.ts",
+        "default": "./build/esm/modules/SavedQueryRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/SavedQueryRow/index.d.ts",
+        "default": "./build/cjs/modules/SavedQueryRow/index.js"
+      }
+    },
+    "./modules/SavedQuerySearchRow": {
+      "import": {
+        "types": "./build/esm/modules/SavedQuerySearchRow/index.d.ts",
+        "default": "./build/esm/modules/SavedQuerySearchRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/SavedQuerySearchRow/index.d.ts",
+        "default": "./build/cjs/modules/SavedQuerySearchRow/index.js"
+      }
+    },
+    "./modules/ChartEditor": {
+      "import": {
+        "types": "./build/esm/modules/ChartEditor/index.d.ts",
+        "default": "./build/esm/modules/ChartEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/ChartEditor/index.d.ts",
+        "default": "./build/cjs/modules/ChartEditor/index.js"
+      }
+    },
+    "./modules/Attachments": {
+      "import": {
+        "types": "./build/esm/modules/Attachments/index.d.ts",
+        "default": "./build/esm/modules/Attachments/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/Attachments/index.d.ts",
+        "default": "./build/cjs/modules/Attachments/index.js"
+      }
+    },
+    "./modules/TutorialRow": {
+      "import": {
+        "types": "./build/esm/modules/TutorialRow/index.d.ts",
+        "default": "./build/esm/modules/TutorialRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/TutorialRow/index.d.ts",
+        "default": "./build/cjs/modules/TutorialRow/index.js"
+      }
+    },
+    "./modules/TutorialSearchRow": {
+      "import": {
+        "types": "./build/esm/modules/TutorialSearchRow/index.d.ts",
+        "default": "./build/esm/modules/TutorialSearchRow/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/TutorialSearchRow/index.d.ts",
+        "default": "./build/cjs/modules/TutorialSearchRow/index.js"
+      }
+    },
+    "./modules/ClustersList": {
+      "import": {
+        "types": "./build/esm/modules/ClustersList/index.d.ts",
+        "default": "./build/esm/modules/ClustersList/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/ClustersList/index.d.ts",
+        "default": "./build/cjs/modules/ClustersList/index.js"
+      }
+    },
+    "./modules/NavigationItemsList": {
+      "import": {
+        "types": "./build/esm/modules/NavigationItemsList/index.d.ts",
+        "default": "./build/esm/modules/NavigationItemsList/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationItemsList/index.d.ts",
+        "default": "./build/cjs/modules/NavigationItemsList/index.js"
+      }
+    },
+    "./modules/NavigationDetail": {
+      "import": {
+        "types": "./build/esm/modules/NavigationDetail/index.d.ts",
+        "default": "./build/esm/modules/NavigationDetail/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationDetail/index.d.ts",
+        "default": "./build/cjs/modules/NavigationDetail/index.js"
+      }
+    },
+    "./modules/NavigationSchema": {
+      "import": {
+        "types": "./build/esm/modules/NavigationSchema/index.d.ts",
+        "default": "./build/esm/modules/NavigationSchema/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationSchema/index.d.ts",
+        "default": "./build/cjs/modules/NavigationSchema/index.js"
+      }
+    },
+    "./modules/QueryStatistics": {
+      "import": {
+        "types": "./build/esm/modules/QueryStatistics/index.d.ts",
+        "default": "./build/esm/modules/QueryStatistics/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryStatistics/index.d.ts",
+        "default": "./build/cjs/modules/QueryStatistics/index.js"
+      }
+    },
+    "./modules/QueryProgress": {
+      "import": {
+        "types": "./build/esm/modules/QueryProgress/index.d.ts",
+        "default": "./build/esm/modules/QueryProgress/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryProgress/index.d.ts",
+        "default": "./build/cjs/modules/QueryProgress/index.js"
+      }
+    },
+    "./modules/NavigationPreview": {
+      "import": {
+        "types": "./build/esm/modules/NavigationPreview/index.d.ts",
+        "default": "./build/esm/modules/NavigationPreview/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationPreview/index.d.ts",
+        "default": "./build/cjs/modules/NavigationPreview/index.js"
+      }
+    },
+    "./modules/NavigationMeta": {
+      "import": {
+        "types": "./build/esm/modules/NavigationMeta/index.d.ts",
+        "default": "./build/esm/modules/NavigationMeta/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationMeta/index.d.ts",
+        "default": "./build/cjs/modules/NavigationMeta/index.js"
+      }
+    },
+    "./modules/NavigationView": {
+      "import": {
+        "types": "./build/esm/modules/NavigationView/index.d.ts",
+        "default": "./build/esm/modules/NavigationView/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/NavigationView/index.d.ts",
+        "default": "./build/cjs/modules/NavigationView/index.js"
+      }
+    },
+    "./modules/QueryTimeline": {
+      "import": {
+        "types": "./build/esm/modules/QueryTimeline/index.d.ts",
+        "default": "./build/esm/modules/QueryTimeline/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryTimeline/index.d.ts",
+        "default": "./build/cjs/modules/QueryTimeline/index.js"
+      }
+    },
+    "./modules/ChartFieldsEditor": {
+      "import": {
+        "types": "./build/esm/modules/ChartFieldsEditor/index.d.ts",
+        "default": "./build/esm/modules/ChartFieldsEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/ChartFieldsEditor/index.d.ts",
+        "default": "./build/cjs/modules/ChartFieldsEditor/index.js"
+      }
     }
   },
   "files": [
-    "build"
+    "build/esm",
+    "build/cjs"
   ],
   "scripts": {
     "build": "app-builder build",
@@ -287,7 +878,7 @@
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build",
     "test": "npm run test:timezones && npm run test:components && npm run test:timeline && npm run test:charts && npm run test:editor-helpers && npm run test:parameters && npm run test:types",
-    "test:charts": "vitest run tests/helpers/chartFieldsForm.test.ts tests/helpers/chartBindingsExamples.test.ts",
+    "test:charts": "vitest run tests/helpers/chartFieldsForm.test.ts tests/helpers/chartBindingsExamples.test.ts tests/helpers/chartLabels.test.ts",
     "test:timezones": "TZ=UTC vitest run tests/helpers/time.test.ts && TZ=Europe/Moscow vitest run tests/helpers/time.test.ts && TZ=Asia/Kolkata vitest run tests/helpers/time.test.ts && TZ=America/New_York vitest run tests/helpers/time.test.ts",
     "test:components": "vitest run tests/components",
     "prepublishOnly": "npm run build",
@@ -297,7 +888,9 @@
     "test:editors:browser": "playwright test",
     "test:parameters": "vitest run tests/helpers/queryParameters.test.ts tests/helpers/parameterDate.test.ts",
     "test:types": "tsc -p tests/types",
-    "test:page:browser": "playwright test tests/browser/queryPage.spec.ts"
+    "test:page:browser": "playwright test tests/browser/queryPage.spec.ts",
+    "test:package-contract": "node tests/tree-shaking/check-published.mjs",
+    "test:consumer": "node tests/tree-shaking/consumer.mjs"
   },
   "repository": {
     "type": "git",
@@ -323,19 +916,24 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
     "@typescript-eslint/parser": "^8.64.0",
+    "css-loader": "^7.1.4",
     "esbuild": "^0.28.1",
     "eslint": "^9.39.5",
     "eslint-import-resolver-typescript": "^4.4.5",
     "jsdom": "^26.1.0",
+    "mini-css-extract-plugin": "^2.10.2",
     "prettier": "^3.9.5",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "sass": "^1.101.0",
+    "sass-loader": "^16.0.8",
     "storybook": "^10.5.0",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
     "vite": "^8.1.5",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "webpack": "^5.108.4"
   },
   "peerDependencies": {
     "@gravity-ui/icons": ">=2.0.0",
@@ -344,7 +942,8 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@gravity-ui/charts": "^1.57.2",
+    "@babel/runtime": "^7.29.7",
+    "@gravity-ui/charts": "1.57.2",
     "@gravity-ui/dashkit": "^10.4.0",
     "@gravity-ui/date-components": "^3.4.2",
     "@gravity-ui/date-utils": "^2.7.1",
@@ -356,6 +955,7 @@
     "@gravity-ui/unipika": "^5.6.3",
     "@gravity-ui/websql-autocomplete": "^13.16.0",
     "bem-cn-lite": "^4.1.0",
+    "core-js": "^3.44.0",
     "lodash": "^4.18.1",
     "monaco-editor": "^0.56.0"
   },
@@ -374,6 +974,8 @@
     "./build/*/components/MonacoEditor/monaco-yql-languages/yql/yql.contribution.js",
     "./build/*/components/MonacoEditor/monaco-yql-languages/yql_ansi/yql_ansi.contribution.js",
     "./build/*/components/MonacoEditor/monaco-yql-languages/s-expressions/s-expressions.contribution.js",
-    "./build/*/components/MonacoEditor/monaco-yql-languages/themes/themes.contribution.js"
+    "./build/*/components/MonacoEditor/monaco-yql-languages/themes/themes.contribution.js",
+    "./src/components/MonacoEditor/initialize.ts",
+    "./build/*/components/MonacoEditor/initialize.js"
   ]
 }

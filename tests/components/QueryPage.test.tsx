@@ -171,6 +171,96 @@ describe('QueryPage', () => {
         vi.unstubAllGlobals();
     });
 
+    it('hides an empty draft without changing layout state or remounting the editor', () => {
+        const value = createProps();
+        const tab = value.tabsProps.items[0];
+        tab.executionPanelProps = {
+            tabs: [],
+            expanded: true,
+            onExpandedChange: vi.fn(),
+            onCollapsedChange: vi.fn(),
+            headerActions: <span>Actions alone</span>,
+            emptyContent: <span>Empty content alone</span>,
+        };
+        render(value);
+        const editor = container.querySelector('[data-counter="editor"]');
+        const results = container.querySelector<HTMLElement>('.qp-query-workspace__results')!;
+        const workspace = container.querySelector<HTMLElement>('.qp-query-workspace')!;
+        expect(results.hidden).toBe(true);
+        expect(separator('Resize results').parentElement!.hidden).toBe(true);
+        expect(editorHidden()).toBe(false);
+        expect(workspace.style.gridTemplateRows).toBe('minmax(160px, 1fr)');
+        tab.status = 'running';
+        render(value);
+        expect(results.hidden).toBe(false);
+        expect(editorHidden()).toBe(true);
+        tab.status = 'draft';
+        render(value);
+        expect(results.hidden).toBe(true);
+        expect(editorHidden()).toBe(false);
+        expect(container.querySelector('[data-counter="editor"]')).toBe(editor);
+        expect(tab.executionPanelProps.onExpandedChange).not.toHaveBeenCalled();
+        expect(tab.executionPanelProps.onCollapsedChange).not.toHaveBeenCalled();
+    });
+
+    it.each(['running', 'completed', 'failed', 'aborted'] as const)(
+        'shows an empty panel for status %s',
+        (status) => {
+            const value = createProps();
+            value.tabsProps.items[0].status = status;
+            value.tabsProps.items[0].executionPanelProps.tabs = [];
+            render(value);
+            expect(
+                container.querySelector<HTMLElement>('.qp-query-workspace__results')!.hidden,
+            ).toBe(false);
+            expect(separator('Resize results').parentElement!.hidden).toBe(false);
+        },
+    );
+
+    it.each([
+        {execution: {startedAt: '12:00'}},
+        {execution: {author: 'Author'}},
+        {statusContent: <span>Queued</span>},
+        {loading: true},
+        {error: true},
+    ])('shows a draft panel with execution information: %j', (props) => {
+        const value = createProps();
+        value.tabsProps.items[0].executionPanelProps = {tabs: [], ...props};
+        render(value);
+        expect(container.querySelector<HTMLElement>('.qp-query-workspace__results')!.hidden).toBe(
+            false,
+        );
+    });
+
+    it('retains panel state and size while hidden and across query tab switches', () => {
+        const value = createProps();
+        const tab = value.tabsProps.items[0];
+        addSecondTab(value);
+        tab.status = 'completed';
+        tab.executionPanelProps.emptyContent = <Counter name="empty" />;
+        tab.executionPanelProps.tabs = [];
+        tab.executionPanelProps.onCollapsedChange = vi.fn();
+        render(value);
+        const results = container.querySelector<HTMLElement>('.qp-query-workspace__results')!;
+        const counter = container.querySelector<HTMLButtonElement>('[data-counter="empty"]')!;
+        act(() => counter.click());
+        key('Resize results', 'ArrowUp');
+        const height = separator('Resize results').getAttribute('aria-valuenow');
+        tab.status = 'draft';
+        render(value);
+        expect(results.hidden).toBe(true);
+        value.tabsProps.activeTab = 'query-b';
+        render(value);
+        value.tabsProps.activeTab = 'query-a';
+        tab.status = 'completed';
+        render(value);
+        expect(results.hidden).toBe(false);
+        expect(container.querySelector('[data-counter="empty"]')).toBe(counter);
+        expect(counter.textContent).toBe('empty: 1');
+        expect(separator('Resize results').getAttribute('aria-valuenow')).toBe(height);
+        expect(tab.executionPanelProps.onCollapsedChange).not.toHaveBeenCalled();
+    });
+
     it('places the sidebar toggle in tab actions and retains consumer actions', () => {
         const value = createProps();
         const customAction = vi.fn();
@@ -462,6 +552,82 @@ describe('QueryPage', () => {
         expect(panel('Query A').querySelector('[data-counter="editor"]')?.textContent).toBe(
             'editor: 0',
         );
+    });
+
+    it('invokes workspace renderers lazily and retains their children across new callbacks and visibility changes', () => {
+        const value = createProps();
+        const first = value.tabsProps.items[0];
+        const second = addSecondTab(value);
+        const secondRenderer = vi.fn(({children, active}) => (
+            <div data-active={active}>{children}</div>
+        ));
+        second.renderWorkspace = secondRenderer;
+        const renderWrapper = (hidden: boolean) => {
+            first.renderWorkspace = ({children, active}) => (
+                <div data-active={active}>
+                    <div hidden={hidden}>{children}</div>
+                    <Counter name="file" />
+                </div>
+            );
+            render(value);
+        };
+        renderWrapper(false);
+        expect(secondRenderer).not.toHaveBeenCalled();
+        const editor =
+            panel('Query A').querySelector<HTMLButtonElement>('[data-counter="editor"]')!;
+        const results = panel('Query A').querySelector<HTMLButtonElement>(
+            '[data-counter="results"]',
+        )!;
+        const file = panel('Query A').querySelector<HTMLButtonElement>('[data-counter="file"]')!;
+        act(() => {
+            editor.click();
+            results.click();
+            file.click();
+        });
+        renderWrapper(true);
+        renderWrapper(false);
+        expect(panel('Query A').querySelector('[data-counter="editor"]')).toBe(editor);
+        expect(editor.textContent).toBe('editor: 1');
+        expect(results.textContent).toBe('results: 1');
+        expect(file.textContent).toBe('file: 1');
+        value.tabsProps.activeTab = second.id;
+        renderWrapper(false);
+        expect(secondRenderer).toHaveBeenCalledWith(expect.objectContaining({active: true}));
+        expect(panel('Query A').querySelector('[data-active]')?.getAttribute('data-active')).toBe(
+            'false',
+        );
+        value.tabsProps.activeTab = first.id;
+        renderWrapper(false);
+        expect(secondRenderer).toHaveBeenLastCalledWith(expect.objectContaining({active: false}));
+        expect(panel('Query A').querySelector('[data-counter="editor"]')).toBe(editor);
+        value.tabsProps.items = [second];
+        render(value);
+        expect(container.contains(editor)).toBe(false);
+        expect(container.contains(file)).toBe(false);
+    });
+
+    it('forwards editor visibility and execution slots through query tabs', () => {
+        const value = createProps();
+        const tab = value.tabsProps.items[0];
+        tab.editorProps.hiddenActions = ['format'];
+        tab.editorProps.hiddenPanels = ['parameters'];
+        tab.executionPanelProps.headerActions = <Counter name="stop" />;
+        tab.executionPanelProps.statusContent = <Counter name="status" />;
+        render(value);
+        expect(container.querySelector('[aria-label="Format"]')).toBeNull();
+        expect(container.querySelector('[aria-label="Parameters"]')).toBeNull();
+        const stop = container.querySelector<HTMLButtonElement>('[data-counter="stop"]')!;
+        const status = container.querySelector<HTMLButtonElement>('[data-counter="status"]')!;
+        act(() => {
+            stop.click();
+            status.click();
+        });
+        click('Collapse content');
+        expect(stop.closest('[hidden]')).toBeNull();
+        expect(status.closest('[hidden]')).toBeNull();
+        click('Expand panel');
+        expect(container.querySelector('[data-counter="stop"]')).toBe(stop);
+        expect(status.textContent).toBe('status: 1');
     });
 
     it('keeps selection controlled and uses the strip fallback for missing selection and empty items', () => {

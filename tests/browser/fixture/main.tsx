@@ -164,6 +164,12 @@ function getEditor(id: Id) {
     return editor;
 }
 
+function getModel(id: Id) {
+    const model = getEditor(id).getModel();
+    if (!model) throw new Error(`Editor ${id} has no model`);
+    return model;
+}
+
 async function runAction(id: Id, actionId: string) {
     const action = getEditor(id).getAction(actionId);
     if (!action) throw new Error(`Missing Monaco action ${actionId}`);
@@ -171,6 +177,38 @@ async function runAction(id: Id, actionId: string) {
 }
 
 const api = {
+    languages: () =>
+        monaco.languages
+            .getLanguages()
+            .map(({id}) => id)
+            .sort(),
+    async registerPython() {
+        await import('monaco-editor/languages/definitions/python/register');
+    },
+    tokens(id: Id) {
+        const model = getModel(id);
+        return monaco.editor.tokenize(model.getValue(), model.getLanguageId());
+    },
+    markers(id: Id) {
+        return monaco.editor.getModelMarkers({resource: getModel(id).uri});
+    },
+    type(id: Id, text: string) {
+        const editor = getEditor(id);
+        editor.focus();
+        editor.trigger('test', 'type', {text});
+        editor.pushUndoStop();
+    },
+    command(id: Id, command: 'undo' | 'redo') {
+        getEditor(id).trigger('test', command, {});
+    },
+    async find(id: Id) {
+        await runAction(id, 'actions.find');
+    },
+    async hover(id: Id) {
+        const editor = getEditor(id);
+        editor.setPosition({lineNumber: 1, column: 2});
+        await runAction(id, 'editor.action.showHover');
+    },
     update(id: Id, patch: Partial<Pick<Settings, 'clusterId' | 'language' | 'mounted'>>) {
         Object.assign(settings[id], patch);
         render();

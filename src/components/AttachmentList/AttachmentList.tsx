@@ -1,27 +1,10 @@
-import React, {ReactNode, useMemo} from 'react';
-import {Flex, List, ListProps} from '@gravity-ui/uikit';
-import {AttachmentItem, AttachmentItemProps} from './internal/AttachmentItem/AttachmentItem';
-import {isInteractiveTarget} from './helpers/isInteractiveTarget';
+import {Flex, List} from '@gravity-ui/uikit';
+import React, {useMemo} from 'react';
+import type {AttachmentListProps} from '../../types/attachmentListProps';
 import './AttachmentList.scss';
-
-export type AttachmentListProps<
-    T extends AttachmentItemProps['attachment'] = AttachmentItemProps['attachment'],
-> = Omit<ListProps<T>, 'items' | 'selectedItemIndex' | 'virtualized'> & {
-    attachments: AttachmentItemProps['attachment'][];
-    className?: string;
-    onDelete?: (attachment: AttachmentItemProps['attachment']) => void;
-    onEdit?: (attachment: AttachmentItemProps['attachment']) => void;
-    onRevert?: (attachment: AttachmentItemProps['attachment']) => void;
-
-    renderEditForm?: (attachment: AttachmentItemProps['attachment']) => ReactNode;
-
-    wasAddedIds?: string[];
-    wasEditedIds?: string[];
-
-    editingIds?: string[];
-
-    isDeleted?: boolean;
-};
+import {isInteractiveTarget} from './helpers/isInteractiveTarget';
+import {AttachmentItem} from './internal/AttachmentItem/AttachmentItem';
+export type {AttachmentListProps} from '../../types/attachmentListProps';
 
 export const AttachmentList = ({
     attachments,

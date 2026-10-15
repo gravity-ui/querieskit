@@ -1,4 +1,4 @@
-import type {DashboardRenderItem} from '../types';
+import type {DashboardRenderItem} from '../../../types/dashboard';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
 
 const DEFAULT_ITEM_HEIGHT = 4;

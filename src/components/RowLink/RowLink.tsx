@@ -1,15 +1,10 @@
-import React, {FC} from 'react';
 import cn from 'bem-cn-lite';
-import {QueryListLinkRenderer} from '../../types/queryList';
+import React, {FC} from 'react';
+import type {RowLinkProps} from '../../types/rowLinkProps';
 import './RowLink.scss';
+export type {RowLinkProps} from '../../types/rowLinkProps';
 
 const block = cn('qp-row-link');
-
-export type RowLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'href'> & {
-    href?: string;
-    disabled?: boolean;
-    renderLink?: QueryListLinkRenderer;
-};
 
 export const RowLink: FC<RowLinkProps> = ({
     href,

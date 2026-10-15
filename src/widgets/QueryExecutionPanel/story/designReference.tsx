@@ -5,7 +5,7 @@ import type {QueryExecutionTab} from '../../../types/queryExecutionPanel';
 import type {QueryResultsProps} from '../../../types/queryResults';
 import {DashboardCharts} from '../../DashboardCharts';
 import type {DashboardChartsProps} from '../../DashboardCharts/types';
-import {demoEdges, demoNodes} from '../../../components/QueryGraph/QueryGraph.stories';
+import {demoEdges, demoNodes} from '../../../components/QueryGraph/story/demoData';
 
 const result: QueryResultsProps<Record<string, unknown>> = {
     columns: [

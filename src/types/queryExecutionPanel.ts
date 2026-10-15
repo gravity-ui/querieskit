@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import type {NavigationMetaProps} from '../modules/NavigationMeta';
+import type {NavigationMetaProps} from './navigationMetaProps';
 import type {DashboardChartsProps} from './dashboardCharts';
 import type {ErrorTreeProps} from './errorTree';
 import type {NavigationMetaItem} from './navigation';
@@ -59,9 +59,13 @@ export type QueryExecutionPanelProps<
     onActiveTabChange?: (id: string) => void;
     /** Values are formatted by the application, including its timezone. */
     execution?: {startedAt?: ReactNode; author?: ReactNode};
+    /** Application actions before the built-in header controls; retained while collapsed. */
+    headerActions?: ReactNode;
+    /** Application status below the header; retained while collapsed or loading. */
+    statusContent?: ReactNode;
     expanded?: boolean;
     onExpandedChange?: (expanded: boolean) => void;
-    /** Collapse to the header without unmounting visited tabs. */
+    /** Collapse to the header and status without unmounting visited tabs. */
     collapsed?: boolean;
     defaultCollapsed?: boolean;
     onCollapsedChange?: (collapsed: boolean) => void;

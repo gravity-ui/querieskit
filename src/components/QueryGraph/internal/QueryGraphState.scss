@@ -1,0 +1,14 @@
+@use './queryGraphLayout' as layout;
+
+.qp-query-graph {
+    @include layout.root;
+    &__state {
+        height: 100%;
+        min-height: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--g-spacing-6);
+        text-align: center;
+    }
+}

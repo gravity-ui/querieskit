@@ -1,9 +1,9 @@
 import type {FlexProps} from '@gravity-ui/uikit';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
-import type {DashboardProps} from '../components/Dashboard';
-import type {ChartEditorProps} from '../modules/ChartEditor';
+import type {DashboardProps} from './dashboard';
 import type {
     ChartData,
+    ChartEditorProps,
     ChartFieldsChartType,
     ChartFieldsEditorProps,
     ChartFieldsFormValues,

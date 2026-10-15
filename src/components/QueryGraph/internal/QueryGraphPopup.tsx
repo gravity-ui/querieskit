@@ -1,3 +1,4 @@
+import './QueryGraphPopup.scss';
 import React, {useEffect, useMemo, useState} from 'react';
 import {Progress, SegmentedRadioGroup, Table, Text} from '@gravity-ui/uikit';
 

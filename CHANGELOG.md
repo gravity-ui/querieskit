@@ -4,14 +4,62 @@
 
 ### API migration
 
+- `QueryEditorProps.onFormat` and `onValidate` are now optional. Existing component calls remain valid; wrappers that call these properties through `QueryEditorProps` must check their presence or use `?.()`. Visible actions without handlers are disabled.
+
 - Unify `NavigationPreview` and `QueryResults` on `QueryResultsTable`. Preview columns now require YQL types; move `view.tableColumns` / `view.extraColumns` into `data.columns` and use `column.render` for custom cells. Remove `buildPreviewColumns` and replace `NavigationPreviewFormatterConfig` with the shared `NavigationPreviewViewConfig<TRow>`. See the [migration guide](src/modules/NavigationPreview/README.md).
 - Separate preview wire rows from `NavigationView` display rows; `createTableDetailConfig` accepts an independent fifth generic for view rows.
 
 ### Features
 
+- Add editor `hiddenActions` / `hiddenPanels`, execution-panel `headerActions` / `statusContent`, and per-query `renderWorkspace` composition. The QueryPage `ExternalState` example demonstrates controlled integration with an adjacent file editor while retaining the query workspace.
+
 - Upgrade the standard Result Schema with expandable types, optional markers, tags, parameters, and one-based indices. Share indices, stripes and sticky-header settings with Result. Add optional `column.schemaType` and public `QueryResultSchemaType` for neutral schema descriptions; existing YQL types work automatically and Result value formatting is unchanged.
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
+
+## [3.1.1](https://github.com/gravity-ui/querieskit/compare/v3.1.0...v3.1.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **QueryPage:** hide empty execution panels and balance tab spacing ([80634e6](https://github.com/gravity-ui/querieskit/commit/80634e68a19e4e9f796e6b57bc62532b435e0132))
+
+## [3.1.0](https://github.com/gravity-ui/querieskit/compare/v3.0.0...v3.1.0) (2026-10-15)
+
+
+### Features
+
+* **QueryPage:** add application integration extension points ([acb71b5](https://github.com/gravity-ui/querieskit/commit/acb71b5155bd1eaa5fef061813e78080dc517f86))
+
+
+### Bug Fixes
+
+* **deps:** pin charts to 1.57.2 for browser CJS consumers ([c98389f](https://github.com/gravity-ui/querieskit/commit/c98389fcbbbae0abe44c0954e427bfec2fc33aec))
+
+## [3.0.0](https://github.com/gravity-ui/querieskit/compare/v2.6.0...v3.0.0) (2026-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bundling:** only query languages and JSON are registered automatically; applications must register additional Monaco languages explicitly.
+* **editor:** rename built-in engine UI presets
+* **editor:** align engine presets and wire QueryPage integration
+* **types:** centralize public component contracts
+
+### refactor
+
+* **editor:** rename built-in engine UI presets ([4c7f7ae](https://github.com/gravity-ui/querieskit/commit/4c7f7ae94272eaf05acb37238338aa15e37d4a58))
+* **types:** centralize public component contracts ([d19df51](https://github.com/gravity-ui/querieskit/commit/d19df51142b08fc5eb32c6b47a26fab144a5e1b5))
+
+
+### Bug Fixes
+
+* **bundling:** isolate exports and lazy-load Monaco previews ([9e0d961](https://github.com/gravity-ui/querieskit/commit/9e0d96166a6239c2ba60d27609b8e504a5557a9f))
+* **composition:** preserve filter drafts and dynamic selection ([703b386](https://github.com/gravity-ui/querieskit/commit/703b3863300e0a23a4306bf40b187026fae9d233))
+* **editor:** align engine presets and wire QueryPage integration ([def5843](https://github.com/gravity-ui/querieskit/commit/def5843f28e0f34e2b0b4637ea7672b3d201f517))
+* **i18n:** localize charts and improve Storybook coverage ([2562dd1](https://github.com/gravity-ui/querieskit/commit/2562dd16286d40ba97c86690e3e2facf527ed652))
+* preserve FormField component root export ([90edae6](https://github.com/gravity-ui/querieskit/commit/90edae603cfca11682e1ac17b05624d1a0a9dc81))
+* **QueryPage:** remove Notes tab from stories ([34bf793](https://github.com/gravity-ui/querieskit/commit/34bf793e9b2adfac34b2ec3bafd84ee2d9e80b55))
 
 ## [2.6.0](https://github.com/gravity-ui/querieskit/compare/v2.5.0...v2.6.0) (2026-10-14)
 
@@ -43,7 +91,7 @@
 * **QueryEditor:** add query link sharing dialog ([47c454d](https://github.com/gravity-ui/querieskit/commit/47c454daca5d1cfb9fb2001371701240585a53b9))
 * **QueryEditor:** add save menu and simplify stories ([3062817](https://github.com/gravity-ui/querieskit/commit/3062817b75c080987726e1dda20788017c02767c))
 * **QueryEditor:** integrate attachments in shared side panel ([c9e7c62](https://github.com/gravity-ui/querieskit/commit/c9e7c6298bd773efd435bc31762945f7c79f7f51))
-* **QueryEditor:** integrate settings and YTsaurus engine preset ([9c5a040](https://github.com/gravity-ui/querieskit/commit/9c5a0409de1ad51766b50b8572f9e4b448455886))
+* **QueryEditor:** integrate settings and built-in engine preset ([9c5a040](https://github.com/gravity-ui/querieskit/commit/9c5a0409de1ad51766b50b8572f9e4b448455886))
 * **QuerySettings:** add extensible query settings form ([5d7321d](https://github.com/gravity-ui/querieskit/commit/5d7321db8b34f54a37f1ac18d3a7287ed40aa791))
 
 

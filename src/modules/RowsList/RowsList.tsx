@@ -1,42 +1,15 @@
-import React, {useMemo} from 'react';
 import cn from 'bem-cn-lite';
-import type {
-    QueryListComparisonConfig,
-    QueryListEditingConfig,
-    QueryListItem,
-    QueryListLinkRenderer,
-    QueryListRow,
-    QueryListRowAction,
-    QueryListRowRenderData,
-    QueryListRowVariant,
-    QueryListVisibleFieldsConfig,
-} from '../../types/queryList';
+import React, {useMemo} from 'react';
 import {EmptyContent} from '../../components/EmptyContent';
 import {LazyList} from '../../components/LazyList';
-import {prepareRowData} from './helpers/prepareRowData';
 import {SEARCH_ROW_HEIGHT} from '../../constants/row';
+import type {QueryListItem, QueryListRow} from '../../types/queryList';
+import type {RowsListProps} from '../../types/rowsListProps';
+import {prepareRowData} from './helpers/prepareRowData';
 import './RowsList.scss';
-import type {ListEmptyContentProps} from '../../types/listPanel';
+export type {RowsListProps} from '../../types/rowsListProps';
 
 const block = cn('qp-rows-list');
-
-export type RowsListProps<T extends QueryListRow> = ListEmptyContentProps & {
-    items: QueryListItem<T>[];
-    selectedRowId?: T['id'];
-    rowVariant?: QueryListRowVariant;
-    visibleFields?: QueryListVisibleFieldsConfig<T>;
-    editing?: QueryListEditingConfig<T>;
-    comparison?: QueryListComparisonConfig<T>;
-    getRowActions?: (item: T) => QueryListRowAction<T>[];
-    renderRow: (data: QueryListRowRenderData<T>) => React.ReactNode;
-    showFiltersHint?: boolean;
-    hasMore?: boolean;
-    loading?: boolean;
-    onLoadMore?: () => void;
-    renderLink?: QueryListLinkRenderer;
-    className?: string;
-    onItemClick?: (item: QueryListItem<T>, index: number) => void;
-};
 
 export const RowsList = <T extends QueryListRow>({
     items,

@@ -5,4 +5,5 @@ export type {
     QueryPageQueryTab,
     QueryPageComparisonTab,
     QueryPageHistoryActions,
+    QueryPageWorkspaceContext,
 } from '../../types/queryPage';

@@ -1,13 +1,11 @@
-import React, {FC} from 'react';
-import {Icon} from '@gravity-ui/uikit';
-import LockIcon from '@gravity-ui/icons/svgs/lock.svg';
 import LockOpenIcon from '@gravity-ui/icons/svgs/lock-open.svg';
-import './HistoryPrivateIcon.scss';
+import LockIcon from '@gravity-ui/icons/svgs/lock.svg';
+import {Icon} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-
-type Props = {
-    isPrivate?: boolean;
-};
+import React, {FC} from 'react';
+import type {HistoryPrivateIconProps as Props} from '../../types/historyPrivateIconProps';
+import './HistoryPrivateIcon.scss';
+export type {HistoryPrivateIconProps as Props} from '../../types/historyPrivateIconProps';
 
 const block = cn('qp-history-private-icon');
 

@@ -33,7 +33,12 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     useEffect(() => {
         if (!sharingEnabled) setShareOpen(false);
     }, [sharingEnabled]);
-    const activePanel = controlledPanel === undefined ? localPanel : controlledPanel;
+    const selectedPanel = controlledPanel === undefined ? localPanel : controlledPanel;
+    const panelHidden = selectedPanel !== null && props.hiddenPanels?.includes(selectedPanel);
+    const activePanel = panelHidden ? null : selectedPanel;
+    useEffect(() => {
+        if (controlledPanel === undefined && panelHidden) setLocalPanel(null);
+    }, [controlledPanel, panelHidden]);
     const panelWidth = controlledWidth ?? localWidth;
     const [localParameters, setLocalParameters] = useState<QueryParameter[]>([]);
     const parametersId = useId();
@@ -96,6 +101,7 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
             <QueryEditorSplit
                 className={block('split')}
                 activePanel={activePanel}
+                hiddenPanels={props.hiddenPanels}
                 settingsId={settingsId}
                 width={panelWidth}
                 onWidthChange={changeWidth}

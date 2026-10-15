@@ -1,12 +1,9 @@
-import React, {MouseEvent, useMemo} from 'react';
-import {Button, DropdownMenu, DropdownMenuItem, Icon} from '@gravity-ui/uikit';
 import EllipsisIcon from '@gravity-ui/icons/svgs/ellipsis.svg';
-import {QueryListRow, QueryListRowAction} from '../../types/queryList';
-
-export type RowActionsMenuProps<T extends QueryListRow = QueryListRow> = {
-    item: T;
-    actions?: QueryListRowAction<T>[];
-};
+import {Button, DropdownMenu, DropdownMenuItem, Icon} from '@gravity-ui/uikit';
+import React, {MouseEvent, useMemo} from 'react';
+import {QueryListRow} from '../../types/queryList';
+import type {RowActionsMenuProps} from '../../types/rowActionsMenuProps';
+export type {RowActionsMenuProps} from '../../types/rowActionsMenuProps';
 
 export const RowActionsMenu = <T extends QueryListRow>({item, actions}: RowActionsMenuProps<T>) => {
     const items = useMemo(() => {

@@ -1,0 +1,90 @@
+@mixin root {
+    --qp-parameter-toggle-size: var(--g-spacing-7);
+    --qp-parameter-guide-inset: calc(var(--qp-parameter-toggle-size) / 2);
+
+    min-width: 0;
+    &__header,
+    &__content,
+    &__list-header {
+        min-width: 0;
+    }
+    @container (min-width: 720px) {
+        &_horizontal {
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            align-items: start;
+            column-gap: var(--g-spacing-1);
+        }
+
+        &_horizontal#{&}_boxed {
+            // Keep values aligned with unboxed rows, accounting for the card inset.
+            grid-template-columns: calc(240px - var(--g-spacing-3) - 1px) minmax(0, 1fr);
+        }
+
+        &_horizontal > &__header {
+            grid-column: 1;
+            grid-row: 1;
+            padding-inline-end: var(--g-spacing-8);
+        }
+
+        &_horizontal > &__list-header,
+        &_horizontal > &__content,
+        &_horizontal > &__error {
+            grid-column: 2;
+        }
+
+        &_horizontal > &__box-heading {
+            grid-column: 1 / -1;
+            grid-row: 1;
+        }
+
+        &_horizontal#{&}_boxed > &__content {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+@mixin nested-content {
+    &__content_nested {
+        position: relative;
+        margin-inline-start: var(--qp-parameter-guide-inset);
+        padding-inline-start: var(--qp-parameter-guide-inset);
+    }
+
+    &__content_nested::before {
+        content: '';
+        position: absolute;
+        inset-inline-start: 0;
+        inset-block: 0;
+        width: 1px;
+        background: var(--g-color-line-generic);
+        // Center the stroke on the chevron axis without snapping a half-pixel border.
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+
+    &__content_nested:dir(rtl)::before {
+        transform: translateX(50%);
+    }
+}
+
+@mixin cell {
+    &__cell {
+        min-width: 0;
+        flex: 1;
+    }
+}
+
+@mixin text {
+    &__text {
+        margin: 0;
+        min-width: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font: var(--g-text-code-1-font-weight) var(--g-text-code-1-font-size) /
+            var(--g-text-code-1-line-height) var(--g-font-family-monospace);
+    }
+    &__text_paired {
+        flex: 1;
+    }
+}

@@ -3,35 +3,13 @@ import cn from 'bem-cn-lite';
 import {Flex} from '@gravity-ui/uikit';
 import {NavigationHeader} from '../NavigationHeader';
 import {SearchWithButtons} from '../../components/SearchWithButtons';
-import type {
-    GetNavigationBreadcrumbHref,
-    NavigationDetailConfig,
-    NavigationHeaderAction,
-    NavigationLocation,
-    RenderNavigationHeaderActions,
-} from '../../types/navigation';
-import type {LoadPathSuggestions} from '../../types/pathEditor';
+import type {NavigationDetailProps} from '../../types/navigationDetail';
 import {NavigationDetailTabs} from './internal/NavigationDetailTabs';
 import {getInitialTab} from './helpers/getInitialTab';
 import {getVisibleTabs} from './helpers/getVisibleTabs';
 import './NavigationDetail.scss';
 
 const block = cn('qp-navigation-detail');
-
-export type NavigationDetailProps = {
-    config: NavigationDetailConfig;
-    location: NavigationLocation;
-    onUpdate: (location: NavigationLocation) => void;
-    onLoadSuggestions?: LoadPathSuggestions;
-    actions?: NavigationHeaderAction[];
-    renderActions?: RenderNavigationHeaderActions;
-    getBreadcrumbHref?: GetNavigationBreadcrumbHref;
-    activeTab?: string;
-    onTabUpdate?: (tab: string) => void;
-    search?: string;
-    onSearchUpdate?: (value: string) => void;
-    className?: string;
-};
 
 export const NavigationDetail: React.FC<NavigationDetailProps> = ({
     config,
@@ -55,6 +33,13 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
     const [activeTabState, setActiveTabState] = useState(() =>
         getInitialTab(visibleTabs, config.defaultTab),
     );
+    if (
+        !isTabControlled &&
+        !visibleTabs.some((tab) => tab.id === activeTabState && !tab.disabled)
+    ) {
+        const nextTab = getInitialTab(visibleTabs, config.defaultTab);
+        if (nextTab !== activeTabState) setActiveTabState(nextTab);
+    }
     const [searchState, setSearchState] = useState('');
 
     const activeTab = isTabControlled ? activeTabProp : activeTabState;
@@ -92,7 +77,7 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
           null)
         : null;
 
-    const hasTabs = visibleTabs.length > 0;
+    const hasTabs = visibleTabs.some((tab) => !tab.disabled);
 
     return (
         <Flex direction="column" gap={2} className={block(null, className)}>

@@ -1,4 +1,3 @@
-import React, {type ReactNode, useMemo, useState} from 'react';
 import {
     ChartAreaStacked,
     ChartBar,
@@ -9,66 +8,82 @@ import {
     Plus,
     SquareBars,
 } from '@gravity-ui/icons';
-import {
-    Button,
-    type ButtonButtonProps,
-    DropdownMenu,
-    type DropdownMenuProps,
-    Icon,
-    type IconData,
-} from '@gravity-ui/uikit';
+import {Button, DropdownMenu, Icon} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import React, {useState} from 'react';
+import type {
+    AddChartButtonOption,
+    AddChartButtonProps,
+    DefaultAddChartButtonValue,
+} from '../../types/addChartButton';
+export type {
+    AddChartButtonOption,
+    AddChartButtonProps,
+    DefaultAddChartButtonValue,
+} from '../../types/addChartButton';
 
+import {getChartTypeLabel} from '../../helpers/chartLabels';
 import './AddChartButton.scss';
+import i18n from './i18n';
 
 const block = cn('qp-add-chart-button');
 
-export type AddChartButtonOption<TValue extends string = string> = {
-    value: TValue;
-    text: ReactNode;
-    icon?: IconData;
-    disabled?: boolean;
-    hidden?: boolean;
-};
-
-export type DefaultAddChartButtonValue =
-    'Area' | 'BarX' | 'BarY' | 'Line' | 'Pie' | 'Scatter' | 'Waterfall';
-
 export const DEFAULT_ADD_CHART_BUTTON_OPTIONS: readonly AddChartButtonOption<DefaultAddChartButtonValue>[] =
     [
-        {value: 'Area', text: 'Area', icon: ChartAreaStacked},
-        {value: 'BarX', text: 'BarX', icon: ChartBar},
-        {value: 'BarY', text: 'BarY', icon: ChartColumn},
-        {value: 'Line', text: 'Line', icon: ChartLine},
-        {value: 'Pie', text: 'Pie', icon: ChartPie},
-        {value: 'Scatter', text: 'Scatter', icon: Circles5Random},
-        {value: 'Waterfall', text: 'Waterfall', icon: SquareBars},
+        {
+            value: 'Area',
+            get text() {
+                return getChartTypeLabel('area');
+            },
+            icon: ChartAreaStacked,
+        },
+        {
+            value: 'BarX',
+            get text() {
+                return getChartTypeLabel('bar-y');
+            },
+            icon: ChartBar,
+        },
+        {
+            value: 'BarY',
+            get text() {
+                return getChartTypeLabel('bar-x');
+            },
+            icon: ChartColumn,
+        },
+        {
+            value: 'Line',
+            get text() {
+                return getChartTypeLabel('line');
+            },
+            icon: ChartLine,
+        },
+        {
+            value: 'Pie',
+            get text() {
+                return getChartTypeLabel('pie');
+            },
+            icon: ChartPie,
+        },
+        {
+            value: 'Scatter',
+            get text() {
+                return getChartTypeLabel('scatter');
+            },
+            icon: Circles5Random,
+        },
+        {
+            value: 'Waterfall',
+            get text() {
+                return getChartTypeLabel('waterfall');
+            },
+            icon: SquareBars,
+        },
     ];
 
-type SwitcherButtonProps = Omit<
-    ButtonButtonProps,
-    'children' | 'className' | 'disabled' | 'onClick' | 'onKeyDown' | 'selected' | 'size' | 'view'
->;
-
-type MenuProps = NonNullable<DropdownMenuProps<unknown>['menuProps']>;
-type PopupProps = NonNullable<DropdownMenuProps<unknown>['popupProps']>;
-
-export type AddChartButtonProps<TValue extends string = DefaultAddChartButtonValue> = {
-    text?: ReactNode;
-    options?: readonly AddChartButtonOption<TValue>[];
-    onSelect: (value: TValue) => void;
-    open?: boolean;
-    onOpenToggle?: (open: boolean) => void;
-    disabled?: boolean;
-    className?: string;
-    buttonProps?: SwitcherButtonProps;
-    menuProps?: MenuProps;
-    popupProps?: PopupProps;
-};
-
 export const AddChartButton = <TValue extends string = DefaultAddChartButtonValue>({
-    text = 'Add chart',
-    options = DEFAULT_ADD_CHART_BUTTON_OPTIONS as readonly AddChartButtonOption<TValue>[],
+    text = i18n('action_add-chart'),
+    options,
     onSelect,
     open,
     onOpenToggle,
@@ -81,17 +96,15 @@ export const AddChartButton = <TValue extends string = DefaultAddChartButtonValu
     const [innerOpen, setInnerOpen] = useState(false);
     const isOpen = open ?? innerOpen;
 
-    const items = useMemo(
-        () =>
-            options.map(({value, text: optionText, icon, disabled: optionDisabled, hidden}) => ({
-                text: optionText,
-                iconStart: icon && <Icon data={icon} size={16} className={block('option-icon')} />,
-                disabled: optionDisabled,
-                hidden,
-                action: () => onSelect(value),
-            })),
-        [onSelect, options],
-    );
+    const items = (
+        options ?? (DEFAULT_ADD_CHART_BUTTON_OPTIONS as readonly AddChartButtonOption<TValue>[])
+    ).map(({value, text: optionText, icon, disabled: optionDisabled, hidden}) => ({
+        text: optionText,
+        iconStart: icon && <Icon data={icon} size={16} className={block('option-icon')} />,
+        disabled: optionDisabled,
+        hidden,
+        action: () => onSelect(value),
+    }));
 
     const handleOpenToggle: React.Dispatch<React.SetStateAction<boolean>> = (nextOpen) => {
         const nextValue = typeof nextOpen === 'function' ? nextOpen(isOpen) : nextOpen;

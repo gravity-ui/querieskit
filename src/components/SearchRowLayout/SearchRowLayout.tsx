@@ -1,24 +1,18 @@
-import React, {FC, ReactNode} from 'react';
 import {Flex} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import {MonacoEditor} from '../MonacoEditor';
+import React, {FC, Suspense, lazy} from 'react';
+import type {SearchRowLayoutProps} from '../../types/searchRowLayoutProps';
 import {RowLink} from '../RowLink';
-import {QueryListLinkRenderer} from '../../types/queryList';
 import {fitQueryToVisibleLines} from './helpers/fitQueryToVisibleLines';
 import {MONACO_CONFIG} from './helpers/monacoConfig';
 import './SearchRowLayout.scss';
+export type {SearchRowLayoutProps} from '../../types/searchRowLayoutProps';
+
+const MonacoEditor = lazy(() =>
+    import('../MonacoEditor').then((module) => ({default: module.MonacoEditor})),
+);
 
 const block = cn('qp-search-row-layout');
-
-export type SearchRowLayoutProps = {
-    header: ReactNode;
-    query?: string;
-    language: string;
-    href?: string;
-    disabled?: boolean;
-    renderLink?: QueryListLinkRenderer;
-    className?: string;
-};
 
 export const SearchRowLayout: FC<SearchRowLayoutProps> = ({
     header,
@@ -29,6 +23,8 @@ export const SearchRowLayout: FC<SearchRowLayoutProps> = ({
     renderLink,
     className,
 }) => {
+    const visibleQuery = fitQueryToVisibleLines(query);
+
     return (
         <RowLink
             href={href}
@@ -40,13 +36,19 @@ export const SearchRowLayout: FC<SearchRowLayoutProps> = ({
                 <Flex gap={2} alignItems="center">
                     {header}
                 </Flex>
-                <MonacoEditor
-                    value={fitQueryToVisibleLines(query)}
-                    language={language}
-                    readOnly
-                    monacoConfig={MONACO_CONFIG}
-                    className={block('monaco')}
-                />
+                <Suspense
+                    fallback={
+                        <pre className={block('monaco', {loading: true})}>{visibleQuery}</pre>
+                    }
+                >
+                    <MonacoEditor
+                        value={visibleQuery}
+                        language={language}
+                        readOnly
+                        monacoConfig={MONACO_CONFIG}
+                        className={block('monaco')}
+                    />
+                </Suspense>
             </Flex>
         </RowLink>
     );

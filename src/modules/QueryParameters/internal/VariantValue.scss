@@ -1,0 +1,9 @@
+@use './parameterValueLayout' as layout;
+
+.qp-parameter-value {
+    @include layout.cell;
+    &__radio {
+        margin-block-start: var(--g-spacing-half);
+        flex-shrink: 0;
+    }
+}

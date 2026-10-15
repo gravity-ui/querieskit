@@ -20,6 +20,7 @@ type Props = {
     parametersId: string;
     attachmentsId: string;
     activePanel: QueryEditorPanel;
+    hiddenPanels?: Array<Exclude<QueryEditorPanel, null>>;
     settingsId: string;
     width: number;
     onWidthChange: (width: number) => void;
@@ -35,6 +36,7 @@ export function QueryEditorSplit({
     parameters,
     parametersId,
     activePanel,
+    hiddenPanels,
     settingsId,
     width,
     onWidthChange,
@@ -142,26 +144,28 @@ export function QueryEditorSplit({
                         }}
                     />
                 )}
-                {(['settings', 'attachments', 'parameters'] as const).map((panel) => (
-                    <div
-                        key={panel}
-                        id={panels[panel].id}
-                        role="region"
-                        aria-label={panels[panel].title}
-                        hidden={activePanel !== panel}
-                        className={block('panel')}
-                        style={{width: renderedWidth}}
-                    >
-                        <Flex direction="column" className={block('panel-layout')}>
-                            <PanelHeader
-                                title={panels[panel].title}
-                                closeLabel={panels[panel].closeLabel}
-                                onClose={onClose}
-                            />
-                            <div className={block('content')}>{panels[panel].content}</div>
-                        </Flex>
-                    </div>
-                ))}
+                {(['settings', 'attachments', 'parameters'] as const)
+                    .filter((panel) => !hiddenPanels?.includes(panel))
+                    .map((panel) => (
+                        <div
+                            key={panel}
+                            id={panels[panel].id}
+                            role="region"
+                            aria-label={panels[panel].title}
+                            hidden={activePanel !== panel}
+                            className={block('panel')}
+                            style={{width: renderedWidth}}
+                        >
+                            <Flex direction="column" className={block('panel-layout')}>
+                                <PanelHeader
+                                    title={panels[panel].title}
+                                    closeLabel={panels[panel].closeLabel}
+                                    onClose={onClose}
+                                />
+                                <div className={block('content')}>{panels[panel].content}</div>
+                            </Flex>
+                        </div>
+                    ))}
             </Flex>
         </div>
     );

@@ -11,9 +11,11 @@ row indices off by default; results keep them on. See the
 [NavigationPreview migration guide](../NavigationPreview/README.md) for typed
 columns and settings passed directly or through `createTableDetailConfig`.
 
-## YTsaurus integration
+## Preparing application data for display
 
-Keep legacy metadata separately from the wire values. Map `$incomplete` to
+The application supplies rows, column types and cell metadata. QueriesKit does not load results. Its standard value formatter expects YQL wire values and types; adapt data from other sources to that representation or provide `column.render`. A neutral `schemaType` changes only the Schema view, not value formatting.
+
+For example, keep legacy metadata separately from the wire values. Map `$incomplete` to
 `isIncomplete`, `$tagValue` to `tag`, and `$rawValue` to `copyText`; do not pass the
 previously generated HTML as a value. The application decides whether URL copying
 uses the label or the href by passing the desired literal `copyText`.

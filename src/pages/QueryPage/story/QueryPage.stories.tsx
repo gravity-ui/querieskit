@@ -1,39 +1,57 @@
 import React, {useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
-import {Button, Flex, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Flex, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryPage} from '..';
 import type {QueryPageComparisonTab, QueryPageQueryTab} from '../../../types/queryPage';
-import type {QueryHistoryRow} from '../../../types/history';
+import type {QueryHistoryRow, QueryStatus} from '../../../types/history';
 import {BASE_ITEMS} from '../../../modules/QueriesHistory/QueriesHistory.stories.data';
 import {useQueriesSidebarTabs} from '../../../widgets/QueriesSidebar/QueriesSidebar.stories.data';
-import {
-    CLUSTERS,
-    PARAMETERS,
-    QUERY,
-    SETTINGS,
-    TAB_ENGINES,
-} from '../../../widgets/QueryEditor/story/demoData';
+import {CLUSTERS, PARAMETERS, QUERY, SETTINGS} from '../../../widgets/QueryEditor/story/demoData';
+import {createBuiltinQueryEngines} from '../../../widgets/QueryEditor/presets/builtin';
+import {createQueryEditorPreset} from '../../../helpers/queryEditorPreset';
 import {designTabs} from '../../../widgets/QueryExecutionPanel/story/designReference';
 import './QueryPage.stories.scss';
+import {ExternalStateExample} from './ExternalStateExample';
 
-function Notes() {
-    const [value, setValue] = useState('');
-    return (
-        <TextInput
-            controlProps={{'aria-label': 'Execution notes'}}
-            placeholder="These notes survive collapsing and expanding results"
-            value={value}
-            onUpdate={setValue}
-        />
-    );
-}
+const engines = createBuiltinQueryEngines({
+    yql: {versions: ['stable', 'preview']},
+    chyt: {cliques: [{alias: 'analytics', state: 'active', health: 'good'}]},
+    spyt: {discoveryGroups: [{path: '//sys/spark/clusters/demo', title: 'Demo Spark'}]},
+});
+const preset = createQueryEditorPreset({
+    listPathChildren: ({language, token}) =>
+        token.isCancellationRequested
+            ? []
+            : [
+                  {
+                      name: 'events',
+                      path:
+                          language === 'spyt' || language === 'clickhouse'
+                              ? 'events'
+                              : '//demo/events',
+                      kind: 'table',
+                  },
+              ],
+    getTableSchema: ({token}) =>
+        token.isCancellationRequested
+            ? []
+            : [
+                  {name: 'region', type: 'String'},
+                  {name: 'event_id', type: 'Uint64'},
+              ],
+    onReferenceClick: action('navigateToTable'),
+});
 
 type ExampleProps = {
     sidebarHidden?: boolean;
     resultsCollapsed?: boolean;
     resultsExpanded?: boolean;
     controlled?: boolean;
+    fourEngines?: boolean;
+    initialComparison?: boolean;
+    initialActiveTab?: string;
+    emptyQuery?: boolean;
 };
 
 function Example({
@@ -41,24 +59,38 @@ function Example({
     resultsCollapsed = false,
     resultsExpanded = false,
     controlled = false,
+    fourEngines = false,
+    initialComparison = false,
+    initialActiveTab = '1',
+    emptyQuery = false,
 }: ExampleProps) {
     const createDraft = (id: string) => ({
         id,
+        status: 'draft' as QueryStatus,
         value:
             id === '2' ? 'SELECT region, COUNT(*) FROM `//demo/events` GROUP BY region;\n' : QUERY,
         savedValue:
             id === '2' ? 'SELECT region, COUNT(*) FROM `//demo/events` GROUP BY region;\n' : QUERY,
         clusterId: CLUSTERS[id === '2' ? 1 : 0].id,
-        engineId: TAB_ENGINES[0].id,
+        engineId: fourEngines ? engines[(Number(id) - 1) % engines.length].id : engines[0].id,
         parameters: PARAMETERS.map((parameter) => ({...parameter})),
         settings: {...SETTINGS, queryName: `Query ${id}`},
         executionPanelHeight: 300,
         collapsed: resultsCollapsed,
         expanded: resultsExpanded,
     });
-    const [drafts, setDrafts] = useState(() => [createDraft('1'), createDraft('2')]);
-    const [activeId, setActiveId] = useState('1');
-    const nextId = useRef(3);
+    const defaultIds = fourEngines ? ['1', '2', '3', '4'] : ['1', '2'];
+    const initialIds = emptyQuery ? ['1'] : defaultIds;
+    const [drafts, setDrafts] = useState(() =>
+        initialIds.map((id) => ({
+            ...createDraft(id),
+            status: (emptyQuery ? 'draft' : 'completed') as QueryStatus,
+        })),
+    );
+    const [activeId, setActiveId] = useState(
+        initialComparison ? 'comparison-initial' : initialActiveTab,
+    );
+    const nextId = useRef(initialIds.length + 1);
     const [comparisons, setComparisons] = useState<
         {
             id: string;
@@ -67,7 +99,19 @@ function Example({
             value: string | null;
             savedValue: string | null;
         }[]
-    >([]);
+    >(() => {
+        if (!initialComparison) return [];
+        const rows = BASE_ITEMS.filter((item): item is QueryHistoryRow => 'id' in item);
+        return [
+            {
+                id: 'comparison-initial',
+                original: rows[0],
+                modified: rows[1],
+                value: rows[1].query ?? null,
+                savedValue: rows[1].query ?? null,
+            },
+        ];
+    });
     const [historyItems, setHistoryItems] = useState(BASE_ITEMS);
     const historyRows = historyItems.filter((item): item is QueryHistoryRow => 'id' in item);
     const versionId = (row: QueryHistoryRow) => `${typeof row.id}:${row.id}`;
@@ -256,7 +300,7 @@ function Example({
                                     id: draft.id,
                                     title: `Query ${draft.id}`,
                                     type: 'query' as const,
-                                    status: 'draft' as const,
+                                    status: draft.status,
                                     isModified: draft.value !== draft.savedValue,
                                     executionPanelHeight: controlled
                                         ? draft.executionPanelHeight
@@ -273,16 +317,22 @@ function Example({
                                         clusterId: draft.clusterId,
                                         onClusterChange: (clusterId) =>
                                             updateDraft(draft.id, {clusterId}),
-                                        engines: TAB_ENGINES,
+                                        engines,
+                                        preset,
                                         engineId: draft.engineId,
                                         onEngineChange: (engineId) =>
                                             updateDraft(draft.id, {engineId}),
-                                        onRun: () =>
+                                        onRun: () => {
+                                            updateDraft(draft.id, {status: 'running'});
                                             action('run')({
                                                 id: draft.id,
                                                 value: draft.value,
                                                 parameters: draft.parameters,
-                                            }),
+                                            });
+                                        },
+                                        actionStates: {
+                                            run: {disabled: draft.status === 'running'},
+                                        },
                                         onFormat: () =>
                                             updateDraft(draft.id, {
                                                 value: draft.value.trim() + '\n',
@@ -305,19 +355,24 @@ function Example({
                                         },
                                     },
                                     executionPanelProps: {
-                                        tabs: [
-                                            ...designTabs,
-                                            {
-                                                id: 'notes',
-                                                type: 'custom' as const,
-                                                title: 'Notes',
-                                                renderContent: () => <Notes />,
-                                            },
-                                        ],
-                                        execution: {
-                                            startedAt: '11 Dec 2025, 12:07:27',
-                                            author: `query-${draft.id}-author`,
-                                        },
+                                        tabs: draft.status === 'completed' ? designTabs : [],
+                                        execution:
+                                            draft.status === 'draft'
+                                                ? undefined
+                                                : {
+                                                      startedAt: '11 Dec 2025, 12:07:27',
+                                                      author: `query-${draft.id}-author`,
+                                                  },
+                                        loading: draft.status === 'running',
+                                        headerActions: draft.status === 'running' && (
+                                            <Button
+                                                onClick={() =>
+                                                    updateDraft(draft.id, {status: 'completed'})
+                                                }
+                                            >
+                                                Complete demo execution
+                                            </Button>
+                                        ),
                                         defaultCollapsed: resultsCollapsed,
                                         collapsed: controlled ? draft.collapsed : undefined,
                                         onCollapsedChange: (collapsed) => {
@@ -360,20 +415,32 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const HistoryComparison: Story = {
+export const EmptyQuery: Story = {
+    args: {emptyQuery: true},
     parameters: {
         docs: {
             description: {
-                story: 'Open a history row menu, choose Select for Compare, select a second row, then compare. Rename and Delete update the demo history. Comparison tabs support editing the right-hand draft, reset/save, creating a query from the current draft, version selectors, and split/unified modes.',
+                story: 'Starts with one unmodified draft and no execution panel. Click Run to reveal the panel, then Complete demo execution to show results. Added queries also start without execution data.',
+            },
+        },
+    },
+};
+export const HistoryComparison: Story = {
+    args: {initialComparison: true},
+    parameters: {
+        docs: {
+            description: {
+                story: 'Starts with an editable comparison. To open another, use Select for Compare in the history row menu. Rename and Delete update the demo history. Comparison tabs support editing the right-hand draft, reset/save, creating a query from the current draft, version selectors, and split/unified modes.',
             },
         },
     },
 };
 export const IndependentTabs: Story = {
+    args: {initialActiveTab: '2'},
     parameters: {
         docs: {
             description: {
-                story: 'Edit Query 1, open its Notes results tab, then switch to Query 2. Each query retains its editor, settings, notes and results layout. Closing a query removes its workspace; adding a query creates a fresh one.',
+                story: 'Edit Query 1, then switch to Query 2. Each query retains its editor, settings and results layout. Closing a query removes its workspace; adding a query creates a fresh one.',
             },
         },
     },
@@ -382,3 +449,7 @@ export const HiddenSidebar: Story = {args: {sidebarHidden: true}};
 export const CollapsedResults: Story = {args: {resultsCollapsed: true}};
 export const ExpandedResults: Story = {args: {resultsExpanded: true}};
 export const ControlledLayout: Story = {args: {controlled: true}};
+
+export const FourEngines: Story = {args: {fourEngines: true}};
+
+export const ExternalState: Story = {render: () => <ExternalStateExample />};
