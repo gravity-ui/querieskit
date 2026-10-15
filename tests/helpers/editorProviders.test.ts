@@ -188,6 +188,28 @@ describe('model-scoped editor providers', () => {
         expect(f.registrations).toHaveLength(3);
     });
 
+    it('preserves an external global registration while replacing, disabling and remounting library providers', async () => {
+        const f = fixture();
+        const globalProvider = {provideCompletionItems: vi.fn(() => ({suggestions: []}))};
+        const external = f.monaco.languages.registerCompletionItemProvider('sql', globalProvider);
+        const preset = {completion: {provideCompletionItems: vi.fn()}};
+        const replacement = {provideCompletionItems: vi.fn()};
+        const attached = attachEditorProviders(f.monaco, f.model, preset, undefined);
+        attached.update({completion: {mode: 'replace', provider: replacement}});
+        attached.update({completion: false});
+        attached.dispose();
+        const remounted = attachEditorProviders(f.monaco, f.model, preset, undefined);
+        remounted.dispose();
+        expect(f.registrations.slice(1).length).toBeGreaterThan(0);
+        for (const registration of f.registrations.slice(1)) {
+            expect(registration.dispose).toHaveBeenCalledOnce();
+        }
+        expect(f.registrations[0].dispose).not.toHaveBeenCalled();
+        await f.request();
+        expect(globalProvider.provideCompletionItems).toHaveBeenCalledOnce();
+        external.dispose();
+    });
+
     it('replaces, appends and disables without changing inputs', () => {
         const f = fixture();
         const preset = {completion: {provideCompletionItems: vi.fn()}};

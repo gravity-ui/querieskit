@@ -4,6 +4,10 @@
     height: 100%;
     background: var(--g-color-base-background);
 
+    &_with-slots {
+        overflow: auto;
+    }
+
     &_collapsed {
         height: auto;
         flex: 0 0 auto;
@@ -30,6 +34,28 @@
         margin-left: auto;
         min-width: 0;
         overflow-wrap: anywhere;
+    }
+
+    &__header-actions {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    &__header-actions:empty,
+    &__status:empty {
+        display: none;
+    }
+
+    &__status {
+        flex-shrink: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        padding: var(--g-spacing-2) var(--g-spacing-4);
+    }
+
+    // Keep results reachable when the header and status exceed the available height.
+    &_with-slots:not(&_collapsed) &__content {
+        min-height: var(--g-spacing-10);
     }
 
     &__actions {
