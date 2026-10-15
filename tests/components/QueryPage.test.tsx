@@ -464,6 +464,82 @@ describe('QueryPage', () => {
         );
     });
 
+    it('invokes workspace renderers lazily and retains their children across new callbacks and visibility changes', () => {
+        const value = createProps();
+        const first = value.tabsProps.items[0];
+        const second = addSecondTab(value);
+        const secondRenderer = vi.fn(({children, active}) => (
+            <div data-active={active}>{children}</div>
+        ));
+        second.renderWorkspace = secondRenderer;
+        const renderWrapper = (hidden: boolean) => {
+            first.renderWorkspace = ({children, active}) => (
+                <div data-active={active}>
+                    <div hidden={hidden}>{children}</div>
+                    <Counter name="file" />
+                </div>
+            );
+            render(value);
+        };
+        renderWrapper(false);
+        expect(secondRenderer).not.toHaveBeenCalled();
+        const editor =
+            panel('Query A').querySelector<HTMLButtonElement>('[data-counter="editor"]')!;
+        const results = panel('Query A').querySelector<HTMLButtonElement>(
+            '[data-counter="results"]',
+        )!;
+        const file = panel('Query A').querySelector<HTMLButtonElement>('[data-counter="file"]')!;
+        act(() => {
+            editor.click();
+            results.click();
+            file.click();
+        });
+        renderWrapper(true);
+        renderWrapper(false);
+        expect(panel('Query A').querySelector('[data-counter="editor"]')).toBe(editor);
+        expect(editor.textContent).toBe('editor: 1');
+        expect(results.textContent).toBe('results: 1');
+        expect(file.textContent).toBe('file: 1');
+        value.tabsProps.activeTab = second.id;
+        renderWrapper(false);
+        expect(secondRenderer).toHaveBeenCalledWith(expect.objectContaining({active: true}));
+        expect(panel('Query A').querySelector('[data-active]')?.getAttribute('data-active')).toBe(
+            'false',
+        );
+        value.tabsProps.activeTab = first.id;
+        renderWrapper(false);
+        expect(secondRenderer).toHaveBeenLastCalledWith(expect.objectContaining({active: false}));
+        expect(panel('Query A').querySelector('[data-counter="editor"]')).toBe(editor);
+        value.tabsProps.items = [second];
+        render(value);
+        expect(container.contains(editor)).toBe(false);
+        expect(container.contains(file)).toBe(false);
+    });
+
+    it('forwards editor visibility and execution slots through query tabs', () => {
+        const value = createProps();
+        const tab = value.tabsProps.items[0];
+        tab.editorProps.hiddenActions = ['format'];
+        tab.editorProps.hiddenPanels = ['parameters'];
+        tab.executionPanelProps.headerActions = <Counter name="stop" />;
+        tab.executionPanelProps.statusContent = <Counter name="status" />;
+        render(value);
+        expect(container.querySelector('[aria-label="Format"]')).toBeNull();
+        expect(container.querySelector('[aria-label="Parameters"]')).toBeNull();
+        const stop = container.querySelector<HTMLButtonElement>('[data-counter="stop"]')!;
+        const status = container.querySelector<HTMLButtonElement>('[data-counter="status"]')!;
+        act(() => {
+            stop.click();
+            status.click();
+        });
+        click('Collapse content');
+        expect(stop.closest('[hidden]')).toBeNull();
+        expect(status.closest('[hidden]')).toBeNull();
+        click('Expand panel');
+        expect(container.querySelector('[data-counter="stop"]')).toBe(stop);
+        expect(status.textContent).toBe('status: 1');
+    });
+
     it('keeps selection controlled and uses the strip fallback for missing selection and empty items', () => {
         const value = createProps();
         addSecondTab(value);

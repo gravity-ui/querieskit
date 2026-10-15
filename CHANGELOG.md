@@ -4,10 +4,14 @@
 
 ### API migration
 
+- `QueryEditorProps.onFormat` and `onValidate` are now optional. Existing component calls remain valid; wrappers that call these properties through `QueryEditorProps` must check their presence or use `?.()`. Visible actions without handlers are disabled.
+
 - Unify `NavigationPreview` and `QueryResults` on `QueryResultsTable`. Preview columns now require YQL types; move `view.tableColumns` / `view.extraColumns` into `data.columns` and use `column.render` for custom cells. Remove `buildPreviewColumns` and replace `NavigationPreviewFormatterConfig` with the shared `NavigationPreviewViewConfig<TRow>`. See the [migration guide](src/modules/NavigationPreview/README.md).
 - Separate preview wire rows from `NavigationView` display rows; `createTableDetailConfig` accepts an independent fifth generic for view rows.
 
 ### Features
+
+- Add editor `hiddenActions` / `hiddenPanels`, execution-panel `headerActions` / `statusContent`, and per-query `renderWorkspace` composition. The QueryPage `ExternalState` example demonstrates controlled integration with an adjacent file editor while retaining the query workspace.
 
 - Upgrade the standard Result Schema with expandable types, optional markers, tags, parameters, and one-based indices. Share indices, stripes and sticky-header settings with Result. Add optional `column.schemaType` and public `QueryResultSchemaType` for neutral schema descriptions; existing YQL types work automatically and Result value formatting is unchanged.
 

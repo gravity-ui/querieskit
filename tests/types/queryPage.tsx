@@ -1,8 +1,14 @@
 import React from 'react';
-import {QueryPage, type QueryPageProps, type QueryPageTab} from '../../src';
+import {
+    QueryPage,
+    type QueryPageProps,
+    type QueryPageTab,
+    type QueryPageWorkspaceContext,
+} from '../../src';
 import {
     type QueryPageProps as EntrypointProps,
     QueryPage as QueryPageEntrypoint,
+    type QueryPageWorkspaceContext as EntrypointWorkspaceContext,
 } from '../../src/pages/QueryPage';
 import type {QueryHistoryRow} from '../../src/types/history';
 import type {SavedQuery} from '../../src/types/savedQueries';
@@ -38,6 +44,7 @@ type Assert<T extends true> = T;
 // Exact equality protects the original widget contracts, including callbacks,
 // extension points, controlled state and each of the eight custom data types.
 export type ContractChecks = [
+    Assert<Equal<QueryPageWorkspaceContext, EntrypointWorkspaceContext>>,
     Assert<Equal<PageTab, QueryPageTab<Settings, Row, Meta>>>,
     Assert<
         Equal<Props['sidebarProps'], QueriesSidebarProps<History, Saved, Item, Cluster, Tutorial>>
@@ -62,6 +69,9 @@ const tabs = {
             status: 'draft' as const,
             editorProps: editor,
             executionPanelProps: execution,
+            renderWorkspace: ({children, active}: QueryPageWorkspaceContext) => (
+                <div hidden={!active}>{children}</div>
+            ),
             onExecutionPanelHeightChange: (value: number) => value.toFixed(),
         },
     ],
@@ -103,6 +113,16 @@ export const customForms: Tab['editorProps'] = {
     attachmentsProps: undefined,
     parameters: <span>Parameters</span>,
     parametersProps: undefined,
+    onFormat: undefined,
+    onValidate: undefined,
+    hiddenActions: ['format', 'validate'],
+    hiddenPanels: ['parameters'],
+};
+
+export const executionSlots: Tab['executionPanelProps'] = {
+    ...execution,
+    headerActions: <button>Stop</button>,
+    statusContent: <span>Running</span>,
 };
 
 // @ts-expect-error Custom settings and the built-in form are mutually exclusive.

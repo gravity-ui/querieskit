@@ -56,8 +56,12 @@ export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
         engineId?: string;
         onEngineChange: (id: string) => void;
         onRun: () => void;
-        onFormat: () => void;
-        onValidate: () => void;
+        onFormat?: () => void;
+        onValidate?: () => void;
+        /** Omit built-in actions from the toolbar. External editor commands are unaffected. */
+        hiddenActions?: Array<'run' | 'format' | 'validate'>;
+        /** Unmount these panels and hide their toolbar buttons. */
+        hiddenPanels?: Array<Exclude<QueryEditorPanel, null>>;
         actionStates?: Partial<Record<'run' | 'format' | 'validate', QueryEditorActionState>>;
         additionalActions?: QueryEditorMenuAction[];
         rightActions?: QueryEditorToolbarAction[];

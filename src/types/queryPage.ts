@@ -1,3 +1,4 @@
+import type {ReactNode} from 'react';
 import type {QueryHistoryRow} from './history';
 import type {NavigationCluster, NavigationItem, NavigationMetaItem} from './navigation';
 import type {QueriesSidebarProps} from './queriesSidebar';
@@ -8,6 +9,13 @@ import type {TutorialHistoryRow} from './tutorial';
 import type {QueryTabItem, QueryTabsProps} from './queryTabs';
 import type {QueryComparisonProps} from './queryComparison';
 
+export type QueryPageWorkspaceContext = {
+    /** Standard editor, results and their resize handle. Keep mounted in a stable position. */
+    children: ReactNode;
+    /** Whether this query tab is selected; does not include consumer-controlled hiding. */
+    active: boolean;
+};
+
 /** One independent editor and execution workspace. Keep id stable until closing. */
 export type QueryPageQueryTab<
     TCustom extends object = Record<string, unknown>,
@@ -16,6 +24,8 @@ export type QueryPageQueryTab<
 > = Extract<QueryTabItem, {type: 'query'}> & {
     editorProps: QueryEditorProps<TCustom>;
     executionPanelProps: QueryExecutionPanelProps<TRow, TMetaItem>;
+    /** Wrap the standard workspace without changing its identity or parent structure. */
+    renderWorkspace?: (context: QueryPageWorkspaceContext) => ReactNode;
     /** Preferred results height in pixels, constrained to this workspace. */
     executionPanelHeight?: number;
     /** Defaults to 300. */

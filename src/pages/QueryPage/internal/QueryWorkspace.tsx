@@ -19,6 +19,15 @@ export function QueryWorkspace<
     TRow extends Record<string, unknown>,
     TMetaItem extends NavigationMetaItem,
 >({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
+    const children = <StandardQueryWorkspace tab={tab} active={active} />;
+    return tab.renderWorkspace ? tab.renderWorkspace({children, active}) : children;
+}
+
+function StandardQueryWorkspace<
+    TCustom extends object,
+    TRow extends Record<string, unknown>,
+    TMetaItem extends NavigationMetaItem,
+>({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
     const {editorProps, executionPanelProps} = tab;
     const resultsId = useId();
     const [rootRef, rootSize] = useElementSize();

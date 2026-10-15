@@ -111,6 +111,60 @@ describe('QueryExecutionPanel', () => {
         vi.restoreAllMocks();
     });
 
+    it('keeps application slots mounted and available across panel states', () => {
+        const slots = {
+            headerActions: (
+                <div data-header-action>
+                    <Counter />
+                </div>
+            ),
+            statusContent: (
+                <div data-status-content>
+                    <Counter />
+                </div>
+            ),
+            onExpandedChange: vi.fn(),
+        };
+        render(slots);
+        const action = container.querySelector<HTMLElement>('[data-header-action]')!;
+        const status = container.querySelector<HTMLElement>('[data-status-content]')!;
+        act(() => {
+            action.querySelector('button')!.click();
+            status.querySelector('button')!.click();
+        });
+        const builtin = container.querySelector('[aria-label="Expand panel"]')!;
+        expect(action.compareDocumentPosition(builtin)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+        click('b');
+        for (const state of [
+            {collapsed: true},
+            {expanded: true},
+            {loading: true},
+            {error: true},
+            {tabs: []},
+            {},
+        ]) {
+            render({...slots, ...state});
+            expect(container.querySelector('[data-header-action]')).toBe(action);
+            expect(container.querySelector('[data-status-content]')).toBe(status);
+            expect(action.textContent).toBe('Count 1');
+            expect(status.textContent).toBe('Count 1');
+            expect(action.closest('[hidden]')).toBeNull();
+            expect(status.closest('[hidden]')).toBeNull();
+        }
+        act(() => action.querySelector('button')!.click());
+        expect(action.textContent).toBe('Count 2');
+    });
+
+    it('omits empty slot wrappers and accepts zero as status content', () => {
+        for (const empty of [undefined, null, false, '', []]) {
+            render({headerActions: empty, statusContent: empty});
+            expect(container.querySelector('.qp-query-execution-panel__header-actions')).toBeNull();
+            expect(container.querySelector('.qp-query-execution-panel__status')).toBeNull();
+        }
+        render({statusContent: 0});
+        expect(container.querySelector('.qp-query-execution-panel__status')?.textContent).toBe('0');
+    });
+
     it('honors the initial default, follows preferred changes, and locks after manual selection', () => {
         render({defaultActiveTab: 'a', preferredActiveTab: 'b'});
         expect(selected()).toBe('a');

@@ -203,6 +203,89 @@ describe('QueryEditor', () => {
         expect(container.querySelector('[aria-label="Save"]')).toBeNull();
         expect(container.textContent).not.toContain('Code Assistant');
     });
+    it('hides requested actions and disables missing callbacks even with explicit enabled state', () => {
+        render({
+            hiddenActions: ['run', 'validate'],
+            onFormat: undefined,
+            actionStates: {format: {disabled: false}},
+        });
+        expect(container.querySelector('button[aria-label="Run"]')).toBeNull();
+        expect(container.querySelector('button[aria-label="Validate"]')).toBeNull();
+        expect(button('Format').disabled).toBe(true);
+        render({
+            onFormat: undefined,
+            onValidate: undefined,
+            actionStates: {format: {disabled: false}, validate: {disabled: false}},
+        });
+        expect(button('Format').disabled).toBe(true);
+        expect(button('Validate').disabled).toBe(true);
+        expect(button('Run').disabled).toBe(false);
+        render();
+        click(button('Format'));
+        expect(props.onFormat).toHaveBeenCalledOnce();
+        expect(editor.mount).toHaveBeenCalledOnce();
+    });
+    it.each(['settings', 'attachments', 'parameters'] as const)(
+        'unmounts hidden %s without changing controlled selection or form data',
+        (panelName) => {
+            const mount = vi.fn();
+            const unmount = vi.fn();
+            const onPanelChange = vi.fn();
+            function Content() {
+                useEffect(() => {
+                    mount();
+                    return unmount;
+                }, []);
+                return <span data-testid="custom-panel">Custom form</span>;
+            }
+            const overrides = {
+                activePanel: panelName,
+                onActivePanelChange: onPanelChange,
+                [panelName]: <Content />,
+            };
+            render({...overrides, hiddenPanels: [panelName]});
+            expect(mount).not.toHaveBeenCalled();
+            expect(separator()).toBeNull();
+            expect(container.querySelector('[data-testid="custom-panel"]')).toBeNull();
+            expect(
+                container.querySelector(
+                    `button[aria-label="${panelName[0].toUpperCase()}${panelName.slice(1)}"]`,
+                ),
+            ).toBeNull();
+            render(overrides);
+            expect(mount).toHaveBeenCalledOnce();
+            expect(separator()).not.toBeNull();
+            render({...overrides, activePanel: null});
+            expect(unmount).not.toHaveBeenCalled();
+            render({...overrides, hiddenPanels: [panelName]});
+            expect(unmount).toHaveBeenCalledOnce();
+            expect(separator()).toBeNull();
+            render(overrides);
+            expect(mount).toHaveBeenCalledTimes(2);
+            expect(separator()).not.toBeNull();
+            expect(onPanelChange).not.toHaveBeenCalled();
+            expect(props.onChange).not.toHaveBeenCalled();
+            expect(editor.mount).toHaveBeenCalledOnce();
+        },
+    );
+    it.each(['settings', 'attachments', 'parameters'] as const)(
+        'resets hidden uncontrolled %s silently and leaves it closed when restored',
+        (panelName) => {
+            const onActivePanelChange = vi.fn();
+            const overrides = {defaultActivePanel: panelName, onActivePanelChange};
+            render(overrides);
+            expect(separator()).not.toBeNull();
+            render({...overrides, hiddenPanels: [panelName]});
+            expect(separator()).toBeNull();
+            render(overrides);
+            expect(separator()).toBeNull();
+            expect(onActivePanelChange).not.toHaveBeenCalled();
+            click(button(panelName[0].toUpperCase() + panelName.slice(1)));
+            expect(separator()).not.toBeNull();
+            expect(onActivePanelChange).toHaveBeenCalledExactlyOnceWith(panelName);
+            expect(editor.mount).toHaveBeenCalledOnce();
+        },
+    );
     it('respects disabled/loading actions and optional toolbar/footer callbacks', () => {
         const onRight = vi.fn();
         const onAssistant = vi.fn();

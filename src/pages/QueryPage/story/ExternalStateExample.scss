@@ -1,0 +1,41 @@
+.qp-external-state-example {
+    height: calc(100vh - 32px);
+    min-height: 400px;
+    padding: var(--g-spacing-4);
+    box-sizing: border-box;
+
+    &__page {
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+    }
+    &__workspace {
+        height: 100%;
+        min-height: 0;
+        min-width: 0;
+        overflow: auto;
+    }
+    &__query {
+        flex: 1;
+        min-width: 320px;
+        min-height: 0;
+    }
+    &__query[hidden] {
+        display: none;
+    }
+    &__file {
+        flex-shrink: 0;
+        min-height: 0;
+        padding: var(--g-spacing-2);
+        box-sizing: border-box;
+        border-inline-start: 1px solid var(--g-color-line-generic);
+    }
+    &__file-editor {
+        flex: 1;
+        min-height: 160px;
+        min-width: 0;
+    }
+    &__status {
+        padding: var(--g-spacing-2);
+    }
+}

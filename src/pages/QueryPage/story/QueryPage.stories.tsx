@@ -12,6 +12,7 @@ import {createBuiltinQueryEngines} from '../../../widgets/QueryEditor/presets/bu
 import {createQueryEditorPreset} from '../../../helpers/queryEditorPreset';
 import {designTabs} from '../../../widgets/QueryExecutionPanel/story/designReference';
 import './QueryPage.stories.scss';
+import {ExternalStateExample} from './ExternalStateExample';
 
 const engines = createBuiltinQueryEngines({
     yql: {versions: ['stable', 'preview']},
@@ -414,3 +415,5 @@ export const ExpandedResults: Story = {args: {resultsExpanded: true}};
 export const ControlledLayout: Story = {args: {controlled: true}};
 
 export const FourEngines: Story = {args: {fourEngines: true}};
+
+export const ExternalState: Story = {render: () => <ExternalStateExample />};

@@ -92,12 +92,61 @@ Use each item's `executionPanelProps.expanded` / `onExpandedChange` and
 managed independently per workspace, while supplied callbacks still receive changes.
 `defaultCollapsed` supplies initial collapse state; results start unexpanded.
 Expanded results fill the workspace **below the query tab strip**. The shared sidebar
-and query tabs remain accessible. Collapsed results show only their header;
+and query tabs remain accessible. Collapsed results show their header and any supplied status content;
 collapse takes precedence when both flags are true.
 
 Resizing, hiding the sidebar, and expanding or collapsing results do not unmount
 widgets. Nested widget policies still apply: for example, `sidebarProps.keepMounted`
 preserves visited sidebar tabs. Removing the page unmounts all workspaces.
+
+## Custom workspace composition
+
+Each query item can supply `renderWorkspace({children, active})`. `children` is the
+complete standard editor/results layout, including its resize handle. The callback
+is first invoked when the tab is visited and remains mounted until the tab is removed.
+It is a render function, not a component: put hooks in a separate component returned
+by the function. Comparison tabs, the sidebar and query tab strip are unaffected.
+`QueryPageWorkspaceContext` is exported from the package root and page entrypoint.
+
+```tsx
+renderWorkspace: ({children, active}) => (
+  <FileWorkspace active={active} expanded={fileExpanded}>
+    {children}
+  </FileWorkspace>
+),
+executionPanelProps: {
+  ...executionPanelProps,
+  active: !fileExpanded,
+  headerActions: <StopButton onClick={stop} />,
+  statusContent: <ExecutionStatus progress={progress} />,
+},
+```
+
+`FileWorkspace`, `StopButton` and `ExecutionStatus` above are application components.
+Keep the workspace wrapper and the position of `children` stable when opening,
+closing or expanding a sibling editor. Hide the standard region with `hidden` or
+CSS instead of removing it. A fresh callback on every render does not itself reset
+state, but changing component types, keys or parent structure can recreate Monaco
+and clear undo history, results selection and charts. Adding/removing the callback
+while switching between wrapped and unwrapped layouts has the same limitation.
+
+The wrapper must provide a bounded height through every ancestor of `children`,
+with `min-width: 0` and `min-height: 0` on its grid/flex regions. Use flexible grid
+tracks such as `minmax(0, 1fr)` and preserve the normal region when maximizing the
+sibling editor. File data, saving and sibling layout dimensions belong to the application.
+
+`active` means this query tab is selected, not that the application has kept its
+standard workspace visible. When a sibling editor covers the standard workspace,
+set `executionPanelProps.active` to `false`; restore it when revealing results.
+This pauses activity-aware results and hides the chart editor modal while retaining
+its draft. Custom slot content and other application overlays own their activity
+and visibility; CSS hiding alone does not hide portalled overlays.
+
+The **ExternalState** Storybook example demonstrates a single controlled query,
+custom settings and attachments, engine-specific action visibility, execution
+actions/status, and a retained sibling file editor. It also connects `editorRef`,
+preset/provider/extension hooks, diagnostics and line navigation. Its execution and
+storage are local demonstrations; the application supplies real services.
 
 ## Migration from the single-workspace API
 

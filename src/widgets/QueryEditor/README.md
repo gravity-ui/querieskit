@@ -28,9 +28,9 @@ The parent must supply a bounded height. `className` can apply parent layout con
 
 - `value` / `onChange` control query text. Programmatic text updates do not emit `onChange`; they remain undoable in an editable editor.
 - `clusters` contains `{id, title, disabled?}` items. `engines` uses the same shape with an additional Monaco `language` ID and optional `renderSettingsFields` callback. Selection is controlled by `clusterId` / `engineId` and their change callbacks. The application owns dependencies between these lists. Empty lists disable their selectors; a missing selected engine uses plain text.
-- Run, Format and Validate are always visible. Their required callbacks receive no arguments; the application already owns the selected values and text. `actionStates` supplies `disabled` and `loading` independently for `run`, `format` and `validate`.
+- Run, Format and Validate are visible by default. `hiddenActions` omits any of `run`, `format`, and `validate`. Callbacks receive no arguments; the application already owns selected values and text. `onRun` is required; `onFormat` and `onValidate` are optional. A visible action without its callback is disabled even when `actionStates` explicitly sets `disabled: false`. Otherwise, `actionStates` supplies `disabled` and `loading` independently. Hiding actions does not disable commands registered externally through Monaco or extensions.
 - `additionalActions` supplies `{id, title, onClick, disabled?}` menu items. The overflow button appears only for a nonempty list.
-- `rightActions` supplies ordered buttons with the same fields plus a Gravity `Icon`-compatible `icon` and optional `loading`. Attachments and Settings are always available.
+- `rightActions` supplies ordered buttons with the same fields plus a Gravity `Icon`-compatible `icon` and optional `loading`. Panel buttons are available unless excluded by `hiddenPanels`.
 - `onCodeAssistantClick` adds a footer button. The footer remains present without it.
 - `readOnly` controls text editing. `editorOptions` accepts Monaco configuration except for model, value, language, theme, readOnly and automaticLayout, which the widget owns.
 
@@ -196,6 +196,15 @@ The paperclip opens Attachments; the gear opens Settings. Only one panel is visi
 
 `QueryEditorPanel` is `'settings' | 'attachments' | 'parameters' | null`. A controlled parent must update the corresponding prop in response to its callback; prop updates do not emit events. Panel and width control are independent.
 
+Use `hiddenPanels={['parameters']}` to remove panel buttons and unmount their content.
+Available but closed panels remain mounted. Hiding the controlled `activePanel` masks
+it without changing the value or emitting `onActivePanelChange`; restoring visibility
+shows it again. In uncontrolled mode, hiding the selected panel resets selection to
+`null` without a callback, so restoring visibility leaves it closed. Neither mode
+changes application form data. Local drafts inside an unmounted custom panel are not
+preserved automatically; keep data in application state when it must survive hiding.
+Changing visibility preserves the Monaco instance and its undo history.
+
 The shared preferred width is retained across closing and switching panels; the displayed width is constrained to available space. Panels have a minimum width of 240 px and the editor 320 px. A narrower container scrolls horizontally. Drag the separator or focus it and press the arrow keys to resize in 16 px steps (64 px with Shift); Home and End select the minimum and maximum width.
 
 This API replaces the previous settings-specific visibility and width props without compatibility aliases.
@@ -248,3 +257,14 @@ types and preset paths have been removed; use the `Builtin` names and widget pre
 ### Monaco language services
 
 The engine factory maps YQL to `yql`, CHYT to `clickhouse`, SPYT to `spyt`, and YT QL to `ytql`. Pass `preset={createQueryEditorPreset(...)}` alongside `engines` to enable completion and reference navigation for all four. The factory alone configures the engine selector and settings, not language providers. Older SPYT/QL descriptors used `s-expression`/`yql_ansi`; update custom provider language checks when migrating.
+
+Replacing a library provider or switching its engine/cluster context cleans up the
+library-owned registration. It does not disable arbitrary global providers registered
+by the application or other Monaco integrations; those registrations retain their own
+lifecycle and disposal responsibility.
+
+### Callback type migration
+
+`onFormat` and `onValidate` are optional. Existing component usages that supply them
+continue to work. Consumer wrappers reading callbacks from `QueryEditorProps` must
+now guard calls, for example `props.onFormat?.()`, instead of assuming a callback exists.

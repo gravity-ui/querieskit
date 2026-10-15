@@ -176,7 +176,30 @@ controlled and uncontrolled modes during the lifetime of an instance.
 and timezones in the application. The panel localizes its own labels in English
 and Russian.
 
-The cross button collapses the panel to its header; it does not remove the panel.
+Use `headerActions` for application controls such as Stop. They appear before the
+built-in expand and collapse buttons and wrap when space is limited. Use
+`statusContent` for progress or execution status below the header:
+
+```tsx
+<QueryExecutionPanel
+  tabs={tabs}
+  headerActions={<Button onClick={stopExecution}>Stop</Button>}
+  statusContent={<Progress value={progress} />}
+/>
+```
+
+Import `Button` and `Progress` from `@gravity-ui/uikit`. Both slots remain mounted
+and visible while the results are collapsed, loading, showing an error, or empty,
+and when the panel is expanded. Empty slots add no spacing. Slots are application
+content: pause their own subscriptions when appropriate; the panel's `active`
+prop only controls tab content. Through `QueryPage`, pass these slots unchanged
+in a query tab's `executionPanelProps`.
+
+Status does not shrink. At short heights the panel can scroll to keep the header,
+status and results accessible; with slots, results retain a small minimum viewport.
+The parent still owns panel dimensions, including QueryPage's 120 px minimum.
+
+The cross button collapses the results, retaining the header and status; it does not remove the panel.
 It becomes a double-chevron button that restores the content. Selecting a tab also
 reveals its content. Visited tabs retain their state and receive `active: false`
 while collapsed. No tab is highlighted while the content is hidden.
