@@ -12,6 +12,8 @@ import {
     TextInput,
 } from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import {DataTypePopup} from '../../../components/DataTypePopup';
+import {toParameterType} from '../helpers/dataTypes';
 import TrashBinIcon from '@gravity-ui/icons/svgs/trash-bin.svg';
 import ChevronDownIcon from '@gravity-ui/icons/svgs/chevron-down.svg';
 import ChevronRightIcon from '@gravity-ui/icons/svgs/chevron-right.svg';
@@ -185,7 +187,9 @@ function NullableValue(
                         NULL
                     </Text>
                 ) : (
-                    child
+                    <div className={block('content', {nested: type.kind === 'Optional'})}>
+                        {child}
+                    </div>
                 )}
             </Flex>
         );
@@ -229,7 +233,7 @@ function NullableValue(
                     />
                 )}
             </Flex>
-            <div className={block('content')}>
+            <div className={block('content', {nested: type.kind === 'Optional' && !nullActive})}>
                 {child}
                 {nullActive && props.errors?.[props.path ?? '$'] && (
                     <Text color="danger" role="alert">
@@ -276,7 +280,9 @@ function StructValue(props: Props & {type: Extract<QueryParameterType, {kind: 'S
                     <Flex key={field.id} direction={editing ? 'column' : 'row'} gap={1}>
                         <Text className={editing ? undefined : block('field-name')}>
                             {field.name}
-                            {editing && <Text color="secondary"> [{formatType(field.type)}]:</Text>}
+                            <DataTypePopup type={toParameterType(field.type)}>
+                                <Text color="secondary"> [{formatType(field.type)}]:</Text>
+                            </DataTypePopup>
                         </Text>
                         {child}
                     </Flex>
@@ -445,8 +451,7 @@ function ParameterValueContent(props: Props) {
         onChange(nextValue);
     };
     const scalar = isScalarType(type);
-    const boxed =
-        ['Variant', 'Dict', 'Struct'].includes(type.kind) || (editing && type.kind === 'Tuple');
+    const boxed = ['Variant', 'Dict', 'Struct', 'Tuple'].includes(type.kind);
     const actions =
         editing && !isDocumentType(type) && type.kind !== 'Bool' ? (
             <ValueActions
@@ -533,7 +538,10 @@ function ParameterValueContent(props: Props) {
                     actions={actions}
                 />
             )}
-            <div className={block('content')} hidden={!expanded || (props.nullActive && !scalar)}>
+            <div
+                className={block('content', {nested: !scalar})}
+                hidden={!expanded || (props.nullActive && !scalar)}
+            >
                 {content}
             </div>
             {error && !scalar && representation.mode !== 'raw' && (
@@ -577,6 +585,7 @@ function BoxHeader({
         <Flex alignItems="center" gap={1} className={block('box-header', className)}>
             {collapsible && (
                 <Button
+                    className={block('toggle')}
                     view="flat-secondary"
                     size="m"
                     disabled={disabled}
@@ -588,7 +597,11 @@ function BoxHeader({
                 </Button>
             )}
             <div className={block('cell')}>
-                {header ?? <Text variant="code-1">{formatType(type)}</Text>}
+                {header ?? (
+                    <DataTypePopup type={toParameterType(type)}>
+                        <Text variant="code-1">{formatType(type)}</Text>
+                    </DataTypePopup>
+                )}
             </div>
             {collapsible && type.kind !== 'Variant' && (
                 <Text color="secondary" variant="caption-2" className={block('count')}>
@@ -631,7 +644,7 @@ function ListHeader({
     return (
         <Flex gap={1} alignItems="center" className={className}>
             <Button
-                className={block('list-toggle')}
+                className={block('toggle')}
                 view="flat"
                 size="m"
                 disabled={disabled}
@@ -640,13 +653,15 @@ function ListHeader({
                 onClick={onToggle}
             >
                 <Icon data={expanded ? ChevronDownIcon : ChevronRightIcon} size={12} />
+            </Button>
+            <DataTypePopup type={toParameterType(type)}>
                 <Text variant="code-1">
                     {'List '}
                     <Text variant="code-1" color="secondary">
                         {`<${formatType(type.item)}>`}
                     </Text>
                 </Text>
-            </Button>
+            </DataTypePopup>
             <Text color="secondary" variant="caption-2" className={block('cell')}>
                 {i18n(count === 1 ? 'value_element' : 'value_elements', {count})}
             </Text>
@@ -863,12 +878,7 @@ function CollectionValue(props: Props) {
         addButton.current?.focus();
     };
     return (
-        <Flex
-            ref={root}
-            direction="column"
-            gap={2}
-            className={block('collection', {list: type.kind === 'List'})}
-        >
+        <Flex ref={root} direction="column" gap={2} className={block('collection')}>
             {items.map((item, index) => {
                 const initial = baseline.find(({id}) => id === item.id);
                 const update = (next: QueryParameterValue) =>
@@ -1134,7 +1144,9 @@ function VariantValue(
                             >
                                 <Text variant="code-1" color={active ? 'primary' : 'secondary'}>
                                     {option.name}{' '}
-                                    <Text color="secondary">[{formatType(option.type)}]:</Text>
+                                    <DataTypePopup type={toParameterType(option.type)}>
+                                        <Text color="secondary">[{formatType(option.type)}]:</Text>
+                                    </DataTypePopup>
                                 </Text>
                                 <ParameterValue
                                     {...childProps(

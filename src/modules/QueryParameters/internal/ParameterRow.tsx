@@ -1,12 +1,14 @@
 import React, {useMemo, useState} from 'react';
 import {Dialog, DropdownMenu, Flex, Text, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
+import {DataTypePopup} from '../../../components/DataTypePopup';
 import type {
     QueryParameter,
     QueryParameterErrors,
     QueryParameterType,
 } from '../../../types/queryParameters';
 import {defaultValue, formatType, validType} from '../helpers/parameters';
+import {toParameterType} from '../helpers/dataTypes';
 import i18n from '../i18n';
 import {ParameterTypeEditor} from './ParameterTypeEditor';
 import {ParameterValue} from './ParameterValue';
@@ -76,17 +78,20 @@ export function ParameterRow({
         <Flex alignItems="center" gap={2} className={block('header')}>
             <Text className={block('title')}>
                 <Text variant="subheader-1">{label}</Text>{' '}
-                <Text color="secondary" title={formatType(parameter.type)}>
-                    [
-                    {parameter.type.kind === 'Optional'
-                        ? `${formatType(parameter.type.item)}?`
-                        : parameter.type.kind === 'Pg'
-                          ? `pg${parameter.type.name}`
-                          : parameter.type.kind === 'Decimal' || parameter.type.kind === 'Unknown'
-                            ? formatType(parameter.type)
-                            : parameter.type.kind}
-                    ]:
-                </Text>
+                <DataTypePopup type={toParameterType(parameter.type)}>
+                    <Text color="secondary">
+                        [
+                        {parameter.type.kind === 'Optional'
+                            ? `${formatType(parameter.type.item)}?`
+                            : parameter.type.kind === 'Pg'
+                              ? `pg${parameter.type.name}`
+                              : parameter.type.kind === 'Decimal' ||
+                                  parameter.type.kind === 'Unknown'
+                                ? formatType(parameter.type)
+                                : parameter.type.kind}
+                        ]:
+                    </Text>
+                </DataTypePopup>
             </Text>
             {editing && (
                 <DropdownMenu

@@ -16,6 +16,7 @@ export type ParameterType = {
 
 export type ParameterPrimitiveTypeName =
     | 'Bool'
+    | 'Number'
     | 'Int8'
     | 'Int16'
     | 'Int32'
@@ -60,31 +61,4 @@ export interface ParameterTypeMember {
     /** Strings identify struct fields; numbers identify tuple variants. */
     key: string | number;
     type: ParameterType;
-}
-
-/** Restricted JSON value, not JSON source text. Undefined denotes an unfilled field. */
-export type ParameterValue =
-    | undefined
-    | null
-    | boolean
-    | string
-    | number
-    | ParameterValue[]
-    | {[key: string]: ParameterValue};
-
-export interface ParameterWizardProps {
-    name: string;
-    type: ParameterType;
-    value: ParameterValue;
-    onChange: (value: ParameterValue) => void;
-    readOnly?: boolean;
-    disabled?: boolean;
-    className?: string;
-    /** Presence of this callback enables the delete action. */
-    onDelete?: () => void;
-    /** The consumer owns the saved value and restores it in this callback. */
-    onReset?: () => void;
-    resetDisabled?: boolean;
-    /** Includes incomplete values and invalid local input drafts. */
-    onValidationChange?: (valid: boolean) => void;
 }

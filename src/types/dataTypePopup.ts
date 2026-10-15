@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import type {ParameterType} from './parameterWizard';
+import type {ParameterType} from './dataTypes';
 
 export interface DataTypePopupProps {
     children: ReactNode;

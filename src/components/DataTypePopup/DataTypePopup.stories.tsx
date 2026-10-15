@@ -2,7 +2,7 @@ import React from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {DataTypePopup} from './DataTypePopup';
-import type {ParameterType} from '../../types/parameterWizard';
+import type {ParameterType} from '../../types/dataTypes';
 
 const nestedType: ParameterType = {
     name: 'Struct',

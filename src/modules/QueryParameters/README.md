@@ -148,9 +148,9 @@ text fields without a calendar. Uuid requires hexadecimal groups of `8-4-4-4-12`
 characters without a UUID version restriction.
 
 Json, JsonDocument and Yson all require JSON input, preserving the original text
-rather than parsing and reserializing it. Their inline TextArea grows with content;
-the pencil opens a larger JSON editor loaded on demand. Apply accepts valid JSON
-into the form draft, while Cancel leaves the inline value unchanged. View mode
+and large numeric literals. Editing uses an inline Monaco editor loaded on demand,
+with no plain textarea or separate document dialog. Changes update the form draft;
+invalid JSON stays visible and blocks Save until corrected. Read mode syntax
 highlights the original document, with plain text as the loading/error fallback.
 Bool uses True/False segments; Enum uses the schema's option list.
 

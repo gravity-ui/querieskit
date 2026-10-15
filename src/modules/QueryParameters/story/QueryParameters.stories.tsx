@@ -5,6 +5,7 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
 import type {QueryParameter, QueryParametersProps} from '../../../types/queryParameters';
 import {QueryParameters} from '../QueryParameters';
+import {isScalarType} from '../helpers/parameters';
 import {ParameterRow} from '../internal/ParameterRow';
 import {allTypesParameters} from './allTypes';
 
@@ -199,6 +200,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const SimpleTypes: Story = {
+    args: {
+        initialValue: [
+            {id: 'Number', name: 'number', type: {kind: 'Number'}, value: '123.45'},
+            ...allTypesParameters
+                .filter(({type}) => isScalarType(type) && type.kind !== 'Unknown')
+                .map<QueryParameter>((parameter) =>
+                    parameter.type.kind === 'Decimal'
+                        ? {...parameter, type: {kind: 'Decimal', precision: 5, scale: 2}}
+                        : parameter,
+                ),
+        ],
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'All simple types in the complete QueryParameters panel. Click Edit to change values, inspect a type with its info button, then Save to see the result. Validation runs while editing and blocks Save for invalid values. Try 128 for Int8, -1 for Uint8, 1000 or 1.234 for Decimal(5, 2), or an invalid calendar date. Cancel restores the saved values.',
+            },
+        },
+    },
+};
 export const Empty: Story = {args: {initialValue: []}};
 export const ExternalErrors: Story = {
     args: {

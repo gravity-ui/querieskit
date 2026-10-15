@@ -1,4 +1,4 @@
-import type {ParameterType} from '../types/parameterWizard';
+import type {ParameterType} from '../types/dataTypes';
 
 export const optionalDepth = (type: ParameterType) =>
     type.optional ? Math.max(1, type.optionalLevel || 1) : 0;

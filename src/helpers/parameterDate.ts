@@ -12,41 +12,10 @@ const ranges: Record<string, [bigint, bigint]> = {
     Interval64: [-9223339190399999999n, 9223339190399999999n],
 };
 
-export const isDateType = (name: string) => Object.prototype.hasOwnProperty.call(ranges, name);
-
-export function isDateValue(value: string, name: string) {
+function isDateValue(value: string, name: string) {
     if (!/^-?\d+$/.test(value)) return false;
     const range = ranges[name];
     return Boolean(range && BigInt(value) >= range[0] && BigInt(value) <= range[1]);
-}
-
-const pad = (value: number, length = 2) => String(value).padStart(length, '0');
-
-/** UTC conversion uses bigint for microseconds, including dates before the epoch. */
-export function formatDate(value: string, name: string): string {
-    if (!isDateValue(value, name)) return value;
-    const integer = BigInt(value);
-    if (name.startsWith('Interval')) {
-        const absolute = integer < 0n ? -integer : integer;
-        const seconds = absolute / SECOND;
-        const fraction = String(absolute % SECOND).padStart(6, '0');
-        return `${integer < 0n ? '-' : ''}PT${seconds}.${fraction}S`;
-    }
-    const micros = name.startsWith('Timestamp')
-        ? integer
-        : integer * (name === 'Date' || name === 'Date32' ? DAY : SECOND);
-    const seconds = micros >= 0n ? micros / SECOND : (micros - SECOND + 1n) / SECOND;
-    const date = new Date(Number(seconds) * 1000);
-    // YQL has no year zero; JS uses astronomical year numbering.
-    const year = date.getUTCFullYear();
-    const yqlYear = year <= 0 ? year - 1 : year;
-    const datePart = `${yqlYear < 0 ? '-' : ''}${pad(Math.abs(yqlYear), 4)}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
-    if (name === 'Date' || name === 'Date32') return datePart;
-    const time = `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}`;
-    const fraction = name.startsWith('Timestamp')
-        ? `.${String(micros - seconds * SECOND).padStart(6, '0')}`
-        : '';
-    return `${datePart}T${time}${fraction}Z`;
 }
 
 function parseInterval(text: string, name: string): string | undefined {

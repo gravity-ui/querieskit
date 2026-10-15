@@ -65,7 +65,7 @@ export function QueryParameters({
     const parameters = session?.draft ?? value;
     const current = parameters.filter((parameter) => !parameter.deleted);
     const deleted = parameters.filter((parameter) => parameter.deleted);
-    const validation = attempted ? validateParameters(parameters) : {};
+    const validation = editing ? validateParameters(parameters) : {};
     const query = search.trim().toLocaleLowerCase();
     const matches = (parameter: QueryParameter) =>
         `${parameter.name} ${formatType(parameter.type)}`.toLocaleLowerCase().includes(query);
@@ -424,7 +424,12 @@ export function QueryParameters({
                         <>
                             <Button
                                 onClick={save}
-                                disabled={locked || conflict || pendingValues.size > 0}
+                                disabled={
+                                    locked ||
+                                    conflict ||
+                                    pendingValues.size > 0 ||
+                                    Object.keys(validation).length > 0
+                                }
                                 loading={pending === 'save'}
                             >
                                 <Icon data={SaveIcon} size={16} />

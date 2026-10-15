@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Flex, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import type {ParameterType} from '../../../types/parameterWizard';
+import type {ParameterType} from '../../../types/dataTypes';
 import {optionalDepth} from '../../../helpers/dataTypes';
 import i18n from '../i18n';
 import './DataTypeTree.scss';
