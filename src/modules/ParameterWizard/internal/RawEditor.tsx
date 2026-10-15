@@ -51,7 +51,7 @@ export function RawEditor({value, onChange, type, name, readOnly, disabled}: Edi
                 theme={theme}
                 readOnly={readOnly || disabled}
                 monacoConfig={config}
-                onUpdate={(next) => {
+                onChange={(next) => {
                     if (!readOnly && !disabled) onUpdate(next);
                 }}
             />
