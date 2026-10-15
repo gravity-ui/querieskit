@@ -13,6 +13,31 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [3.0.0](https://github.com/gravity-ui/querieskit/compare/v2.6.0...v3.0.0) (2026-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bundling:** only query languages and JSON are registered automatically; applications must register additional Monaco languages explicitly.
+* **editor:** rename built-in engine UI presets
+* **editor:** align engine presets and wire QueryPage integration
+* **types:** centralize public component contracts
+
+### refactor
+
+* **editor:** rename built-in engine UI presets ([4c7f7ae](https://github.com/gravity-ui/querieskit/commit/4c7f7ae94272eaf05acb37238338aa15e37d4a58))
+* **types:** centralize public component contracts ([d19df51](https://github.com/gravity-ui/querieskit/commit/d19df51142b08fc5eb32c6b47a26fab144a5e1b5))
+
+
+### Bug Fixes
+
+* **bundling:** isolate exports and lazy-load Monaco previews ([9e0d961](https://github.com/gravity-ui/querieskit/commit/9e0d96166a6239c2ba60d27609b8e504a5557a9f))
+* **composition:** preserve filter drafts and dynamic selection ([703b386](https://github.com/gravity-ui/querieskit/commit/703b3863300e0a23a4306bf40b187026fae9d233))
+* **editor:** align engine presets and wire QueryPage integration ([def5843](https://github.com/gravity-ui/querieskit/commit/def5843f28e0f34e2b0b4637ea7672b3d201f517))
+* **i18n:** localize charts and improve Storybook coverage ([2562dd1](https://github.com/gravity-ui/querieskit/commit/2562dd16286d40ba97c86690e3e2facf527ed652))
+* preserve FormField component root export ([90edae6](https://github.com/gravity-ui/querieskit/commit/90edae603cfca11682e1ac17b05624d1a0a9dc81))
+* **QueryPage:** remove Notes tab from stories ([34bf793](https://github.com/gravity-ui/querieskit/commit/34bf793e9b2adfac34b2ec3bafd84ee2d9e80b55))
+
 ## [2.6.0](https://github.com/gravity-ui/querieskit/compare/v2.5.0...v2.6.0) (2026-10-14)
 
 
