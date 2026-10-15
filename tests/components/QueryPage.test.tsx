@@ -171,6 +171,96 @@ describe('QueryPage', () => {
         vi.unstubAllGlobals();
     });
 
+    it('hides an empty draft without changing layout state or remounting the editor', () => {
+        const value = createProps();
+        const tab = value.tabsProps.items[0];
+        tab.executionPanelProps = {
+            tabs: [],
+            expanded: true,
+            onExpandedChange: vi.fn(),
+            onCollapsedChange: vi.fn(),
+            headerActions: <span>Actions alone</span>,
+            emptyContent: <span>Empty content alone</span>,
+        };
+        render(value);
+        const editor = container.querySelector('[data-counter="editor"]');
+        const results = container.querySelector<HTMLElement>('.qp-query-workspace__results')!;
+        const workspace = container.querySelector<HTMLElement>('.qp-query-workspace')!;
+        expect(results.hidden).toBe(true);
+        expect(separator('Resize results').parentElement!.hidden).toBe(true);
+        expect(editorHidden()).toBe(false);
+        expect(workspace.style.gridTemplateRows).toBe('minmax(160px, 1fr)');
+        tab.status = 'running';
+        render(value);
+        expect(results.hidden).toBe(false);
+        expect(editorHidden()).toBe(true);
+        tab.status = 'draft';
+        render(value);
+        expect(results.hidden).toBe(true);
+        expect(editorHidden()).toBe(false);
+        expect(container.querySelector('[data-counter="editor"]')).toBe(editor);
+        expect(tab.executionPanelProps.onExpandedChange).not.toHaveBeenCalled();
+        expect(tab.executionPanelProps.onCollapsedChange).not.toHaveBeenCalled();
+    });
+
+    it.each(['running', 'completed', 'failed', 'aborted'] as const)(
+        'shows an empty panel for status %s',
+        (status) => {
+            const value = createProps();
+            value.tabsProps.items[0].status = status;
+            value.tabsProps.items[0].executionPanelProps.tabs = [];
+            render(value);
+            expect(
+                container.querySelector<HTMLElement>('.qp-query-workspace__results')!.hidden,
+            ).toBe(false);
+            expect(separator('Resize results').parentElement!.hidden).toBe(false);
+        },
+    );
+
+    it.each([
+        {execution: {startedAt: '12:00'}},
+        {execution: {author: 'Author'}},
+        {statusContent: <span>Queued</span>},
+        {loading: true},
+        {error: true},
+    ])('shows a draft panel with execution information: %j', (props) => {
+        const value = createProps();
+        value.tabsProps.items[0].executionPanelProps = {tabs: [], ...props};
+        render(value);
+        expect(container.querySelector<HTMLElement>('.qp-query-workspace__results')!.hidden).toBe(
+            false,
+        );
+    });
+
+    it('retains panel state and size while hidden and across query tab switches', () => {
+        const value = createProps();
+        const tab = value.tabsProps.items[0];
+        addSecondTab(value);
+        tab.status = 'completed';
+        tab.executionPanelProps.emptyContent = <Counter name="empty" />;
+        tab.executionPanelProps.tabs = [];
+        tab.executionPanelProps.onCollapsedChange = vi.fn();
+        render(value);
+        const results = container.querySelector<HTMLElement>('.qp-query-workspace__results')!;
+        const counter = container.querySelector<HTMLButtonElement>('[data-counter="empty"]')!;
+        act(() => counter.click());
+        key('Resize results', 'ArrowUp');
+        const height = separator('Resize results').getAttribute('aria-valuenow');
+        tab.status = 'draft';
+        render(value);
+        expect(results.hidden).toBe(true);
+        value.tabsProps.activeTab = 'query-b';
+        render(value);
+        value.tabsProps.activeTab = 'query-a';
+        tab.status = 'completed';
+        render(value);
+        expect(results.hidden).toBe(false);
+        expect(container.querySelector('[data-counter="empty"]')).toBe(counter);
+        expect(counter.textContent).toBe('empty: 1');
+        expect(separator('Resize results').getAttribute('aria-valuenow')).toBe(height);
+        expect(tab.executionPanelProps.onCollapsedChange).not.toHaveBeenCalled();
+    });
+
     it('places the sidebar toggle in tab actions and retains consumer actions', () => {
         const value = createProps();
         const customAction = vi.fn();

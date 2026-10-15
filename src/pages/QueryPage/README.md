@@ -70,6 +70,15 @@ See the [sidebar guide](../../widgets/QueriesSidebar/README.md),
 
 ## Layout state
 
+A draft with no execution tabs, execution metadata, status content, loading, or error
+hides the execution panel and its resize handle, giving the editor the full workspace
+height. Any of these props, or a status other than `draft` (including `running`),
+shows the panel. A supplied result tab counts even when its table has zero rows.
+Header actions and empty-state content alone do not show the panel.
+Visibility follows current props without changing collapse/expand state or invoking
+layout callbacks. The hidden panel stays mounted with `active=false`, retaining its
+layout and internal state; its expanded state does not hide the editor.
+
 Omit a controlled prop to let the page maintain that state. Its `default…` prop
 chooses the initial value. Controlled state must be updated in its change callback.
 

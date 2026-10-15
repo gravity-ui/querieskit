@@ -25,6 +25,7 @@ type Props = {
 export function QueryTab({item, active, closable, onSelect, onClose}: Props) {
     const descriptionId = useId();
     const modified = item.type === 'query' && item.isModified;
+    const hasTrailing = modified || closable;
     const replaceClose = modified && !active && closable;
     const title =
         item.type === 'query'
@@ -39,7 +40,11 @@ export function QueryTab({item, active, closable, onSelect, onClose}: Props) {
             alignItems="center"
             gap={2}
             shrink={0}
-            className={block({active, 'replace-close': replaceClose})}
+            className={block({
+                active,
+                'replace-close': replaceClose,
+                'without-trailing': !hasTrailing,
+            })}
             data-query-tab-id={item.id}
         >
             <StripTab
@@ -88,7 +93,7 @@ export function QueryTab({item, active, closable, onSelect, onClose}: Props) {
                 {description}
                 {modified ? `. ${i18n('context_modified')}` : ''}
             </span>
-            {(modified || closable) && (
+            {hasTrailing && (
                 <Flex alignItems="center" gap={2} shrink={0} className={block('trailing')}>
                     {modified && (
                         <span
