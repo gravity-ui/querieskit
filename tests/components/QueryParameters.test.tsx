@@ -8,6 +8,19 @@ import {QueryParameters} from '../../src/modules/QueryParameters/QueryParameters
 import type {QueryParameter, QueryParametersProps} from '../../src/types/queryParameters';
 import {setLang} from '../../src/i18n';
 import {allTypesParameters} from '../../src/modules/QueryParameters/story/allTypes';
+import type {MonacoEditorProps} from '../../src/types/monacoEditor';
+
+vi.mock('../../src/components/MonacoEditor', () => ({
+    MonacoEditor: ({value, onChange, readOnly, monacoConfig}: MonacoEditorProps) => (
+        <textarea
+            aria-label={monacoConfig?.ariaLabel}
+            tabIndex={monacoConfig?.tabIndex}
+            value={value}
+            readOnly={readOnly}
+            onChange={(event) => onChange?.(event.target.value)}
+        />
+    ),
+}));
 
 const initial: QueryParameter[] = [{id: 'p', name: 'limit', type: {kind: 'Number'}, value: '10'}];
 
@@ -388,6 +401,7 @@ describe('QueryParameters', () => {
         change('Parameter name 2', 'limit');
         await click('Apply', dialog());
         change('$limit', 'NaN');
+        expect(button('Save').disabled).toBe(true);
         await click('Save');
         expect(onChange).not.toHaveBeenCalled();
         expect(container.textContent).toContain('Parameter names must be unique');
@@ -402,13 +416,40 @@ describe('QueryParameters', () => {
         await click('Apply', dialog());
         change('$limit', '12');
         change('$document', '{bad');
+        expect(field('$document').value).toBe('{bad');
+        expect(button('Save').disabled).toBe(true);
         await click('Save');
         expect(onChange).not.toHaveBeenCalled();
         expect(container.textContent).toContain('Enter a valid JSON');
         change('$document', '{"number":9007199254740993}');
+        expect(button('Save').disabled).toBe(false);
         await click('Save');
         expect(lastValue()[1].value).toBe('{"number":9007199254740993}');
     });
+    it.each(['Json', 'JsonDocument', 'Yson'] as const)(
+        'keeps %s document edits in the draft until Save and discards them on Cancel',
+        async (kind) => {
+            controlled([{id: 'document', name: 'document', type: {kind}, value: '{}'}]);
+            await click('Edit');
+            change('$document', '{"cancelled":true}');
+            expect(onChange).not.toHaveBeenCalled();
+            await click('Editing actions');
+            await click('Cancel', document);
+            await click('Edit');
+            expect(field('$document').value).toBe('{}');
+            change('$document', '{');
+            expect(button('Save').disabled).toBe(true);
+            const value = '{\n  "number": 9007199254740993\n}';
+            change('$document', value);
+            expect(button('Save').disabled).toBe(false);
+            await click('Save');
+            expect(onChange).toHaveBeenCalledExactlyOnceWith([
+                {id: 'document', name: 'document', type: {kind}, value},
+            ]);
+            await click('Edit');
+            expect(field('$document').value).toBe(value);
+        },
+    );
     it('keeps Number and Json editors free of RAW and preserves numeric precision', async () => {
         render({
             value: [...initial, {id: 'json', name: 'document', type: {kind: 'Json'}, value: '{}'}],

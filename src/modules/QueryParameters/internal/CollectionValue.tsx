@@ -38,12 +38,7 @@ export function CollectionValue(props: RecursiveValueProps) {
         addButton.current?.focus();
     };
     return (
-        <Flex
-            ref={root}
-            direction="column"
-            gap={2}
-            className={block('collection', {list: type.kind === 'List'})}
-        >
+        <Flex ref={root} direction="column" gap={2} className={block('collection')}>
             {items.map((item, index) => {
                 const initial = baseline.find(({id}) => id === item.id);
                 const update = (next: QueryParameterValue) =>

@@ -2,6 +2,7 @@
 
 .qp-parameter-value {
     @include layout.root;
+    @include layout.nested-content;
     &_nullable {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;

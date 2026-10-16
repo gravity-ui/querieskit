@@ -1,0 +1,24 @@
+.qp-data-type-tree {
+    min-width: 0;
+    overflow-wrap: anywhere;
+
+    &__toggle {
+        --g-button-padding: 0;
+        font-family: var(--g-font-family-monospace);
+        font-weight: 600;
+        --g-button-text-color: var(--g-color-text-link);
+    }
+
+    &__optional {
+        font-size: var(--g-text-code-1-font-size);
+        font-style: italic;
+    }
+
+    &__children {
+        padding-inline-start: var(--g-spacing-4);
+    }
+
+    &__expand {
+        align-self: flex-start;
+    }
+}

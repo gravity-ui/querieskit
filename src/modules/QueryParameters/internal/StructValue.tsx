@@ -1,6 +1,8 @@
 import React from 'react';
 import {Flex, Text} from '@gravity-ui/uikit';
+import {DataTypePopup} from '../../../components/DataTypePopup';
 import type {QueryParameterItem, QueryParameterType} from '../../../types/queryParameters';
+import {toParameterType} from '../helpers/dataTypes';
 import {defaultValue, formatType} from '../helpers/parameters';
 import type {RecursiveValueProps} from './parameterValueTypes';
 import cn from 'bem-cn-lite';
@@ -46,7 +48,9 @@ export function StructValue(
                     <Flex key={field.id} direction={editing ? 'column' : 'row'} gap={1}>
                         <Text className={editing ? undefined : block('field-name')}>
                             {field.name}
-                            {editing && <Text color="secondary"> [{formatType(field.type)}]:</Text>}
+                            <DataTypePopup type={toParameterType(field.type)}>
+                                <Text color="secondary"> [{formatType(field.type)}]:</Text>
+                            </DataTypePopup>
                         </Text>
                         {child}
                     </Flex>

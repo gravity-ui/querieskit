@@ -2,14 +2,26 @@
     min-width: 0;
     width: 100%;
 
-    &__input {
-        flex: 1;
-        min-width: 0;
+    &_disabled {
+        opacity: 0.5;
     }
 
     &__editor {
-        height: min(60vh, 480px);
-        min-height: 200px;
+        height: 120px;
+        min-height: 80px;
+        min-width: 0;
+        overflow: hidden;
+        resize: vertical;
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+
+        &_invalid {
+            border-color: var(--g-color-line-danger);
+        }
+    }
+
+    &__loading {
+        height: 100%;
     }
 
     &__view {

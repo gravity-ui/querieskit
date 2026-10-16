@@ -1,8 +1,7 @@
-import React, {useEffect, useId, useState} from 'react';
-import {Button, Dialog, Flex, Icon, TextArea, useThemeValue} from '@gravity-ui/uikit';
-import PencilIcon from '@gravity-ui/icons/svgs/pencil.svg';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Flex, Loader, Text, useThemeValue} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import type {MonacoEditorProps} from '../../../types/monacoEditor';
+import type {MonacoEditorConfig, MonacoEditorProps} from '../../../types/monacoEditor';
 import i18n from '../i18n';
 import './ParameterDocument.scss';
 
@@ -17,15 +16,6 @@ type ParameterDocumentProps = {
     error?: string;
 };
 
-function validJson(value: string) {
-    try {
-        JSON.parse(value);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 export function ParameterDocument({
     value,
     onUpdate,
@@ -34,31 +24,43 @@ export function ParameterDocument({
     label,
     error,
 }: ParameterDocumentProps) {
-    const [open, setOpen] = useState(false);
-    const [draft, setDraft] = useState(value);
+    const [loadFailed, setLoadFailed] = useState(false);
     const [Editor, setEditor] = useState<React.ComponentType<MonacoEditorProps>>();
     const [highlight, setHighlight] = useState<{
         value: string;
         tokens: {text: string; kind: string}[];
     }>();
-    const titleId = useId();
     const theme = useThemeValue();
+    const config = useMemo<MonacoEditorConfig>(
+        () => ({
+            ariaLabel: label,
+            tabIndex: disabled ? -1 : 0,
+            scrollBeyondLastLine: false,
+            wordWrap: 'on',
+            lineNumbersMinChars: 3,
+            folding: true,
+            tabSize: 2,
+            padding: {top: 8, bottom: 8},
+        }),
+        [label, disabled],
+    );
 
     useEffect(() => {
-        if (!open) return undefined;
+        if (!editing) return undefined;
+        setLoadFailed(false);
         let active = true;
         import('../../../components/MonacoEditor').then(
             ({MonacoEditor}) => {
                 if (active) setEditor(() => MonacoEditor);
             },
             () => {
-                // The text editor remains available when the optional chunk cannot load.
+                if (active) setLoadFailed(true);
             },
         );
         return () => {
             active = false;
         };
-    }, [open]);
+    }, [editing]);
 
     useEffect(() => {
         if (editing) return undefined;
@@ -100,10 +102,6 @@ export function ParameterDocument({
         };
     }, [editing, value, theme]);
 
-    useEffect(() => {
-        if (!editing || disabled) setOpen(false);
-    }, [editing, disabled]);
-
     if (!editing) {
         return highlight?.value === value ? (
             <div className={block('view')}>
@@ -118,81 +116,37 @@ export function ParameterDocument({
         );
     }
 
-    const invalid = !validJson(draft);
     return (
-        <div className={block()}>
-            <Flex gap={1} alignItems="start">
-                <TextArea
-                    className={block('input')}
-                    value={value}
-                    onUpdate={onUpdate}
-                    size="m"
-                    minRows={3}
-                    disabled={disabled}
-                    validationState={error ? 'invalid' : undefined}
-                    errorMessage={error}
-                    controlProps={{'aria-label': label}}
-                />
-                <Button
-                    view="flat-secondary"
-                    size="m"
-                    disabled={disabled}
-                    aria-label={i18n('action_edit-document')}
-                    title={i18n('action_edit-document')}
-                    onClick={() => {
-                        setDraft(value);
-                        setOpen(true);
-                    }}
-                >
-                    <Icon data={PencilIcon} size={16} />
-                </Button>
-            </Flex>
-            <Dialog
-                open={open}
-                onClose={() => setOpen(false)}
-                maxWidth="l"
-                fullWidth
-                aria-labelledby={titleId}
-            >
-                <Dialog.Header caption={label} id={titleId} />
-                <Dialog.Body>
-                    {Editor ? (
-                        <Editor
-                            className={block('editor')}
-                            value={draft}
-                            onChange={setDraft}
-                            language="json"
-                            theme={theme}
-                            monacoConfig={{
-                                automaticLayout: true,
-                                minimap: {enabled: false},
-                                ariaLabel: label,
-                            }}
-                        />
-                    ) : (
-                        <TextArea
-                            value={draft}
-                            onUpdate={setDraft}
-                            minRows={12}
-                            controlProps={{'aria-label': label}}
-                        />
-                    )}
-                </Dialog.Body>
-                <Dialog.Footer
-                    textButtonApply={i18n('action_apply')}
-                    textButtonCancel={i18n('action_cancel')}
-                    propsButtonApply={{disabled: invalid || disabled}}
-                    showError={invalid}
-                    errorText={invalid ? i18n('alert_invalid-json') : undefined}
-                    onClickButtonCancel={() => setOpen(false)}
-                    onClickButtonApply={() => {
-                        if (!invalid && !disabled) {
-                            onUpdate(draft);
-                            setOpen(false);
-                        }
-                    }}
-                />
-            </Dialog>
-        </div>
+        <Flex className={block({disabled})} direction="column" gap={1}>
+            <div className={block('editor', {invalid: Boolean(error) && !disabled})}>
+                {Editor ? (
+                    <Editor
+                        value={value}
+                        onChange={(next) => {
+                            if (!disabled) onUpdate(next);
+                        }}
+                        language="json"
+                        theme={theme}
+                        readOnly={disabled}
+                        monacoConfig={config}
+                    />
+                ) : (
+                    <Flex className={block('loading')} alignItems="center" justifyContent="center">
+                        {loadFailed ? (
+                            <Text color="danger" role="alert">
+                                {i18n('alert_editor-load-failed')}
+                            </Text>
+                        ) : (
+                            <Loader />
+                        )}
+                    </Flex>
+                )}
+            </div>
+            {error && !disabled && (
+                <Text color="danger" role="alert">
+                    {error}
+                </Text>
+            )}
+        </Flex>
     );
 }

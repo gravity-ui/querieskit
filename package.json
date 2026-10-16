@@ -266,6 +266,16 @@
         "default": "./build/cjs/modules/QueryComparison/index.js"
       }
     },
+    "./components/DataTypePopup": {
+      "import": {
+        "types": "./build/esm/components/DataTypePopup/index.d.ts",
+        "default": "./build/esm/components/DataTypePopup/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/DataTypePopup/index.d.ts",
+        "default": "./build/cjs/components/DataTypePopup/index.js"
+      }
+    },
     "./components/DataTable": {
       "import": {
         "types": "./build/esm/components/DataTable/index.d.ts",

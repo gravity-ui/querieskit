@@ -47,8 +47,7 @@ export function ParameterValueContent(props: RecursiveValueProps) {
         onChange(nextValue);
     };
     const scalar = isScalarType(type);
-    const boxed =
-        ['Variant', 'Dict', 'Struct'].includes(type.kind) || (editing && type.kind === 'Tuple');
+    const boxed = ['Variant', 'Dict', 'Struct', 'Tuple'].includes(type.kind);
     const actions =
         editing && !isDocumentType(type) && type.kind !== 'Bool' ? (
             <ValueActions
@@ -135,7 +134,10 @@ export function ParameterValueContent(props: RecursiveValueProps) {
                     actions={actions}
                 />
             )}
-            <div className={block('content')} hidden={!expanded || (props.nullActive && !scalar)}>
+            <div
+                className={block('content', {nested: !scalar})}
+                hidden={!expanded || (props.nullActive && !scalar)}
+            >
                 {content}
             </div>
             {error && !scalar && representation.mode !== 'raw' && (

@@ -5,13 +5,16 @@ import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ParameterDocument} from '../../src/modules/QueryParameters/internal/ParameterDocument';
 import {setLang} from '../../src/i18n';
+import type {MonacoEditorProps} from '../../src/types/monacoEditor';
 
 vi.mock('../../src/components/MonacoEditor', () => ({
-    MonacoEditor: ({value, onChange}: {value: string; onChange: (value: string) => void}) => (
+    MonacoEditor: ({value, onChange, readOnly, monacoConfig}: MonacoEditorProps) => (
         <textarea
-            aria-label="JSON editor"
+            aria-label={monacoConfig?.ariaLabel}
+            tabIndex={monacoConfig?.tabIndex}
             value={value}
-            onChange={(event) => onChange(event.target.value)}
+            readOnly={readOnly}
+            onChange={(event) => onChange?.(event.target.value)}
         />
     ),
 }));
@@ -59,7 +62,7 @@ describe('ParameterDocument', () => {
         container.remove();
         vi.unstubAllGlobals();
     });
-    async function render(value = '{"a":1}', editing = true, disabled = false) {
+    async function render(value = '{"a":1}', editing = true, disabled = false, error?: string) {
         await act(async () =>
             root.render(
                 <ThemeProvider>
@@ -69,20 +72,14 @@ describe('ParameterDocument', () => {
                         editing={editing}
                         disabled={disabled}
                         label="Document"
+                        error={error}
                     />
                 </ThemeProvider>,
             ),
         );
     }
-    async function click(text: string) {
-        const button = [...document.querySelectorAll('button')].find(
-            (node) => node.getAttribute('aria-label') === text || node.textContent === text,
-        );
-        if (!button) throw new Error(`Missing button ${text}`);
-        await act(async () => button.click());
-    }
     function change(value: string) {
-        const input = document.querySelector('textarea[aria-label="JSON editor"]');
+        const input = container.querySelector('textarea[aria-label="Document"]');
         if (!input) throw new Error('Missing editor');
         act(() => {
             Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(
@@ -92,37 +89,36 @@ describe('ParameterDocument', () => {
             input.dispatchEvent(new Event('input', {bubbles: true}));
         });
     }
-    it('applies exact text only after Apply', async () => {
+    it('updates the form draft immediately and preserves exact document text', async () => {
         await render();
-        await click('Edit document');
         const value = '{\n  "n": 12345678901234567890\n}';
         change(value);
-        expect(onUpdate).not.toHaveBeenCalled();
-        await click('Apply');
         expect(onUpdate).toHaveBeenCalledExactlyOnceWith(value);
     });
-    it('cancels edits and reopens with the original value', async () => {
+    it('follows controlled value changes without emitting another update', async () => {
         await render();
-        await click('Edit document');
         change('{"new":true}');
-        await click('Cancel');
+        await render('{"new":true}');
+        onUpdate.mockClear();
+        await render('{"a":1}');
         expect(onUpdate).not.toHaveBeenCalled();
-        await click('Edit document');
         expect(
-            document.querySelector<HTMLTextAreaElement>('textarea[aria-label="JSON editor"]')
-                ?.value,
+            container.querySelector<HTMLTextAreaElement>('textarea[aria-label="Document"]')?.value,
         ).toBe('{"a":1}');
     });
-    it('blocks invalid JSON and allows correction', async () => {
+    it('forwards invalid drafts and displays validation supplied by the form', async () => {
         await render();
-        await click('Edit document');
         change('{');
-        await click('Apply');
-        expect(onUpdate).not.toHaveBeenCalled();
-        expect(document.body.textContent).toContain('Enter a valid JSON document.');
+        expect(onUpdate).toHaveBeenLastCalledWith('{');
+        await render('{', true, false, 'Enter a valid JSON document.');
+        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+            'Enter a valid JSON document.',
+        );
+        expect(container.querySelector('textarea')?.value).toBe('{');
         change('null');
-        await click('Apply');
-        expect(onUpdate).toHaveBeenCalledWith('null');
+        expect(onUpdate).toHaveBeenLastCalledWith('null');
+        await render('null');
+        expect(container.querySelector('[role="alert"]')).toBeNull();
     });
     it('preserves readonly text when colorization fails', async () => {
         const value = '  {"a":1}\n';
@@ -143,9 +139,16 @@ describe('ParameterDocument', () => {
         await render(value, false);
         expect(container.textContent).toBe(value);
     });
-    it('disables document actions for NULL', async () => {
+    it('makes the NULL editor read-only and ignores updates until enabled', async () => {
         await render('', true, true);
-        expect(container.querySelector('textarea')?.disabled).toBe(true);
-        expect(container.querySelector('button')?.disabled).toBe(true);
+        expect(container.querySelector('textarea')?.readOnly).toBe(true);
+        expect(container.querySelector('textarea')?.tabIndex).toBe(-1);
+        change('{"ignored":true}');
+        expect(onUpdate).not.toHaveBeenCalled();
+        await render('{}');
+        expect(container.querySelector('textarea')?.readOnly).toBe(false);
+        expect(container.querySelector('textarea')?.tabIndex).toBe(0);
+        change('{"enabled":true}');
+        expect(onUpdate).toHaveBeenCalledExactlyOnceWith('{"enabled":true}');
     });
 });
