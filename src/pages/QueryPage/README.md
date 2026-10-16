@@ -218,3 +218,7 @@ keeps the first row and replaces the second. Cancel clears the selection.
 `QueryPageQueryTab`, `QueryPageComparisonTab`, and `QueryPageHistoryActions` are
 exported from the root and page entrypoint. Existing comparison entries must
 replace `editorProps` and `executionPanelProps` with `comparisonProps`.
+
+The default history Delete action opens a confirmation dialog with the query name and an
+irrecoverable-data warning. `onDelete` is called only after confirmation; canceling or
+closing the dialog leaves the query unchanged. Custom `getRowActions` retain their own behavior.

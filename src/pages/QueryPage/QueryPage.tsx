@@ -10,6 +10,7 @@ import type {QueryPageProps} from '../../types/queryPage';
 import {QueriesSidebar} from '../../widgets/QueriesSidebar';
 import {QueryTabs} from '../../modules/QueryTabs';
 import {QueryComparison} from '../../modules/QueryComparison';
+import {DeleteQueryDialog} from './internal/DeleteQueryDialog';
 import {useHistoryActions} from './internal/useHistoryActions';
 import {QueryWorkspace} from './internal/QueryWorkspace';
 import {QueryPagePanel} from './internal/QueryPagePanel';
@@ -48,7 +49,10 @@ export function QueryPage<
     defaultSidebarCollapsed = false,
     onSidebarCollapsedChange,
 }: QueryPageProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TCustom, TRow, TMetaItem>) {
-    const sidebarTabs = useHistoryActions(sidebarProps.tabs, historyActions);
+    const {tabs: sidebarTabs, deleteConfirmation} = useHistoryActions(
+        sidebarProps.tabs,
+        historyActions,
+    );
     const sidebarId = useId();
     const panelPrefix = useId();
     const [rootRef, rootSize] = useElementSize();
@@ -74,6 +78,7 @@ export function QueryPage<
 
     return (
         <div ref={rootRef} className={block(null, className)}>
+            <DeleteQueryDialog {...deleteConfirmation} />
             <div
                 className={block('layout')}
                 style={{

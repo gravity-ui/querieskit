@@ -5,5 +5,8 @@
   "action_resize-results": "Resize results",
   "action_rename": "Rename",
   "action_select-for-compare": "Select for Compare",
-  "action_delete": "Delete"
+  "action_delete": "Delete",
+  "title_delete-query": "Delete query",
+  "confirm_delete-query": "Do you really want to delete query {{name}}? The data cannot be recovered",
+  "action_cancel": "Cancel"
 }

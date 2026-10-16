@@ -21,8 +21,18 @@ export function useHistoryActions<
 >(
     tabs: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial>['tabs'],
     actions?: QueryPageHistoryActions<THistory>,
-): QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial>['tabs'] {
+) {
     const [states, setStates] = useState<Record<string, HistoryState<THistory>>>({});
+
+    const [pendingDelete, setPendingDelete] = useState<{item: THistory; tabId: string}>();
+    const canDelete = Boolean(
+        pendingDelete &&
+        actions?.onDelete &&
+        tabs.some((tab) => tab.type === 'history' && tab.id === pendingDelete.tabId),
+    );
+    useEffect(() => {
+        if (!canDelete) setPendingDelete(undefined);
+    }, [canDelete]);
 
     useEffect(() => {
         const historyIds = new Set(
@@ -47,7 +57,7 @@ export function useHistoryActions<
         }));
     };
 
-    return tabs.map((tab) => {
+    const historyTabs: typeof tabs = tabs.map((tab) => {
         if (tab.type !== 'history') return tab;
         const {props} = tab;
         const state = states[tab.id];
@@ -100,7 +110,9 @@ export function useHistoryActions<
                             text: i18n('action_delete'),
                             theme: 'danger' as const,
                             disabled: !actions?.onDelete,
-                            onClick: (item: THistory) => actions?.onDelete?.(item, tab.id),
+                            onClick: (item: THistory) => {
+                                if (actions?.onDelete) setPendingDelete({item, tabId: tab.id});
+                            },
                         },
                     ]),
                 editing: externalEditing
@@ -143,4 +155,17 @@ export function useHistoryActions<
             },
         };
     });
+
+    return {
+        tabs: historyTabs,
+        deleteConfirmation: {
+            item: canDelete ? pendingDelete?.item : undefined,
+            onCancel: () => setPendingDelete(undefined),
+            onConfirm: () => {
+                if (!canDelete || !pendingDelete) return;
+                setPendingDelete(undefined);
+                actions?.onDelete?.(pendingDelete.item, pendingDelete.tabId);
+            },
+        },
+    };
 }
