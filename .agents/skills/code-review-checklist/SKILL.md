@@ -37,6 +37,7 @@ For this repository, apply conditional guidance without duplicating it here:
 
 - For SCSS or layout changes, read `plans/styles-rules.md`.
 - For localization changes, read `plans/i18n-rules.md`.
+- For changes to Gravity UI components, APIs, theming, or layout, apply the relevant guidance from [gravity-ui](../gravity-ui/SKILL.md) and its references. Verify APIs against the installed version; keep this review read-only rather than following that skill's implementation or automatic-fix steps.
 - Check the `components → modules → widgets` dependency direction, mandatory unit and level barrel exports, and placement of consumer-facing public types described in `AGENTS.md`.
 - Treat documented legacy violations as anti-examples, not patterns to copy.
 
@@ -48,6 +49,10 @@ Look for code whose correctness depends on a non-obvious condition, including:
 
 - inverted, incomplete, unreachable, or off-by-one control flow;
 - invalid state transitions, direct mutation, stale closures, stale derived state, or incorrect React effect dependencies and cleanup;
+- unstable React keys that associate state with the wrong item, conditional hook calls, or side effects during render;
+- TypeScript assertions, `any`, or non-null assertions that hide reachable invalid values, and unhandled union variants that cause incorrect behavior;
+- actions unavailable from the keyboard, missing accessible names, lost visible focus, or invalid semantics and HTML nesting; assess the rendered behavior, including browser and UI-library support, rather than requiring particular attributes;
+- long text, translations, or dynamic content that obscure meaningful information, overlap controls, or make actions inaccessible;
 - nullish values, empty collections, Unicode, dates and time zones, size limits, and other realistic boundaries;
 - lost errors, incomplete failure paths, async races, interleaving, or cleanup leaks;
 - transformations that lose data or rely on an unvalidated shape or invariant;
@@ -67,6 +72,7 @@ For each candidate:
 3. Check whether types, callers, guards, framework behavior, or tests already preserve the invariant.
 4. State the observable consequence and affected consumer.
 5. Remove the candidate if the concern is disproved or remains purely speculative.
+6. Verify that the proposed recommendation addresses the established cause of the defect, rather than a related symptom.
 
 Run relevant read-only checks when they materially increase confidence. Distinguish confirmed defects from test or verification gaps.
 
