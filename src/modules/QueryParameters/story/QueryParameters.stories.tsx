@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {Button, Flex, Text} from '@gravity-ui/uikit';
+import {Button, ClipboardButton, Flex, Text} from '@gravity-ui/uikit';
 import block from 'bem-cn-lite';
 import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
@@ -125,6 +125,53 @@ function Example({
     );
 }
 
+function PayloadExample() {
+    const [value, setValue] = useState<QueryParameter[]>([]);
+    const [payload, setPayload] = useState<string>();
+
+    return (
+        <Flex gap={5} wrap alignItems="flex-start">
+            <div className={b('payload-form')}>
+                <QueryParameters
+                    value={value}
+                    onChange={(nextValue) => {
+                        setValue(nextValue);
+                        setPayload(JSON.stringify(nextValue, null, 2));
+                        action('parametersChange')(nextValue);
+                    }}
+                />
+            </div>
+            <Flex direction="column" gap={3} className={b('payload-preview')}>
+                <Flex alignItems="center" gap={2}>
+                    <Text variant="subheader-1">Last saved JSON</Text>
+                    <ClipboardButton
+                        text={payload ?? ''}
+                        disabled={payload === undefined}
+                        aria-label="Copy saved JSON"
+                    />
+                </Flex>
+                <Text color="secondary">
+                    Add parameters and click Save. This is the exact value passed to onChange; your
+                    application maps it to its backend API. No request is sent by this story.
+                </Text>
+                {payload === undefined ? (
+                    <Text color="secondary">No parameters saved yet.</Text>
+                ) : (
+                    <Text
+                        as="pre"
+                        variant="code-1"
+                        className={b('payload-json')}
+                        aria-label="Last saved parameters JSON"
+                        tabIndex={0}
+                    >
+                        {payload}
+                    </Text>
+                )}
+            </Flex>
+        </Flex>
+    );
+}
+
 function ApplicationLayoutExample() {
     const [value, setValue] = useState(parameters);
     const [expanded, setExpanded] = useState(false);
@@ -222,6 +269,17 @@ export const SimpleTypes: Story = {
     },
 };
 export const Empty: Story = {args: {initialValue: []}};
+export const Payload: Story = {
+    render: () => <PayloadExample />,
+    parameters: {
+        controls: {disable: true},
+        docs: {
+            description: {
+                story: 'Create parameters from scratch, then Save to inspect and copy the JSON emitted by onChange. The preview keeps the last saved payload while you edit or cancel a draft. Backend serialization belongs to the consuming application.',
+            },
+        },
+    },
+};
 export const ExternalErrors: Story = {
     args: {
         errors: {
