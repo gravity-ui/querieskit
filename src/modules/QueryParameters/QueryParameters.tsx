@@ -47,7 +47,6 @@ export function QueryParameters({
     const [session, setSession] = useState<Session | null>(null);
     const [tab, setTab] = useState('current');
     const [search, setSearch] = useState('');
-    const [attempted, setAttempted] = useState(false);
     const [pending, setPending] = useState<'save' | 'update' | null>(null);
     const [failure, setFailure] = useState<'save' | 'update' | null>(null);
     const [confirmUpdate, setConfirmUpdate] = useState(false);
@@ -66,6 +65,8 @@ export function QueryParameters({
     const current = parameters.filter((parameter) => !parameter.deleted);
     const deleted = parameters.filter((parameter) => parameter.deleted);
     const validation = editing ? validateParameters(parameters) : {};
+    const hasValidationErrors = Object.keys(validation).length > 0;
+    const invalidDraft = hasValidationErrors || pendingValues.size > 0;
     const query = search.trim().toLocaleLowerCase();
     const matches = (parameter: QueryParameter) =>
         `${parameter.name} ${formatType(parameter.type)}`.toLocaleLowerCase().includes(query);
@@ -102,7 +103,6 @@ export function QueryParameters({
     const begin = () => {
         if (locked) return;
         setSession({baseline: serialized, original: clone(value), draft: clone(value)});
-        setAttempted(false);
         setFailure(null);
         setSearch('');
         setTab('current');
@@ -111,7 +111,6 @@ export function QueryParameters({
     const cancel = () => {
         if (locked) return;
         setSession(null);
-        setAttempted(false);
         setFailure(null);
         setPendingValues(new Set());
         setFocusTarget('edit');
@@ -170,7 +169,6 @@ export function QueryParameters({
             await onChange(clone(next));
             if (mounted.current) {
                 setSession(null);
-                setAttempted(false);
                 setPendingValues(new Set());
                 setFocusTarget('edit');
             }
@@ -182,14 +180,7 @@ export function QueryParameters({
         }
     };
     const save = () => {
-        if (!session || locked || conflict) return;
-        setAttempted(true);
-        const nextErrors = validateParameters(session.draft);
-        if (Object.keys(nextErrors).length || pendingValues.size) {
-            setTab('current');
-            setSearch('');
-            return;
-        }
+        if (!session || locked || conflict || invalidDraft) return;
         commit(session.draft);
     };
     const update = async () => {
@@ -202,7 +193,6 @@ export function QueryParameters({
             await onUpdate();
             if (mounted.current) {
                 setSession(null);
-                setAttempted(false);
                 setPendingValues(new Set());
                 setFocusTarget('edit');
             }
@@ -213,6 +203,18 @@ export function QueryParameters({
             if (mounted.current) setPending(null);
         }
     };
+
+    const showParametersAction =
+        query || tab !== 'current' ? (
+            <Button
+                onClick={() => {
+                    setTab('current');
+                    setSearch('');
+                }}
+            >
+                {i18n('action_show-parameters')}
+            </Button>
+        ) : undefined;
 
     return (
         <TabProvider value={tab} onUpdate={setTab}>
@@ -305,13 +307,21 @@ export function QueryParameters({
                             />
                         </div>
                     )}
-                    {attempted && Object.keys(validation).length > 0 && (
+                    {hasValidationErrors && (
                         <div role="alert">
-                            <Alert theme="danger" message={i18n('alert_invalid-form')} />
+                            <Alert
+                                theme="danger"
+                                message={i18n('alert_invalid-form')}
+                                actions={showParametersAction}
+                            />
                         </div>
                     )}
                     {pendingValues.size > 0 && (
-                        <Alert theme="info" message={i18n('alert_pending-raw')} />
+                        <Alert
+                            theme="info"
+                            message={i18n('alert_pending-raw')}
+                            actions={showParametersAction}
+                        />
                     )}
                     <TabPanel value="current" hidden={tab !== 'current'} className={block('panel')}>
                         {current.length === 0 ? (
@@ -424,12 +434,7 @@ export function QueryParameters({
                         <>
                             <Button
                                 onClick={save}
-                                disabled={
-                                    locked ||
-                                    conflict ||
-                                    pendingValues.size > 0 ||
-                                    Object.keys(validation).length > 0
-                                }
+                                disabled={locked || conflict || invalidDraft}
                                 loading={pending === 'save'}
                             >
                                 <Icon data={SaveIcon} size={16} />

@@ -5,7 +5,7 @@ import type {
     QueryParameterType,
     QueryParameterValue,
 } from '../../../types/queryParameters';
-import {parseDate} from '../../../helpers/parameterDate';
+import {validateDateValue} from '../../../helpers/parameterDate';
 import {validateNumericValue} from '../../../helpers/parameterValidation';
 import i18n from '../i18n';
 
@@ -301,16 +301,6 @@ export function parameterFormatExample(type: QueryParameterType): string | undef
     }
 }
 
-/** Preserve the query editor's short/signed extended years when using the shared parser. */
-function validDateValue(kind: string, value: string): boolean {
-    const extended = /(?:32|64)$/.test(kind);
-    const pattern = extended ? /^([+-]?)(\d{1,6})(-.*)$/ : /^()(\d{4})(-.*)$/;
-    const match = pattern.exec(value);
-    if (!match) return false;
-    const normalized = `${match[1] === '-' ? '-' : ''}${match[2].padStart(4, '0')}${match[3]}`;
-    return parseDate(normalized, kind) !== undefined;
-}
-
 function valueErrors(
     type: QueryParameterType,
     value: unknown,
@@ -352,12 +342,12 @@ function valueErrors(
         }
         if (
             /^(Date(?:32)?|Datetime(?:64)?|Timestamp(?:64)?)$/.test(type.kind) &&
-            !validDateValue(type.kind, value)
+            !validateDateValue(value, type.kind)
         )
             errors[path] = i18n('alert_invalid-date');
         if (
             (type.kind === 'Interval' || type.kind === 'Interval64') &&
-            parseDate(value, type.kind) === undefined
+            !validateDateValue(value, type.kind)
         )
             errors[path] = i18n('alert_invalid-interval');
         if (

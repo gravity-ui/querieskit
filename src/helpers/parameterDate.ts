@@ -1,75 +1,39 @@
-const SECOND = 1_000_000n;
-const DAY = 86400n * SECOND;
-
-const ranges: Record<string, [bigint, bigint]> = {
-    Date: [0n, 49672n],
-    Date32: [-53375809n, 53375807n],
-    Datetime: [0n, 4291747199n],
-    Datetime64: [-4611669897600n, 4611638361599n],
-    Timestamp: [0n, 4291747199999999n],
-    Timestamp64: [-4611669897600000000n, 4611638361599999999n],
-    Interval: [-4291747199999999n, 4291747199999999n],
-    Interval64: [-9223339190399999999n, 9223339190399999999n],
-};
-
-function isDateValue(value: string, name: string) {
-    if (!/^-?\d+$/.test(value)) return false;
-    const range = ranges[name];
-    return Boolean(range && BigInt(value) >= range[0] && BigInt(value) <= range[1]);
-}
-
-function parseInterval(text: string, name: string): string | undefined {
+function validateInterval(value: string): boolean {
     const match =
-        /^(-)?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)(?:\.(\d{1,6}))?S)?)?$/.exec(
-            text,
+        /^-?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)(?:\.(\d{1,6}))?S)?)?$/.exec(
+            value,
         );
-    if (!match || !match.slice(2).some(Boolean) || text.endsWith('T')) return undefined;
-    const [, negative, weeks, days, hours, minutes, seconds, fraction] = match;
-    const micros =
-        (BigInt(weeks || 0) * 7n * DAY +
-            BigInt(days || 0) * DAY +
-            BigInt(hours || 0) * 3600n * SECOND +
-            BigInt(minutes || 0) * 60n * SECOND +
-            BigInt(seconds || 0) * SECOND +
-            BigInt((fraction || '').padEnd(6, '0'))) *
-        (negative ? -1n : 1n);
-    return isDateValue(String(micros), name) ? String(micros) : undefined;
+    return Boolean(match && match.slice(1).some(Boolean) && !value.endsWith('T'));
 }
 
-export function parseDate(text: string, name: string): string | undefined {
-    if (name.startsWith('Interval')) return parseInterval(text, name);
-    const dateOnly = name === 'Date' || name === 'Date32';
-    const match =
-        /^(-?\d{4,6})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?Z)?$/.exec(text);
-    if (!match || (dateOnly ? match[4] !== undefined : match[4] === undefined)) return undefined;
-    const [, yearText, month, day, hour = '0', minute = '0', second = '0', fraction = ''] = match;
-    const year = Number(yearText);
-    if (year === 0 || (!name.startsWith('Timestamp') && fraction)) return undefined;
-    const jsYear = year < 0 ? year + 1 : year;
-    const date = new Date(0);
-    date.setUTCFullYear(jsYear, Number(month) - 1, Number(day));
-    date.setUTCHours(Number(hour), Number(minute), Number(second), 0);
-    const actual = [
-        date.getUTCFullYear(),
-        date.getUTCMonth() + 1,
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-        date.getUTCSeconds(),
-    ];
-    const expected = [
-        jsYear,
-        Number(month),
-        Number(day),
-        Number(hour),
-        Number(minute),
-        Number(second),
-    ];
-    if (!actual.every((part, index) => part === expected[index])) return undefined;
-    const seconds = BigInt(date.getTime() / 1000);
-    let result = seconds;
-    if (dateOnly) result = seconds / 86400n;
-    else if (name.startsWith('Timestamp'))
-        result = seconds * SECOND + BigInt(fraction.padEnd(6, '0'));
-    return isDateValue(String(result), name) ? String(result) : undefined;
+/** Validate UI date text; engine-specific date and interval ranges belong to the application. */
+export function validateDateValue(value: string, kind: string): boolean {
+    if (kind === 'Interval' || kind === 'Interval64') return validateInterval(value);
+    if (!/^(Date(?:32)?|Datetime(?:64)?|Timestamp(?:64)?)$/.test(kind)) return false;
+
+    const extended = /(?:32|64)$/.test(kind);
+    const yearPattern = extended ? '[+-]?\\d{1,6}' : '\\d{4}';
+    const dateOnly = /^Date(?:32)?$/.test(kind);
+    const fraction = kind.startsWith('Timestamp') ? '(?:\\.\\d{1,6})?' : '';
+    const pattern = new RegExp(
+        `^(${yearPattern})-(\\d{2})-(\\d{2})${dateOnly ? '' : `T(\\d{2}):(\\d{2}):(\\d{2})${fraction}Z`}$`,
+    );
+    const match = pattern.exec(value);
+    if (!match) return false;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (year === 0 || month < 1 || month > 12) return false;
+
+    // There is no year zero in the input; use astronomical years for leap-year arithmetic.
+    const calendarYear = year < 0 ? year + 1 : year;
+    const leapYear =
+        calendarYear % 4 === 0 && (calendarYear % 100 !== 0 || calendarYear % 400 === 0);
+    const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return (
+        day >= 1 &&
+        day <= daysInMonth[month - 1] &&
+        (dateOnly || (Number(match[4]) <= 23 && Number(match[5]) <= 59 && Number(match[6]) <= 59))
+    );
 }

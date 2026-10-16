@@ -12,13 +12,19 @@ function validateInteger(value: string, name: string, bits: bigint) {
 
 function validateDecimal(value: string, params?: readonly unknown[]) {
     if (specialNumberPattern.test(value)) return true;
-    const match = /^[+-]?(\d+)(?:\.(\d*))?$/.exec(value);
+    const match = /^[+-]?(?:(\d+)(?:\.(\d*))?|\.(\d+))(?:e([+-]?\d+))?$/i.exec(value);
     if (!match) return false;
     const [precision, scale] = params?.map(Number) || [];
     if (!Number.isInteger(precision) || !Number.isInteger(scale)) return true;
-    return (
-        match[1].replace(/^0+/, '').length <= precision - scale && (match[2]?.length || 0) <= scale
-    );
+    const fraction = match[2] || match[3] || '';
+    const digits = ((match[1] || '') + fraction).replace(/^0+/, '');
+    if (!digits) return true;
+    const significantDigits = digits.replace(/0+$/, '');
+    const trailingZeros = digits.length - significantDigits.length;
+    // Count decimal places without materializing the exponent or losing numeric precision.
+    const decimalPlaces = BigInt(fraction.length - trailingZeros) - BigInt(match[4] || '0');
+    const integerDigits = BigInt(significantDigits.length) - decimalPlaces;
+    return integerDigits <= BigInt(precision - scale) && decimalPlaces <= BigInt(scale);
 }
 
 /** Validates numeric parameter strings without losing integer precision through JS Number. */

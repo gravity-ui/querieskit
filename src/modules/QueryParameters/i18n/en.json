@@ -17,6 +17,7 @@
   "action_reset-parameter": "Reset parameter {{name}}",
   "action_edit": "Edit",
   "action_save": "Save",
+  "action_show-parameters": "Show parameters",
   "action_update": "Update",
   "action_remove-all": "Remove all",
   "action_reload": "Discard draft and reload",

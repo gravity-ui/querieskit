@@ -17,6 +17,7 @@
   "action_reset-parameter": "Сбросить параметр {{name}}",
   "action_edit": "Редактировать",
   "action_save": "Сохранить",
+  "action_show-parameters": "Показать параметры",
   "action_update": "Обновить",
   "action_remove-all": "Удалить все",
   "action_reload": "Отменить правки и загрузить заново",

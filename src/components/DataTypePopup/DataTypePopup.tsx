@@ -38,15 +38,7 @@ export function DataTypePopup({children, type, hideIcon, className}: DataTypePop
                 aria-label={label}
                 aria-haspopup="dialog"
                 aria-expanded={open}
-                onClick={() => setOpen((current) => !current)}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        setOpen((current) => !current);
-                    } else if (event.key === 'Escape' && open) {
-                        setOpen(false);
-                    }
-                }}
+                onClick={() => setOpen(!open)}
             >
                 {children}
                 {!hideIcon && <Icon className={block('icon')} data={CircleInfo} size={12} />}

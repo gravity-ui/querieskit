@@ -136,7 +136,7 @@ the application's responsibility.
 Date values use `YYYY-MM-DD`; Datetime adds `THH:mm:ssZ`, and Timestamp additionally
 accepts fractional seconds up to 6 digits. The `Z` suffix is mandatory for Datetime
 and Timestamp. Extended types support negative and longer years. The form checks
-format and component bounds; the server checks engine ranges and calendar rules.
+format and calendar validity; engine-specific date ranges remain the application's responsibility.
 Date and Datetime use a UTC date picker (Datetime includes time to seconds).
 Incoming values that the picker cannot represent remain editable as text.
 Extended date types and Timestamp retain text input with a calendar; calendar
