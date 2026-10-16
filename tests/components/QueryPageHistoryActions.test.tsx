@@ -25,6 +25,7 @@ describe('QueryPage history actions', () => {
     let container: HTMLDivElement;
     let root: Root;
     let result: QueriesSidebarTab[];
+    let deleteConfirmation: ReturnType<typeof useHistoryActions>['deleteConfirmation'];
 
     function Harness({
         tabs,
@@ -33,7 +34,9 @@ describe('QueryPage history actions', () => {
         tabs: QueriesSidebarTab[];
         actions?: QueryPageHistoryActions;
     }) {
-        result = useHistoryActions(tabs, actions);
+        const historyActions = useHistoryActions(tabs, actions);
+        result = historyActions.tabs;
+        deleteConfirmation = historyActions.deleteConfirmation;
         return null;
     }
 
@@ -72,8 +75,10 @@ describe('QueryPage history actions', () => {
         expect(menu[2].theme).toBe('danger');
         action(0);
         action(1);
+        action(2);
         expect(props().editing?.rowId).toBeUndefined();
         expect(props().comparison?.enabled).toBe(false);
+        expect(deleteConfirmation.item).toBeUndefined();
     });
 
     it('renames ID zero, forwards the history context and clears editing after submit or cancel', () => {
@@ -92,8 +97,59 @@ describe('QueryPage history actions', () => {
         act(() => props().editing?.onCancel?.(rows[1]));
         expect(onCancel).toHaveBeenCalledExactlyOnceWith(rows[1]);
         expect(props().editing?.rowId).toBeUndefined();
+    });
+
+    it('requests confirmation before deleting and allows cancellation', () => {
+        const onDelete = vi.fn();
+        render([history()], {onDelete});
         action(2, rows[1]);
-        expect(onDelete).toHaveBeenCalledExactlyOnceWith(rows[1], 'history');
+        expect(deleteConfirmation.item).toBe(rows[1]);
+        expect(onDelete).not.toHaveBeenCalled();
+        act(() => deleteConfirmation.onCancel());
+        expect(deleteConfirmation.item).toBeUndefined();
+        act(() => deleteConfirmation.onConfirm());
+        expect(onDelete).not.toHaveBeenCalled();
+    });
+
+    it.each([rows[0], rows[1]])(
+        'confirms deletion for row ID $id in the originating tab',
+        (row) => {
+            const onDelete = vi.fn();
+            render([history(), history('other')], {onDelete});
+            action(2, row, 'other');
+            expect(deleteConfirmation.item).toBe(row);
+            expect(onDelete).not.toHaveBeenCalled();
+            act(() => deleteConfirmation.onConfirm());
+            expect(onDelete).toHaveBeenCalledExactlyOnceWith(row, 'other');
+            expect(deleteConfirmation.item).toBeUndefined();
+            act(() => deleteConfirmation.onConfirm());
+            expect(onDelete).toHaveBeenCalledTimes(1);
+        },
+    );
+
+    it('clears pending deletion when its history tab is removed', () => {
+        const onDelete = vi.fn();
+        const first = history();
+        const second = history('other');
+        render([first, second], {onDelete});
+        action(2);
+        render([second], {onDelete});
+        expect(deleteConfirmation.item).toBeUndefined();
+        render([first, second], {onDelete});
+        act(() => deleteConfirmation.onConfirm());
+        expect(onDelete).not.toHaveBeenCalled();
+    });
+
+    it('clears pending deletion when the delete callback becomes unavailable', () => {
+        const onDelete = vi.fn();
+        const tab = history();
+        render([tab], {onDelete});
+        action(2);
+        render([tab]);
+        expect(deleteConfirmation.item).toBeUndefined();
+        render([tab], {onDelete});
+        act(() => deleteConfirmation.onConfirm());
+        expect(onDelete).not.toHaveBeenCalled();
     });
 
     it('uses existing editing persistence when no page rename callback is supplied', () => {
@@ -173,6 +229,8 @@ describe('QueryPage history actions', () => {
         expect(props().editing).toBe(editing);
         expect(props().comparison).toBe(comparison);
         expect(props().search).toBe(tab.props.search);
+        action(0);
+        expect(deleteConfirmation.item).toBeUndefined();
     });
 
     it('isolates history tab state and clears removed tabs while retaining other tab objects', () => {

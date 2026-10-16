@@ -5,5 +5,8 @@
   "action_resize-results": "Изменить высоту результатов",
   "action_rename": "Переименовать",
   "action_select-for-compare": "Выбрать для сравнения",
-  "action_delete": "Удалить"
+  "action_delete": "Удалить",
+  "title_delete-query": "Удалить запрос",
+  "confirm_delete-query": "Вы действительно хотите удалить запрос {{name}}? Данные невозможно будет восстановить",
+  "action_cancel": "Отмена"
 }
