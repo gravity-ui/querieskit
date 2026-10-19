@@ -104,6 +104,41 @@ describe('QueriesSidebar', () => {
         vi.unstubAllGlobals();
     });
 
+    it('renders the built-in VCS tab and retains custom preview state when requested', () => {
+        const location = {providerId: 'git', repositoryId: 'demo', branch: 'main', path: '/'};
+        const vcs: QueriesSidebarTab = {
+            id: 'source',
+            type: 'vcs',
+            props: {
+                location,
+                onUpdate: vi.fn(),
+                providers: {items: []},
+                branches: {items: []},
+                listState: {loaded: true},
+                items: [],
+                renderHeader: () => null,
+                detail: {
+                    openedFile: {
+                        item: {path: '/query.sql', title: 'query.sql', kind: 'file'},
+                        location,
+                    },
+                    renderContent: () => <Counter />,
+                },
+            },
+        };
+        render({tabs: [vcs, custom('other')], keepMounted: true});
+        expect(tab('Version control').getAttribute('aria-selected')).toBe('true');
+        act(() =>
+            Array.from(panel().querySelectorAll('button'))
+                .find((button) => button.textContent === 'Count 0')!
+                .click(),
+        );
+        expect(panel().textContent).toContain('Count 1');
+        act(() => tab('other').click());
+        act(() => tab('Version control').click());
+        expect(panel().textContent).toContain('Count 1');
+    });
+
     it('selects defaults, switches by keyboard and falls back when a tab is disabled or removed', () => {
         render({defaultActiveTab: 'b'});
         expect(tab('b').getAttribute('aria-selected')).toBe('true');

@@ -107,3 +107,5 @@ export type {HistoryFilterProps} from './types/historyFilter';
 export type {NavigationDetailProps} from './types/navigationDetail';
 export * from './types/navigationDetailResolvers';
 export * from './types/attachmentsEditor';
+
+export type * from './types/queriesVcs';

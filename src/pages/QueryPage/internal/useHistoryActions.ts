@@ -1,3 +1,4 @@
+import type {VcsItem} from '../../../types/queriesVcs';
 import {useEffect, useState} from 'react';
 import type {QueryHistoryRow} from '../../../types/history';
 import type {NavigationCluster, NavigationItem} from '../../../types/navigation';
@@ -18,8 +19,9 @@ export function useHistoryActions<
     TNavigation extends NavigationItem,
     TCluster extends NavigationCluster,
     TTutorial extends TutorialHistoryRow,
+    TVcs extends VcsItem,
 >(
-    tabs: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial>['tabs'],
+    tabs: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>['tabs'],
     actions?: QueryPageHistoryActions<THistory>,
 ) {
     const [states, setStates] = useState<Record<string, HistoryState<THistory>>>({});

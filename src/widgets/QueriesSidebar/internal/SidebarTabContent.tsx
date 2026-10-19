@@ -1,3 +1,5 @@
+import {QueriesVcs} from '../../../modules/QueriesVcs';
+import type {VcsItem} from '../../../types/queriesVcs';
 import React from 'react';
 import {QueriesHistory} from '../../../modules/QueriesHistory';
 import {QueriesNavigation} from '../../../modules/QueriesNavigation';
@@ -16,11 +18,12 @@ export function SidebarTabContent<
     TNavigation extends NavigationItem,
     TCluster extends NavigationCluster,
     TTutorial extends TutorialHistoryRow,
+    TVcs extends VcsItem,
 >({
     tab,
     active,
 }: {
-    tab: QueriesSidebarTab<THistory, TSaved, TNavigation, TCluster, TTutorial>;
+    tab: QueriesSidebarTab<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>;
     active: boolean;
 }) {
     switch (tab.type) {
@@ -32,6 +35,8 @@ export function SidebarTabContent<
             return <QueriesNavigation {...tab.props} />;
         case 'tutorials':
             return <TutorialsHistory {...tab.props} />;
+        case 'vcs':
+            return <QueriesVcs {...tab.props} />;
         case 'custom':
             return tab.renderContent({active});
     }

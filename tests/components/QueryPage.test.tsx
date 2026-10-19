@@ -171,6 +171,40 @@ describe('QueryPage', () => {
         vi.unstubAllGlobals();
     });
 
+    it('passes the VCS tab contract through sidebarProps', () => {
+        const location = {providerId: 'git', repositoryId: 'demo', branch: 'main', path: '/'};
+        const props = createProps();
+        props.sidebarProps = {
+            tabs: [
+                {
+                    id: 'source',
+                    type: 'vcs',
+                    props: {
+                        location,
+                        onUpdate: vi.fn(),
+                        providers: {items: []},
+                        branches: {items: []},
+                        listState: {loaded: true},
+                        items: [],
+                        renderHeader: () => null,
+                        detail: {
+                            openedFile: {
+                                item: {path: '/query.sql', title: 'query.sql', kind: 'file'},
+                                location,
+                            },
+                            renderContent: ({item}) => <div>Source preview: {item.title}</div>,
+                        },
+                    },
+                },
+            ],
+        };
+        render(props);
+        expect(container.textContent).toContain('Source preview: query.sql');
+        expect(
+            container.querySelector('[role="tab"][aria-label="Version control"]'),
+        ).not.toBeNull();
+    });
+
     it('hides an empty draft without changing layout state or remounting the editor', () => {
         const value = createProps();
         const tab = value.tabsProps.items[0];

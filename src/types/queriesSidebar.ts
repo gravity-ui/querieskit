@@ -1,3 +1,4 @@
+import type {QueriesVcsProps, VcsItem} from './queriesVcs';
 import type {ReactNode} from 'react';
 import type {QueryHistoryRow} from './history';
 import type {NavigationCluster, NavigationItem} from './navigation';
@@ -22,11 +23,13 @@ export type QueriesSidebarTab<
     TNavigation extends NavigationItem = NavigationItem,
     TCluster extends NavigationCluster = NavigationCluster,
     TTutorial extends TutorialHistoryRow = TutorialHistoryRow,
+    TVcs extends VcsItem = VcsItem,
 > = QueriesSidebarTabBase &
     (
         | {type: 'history'; props: QueriesHistoryProps<THistory>}
         | {type: 'saved'; props: SavedQueriesProps<TSaved>}
         | {type: 'navigation'; props: QueriesNavigationProps<TNavigation, TCluster>}
+        | {type: 'vcs'; props: QueriesVcsProps<TVcs>}
         | {type: 'tutorials'; props: TutorialsHistoryProps<TTutorial>}
         | {
               type: 'custom';
@@ -43,10 +46,11 @@ export type QueriesSidebarProps<
     TNavigation extends NavigationItem = NavigationItem,
     TCluster extends NavigationCluster = NavigationCluster,
     TTutorial extends TutorialHistoryRow = TutorialHistoryRow,
+    TVcs extends VcsItem = VcsItem,
 > = {
     header?: ReactNode;
     /** Array order is display order. Removed tabs lose their retained state. */
-    tabs: QueriesSidebarTab<THistory, TSaved, TNavigation, TCluster, TTutorial>[];
+    tabs: QueriesSidebarTab<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>[];
     /** Do not switch between controlled and uncontrolled modes after mounting. */
     activeTab?: string;
     defaultActiveTab?: string;

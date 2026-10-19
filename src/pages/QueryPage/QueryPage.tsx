@@ -1,3 +1,4 @@
+import type {VcsItem} from '../../types/queriesVcs';
 import React, {useId} from 'react';
 import {LayoutColumns} from '@gravity-ui/icons';
 import {Button, Icon} from '@gravity-ui/uikit';
@@ -37,6 +38,7 @@ export function QueryPage<
     TCustom extends object = Record<string, unknown>,
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+    TVcs extends VcsItem = VcsItem,
 >({
     sidebarProps,
     historyActions,
@@ -48,7 +50,17 @@ export function QueryPage<
     sidebarCollapsed,
     defaultSidebarCollapsed = false,
     onSidebarCollapsedChange,
-}: QueryPageProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TCustom, TRow, TMetaItem>) {
+}: QueryPageProps<
+    THistory,
+    TSaved,
+    TNavigation,
+    TCluster,
+    TTutorial,
+    TCustom,
+    TRow,
+    TMetaItem,
+    TVcs
+>) {
     const {tabs: sidebarTabs, deleteConfirmation} = useHistoryActions(
         sidebarProps.tabs,
         historyActions,

@@ -865,6 +865,16 @@
         "types": "./build/cjs/modules/ChartFieldsEditor/index.d.ts",
         "default": "./build/cjs/modules/ChartFieldsEditor/index.js"
       }
+    },
+    "./modules/QueriesVcs": {
+      "import": {
+        "types": "./build/esm/modules/QueriesVcs/index.d.ts",
+        "default": "./build/esm/modules/QueriesVcs/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueriesVcs/index.d.ts",
+        "default": "./build/cjs/modules/QueriesVcs/index.js"
+      }
     }
   },
   "files": [

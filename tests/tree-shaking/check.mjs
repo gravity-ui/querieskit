@@ -21,13 +21,14 @@ const widgets = [
     'QueryTabs',
     'QueryEditor',
     'QuerySettings',
+    'QueriesVcs',
 ];
-const sections = new Set(widgets.slice(0, 4));
+const sections = new Set([...widgets.slice(0, 4), 'QueriesVcs']);
 const unitPath = (name) =>
     name === 'QueryPage'
         ? 'pages/QueryPage'
         : `${name === 'QueryResults' || name === 'QueryTabs' || name === 'QuerySettings' || sections.has(name) ? 'modules' : 'widgets'}/${name}`;
-const monacoUnits = new Set([...widgets.slice(0, 3), 'QueriesSidebar', 'QueryEditor']);
+const monacoUnits = new Set([...widgets.slice(0, 3), 'QueriesSidebar', 'QueryEditor', 'QueriesVcs']);
 const contributions = [
     'clickhouse/clickhouse.contribution.js',
     'yql/yql.contribution.js',
@@ -377,7 +378,7 @@ for (const widget of widgets) {
     for (const specifier of [
         packageName,
         `${packageName}/${unitPath(widget)}`,
-        ...(sections.has(widget) ? [`${packageName}/widgets/${widget}`] : []),
+        ...(widgets.slice(0, 4).includes(widget) ? [`${packageName}/widgets/${widget}`] : []),
         ...(widget === 'QueryEditor' ? [`${packageName}/modules/QueryEditor`] : []),
     ]) {
         const esmEntry = fileURLToPath(import.meta.resolve(specifier));

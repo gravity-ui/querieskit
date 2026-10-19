@@ -1,0 +1,19 @@
+.qp-vcs-file-preview {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    &__header,
+    &__actions {
+        flex-shrink: 0;
+        margin-inline: var(--g-spacing-2);
+    }
+    &__title {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+    &__editor {
+        flex: 1;
+        min-height: 0;
+    }
+}
