@@ -12,9 +12,9 @@
         flex-shrink: 0;
         white-space: nowrap;
     }
-    &__list-toggle {
+    &__toggle {
         --g-button-padding: 0px;
-        --g-button-icon-space: var(--g-spacing-3);
-        --g-button-icon-offset: var(--g-spacing-1);
+        flex-shrink: 0;
+        width: var(--qp-parameter-toggle-size);
     }
 }

@@ -78,7 +78,9 @@ export function NullableValue(
                         NULL
                     </Text>
                 ) : (
-                    child
+                    <div className={block('content', {nested: type.kind === 'Optional'})}>
+                        {child}
+                    </div>
                 )}
             </Flex>
         );
@@ -122,7 +124,7 @@ export function NullableValue(
                     />
                 )}
             </Flex>
-            <div className={block('content')}>
+            <div className={block('content', {nested: type.kind === 'Optional' && !nullActive})}>
                 {child}
                 {nullActive && props.errors?.[props.path ?? '$'] && (
                     <Text color="danger" role="alert">

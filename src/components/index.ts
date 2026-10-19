@@ -96,4 +96,6 @@ export * from './AttachmentList';
 export * from './AttachmentListPlaceholder';
 export {QueryGraph} from './QueryGraph';
 export type {QueryGraphProps} from './QueryGraph';
+export {DataTypePopup} from './DataTypePopup';
+export type {DataTypePopupProps} from './DataTypePopup';
 export * from './MonacoDiffEditor';

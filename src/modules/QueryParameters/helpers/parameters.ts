@@ -5,6 +5,8 @@ import type {
     QueryParameterType,
     QueryParameterValue,
 } from '../../../types/queryParameters';
+import {validateDateValue} from '../../../helpers/parameterDate';
+import {validateNumericValue} from '../../../helpers/parameterValidation';
 import i18n from '../i18n';
 
 export const parameterKinds: QueryParameterType['kind'][] = [
@@ -299,36 +301,6 @@ export function parameterFormatExample(type: QueryParameterType): string | undef
     }
 }
 
-function validDateValue(kind: string, value: string): boolean {
-    const extended = /(?:32|64)$/.test(kind);
-    const year = extended ? '[+-]?\\d{1,6}' : '\\d{4}';
-    const date = `(${year})-(\\d{2})-(\\d{2})`;
-    const dateOnly = /^Date(?:32)?$/.test(kind);
-    const fraction = kind.startsWith('Timestamp') ? '(?:\\.\\d{1,6})?' : '';
-    const pattern = new RegExp(
-        `^${date}${dateOnly ? '' : `T(\\d{2}):(\\d{2}):(\\d{2})${fraction}Z`}$`,
-    );
-    const match = pattern.exec(value);
-    if (!match) return false;
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    return (
-        month >= 1 &&
-        month <= 12 &&
-        day >= 1 &&
-        day <= 31 &&
-        (dateOnly || (Number(match[4]) <= 23 && Number(match[5]) <= 59 && Number(match[6]) <= 59))
-    );
-}
-
-function validInterval(value: string): boolean {
-    return (
-        /^-?P(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d{1,6})?S)?)?$/.test(value) &&
-        /\d/.test(value) &&
-        !value.endsWith('T')
-    );
-}
-
 function valueErrors(
     type: QueryParameterType,
     value: unknown,
@@ -354,14 +326,12 @@ function valueErrors(
             return;
         }
         if (isNumericType(type)) {
-            const integer = /^(?:Uint|Int)/.test(type.kind);
-            const unsigned = type.kind.startsWith('Uint');
-            const pattern = integer
-                ? unsigned
-                    ? /^\+?\d+$/
-                    : /^[+-]?\d+$/
-                : /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
-            if (!pattern.test(value)) errors[path] = i18n('alert_invalid-number');
+            const params =
+                type.kind === 'Decimal' && type.precision !== undefined && type.scale !== undefined
+                    ? [type.precision, type.scale]
+                    : undefined;
+            if (!validateNumericValue(value, type.kind, params))
+                errors[path] = i18n('alert_invalid-number');
         }
         if (isDocumentType(type) || type.kind === 'Unknown') {
             try {
@@ -372,10 +342,13 @@ function valueErrors(
         }
         if (
             /^(Date(?:32)?|Datetime(?:64)?|Timestamp(?:64)?)$/.test(type.kind) &&
-            !validDateValue(type.kind, value)
+            !validateDateValue(value, type.kind)
         )
             errors[path] = i18n('alert_invalid-date');
-        if ((type.kind === 'Interval' || type.kind === 'Interval64') && !validInterval(value))
+        if (
+            (type.kind === 'Interval' || type.kind === 'Interval64') &&
+            !validateDateValue(value, type.kind)
+        )
             errors[path] = i18n('alert_invalid-interval');
         if (
             type.kind === 'Uuid' &&

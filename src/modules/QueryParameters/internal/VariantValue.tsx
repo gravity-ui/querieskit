@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import {Flex, Radio, Text} from '@gravity-ui/uikit';
+import {DataTypePopup} from '../../../components/DataTypePopup';
 import type {QueryParameterType, QueryParameterValue} from '../../../types/queryParameters';
+import {toParameterType} from '../helpers/dataTypes';
 import {defaultValue, formatType} from '../helpers/parameters';
 import type {RecursiveValueProps} from './parameterValueTypes';
 import cn from 'bem-cn-lite';
@@ -66,7 +68,9 @@ export function VariantValue(
                             >
                                 <Text variant="code-1" color={active ? 'primary' : 'secondary'}>
                                     {option.name}{' '}
-                                    <Text color="secondary">[{formatType(option.type)}]:</Text>
+                                    <DataTypePopup type={toParameterType(option.type)}>
+                                        <Text color="secondary">[{formatType(option.type)}]:</Text>
+                                    </DataTypePopup>
                                 </Text>
                                 <ValueComponent
                                     {...childProps(

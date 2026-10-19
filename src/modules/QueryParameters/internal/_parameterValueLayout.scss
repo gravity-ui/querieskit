@@ -1,4 +1,7 @@
 @mixin root {
+    --qp-parameter-toggle-size: var(--g-spacing-7);
+    --qp-parameter-guide-inset: calc(var(--qp-parameter-toggle-size) / 2);
+
     min-width: 0;
     &__header,
     &__content,
@@ -34,6 +37,34 @@
             grid-column: 1 / -1;
             grid-row: 1;
         }
+
+        &_horizontal#{&}_boxed > &__content {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+@mixin nested-content {
+    &__content_nested {
+        position: relative;
+        margin-inline-start: var(--qp-parameter-guide-inset);
+        padding-inline-start: var(--qp-parameter-guide-inset);
+    }
+
+    &__content_nested::before {
+        content: '';
+        position: absolute;
+        inset-inline-start: 0;
+        inset-block: 0;
+        width: 1px;
+        background: var(--g-color-line-generic);
+        // Center the stroke on the chevron axis without snapping a half-pixel border.
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+
+    &__content_nested:dir(rtl)::before {
+        transform: translateX(50%);
     }
 }
 
