@@ -1,0 +1,15 @@
+{
+  "field_provider": "VCS",
+  "field_branch": "Ветка",
+  "field_path": "Путь",
+  "field_search-placeholder": "Поиск файлов",
+  "title_name": "Имя",
+  "title_root": "Корень",
+  "action_edit-path": "Изменить путь",
+  "action_close": "К списку файлов",
+  "action_insert": "Вставить файл",
+  "action_attach": "Прикрепить файл",
+  "action_source": "Открыть источник",
+  "alert_load-error": "Не удалось загрузить данные",
+  "context_loading": "Загрузка содержимого репозитория"
+}

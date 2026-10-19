@@ -1,5 +1,12 @@
+import type {VcsItem} from '../../types/queriesVcs';
 import React, {useEffect, useId, useMemo} from 'react';
-import {BranchesRight, ClockArrowRotateLeft, CloudCheck, GraduationCap} from '@gravity-ui/icons';
+import {
+    BranchesRight,
+    ClockArrowRotateLeft,
+    CloudCheck,
+    Code,
+    GraduationCap,
+} from '@gravity-ui/icons';
 import {Flex, Icon, Tab, type TabComponentProps, TabList, TabProvider} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import type {QueryHistoryRow} from '../../types/history';
@@ -21,6 +28,7 @@ const SidebarTab = Tab as unknown as React.ComponentType<
 
 const block = cn('qp-queries-sidebar');
 const icons = {
+    vcs: Code,
     history: ClockArrowRotateLeft,
     saved: CloudCheck,
     navigation: BranchesRight,
@@ -33,6 +41,7 @@ export function QueriesSidebar<
     TNavigation extends NavigationItem = NavigationItem,
     TCluster extends NavigationCluster = NavigationCluster,
     TTutorial extends TutorialHistoryRow = TutorialHistoryRow,
+    TVcs extends VcsItem = VcsItem,
 >({
     header,
     tabs: inputTabs,
@@ -42,7 +51,7 @@ export function QueriesSidebar<
     hideTabs = false,
     keepMounted = false,
     className,
-}: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial>) {
+}: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>) {
     const id = useId();
     const {tabs, invalidIds} = useMemo(() => {
         const seen = new Set<string>();

@@ -78,3 +78,5 @@ export {QueryParameters} from './QueryParameters';
 export {ChartFieldsEditor} from './ChartFieldsEditor';
 export type {ChartFieldsEditorProps} from './ChartFieldsEditor';
 export * from './QueryComparison';
+
+export {QueriesVcs} from './QueriesVcs';

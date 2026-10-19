@@ -1,3 +1,4 @@
+import type {VcsItem} from './queriesVcs';
 import type {ReactNode} from 'react';
 import type {QueryHistoryRow} from './history';
 import type {NavigationCluster, NavigationItem, NavigationMetaItem} from './navigation';
@@ -61,10 +62,11 @@ export type QueryPageProps<
     TCustom extends object = Record<string, unknown>,
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+    TVcs extends VcsItem = VcsItem,
 > = {
     /** Default history menu callbacks. Custom getRowActions replaces the menu. */
     historyActions?: QueryPageHistoryActions<THistory>;
-    sidebarProps: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial>;
+    sidebarProps: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>;
     /** Visited workspaces stay mounted until their item is removed. */
     tabsProps: Omit<QueryTabsProps, 'items'> & {items: QueryPageTab<TCustom, TRow, TMetaItem>[]};
     /** Preferred width in pixels, constrained to the available space. */

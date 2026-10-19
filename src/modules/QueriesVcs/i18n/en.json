@@ -1,0 +1,15 @@
+{
+  "field_provider": "VCS",
+  "field_branch": "Branch",
+  "field_path": "Path",
+  "field_search-placeholder": "Search files",
+  "title_name": "Name",
+  "title_root": "Root",
+  "action_edit-path": "Edit path",
+  "action_close": "Back to files",
+  "action_insert": "Insert file",
+  "action_attach": "Attach file",
+  "action_source": "Open source",
+  "alert_load-error": "Failed to load data",
+  "context_loading": "Loading repository contents"
+}

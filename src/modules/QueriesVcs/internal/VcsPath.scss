@@ -1,0 +1,8 @@
+.qp-vcs-path {
+    min-width: 0;
+    &__breadcrumbs,
+    &__editor {
+        flex: 1;
+        min-width: 0;
+    }
+}
