@@ -1,5 +1,8 @@
 {
   "field_provider": "VCS",
+  "field_repository": "Repository",
+  "context_loading-repositories": "Loading repositories",
+  "context_no-repositories": "No repositories",
   "field_branch": "Branch",
   "field_path": "Path",
   "field_search-placeholder": "Search files",

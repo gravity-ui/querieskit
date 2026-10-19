@@ -60,15 +60,21 @@ function resolveDetailContext<T extends VcsItem>(
 function getContentState({
     location,
     providers,
+    repositories,
     branches,
     listState,
-}: Pick<QueriesVcsProps, 'location' | 'providers' | 'branches' | 'listState'>):
+}: Pick<QueriesVcsProps, 'location' | 'providers' | 'repositories' | 'branches' | 'listState'>):
     'selecting' | 'waiting' | 'loading' | 'error' | 'ready' {
     if (
         !location.providerId ||
         !location.branch ||
         providers.loading ||
         providers.error ||
+        (repositories &&
+            (!location.repositoryId ||
+                repositories.loading ||
+                repositories.error ||
+                repositories.items.length === 0)) ||
         branches.loading ||
         branches.error
     ) {
@@ -111,6 +117,7 @@ export function QueriesVcs<TItem extends VcsItem = VcsItem>({
     location,
     onUpdate,
     providers,
+    repositories,
     branches,
     items,
     search,
@@ -174,6 +181,7 @@ export function QueriesVcs<TItem extends VcsItem = VcsItem>({
         location,
         onUpdate: navigate,
         providers,
+        repositories,
         branches,
         actions: header?.actions ?? [],
     };
@@ -185,7 +193,7 @@ export function QueriesVcs<TItem extends VcsItem = VcsItem>({
             {content}
         </Flex>
     );
-    const contentState = getContentState({location, providers, branches, listState});
+    const contentState = getContentState({location, providers, repositories, branches, listState});
     const browserReady = useBrowserReady(location, contentState === 'ready');
     if (contentState === 'selecting' || !browserReady) {
         return renderLayout(renderPendingContent(contentState, listState?.error));

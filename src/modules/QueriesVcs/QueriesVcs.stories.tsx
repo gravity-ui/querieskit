@@ -1,18 +1,32 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {Button} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueriesVcs} from './QueriesVcs';
 import {QueriesSidebar} from '../../widgets/QueriesSidebar';
-import type {QueriesVcsProps, VcsFileContext, VcsItem, VcsLocation} from '../../types/queriesVcs';
+import type {
+    QueriesVcsProps,
+    VcsFileContext,
+    VcsItem,
+    VcsLocation,
+    VcsSelectorConfig,
+} from '../../types/queriesVcs';
 
-const meta: Meta<typeof QueriesVcs> = {
+type StoryArgs = QueriesVcsProps & {
+    narrow?: boolean;
+    withRepositories?: boolean;
+    selectedRepository?: boolean;
+    repositoryState?: 'empty' | 'loading' | 'error';
+    retainRepositoryOptions?: boolean;
+};
+
+const meta: Meta<StoryArgs> = {
     title: 'Modules/QueriesVcs',
     component: QueriesVcs,
     parameters: {layout: 'padded'},
 };
 export default meta;
-type Story = StoryObj<typeof QueriesVcs>;
+type Story = StoryObj<StoryArgs>;
 
 type DemoItem = VcsItem & {format: string};
 const files: DemoItem[] = [
@@ -33,22 +47,120 @@ const initialLocation: VcsLocation = {
     path: '/',
 };
 
+const repositoryOptions = [
+    {id: 'analytics', title: 'Analytics'},
+    {id: 'reporting', title: 'Reporting'},
+    {id: 'archived', title: 'Archived (unavailable)', disabled: true},
+];
+
 function Demo({
     custom = false,
     sidebar = false,
     narrow = false,
+    repositories,
+    customHeader = false,
+    selectedRepository = true,
 }: {
     custom?: boolean;
     sidebar?: boolean;
     narrow?: boolean;
+    repositories?: VcsSelectorConfig;
+    customHeader?: boolean;
+    selectedRepository?: boolean;
 }) {
-    const [location, setLocation] = useState(initialLocation);
+    const [location, setLocation] = useState<VcsLocation>(
+        selectedRepository ? initialLocation : {providerId: 'github', path: '/'},
+    );
     const [openedFile, setOpenedFile] = useState<VcsFileContext<DemoItem>>();
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState<'asc' | 'desc'>('asc');
     const props: QueriesVcsProps<DemoItem> = {
         location,
-        onUpdate: setLocation,
+        onUpdate: (next) => {
+            action('update-location')(next);
+            setLocation(next);
+        },
+        repositories,
+        renderHeader: customHeader
+            ? ({location: current, onUpdate, providers, repositories: repos, branches}) => (
+                  <section aria-label="Custom VCS header">
+                      <fieldset>
+                          <legend>Provider</legend>
+                          {providers.items.map((option) => (
+                              <Button
+                                  key={option.id}
+                                  disabled={
+                                      option.disabled ||
+                                      providers.loading ||
+                                      Boolean(providers.error)
+                                  }
+                                  selected={current.providerId === option.id}
+                                  onClick={() => {
+                                      if (option.id !== current.providerId)
+                                          onUpdate({providerId: option.id, path: '/'});
+                                  }}
+                              >
+                                  {option.title}
+                              </Button>
+                          ))}
+                      </fieldset>
+                      <fieldset>
+                          <legend>Repository</legend>
+                          {repos?.items.map((option) => (
+                              <Button
+                                  key={option.id}
+                                  disabled={
+                                      !current.providerId ||
+                                      option.disabled ||
+                                      providers.loading ||
+                                      Boolean(providers.error) ||
+                                      repos.loading ||
+                                      Boolean(repos.error)
+                                  }
+                                  selected={current.repositoryId === option.id}
+                                  onClick={() => {
+                                      if (option.id !== current.repositoryId)
+                                          onUpdate({
+                                              providerId: current.providerId,
+                                              repositoryId: option.id,
+                                              path: '/',
+                                          });
+                                  }}
+                              >
+                                  {option.title}
+                              </Button>
+                          ))}
+                      </fieldset>
+                      <fieldset>
+                          <legend>Branch</legend>
+                          {branches.items.map((option) => (
+                              <Button
+                                  key={option.id}
+                                  disabled={
+                                      !current.providerId ||
+                                      !current.repositoryId ||
+                                      providers.loading ||
+                                      Boolean(providers.error) ||
+                                      repos?.loading ||
+                                      Boolean(repos?.error) ||
+                                      !repos?.items.length ||
+                                      option.disabled ||
+                                      branches.loading ||
+                                      Boolean(branches.error)
+                                  }
+                                  selected={current.branch === option.id}
+                                  onClick={() => {
+                                      if (option.id !== current.branch)
+                                          onUpdate({...current, branch: option.id, path: '/'});
+                                  }}
+                              >
+                                  {option.title}
+                              </Button>
+                          ))}
+                      </fieldset>
+                  </section>
+              )
+            : undefined,
         providers: {
             items: [
                 {id: 'github', title: 'GitHub'},
@@ -133,12 +245,74 @@ function Demo({
 
 export const Default: Story = {render: () => <Demo />};
 export const CustomIconsAndPreview: Story = {render: () => <Demo custom />};
-export const InSidebar: Story = {render: () => <Demo sidebar />};
+export const InSidebar: Story = {
+    args: {narrow: false, withRepositories: true},
+    argTypes: {
+        narrow: {control: 'boolean', description: 'Use a 240px sidebar instead of 360px.'},
+        withRepositories: {control: 'boolean', description: 'Enable repository selection.'},
+    },
+    parameters: {controls: {include: ['narrow', 'withRepositories']}},
+    render: ({narrow, withRepositories}) => (
+        <Demo
+            key={String(withRepositories)}
+            sidebar
+            narrow={narrow}
+            repositories={withRepositories ? {items: repositoryOptions} : undefined}
+        />
+    ),
+};
 
-export const NarrowSidebar: Story = {render: () => <Demo sidebar narrow />};
+export const MultipleRepositories: Story = {
+    render: () => <Demo repositories={{items: repositoryOptions}} />,
+};
+export const SingleRepository: Story = {
+    args: {selectedRepository: true},
+    argTypes: {
+        selectedRepository: {
+            control: 'boolean',
+            description:
+                'The application has selected the sole repository. Changing this resets the demo.',
+        },
+    },
+    parameters: {controls: {include: ['selectedRepository']}},
+    render: ({selectedRepository}) => (
+        <Demo
+            key={String(selectedRepository)}
+            repositories={{items: repositoryOptions.slice(0, 1)}}
+            selectedRepository={selectedRepository}
+        />
+    ),
+};
+export const RepositoryStates: Story = {
+    args: {repositoryState: 'empty', retainRepositoryOptions: false},
+    argTypes: {
+        repositoryState: {control: 'select', options: ['empty', 'loading', 'error']},
+        retainRepositoryOptions: {
+            control: 'boolean',
+            description:
+                'Keep previous options during loading or error to show the disabled selector.',
+        },
+    },
+    parameters: {controls: {include: ['repositoryState', 'retainRepositoryOptions']}},
+    render: ({repositoryState, retainRepositoryOptions}) => (
+        <Demo
+            repositories={{
+                items:
+                    repositoryState !== 'empty' && retainRepositoryOptions ? repositoryOptions : [],
+                loading: repositoryState === 'loading',
+                error: repositoryState === 'error' ? 'Unable to load repositories' : undefined,
+            }}
+        />
+    ),
+};
+export const CustomHeader: Story = {
+    render: () => <Demo customHeader repositories={{items: repositoryOptions}} />,
+};
 
 function AsyncDemo() {
     const [location, setLocation] = useState<VcsLocation>({path: '/'});
+    const requestRevision = useRef(0);
+    const [repositories, setRepositories] = useState<VcsSelectorConfig>({items: []});
     const [branches, setBranches] = useState<QueriesVcsProps['branches']>({items: []});
     const [items, setItems] = useState<DemoItem[]>([]);
     const [listState, setListState] = useState<QueriesVcsProps['listState']>({loaded: false});
@@ -147,7 +321,33 @@ function AsyncDemo() {
 
     useEffect(() => {
         if (!location.providerId) return undefined;
+        const revision = requestRevision.current;
+        let cancelled = false;
         const timer = setTimeout(() => {
+            if (cancelled || revision !== requestRevision.current) return;
+            const options =
+                location.providerId === 'gitlab'
+                    ? repositoryOptions.slice(0, 1)
+                    : repositoryOptions;
+            setRepositories({items: options});
+            // The application, not QueriesVcs, selects a sole repository.
+            if (options.length === 1) {
+                setBranches({items: [], loading: true});
+                setLocation((current) => ({...current, repositoryId: options[0].id}));
+            }
+        }, 800);
+        return () => {
+            cancelled = true;
+            clearTimeout(timer);
+        };
+    }, [location.providerId]);
+
+    useEffect(() => {
+        if (!location.providerId || !location.repositoryId) return undefined;
+        const revision = requestRevision.current;
+        let cancelled = false;
+        const timer = setTimeout(() => {
+            if (cancelled || revision !== requestRevision.current) return;
             setBranches({
                 items: [
                     {id: 'main', title: 'main'},
@@ -155,12 +355,18 @@ function AsyncDemo() {
                 ],
             });
         }, 800);
-        return () => clearTimeout(timer);
-    }, [location.providerId]);
+        return () => {
+            cancelled = true;
+            clearTimeout(timer);
+        };
+    }, [location.providerId, location.repositoryId]);
 
     useEffect(() => {
-        if (!location.providerId || !location.branch) return undefined;
+        if (!location.providerId || !location.repositoryId || !location.branch) return undefined;
+        const revision = requestRevision.current;
+        let cancelled = false;
         const timer = setTimeout(() => {
+            if (cancelled || revision !== requestRevision.current) return;
             setItems(
                 files.filter((item) => {
                     const parent = item.path.slice(0, item.path.lastIndexOf('/')) || '/';
@@ -169,21 +375,36 @@ function AsyncDemo() {
             );
             setListState({loaded: true});
         }, 800);
-        return () => clearTimeout(timer);
-    }, [location.providerId, location.branch, location.path]);
+        return () => {
+            cancelled = true;
+            clearTimeout(timer);
+        };
+    }, [location.providerId, location.repositoryId, location.branch, location.path]);
 
     const handleUpdate = (next: VcsLocation) => {
         if (
             next.providerId === location.providerId &&
+            next.repositoryId === location.repositoryId &&
             next.branch === location.branch &&
             next.path === location.path
         ) {
             return;
         }
+        // Invalidate responses synchronously, before React cleans up the previous effects.
+        requestRevision.current += 1;
         if (next.providerId !== location.providerId) {
-            setBranches({items: [], loading: Boolean(next.providerId)});
+            setRepositories({items: [], loading: Boolean(next.providerId)});
         }
-        setListState({loaded: false, loading: Boolean(next.providerId && next.branch)});
+        if (
+            next.providerId !== location.providerId ||
+            next.repositoryId !== location.repositoryId
+        ) {
+            setBranches({items: [], loading: Boolean(next.providerId && next.repositoryId)});
+        }
+        setListState({
+            loaded: false,
+            loading: Boolean(next.providerId && next.repositoryId && next.branch),
+        });
         setItems([]);
         setSearch('');
         setOpenedFile(undefined);
@@ -201,6 +422,7 @@ function AsyncDemo() {
                         {id: 'gitlab', title: 'GitLab'},
                     ],
                 }}
+                repositories={repositories}
                 branches={branches}
                 items={items.filter((item) =>
                     item.title.toLowerCase().includes(search.toLowerCase()),
@@ -223,7 +445,7 @@ export const AsyncLoading: Story = {
     parameters: {
         docs: {
             description: {
-                story: 'Select a VCS provider to fetch branches, then select a branch to fetch files. Each request takes 800 ms.',
+                story: 'Select a provider, repository and branch to fetch files. GitLab has one repository, selected by the application. Each request takes 800 ms; obsolete responses are ignored at every stage.',
             },
         },
     },

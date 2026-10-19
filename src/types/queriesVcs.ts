@@ -11,14 +11,14 @@ import type {PathEditorSuggestion} from './pathEditor';
 export type VcsItem = NavigationItem & {kind: 'folder' | 'file'; sourceUrl?: string};
 export type VcsLocation = {
     providerId?: string;
-    /** Optional repository context supplied by the application; no repository selector is shown. */
+    /** Repository selected by the application; required for browsing when repositories is supplied. */
     repositoryId?: string;
     branch?: string;
     path: string;
 };
 export type VcsOption = {id: string; title: string; disabled?: boolean};
 export type VcsSelectorConfig = {items: VcsOption[]; loading?: boolean; error?: ReactNode};
-/** Loading state for the current provider, branch and directory. */
+/** Loading state for the current provider, repository, branch and directory. */
 export type VcsListStateConfig = NavigationListStateConfig & {
     /** Set true after a successful response, including an empty directory. Reset on navigation. */
     loaded?: boolean;
@@ -58,6 +58,8 @@ export type VcsHeaderContext = {
     location: VcsLocation;
     onUpdate: (location: VcsLocation) => void;
     providers: VcsSelectorConfig;
+    /** The standard header shows a selector only when there is more than one item. */
+    repositories?: VcsSelectorConfig;
     branches: VcsSelectorConfig;
     actions: NavigationAction<VcsLocation>[];
 };
@@ -65,6 +67,8 @@ export type QueriesVcsProps<TItem extends VcsItem = VcsItem> = {
     location: VcsLocation;
     onUpdate: (location: VcsLocation) => void;
     providers: VcsSelectorConfig;
+    /** Optional repository selection. The application selects single repositories as well. */
+    repositories?: VcsSelectorConfig;
     branches: VcsSelectorConfig;
     /** Items are filtered and sorted by the application. Paths start with '/'. */
     items: TItem[];

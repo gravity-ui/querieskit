@@ -173,6 +173,15 @@ describe('QueryPage', () => {
 
     it('passes the VCS tab contract through sidebarProps', () => {
         const location = {providerId: 'git', repositoryId: 'demo', branch: 'main', path: '/'};
+        const repositories = {
+            items: [
+                {id: 'demo', title: 'Demo'},
+                {id: 'other', title: 'Other'},
+            ],
+        };
+        const renderHeader = vi.fn(({repositories: config}) => (
+            <span>{config.items[1].title}</span>
+        ));
         const props = createProps();
         props.sidebarProps = {
             tabs: [
@@ -186,7 +195,8 @@ describe('QueryPage', () => {
                         branches: {items: []},
                         listState: {loaded: true},
                         items: [],
-                        renderHeader: () => null,
+                        repositories,
+                        renderHeader,
                         detail: {
                             openedFile: {
                                 item: {path: '/query.sql', title: 'query.sql', kind: 'file'},
@@ -200,6 +210,8 @@ describe('QueryPage', () => {
         };
         render(props);
         expect(container.textContent).toContain('Source preview: query.sql');
+        expect(renderHeader).toHaveBeenCalledWith(expect.objectContaining({repositories}));
+        expect(container.textContent).toContain('Other');
         expect(
             container.querySelector('[role="tab"][aria-label="Version control"]'),
         ).not.toBeNull();
