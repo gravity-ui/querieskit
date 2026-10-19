@@ -115,6 +115,10 @@ errors propagate to the application's error boundary.
 See [the next-major migration notes](docs/migrations/next-major.md) for the explicit
 Monaco language registrations and how to connect additional languages.
 
+### QueriesVcs
+
+Controlled VCS browsing with provider, optional repository, and branch selection, available standalone or through a `vcs` tab in `QueriesSidebar` / `QueryPage`. Pass `repositories` to use the standard repository selector; it appears only for multiple repositories. Applications own loading, controlled selection (including choosing a sole repository), and stale-response protection. See the [QueriesVcs guide](src/modules/QueriesVcs/README.md) for navigation resets and asynchronous integration.
+
 ### QueryPage
 
 Composes a shared `QueriesSidebar` with `QueryTabs`. Each query tab owns an independent

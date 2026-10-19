@@ -106,6 +106,15 @@ describe('QueriesSidebar', () => {
 
     it('renders the built-in VCS tab and retains custom preview state when requested', () => {
         const location = {providerId: 'git', repositoryId: 'demo', branch: 'main', path: '/'};
+        const repositories = {
+            items: [
+                {id: 'demo', title: 'Demo'},
+                {id: 'other', title: 'Other'},
+            ],
+        };
+        const renderHeader = vi.fn(({repositories: config}) => (
+            <span>{config.items[1].title}</span>
+        ));
         const vcs: QueriesSidebarTab = {
             id: 'source',
             type: 'vcs',
@@ -116,7 +125,8 @@ describe('QueriesSidebar', () => {
                 branches: {items: []},
                 listState: {loaded: true},
                 items: [],
-                renderHeader: () => null,
+                repositories,
+                renderHeader,
                 detail: {
                     openedFile: {
                         item: {path: '/query.sql', title: 'query.sql', kind: 'file'},
@@ -128,6 +138,8 @@ describe('QueriesSidebar', () => {
         };
         render({tabs: [vcs, custom('other')], keepMounted: true});
         expect(tab('Version control').getAttribute('aria-selected')).toBe('true');
+        expect(renderHeader).toHaveBeenCalledWith(expect.objectContaining({repositories}));
+        expect(container.textContent).toContain('Other');
         act(() =>
             Array.from(panel().querySelectorAll('button'))
                 .find((button) => button.textContent === 'Count 0')!

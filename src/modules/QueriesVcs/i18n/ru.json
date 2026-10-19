@@ -1,5 +1,8 @@
 {
   "field_provider": "VCS",
+  "field_repository": "Репозиторий",
+  "context_loading-repositories": "Загрузка репозиториев",
+  "context_no-repositories": "Нет репозиториев",
   "field_branch": "Ветка",
   "field_path": "Путь",
   "field_search-placeholder": "Поиск файлов",

@@ -46,6 +46,12 @@ const props: QueriesVcsProps<File> = {
     location: {path: '/'},
     onUpdate: () => {},
     providers: {items: []},
+    repositories: {items: [{id: 'demo', title: 'Demo', disabled: false}]},
+    renderHeader: ({repositories, location, onUpdate}) => (
+        <button onClick={() => onUpdate({...location, repositoryId: repositories?.items[0].id})}>
+            {repositories?.items[0].title}
+        </button>
+    ),
     branches: {items: []},
     listState: {loaded: true},
     items: [{path: '/report.sql', title: 'report.sql', kind: 'file', revision: 2}],

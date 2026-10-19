@@ -4,7 +4,12 @@ import {type Root, createRoot} from 'react-dom/client';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QueriesVcs} from '../../src/modules/QueriesVcs';
-import type {QueriesVcsProps, VcsItem, VcsLocation} from '../../src/types/queriesVcs';
+import type {
+    QueriesVcsProps,
+    VcsItem,
+    VcsLocation,
+    VcsSelectorConfig,
+} from '../../src/types/queriesVcs';
 
 vi.mock('../../src/components/MonacoEditor', () => ({
     MonacoEditor: ({value}: {value?: string}) => <div data-testid="editor" data-value={value} />,
@@ -18,6 +23,14 @@ const location: VcsLocation = {
     repositoryId: 'reports',
     branch: 'main',
     path: '/queries',
+};
+
+const repositories: VcsSelectorConfig = {
+    items: [
+        {id: 'reports', title: 'Reports'},
+        {id: 'analytics', title: 'Analytics'},
+        {id: 'archive', title: 'Archive', disabled: true},
+    ],
 };
 
 describe('QueriesVcs', () => {
@@ -136,6 +149,178 @@ describe('QueriesVcs', () => {
         await select(label as string, value as string);
         expect(onUpdate).toHaveBeenCalledWith(next);
         expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it('orders repository selection between provider and branch and preserves controlled navigation', async () => {
+        await render({repositories});
+        expect(
+            Array.from(container.querySelectorAll('.g-select button')).map((button) =>
+                button.getAttribute('aria-label'),
+            ),
+        ).toEqual(['VCS', 'Repository', 'Branch']);
+        await select('Repository', 'Analytics');
+        expect(onUpdate.mock.calls).toEqual([
+            [{providerId: 'git', repositoryId: 'analytics', path: '/'}],
+        ]);
+        expect(onClose).toHaveBeenCalledOnce();
+        onUpdate.mockClear();
+        onClose.mockClear();
+        await select('Repository', 'Reports');
+        expect(onUpdate).not.toHaveBeenCalled();
+        expect(onClose).not.toHaveBeenCalled();
+        await select('Branch', 'main');
+        await select('VCS', 'Git');
+        expect(onUpdate).not.toHaveBeenCalled();
+        await select('Branch', 'draft');
+        expect(onUpdate).toHaveBeenLastCalledWith({...location, branch: 'draft', path: '/'});
+        await select('VCS', 'Mirror');
+        expect(onUpdate.mock.calls.at(-1)).toEqual([{providerId: 'mirror', path: '/'}]);
+    });
+
+    it('supports repository search and disabled options', async () => {
+        await render({repositories});
+        clickButton('Repository');
+        const disabled = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(
+            (node) => node.textContent === 'Archive',
+        );
+        expect(disabled?.getAttribute('aria-disabled')).toBe('true');
+        act(() => disabled?.click());
+        expect(onUpdate).not.toHaveBeenCalled();
+        const input = document.querySelector<HTMLInputElement>('.g-select-popup input');
+        expect(input).not.toBeNull();
+        act(() => {
+            Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(
+                input,
+                'Anal',
+            );
+            input?.dispatchEvent(new Event('input', {bubbles: true}));
+        });
+        expect(
+            Array.from(document.querySelectorAll('[role="option"]')).map(
+                (node) => node.textContent,
+            ),
+        ).toEqual(['Analytics']);
+    });
+
+    it('counts disabled repositories when deciding selector visibility', async () => {
+        await render({repositories: {items: [repositories.items[0], repositories.items[2]]}});
+        expect(container.querySelector('[aria-label="Repository"]')).not.toBeNull();
+    });
+
+    it('hides a single repository without choosing it and waits for application selection', async () => {
+        const single = {items: [repositories.items[0]]};
+        await render({repositories: single, location: {...location, repositoryId: undefined}});
+        expect(container.querySelector('[aria-label="Repository"]')).toBeNull();
+        expect(container.querySelector<HTMLButtonElement>('[aria-label="Branch"]')?.disabled).toBe(
+            true,
+        );
+        expect(container.textContent).not.toContain('report.sql');
+        expect(onUpdate).not.toHaveBeenCalled();
+        await render({repositories: single});
+        expect(container.querySelector('[aria-label="Repository"]')).toBeNull();
+        expect(container.querySelector<HTMLButtonElement>('[aria-label="Branch"]')?.disabled).toBe(
+            false,
+        );
+        expect(container.textContent).toContain('report.sql');
+        expect(onUpdate).not.toHaveBeenCalled();
+    });
+
+    it.each([0, 1, 3])('keeps loading and errors visible with %i repositories', async (count) => {
+        const items = repositories.items.slice(0, count);
+        await render({repositories: {items, loading: true}});
+        expect(container.querySelector('[role="status"]')?.textContent).toContain(
+            'Loading repositories',
+        );
+        expect(container.querySelector<HTMLButtonElement>('[aria-label="Branch"]')?.disabled).toBe(
+            true,
+        );
+        expect(container.textContent).not.toContain('report.sql');
+        expect(container.textContent).not.toContain('No repositories');
+        await render({repositories: {items, error: 'Repositories unavailable'}});
+        expect(container.textContent).toContain('Repositories unavailable');
+        expect(container.querySelector<HTMLButtonElement>('[aria-label="Branch"]')?.disabled).toBe(
+            true,
+        );
+        expect(container.textContent).not.toContain('report.sql');
+    });
+
+    it('shows an empty repository list only after providers are ready', async () => {
+        await render({repositories: {items: []}});
+        expect(container.textContent).toContain('No repositories');
+        expect(container.querySelector('[aria-label="Repository"]')).toBeNull();
+        expect(container.querySelector<HTMLButtonElement>('[aria-label="Branch"]')?.disabled).toBe(
+            true,
+        );
+        expect(container.textContent).not.toContain('report.sql');
+        for (const props of [
+            {location: {path: '/'}},
+            {providers: {...base().providers, loading: true}},
+            {providers: {...base().providers, error: true}},
+        ]) {
+            await render({...props, repositories: {items: []}});
+            expect(container.textContent).not.toContain('No repositories');
+        }
+        expect(onUpdate).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        {location: {...location, providerId: undefined}},
+        {providers: {items: [], loading: true}},
+        {providers: {items: [], error: 'Provider unavailable'}},
+        {repositories: {...repositories, loading: true}},
+        {repositories: {...repositories, error: 'Repositories unavailable'}},
+    ])(
+        'blocks dependent controls and stale renderers for unavailable selectors: %j',
+        async (props) => {
+            const renderRowItem = vi.fn(() => <span>Stale row</span>);
+            const renderContent = vi.fn(() => <span>Stale preview</span>);
+            await render({
+                repositories,
+                search: {value: ''},
+                renderRowItem,
+                detail: {openedFile: {item: file, location}, renderContent},
+                ...props,
+            });
+            expect(
+                container.querySelector<HTMLButtonElement>('[aria-label="Repository"]')?.disabled,
+            ).toBe(true);
+            expect(
+                container.querySelector<HTMLButtonElement>('[aria-label="Branch"]')?.disabled,
+            ).toBe(true);
+            expect(container.querySelector('input[placeholder="Search files"]')).toBeNull();
+            expect(container.querySelector('[aria-label="Edit path"]')).toBeNull();
+            expect(renderRowItem).not.toHaveBeenCalled();
+            expect(renderContent).not.toHaveBeenCalled();
+        },
+    );
+
+    it('closes preview on repository navigation and hides stale data until the new repository loads', async () => {
+        const detail = {
+            openedFile: {item: file, location},
+            renderContent: () => <span>Old repository preview</span>,
+            onClose,
+        };
+        await render({repositories, detail});
+        expect(container.textContent).toContain('Old repository preview');
+        await select('Repository', 'Analytics');
+        expect(onClose).toHaveBeenCalledOnce();
+        await render({
+            repositories,
+            detail,
+            location: {...location, repositoryId: 'analytics'},
+            listState: {loaded: false, loading: true},
+        });
+        expect(container.textContent).not.toContain('Old repository preview');
+        expect(container.textContent).not.toContain('report.sql');
+        await render({
+            repositories,
+            detail,
+            location: {...location, repositoryId: 'analytics'},
+            items: [{...file, title: 'new.sql'}],
+            listState: {loaded: true},
+        });
+        expect(container.textContent).not.toContain('Old repository preview');
+        expect(container.textContent).toContain('new.sql');
     });
 
     it('reveals contents only after selecting VCS and branch and receiving data', async () => {
@@ -275,14 +460,15 @@ describe('QueriesVcs', () => {
 
     it('supports a custom header with controlled navigation', async () => {
         await render({
+            repositories,
             renderHeader: (context) => (
                 <button onClick={() => context.onUpdate({...location, path: '/'})}>
-                    Custom header
+                    {context.repositories?.items[1].title}
                 </button>
             ),
         });
         const button = Array.from(container.querySelectorAll('button')).find(
-            (node) => node.textContent === 'Custom header',
+            (node) => node.textContent === 'Analytics',
         );
         act(() => button?.click());
         expect(onUpdate).toHaveBeenCalledWith({...location, path: '/'});
