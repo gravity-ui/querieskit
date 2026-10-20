@@ -35,7 +35,7 @@ Use a document-specific React `key` when replacing the document. This discards p
 ## Validation and local files
 
 - `nameValidator` and `linkValidator` override the existing editor validators. Return an error string or error object, or `null` for success. Validation errors keep the draft open. Include required-field checks in custom validators when needed.
-- `validateDuplicates` defaults to `false`; when enabled, it checks exact case-sensitive names among current saved attachments, excluding the edited row. Deleted items are excluded. It validates edit confirmations and local file results.
+- `validateDuplicates` defaults to `false`; when enabled, it checks exact case-sensitive names among current saved attachments, excluding the edited row. Deleted items are excluded. It validates edit confirmations, local file results, and Restore. A conflicting Restore leaves the item in Deleted, shows an error, and does not call `onChange`; restoring can be retried after resolving the conflict.
 - `tokenRequired` defaults to the legacy behavior: required when `tokens` is nonempty. Set `false` to permit links without a token even when choices exist.
 - Supplying `onSelectFile` adds “Choose local file” and distinguishes it from “Create empty file” and “Link”. It receives the browser `File` and returns a Promise for a complete attachment. The library never reads or uploads the file.
 - While pending, another file action is blocked. Success appends the returned object to the latest controlled lists, removing `isNew`. Duplicate IDs (including deleted items) and invalid returned names produce an error instead of inserting an item.

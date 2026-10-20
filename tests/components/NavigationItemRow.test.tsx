@@ -2,10 +2,11 @@
 
 import React, {act} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
+import {createPortal} from 'react-dom';
 import {List, ThemeProvider} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {NavigationItemRow} from '../../src/components/NavigationItemRow';
-import type {NavigationAction} from '../../src/types/navigation';
+import type {NavigationAction, NavigationItemRowConfig} from '../../src/types/navigation';
 
 const ITEM = {path: '/item', title: 'Item', metadata: {owner: 'user'}};
 
@@ -39,7 +40,7 @@ describe('NavigationItemRow actions inside the real list', () => {
         container.remove();
     });
 
-    const render = (disabled = false) => {
+    const render = (disabled = false, config: NavigationItemRowConfig<typeof ITEM> = {}) => {
         const item = disabled ? {...ITEM, disabled} : ITEM;
         act(() =>
             root.render(
@@ -60,6 +61,7 @@ describe('NavigationItemRow actions inside the real list', () => {
                                     {...primary, id: 'hidden', title: 'Hidden', hidden: true},
                                 ]}
                                 menuActions={[more]}
+                                {...config}
                             />
                         )}
                     />
@@ -143,6 +145,76 @@ describe('NavigationItemRow actions inside the real list', () => {
         expect(buttons.every((button) => button.disabled)).toBe(true);
         act(() => buttons.forEach((button) => button.click()));
         expect(onAction).not.toHaveBeenCalled();
+        expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('replaces only the menu and passes the original item and boolean disabled state', () => {
+        const renderer = vi.fn(({item, disabled}) => (
+            <button disabled={disabled} aria-label="Custom menu">
+                {item.metadata.owner}
+            </button>
+        ));
+        render(false, {renderMenuTrigger: renderer});
+        expect(renderer).toHaveBeenLastCalledWith({item: ITEM, disabled: false});
+        expect(container.querySelector('[aria-label="Favorite"]')).not.toBeNull();
+        expect(container.querySelector('.g-dropdown-menu')).toBeNull();
+        render(true, {renderMenuTrigger: renderer});
+        expect(renderer.mock.lastCall?.[0].disabled).toBe(true);
+        expect(
+            container.querySelector<HTMLButtonElement>('[aria-label="Custom menu"]')!.disabled,
+        ).toBe(true);
+    });
+
+    it('does not fall back to menuActions when the custom renderer returns null', () => {
+        render(false, {renderMenuTrigger: () => null});
+        expect(container.querySelector('.g-dropdown-menu')).toBeNull();
+        expect(container.querySelector('[aria-label="Favorite"]')).not.toBeNull();
+    });
+
+    it('isolates custom trigger and portal events without blocking their handlers', () => {
+        const onPortalAction = vi.fn();
+        render(false, {
+            actions: [],
+            menuActions: [],
+            renderMenuTrigger: () => (
+                <>
+                    <button aria-label="Custom menu" onClick={onAction}>
+                        Menu
+                    </button>
+                    {createPortal(
+                        <button aria-label="Portal action" onClick={onPortalAction}>
+                            Apply
+                        </button>,
+                        document.body,
+                    )}
+                </>
+            ),
+        });
+        const portal = document.querySelector<HTMLButtonElement>('[aria-label="Portal action"]')!;
+        expect(container.contains(portal)).toBe(false);
+        for (const button of [
+            container.querySelector<HTMLButtonElement>('[aria-label="Custom menu"]')!,
+            portal,
+        ]) {
+            act(() => {
+                for (const type of [
+                    'mousedown',
+                    'mouseup',
+                    'dblclick',
+                    'pointerdown',
+                    'pointerup',
+                ]) {
+                    button.dispatchEvent(new MouseEvent(type, {bubbles: true}));
+                }
+                for (const key of ['Enter', ' ', 'ArrowDown']) {
+                    button.dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true}));
+                    button.dispatchEvent(new KeyboardEvent('keyup', {key, bubbles: true}));
+                }
+                button.click();
+            });
+        }
+        expect(onAction).toHaveBeenCalledTimes(1);
+        expect(onPortalAction).toHaveBeenCalledTimes(1);
         expect(onNavigate).not.toHaveBeenCalled();
     });
 });

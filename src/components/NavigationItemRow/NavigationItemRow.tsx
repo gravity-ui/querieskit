@@ -17,11 +17,13 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
     indicators,
     actions,
     menuActions,
+    renderMenuTrigger,
     className,
 }: NavigationItemRowProps<T>) => {
     const visibleMenuActions = menuActions?.filter((action) => !action.hidden) ?? [];
     const visibleActions = actions?.filter((action) => !action.hidden) ?? [];
-    const hasActions = visibleActions.length > 0 || visibleMenuActions.length > 0;
+    const hasActions =
+        visibleActions.length > 0 || Boolean(renderMenuTrigger) || visibleMenuActions.length > 0;
 
     return (
         <Flex gap={2} alignItems="center" className={block({disabled: item.disabled}, className)}>
@@ -59,6 +61,11 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
                     alignItems="center"
                     // React events from the portalled menu also bubble through this boundary.
                     onClick={(event) => event.stopPropagation()}
+                    onDoubleClick={(event) => event.stopPropagation()}
+                    onMouseDown={(event) => event.stopPropagation()}
+                    onMouseUp={(event) => event.stopPropagation()}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onPointerUp={(event) => event.stopPropagation()}
                     onKeyDown={(event) => event.stopPropagation()}
                     onKeyUp={(event) => event.stopPropagation()}
                 >
@@ -69,23 +76,25 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
                         }))}
                         arg={item}
                     />
-                    {visibleMenuActions.length > 0 && (
-                        <DropdownMenu
-                            size="s"
-                            disabled={item.disabled}
-                            defaultSwitcherProps={{'aria-label': i18n('action_more')}}
-                            items={visibleMenuActions.map((action) => ({
-                                text: action.title,
-                                iconStart: action.content,
-                                disabled: item.disabled || action.disabled,
-                                qa: action.qa,
-                                action: (event) => {
-                                    event.stopPropagation();
-                                    action.onClick(item);
-                                },
-                            }))}
-                        />
-                    )}
+                    {renderMenuTrigger
+                        ? renderMenuTrigger({item, disabled: Boolean(item.disabled)})
+                        : visibleMenuActions.length > 0 && (
+                              <DropdownMenu
+                                  size="s"
+                                  disabled={item.disabled}
+                                  defaultSwitcherProps={{'aria-label': i18n('action_more')}}
+                                  items={visibleMenuActions.map((action) => ({
+                                      text: action.title,
+                                      iconStart: action.content,
+                                      disabled: item.disabled || action.disabled,
+                                      qa: action.qa,
+                                      action: (event) => {
+                                          event.stopPropagation();
+                                          action.onClick(item);
+                                      },
+                                  }))}
+                              />
+                          )}
                 </Flex>
             )}
         </Flex>

@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {Button, Flex, ThemeProvider, configure} from '@gravity-ui/uikit';
+import {Button, DropdownMenu, Flex, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {FieldsSelector} from '../../../src/components/FieldsSelector';
 import {Attachments} from '../../../src/modules/Attachments';
 import {QuerySettings} from '../../../src/modules/QuerySettings';
@@ -91,11 +91,28 @@ function Panels() {
                                     onClick: () => setActions((n) => n + 1),
                                 },
                             ],
+                            renderMenuTrigger: ({item: original, disabled}) => (
+                                <DropdownMenu
+                                    disabled={disabled}
+                                    size="s"
+                                    defaultSwitcherProps={{
+                                        'aria-label': 'More actions',
+                                        qa: `custom-menu-${original.metadata}`,
+                                    }}
+                                    items={[
+                                        {
+                                            text: 'Copy',
+                                            action: () => setActions((n) => n + 1),
+                                        },
+                                    ]}
+                                />
+                            ),
                         })}
                     />
                 </div>
                 <div data-testid="attachments" style={{height: 260}}>
                     <Attachments
+                        validateDuplicates
                         attachments={attachments}
                         deletedAttachments={deleted}
                         onSelectFile={async (file) => {

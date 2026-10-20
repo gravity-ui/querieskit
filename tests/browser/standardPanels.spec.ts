@@ -48,6 +48,8 @@ test('navigation keyboard actions and portal menu do not navigate; virtual heigh
     const box = await list.boundingBox();
     const actions = await list.getByRole('button', {name: 'Favorite 0', exact: true}).boundingBox();
     expect(actions!.x + actions!.width).toBeLessThanOrEqual(box!.x + box!.width);
+    const menu = await list.locator('[data-qa="custom-menu-0"]').boundingBox();
+    expect(menu!.x + menu!.width).toBeLessThanOrEqual(box!.x + box!.width);
     await page.getByRole('button', {name: 'Toggle theme'}).click();
     await expect(first).toBeVisible();
     await page.getByRole('button', {name: 'Toggle descriptions'}).click();
@@ -109,4 +111,30 @@ test('local file errors retain the selection for keyboard retry', async ({page})
     await expect(attachments.getByText('local.sql', {exact: true})).toBeVisible();
     await expect(attachments.getByRole('status')).toHaveText('File added');
     await expect(attachments.getByRole('button', {name: 'Retry', exact: true})).toBeHidden();
+});
+
+test('restore keeps a conflicting attachment deleted until its name is available', async ({
+    page,
+}) => {
+    const attachments = page.getByTestId('attachments');
+    await attachments.getByRole('button', {name: 'Delete', exact: true}).click();
+    await attachments.getByRole('button', {name: 'Create empty file', exact: true}).click();
+    await attachments.getByRole('textbox').fill('sample.sql');
+    await attachments.getByRole('button', {name: 'Save', exact: true}).click();
+    await attachments.getByRole('tab', {name: /Deleted/}).click();
+    await attachments.getByRole('button', {name: 'Restore', exact: true}).click();
+    await expect(attachments.getByRole('alert')).toHaveText(
+        'An attachment with this name already exists',
+    );
+    await expect(attachments.getByRole('button', {name: 'Restore', exact: true})).toBeVisible();
+    await attachments.getByRole('tab', {name: /Current/}).click();
+    await attachments.getByRole('button', {name: 'Edit', exact: true}).click();
+    await attachments.getByRole('textbox').fill('renamed.sql');
+    await attachments.getByRole('button', {name: 'Save', exact: true}).click();
+    await attachments.getByRole('tab', {name: /Deleted/}).click();
+    await expect(attachments.getByRole('alert')).toHaveCount(0);
+    await attachments.getByRole('button', {name: 'Restore', exact: true}).click();
+    await attachments.getByRole('tab', {name: /Current/}).click();
+    await expect(attachments.getByText('sample.sql', {exact: true})).toBeVisible();
+    await expect(attachments.getByText('renamed.sql', {exact: true})).toBeVisible();
 });

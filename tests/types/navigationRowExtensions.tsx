@@ -12,6 +12,9 @@ const item: AppItem = {
     metadata: {owner: 'user'},
 };
 const getItemRowConfig: GetNavigationItemRowConfig<AppItem> = (value) => ({
+    renderMenuTrigger: ({item: original, disabled}) => (
+        <button disabled={disabled}>{original.metadata.owner}</button>
+    ),
     description: value.target,
     indicators: value.favorite ? '★' : undefined,
     actions: [
