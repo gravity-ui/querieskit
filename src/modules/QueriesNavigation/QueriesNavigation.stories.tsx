@@ -492,6 +492,37 @@ const ExtendedStandardRowsStory = () => {
                             onClick: action('copy-path'),
                         },
                     ],
+                    renderMenuTrigger: ({item: original, disabled}) => (
+                        <DropdownMenu
+                            size="s"
+                            disabled={disabled}
+                            defaultSwitcherProps={{'aria-label': `Actions for ${original.title}`}}
+                            items={[
+                                {
+                                    text: 'Copy',
+                                    items: [
+                                        {
+                                            text: 'Path',
+                                            action: () => action('copy-path')(original.path),
+                                        },
+                                    ],
+                                },
+                                {
+                                    text: 'Insert into editor',
+                                    items: [
+                                        {
+                                            text: 'Path',
+                                            action: () => action('insert-path')(original.path),
+                                        },
+                                        {
+                                            text: 'SELECT',
+                                            action: () => action('insert-select')(original.path),
+                                        },
+                                    ],
+                                },
+                            ]}
+                        />
+                    ),
                 })}
             />
         </div>

@@ -57,6 +57,7 @@ const AttachmentsImpl = <T extends AttachItem>({
     const [editingIds, setEditingIds] = useState<string[]>([]);
     const [wasAddedIds, setWasAddedIds] = useState<string[]>([]);
     const [wasEdited, setWasEditedIds] = useState<string[]>([]);
+    const [restoreErrorId, setRestoreErrorId] = useState<string>();
 
     const attachList = customerAttachments ?? innerAttachList;
     const deletedAttachList = customerDeletedAttachments ?? innerDeletedAttachList;
@@ -94,13 +95,18 @@ const AttachmentsImpl = <T extends AttachItem>({
         };
     }, []);
 
+    const hasDuplicateName = (name: unknown, id?: string) =>
+        validateDuplicates &&
+        attachList.some((item) => item.id !== id && !item.isNew && item.name === name);
+
+    const restoreError = deletedAttachList.some(
+        (item) => item.id === restoreErrorId && hasDuplicateName(item.name, item.id),
+    );
+
     const validateName = (name: unknown, id?: string) => {
         const error = nameValidator(name);
         if (error) return error;
-        return validateDuplicates &&
-            attachList.some((item) => item.id !== id && !item.isNew && item.name === name)
-            ? i18n('alert_duplicate-name')
-            : null;
+        return hasDuplicateName(name, id) ? i18n('alert_duplicate-name') : null;
     };
 
     const processFile = async (file: File) => {
@@ -271,6 +277,12 @@ const AttachmentsImpl = <T extends AttachItem>({
 
         if (!revertAttach) return;
 
+        if (hasDuplicateName(revertAttach.name, revertAttach.id)) {
+            setRestoreErrorId(attachId);
+            return;
+        }
+
+        setRestoreErrorId(undefined);
         const patchAttachList = [...attachList, revertAttach];
         const patchDeletedAttachList = deletedAttachList.filter((a) => a.id !== attachId);
 
@@ -423,7 +435,14 @@ const AttachmentsImpl = <T extends AttachItem>({
                 </TabPanel>
 
                 <TabPanel className={block('panel')} value="Deleted">
-                    <Flex spacing={{pt: 3}} width="100%" height="100%">
+                    <Flex spacing={{pt: 3}} direction="column" gap={3} width="100%" height="100%">
+                        {restoreError && (
+                            <Box spacing={{px: 4}}>
+                                <Text role="alert" color="danger">
+                                    {i18n('alert_duplicate-name')}
+                                </Text>
+                            </Box>
+                        )}
                         <AttachmentList
                             {...attachmentListProps}
                             className={block('list', attachmentListProps?.className)}

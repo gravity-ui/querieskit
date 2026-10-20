@@ -12,7 +12,7 @@ vi.mock('@gravity-ui/uikit', () => {
     return {
         Box: Container,
         Flex: Container,
-        Text: Container,
+        Text: ({children, role}: any) => <span role={role}>{children}</span>,
         TabProvider: Container,
         TabList: Container,
         Tab: Container,
@@ -122,6 +122,56 @@ it('keeps duplicate checking opt-in and excludes the edited row', () => {
     expect(capture.editor.validator('existing')).toBeTruthy();
     expect(capture.editor.validator('old.sql')).toBeNull();
     expect(capture.editor.validator('')).toBeTruthy();
+});
+it('rejects a conflicting restore and allows retry after the current attachment is renamed', () => {
+    const deleted = {id: 'deleted', name: 'query.sql', content: 'select 1'};
+    const current = {id: 'current', name: 'query.sql'};
+    const onChange = vi.fn();
+    const props = {
+        attachments: [current],
+        deletedAttachments: [deleted],
+        validateDuplicates: true,
+        onChange,
+    };
+    render(props);
+    act(() => capture.deleted.onRevert(deleted));
+    expect(onChange).not.toHaveBeenCalled();
+    expect(capture.current.attachments).toEqual([current]);
+    expect(capture.deleted.attachments).toEqual([deleted]);
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+        'An attachment with this name already exists',
+    );
+
+    const renamed = {...current, name: 'renamed.sql'};
+    render({...props, attachments: [renamed]});
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+    act(() => capture.deleted.onRevert(deleted));
+    expect(onChange).toHaveBeenCalledExactlyOnceWith({
+        attachments: [renamed, deleted],
+        deletedAttachments: [],
+    });
+    // Controlled arrays remain unchanged until the parent accepts the proposal.
+    expect(capture.deleted.attachments).toEqual([deleted]);
+});
+it.each([
+    {validateDuplicates: false, current: {id: 'current', name: 'query.sql'}},
+    {validateDuplicates: true, current: {id: 'current', name: 'QUERY.sql'}},
+    {validateDuplicates: true, current: {id: 'current', name: 'query.sql', isNew: true}},
+])('allows restore with duplicate rules %j', ({validateDuplicates, current}) => {
+    const deleted = {id: 'deleted', name: 'query.sql'};
+    const onChange = vi.fn();
+    render({
+        attachments: [current],
+        deletedAttachments: [deleted],
+        validateDuplicates,
+        onChange,
+    });
+    act(() => capture.deleted.onRevert(deleted));
+    expect(onChange).toHaveBeenCalledExactlyOnceWith({
+        attachments: [current, deleted],
+        deletedAttachments: [],
+    });
+    expect(container.querySelector('[role="alert"]')).toBeNull();
 });
 it('passes the same File once while pending and merges into latest controlled lists', async () => {
     const request = deferred<AttachItem>();

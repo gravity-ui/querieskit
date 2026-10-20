@@ -52,11 +52,18 @@ export type NavigationItem = {
     disabled?: boolean;
 };
 
+export type NavigationItemMenuRenderContext<T extends NavigationItem = NavigationItem> = {
+    item: T;
+    disabled: boolean;
+};
+
 export type NavigationItemRowConfig<T extends NavigationItem = NavigationItem> = {
     description?: string;
     indicators?: ReactNode;
     actions?: Array<NavigationAction<T>>;
     menuActions?: Array<NavigationAction<T>>;
+    /** Replaces menuActions, even when returning null. Standard actions remain visible. */
+    renderMenuTrigger?: (context: NavigationItemMenuRenderContext<T>) => ReactNode;
 };
 
 /** Resolves presentation for application items only, never the synthetic parent row. */

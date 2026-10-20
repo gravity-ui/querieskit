@@ -65,6 +65,24 @@ not activate the row. Action titles supply accessible names. Long titles and des
 truncate while controls retain their space. Keep the primary action set small for narrow panels;
 move remaining actions to `menuActions`.
 
+Use `renderMenuTrigger({item, disabled})` to replace only the additional-actions menu while
+keeping standard `actions`. The renderer receives the original typed item and a boolean
+disabled state. It takes precedence over `menuActions`, even when it returns `null`.
+
+```tsx
+getItemRowConfig={(item) => ({
+  actions: getInlineActions(item),
+  renderMenuTrigger: ({item: original, disabled}) => (
+    <PathActionsMenu node={original.node} disabled={disabled} />
+  ),
+})}
+```
+
+The trigger shares the non-shrinking actions area. Mouse, pointer and keyboard events from
+this area, including React portals rendered by the custom menu, do not activate the row.
+The application must apply `disabled` and accessible names to its controls. Nested menus,
+action availability, open state and confirmation dialogs remain application-owned.
+
 The same config fields are available directly on `NavigationItemRow<T>`, and the resolver is
 also available on `NavigationItemsList<T>`. Existing `renderNavigationItem` / `renderRowItem`
 remain full row renderers: a non-null result takes precedence over the standard row; `null`
