@@ -4,6 +4,7 @@ import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../components/MonacoEditor';
 import {Attachments} from '../../modules/Attachments';
+import type {AttachItem} from '../../types/attachments';
 import {QueryParameters} from '../../modules/QueryParameters';
 import type {QueryParameter} from '../../types/queryParameters';
 import {QuerySettings} from '../../modules/QuerySettings';
@@ -16,9 +17,17 @@ import './QueryEditor.scss';
 
 const block = cn('qp-query-editor');
 
+export function QueryEditor<
+    TCustom extends object = Record<string, unknown>,
+    TAttachment extends AttachItem = AttachItem,
+>(props: QueryEditorProps<TCustom, TAttachment>): React.JSX.Element;
 export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     props: QueryEditorProps<TCustom>,
-) {
+): React.JSX.Element;
+export function QueryEditor<
+    TCustom extends object = Record<string, unknown>,
+    TAttachment extends AttachItem = AttachItem,
+>(props: QueryEditorProps<TCustom, TAttachment>) {
     const {
         activePanel: controlledPanel,
         defaultActivePanel = null,
@@ -122,7 +131,14 @@ export function QueryEditor<TCustom extends object = Record<string, unknown>>(
                 attachmentsId={attachmentsId}
                 attachments={
                     props.attachments === undefined ? (
-                        <Attachments {...props.attachmentsProps} />
+                        props.attachmentsProps ? (
+                            <Attachments<TAttachment>
+                                key="attachments"
+                                {...props.attachmentsProps}
+                            />
+                        ) : (
+                            <Attachments key="attachments" />
+                        )
                     ) : (
                         props.attachments
                     )

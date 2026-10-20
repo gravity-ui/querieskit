@@ -34,7 +34,6 @@ export const LazyList = <T extends object>({
     className,
 }: LazyListProps<T>) => {
     const listRef = useRef<List<LazyListRow<T>>>(null);
-    const previousListStateRef = useRef({itemsLength: items.length, loading, hasMore});
     const sentinelRef = useLoadMoreSentinel(hasMore, onLoadMore, loading, items.length);
 
     const rows: LazyListRow<T>[] = useMemo(
@@ -50,21 +49,27 @@ export const LazyList = <T extends object>({
         return itemHeight(row);
     };
 
-    useLayoutEffect(() => {
-        const previousListState = previousListStateRef.current;
-        const listStateChanged =
-            previousListState.itemsLength !== items.length ||
-            previousListState.loading !== loading ||
-            previousListState.hasMore !== hasMore;
+    const rowHeights = rows.map(getRowHeight);
+    const previousListStateRef = useRef({rowHeights, loading, hasMore});
 
-        if (listStateChanged) {
+    useLayoutEffect(() => {
+        const previous = previousListStateRef.current;
+        const firstChangedIndex = rowHeights.findIndex(
+            (height, index) => height !== previous.rowHeights[index],
+        );
+        const sizesChanged =
+            firstChangedIndex !== -1 || rowHeights.length !== previous.rowHeights.length;
+
+        if (sizesChanged || previous.loading !== loading || previous.hasMore !== hasMore) {
             listRef.current?.refContainer.current?.resetAfterIndex(
-                Math.min(previousListState.itemsLength, items.length),
+                firstChangedIndex === -1
+                    ? Math.min(previous.rowHeights.length, rowHeights.length)
+                    : firstChangedIndex,
                 true,
             );
-            previousListStateRef.current = {itemsLength: items.length, loading, hasMore};
         }
-    }, [hasMore, items.length, loading]);
+        previousListStateRef.current = {rowHeights, loading, hasMore};
+    });
 
     if (error) {
         return <React.Fragment>{error}</React.Fragment>;

@@ -196,3 +196,26 @@ export const Controlled: Story = {
     },
     render: (args) => <ControlledAttachments {...args} />,
 };
+
+/** Opt-in file selection, independent token validation, and duplicate checks. */
+export const LocalFiles: Story = {
+    render: (args) => <ControlledAttachments {...args} />,
+    args: {
+        attachments: [],
+        deletedAttachments: [],
+        tokenRequired: false,
+        validateDuplicates: true,
+        onSelectFile: async (file) => ({id: crypto.randomUUID(), name: file.name}),
+    },
+};
+
+/** A failed application operation retains the file for retry. */
+export const FileProcessingError: Story = {
+    ...LocalFiles,
+    args: {
+        ...LocalFiles.args,
+        onSelectFile: async () => {
+            throw new Error('The application could not process the file.');
+        },
+    },
+};

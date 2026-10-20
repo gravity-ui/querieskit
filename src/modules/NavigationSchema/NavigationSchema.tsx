@@ -28,6 +28,7 @@ export function NavigationSchema<TColumn extends NavigationSchemaColumn = Naviga
     defaultVisibleColumns,
     hideToolbar,
     hideFieldsSelector,
+    fieldsSelectorProps,
     className,
 }: NavigationSchemaProps<TColumn>) {
     const {columns, loading, loaded, errorContent} = data;
@@ -90,6 +91,7 @@ export function NavigationSchema<TColumn extends NavigationSchemaColumn = Naviga
                     visibleFields={activeVisibleColumns}
                     onVisibleFieldsChange={handleVisibleColumnsChange}
                     hideFieldsSelector={hideFieldsSelector}
+                    fieldsSelectorProps={fieldsSelectorProps}
                 />
             )}
             <DataTable<TColumn>

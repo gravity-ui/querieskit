@@ -1,3 +1,4 @@
+import type {AttachItem} from '../../../types/attachments';
 import React, {useId} from 'react';
 import cn from 'bem-cn-lite';
 import type {NavigationMetaItem} from '../../../types/navigation';
@@ -18,7 +19,8 @@ export function QueryWorkspace<
     TCustom extends object,
     TRow extends Record<string, unknown>,
     TMetaItem extends NavigationMetaItem,
->({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
+    TAttachment extends AttachItem,
+>({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment>; active: boolean}) {
     const children = <StandardQueryWorkspace tab={tab} active={active} />;
     return tab.renderWorkspace ? tab.renderWorkspace({children, active}) : children;
 }
@@ -27,7 +29,8 @@ function StandardQueryWorkspace<
     TCustom extends object,
     TRow extends Record<string, unknown>,
     TMetaItem extends NavigationMetaItem,
->({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem>; active: boolean}) {
+    TAttachment extends AttachItem,
+>({tab, active}: {tab: QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment>; active: boolean}) {
     const {editorProps, executionPanelProps} = tab;
     const resultsId = useId();
     const [rootRef, rootSize] = useElementSize();

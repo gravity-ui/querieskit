@@ -115,6 +115,103 @@ describe('QuerySettings', () => {
         });
     });
 
+    it('hides all standard fields without clearing values and counts only visible fields', () => {
+        render({tokens, hiddenFields: ['queryName', 'access', 'ytOperationTitle', 'tokenIds']});
+        expect(container.querySelector('input')).toBeNull();
+        expect(container.querySelector('[aria-label="Access"]')).toBeNull();
+        expect(container.querySelector('[aria-label="Tokens"]')).toBeNull();
+        const general = [...container.querySelectorAll('[aria-expanded]')].find((node) =>
+            node.textContent?.startsWith('General'),
+        );
+        expect(general?.textContent).toBe('General0');
+        act(() => button('Remove attribute 1').click());
+        expect(lastValue()).toEqual({...initialValue, attributes: [initialValue.attributes[1]]});
+    });
+
+    it('allows editing protected values while preventing key changes and removal', () => {
+        render({getAttributePermissions: () => ({canEditKey: false, canRemove: false})});
+        expect(button('Remove attribute 1').disabled).toBe(true);
+        act(() => button('Edit attribute 1').click());
+        expect(input('Attribute key 1').disabled).toBe(true);
+        expect(document.activeElement).toBe(input('Attribute value 1'));
+        change(input('Attribute value 1'), 'updated');
+        act(() => button('Apply attribute 1').click());
+        expect(lastValue().attributes[0]).toEqual({id: 'a', key: 'pool', value: 'updated'});
+        render({getAttributePermissions: () => ({canEditKey: false, canEditValue: false})});
+        expect(button('Edit attribute 1').disabled).toBe(true);
+    });
+
+    it('rejects duplicates only when requested and retains the draft until corrected or cancelled', () => {
+        render({checkDuplicateAttributeKeys: true});
+        act(() => button('Edit attribute 1').click());
+        change(input('Attribute key 1'), 'priority');
+        act(() => button('Apply attribute 1').click());
+        expect(onChange).not.toHaveBeenCalled();
+        expect(input('Attribute key 1').value).toBe('priority');
+        expect(container.textContent).toContain('This key already exists');
+        act(() => button('Cancel editing attribute 1').click());
+        act(() => button('Edit attribute 1').click());
+        expect(input('Attribute key 1').value).toBe('pool');
+        change(input('Attribute key 1'), 'priority');
+        render();
+        act(() => button('Apply attribute 1').click());
+        expect(lastValue().attributes[0]).toEqual({id: 'a', key: 'priority', value: 'research'});
+    });
+
+    it('validates the candidate before emitting and preserves new rows on error', () => {
+        const validateAttribute = vi.fn((draft: {value: string}) =>
+            draft.value === 'allowed' ? undefined : {value: 'Value is restricted'},
+        );
+        render({validateAttribute});
+        act(() => button('Add attribute').click());
+        change(input('Attribute key 3'), 'new-key');
+        act(() => button('Apply attribute 3').click());
+        expect(onChange).not.toHaveBeenCalled();
+        expect(container.textContent).toContain('Value is restricted');
+        expect(input('Attribute key 3').value).toBe('new-key');
+        change(input('Attribute value 3'), 'allowed');
+        act(() => button('Apply attribute 3').click());
+        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(validateAttribute).toHaveBeenLastCalledWith(
+            expect.objectContaining({key: 'new-key', value: 'allowed'}),
+            initialValue.attributes,
+        );
+    });
+
+    it('validates key constraints on Enter and honors permissions revoked during editing', () => {
+        render({
+            validateAttribute: (draft) =>
+                draft.key.includes(' ') ? {key: 'No spaces allowed'} : undefined,
+        });
+        act(() => button('Edit attribute 1').click());
+        change(input('Attribute key 1'), 'invalid key');
+        act(() =>
+            input('Attribute key 1').dispatchEvent(
+                new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}),
+            ),
+        );
+        expect(onChange).not.toHaveBeenCalled();
+        expect(input('Attribute key 1').getAttribute('aria-invalid')).toBe('true');
+        render({getAttributePermissions: () => ({canEditKey: false})});
+        change(input('Attribute value 1'), 'new value');
+        act(() => button('Apply attribute 1').click());
+        expect(lastValue().attributes[0]).toEqual({id: 'a', key: 'pool', value: 'new value'});
+    });
+
+    it('restores a cleared key when its permission is revoked and allows value-only Apply', () => {
+        render();
+        act(() => button('Edit attribute 1').click());
+        change(input('Attribute key 1'), '');
+        expect(button('Apply attribute 1').disabled).toBe(true);
+        render({getAttributePermissions: () => ({canEditKey: false})});
+        expect(input('Attribute key 1').value).toBe('pool');
+        expect(input('Attribute key 1').disabled).toBe(true);
+        change(input('Attribute value 1'), 'updated');
+        expect(button('Apply attribute 1').disabled).toBe(false);
+        act(() => button('Apply attribute 1').click());
+        expect(lastValue().attributes[0]).toEqual({id: 'a', key: 'pool', value: 'updated'});
+    });
+
     it('hides omitted tokens and disables an explicitly empty token list', () => {
         render();
         expect(container.querySelector('[aria-label="Tokens"]')).toBeNull();

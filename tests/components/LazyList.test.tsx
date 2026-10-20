@@ -192,4 +192,13 @@ describe('LazyList loading indicator', () => {
 
         expect(onLoadMore).toHaveBeenCalledTimes(2);
     });
+    it('invalidates cached sizes when existing row heights change', () => {
+        renderList({itemHeight: () => 32});
+        resetAfterIndex.mockClear();
+        renderList({itemHeight: () => 48});
+        expect(resetAfterIndex).toHaveBeenCalledWith(0, true);
+        resetAfterIndex.mockClear();
+        renderList({itemHeight: () => 48});
+        expect(resetAfterIndex).not.toHaveBeenCalled();
+    });
 });

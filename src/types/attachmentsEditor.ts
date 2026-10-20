@@ -1,12 +1,12 @@
 import type {Attachment} from './attachments';
 
-export type AttachmentItemProps = {
-    attachment: Attachment;
+export type AttachmentItemProps<T extends Attachment = Attachment> = {
+    attachment: T;
     wasEdited?: boolean;
     wasAdded?: boolean;
-    onEdit?: (attachment: AttachmentItemProps['attachment']) => void;
-    onDelete?: (attachment: AttachmentItemProps['attachment']) => void;
-    onRevert?: (attachment: AttachmentItemProps['attachment']) => void;
+    onEdit?: (attachment: T) => void;
+    onDelete?: (attachment: T) => void;
+    onRevert?: (attachment: T) => void;
     isDeleted?: boolean;
 };
 
@@ -19,6 +19,7 @@ export type EditLinkValues = {
 export type EditLinkItemProps = {
     linkLabel?: string;
     tokenLabel?: string;
+    tokenRequired?: boolean;
     nameLabel?: string;
     onAccept?: (values: EditLinkValues) => void;
     onCancel?: () => void;

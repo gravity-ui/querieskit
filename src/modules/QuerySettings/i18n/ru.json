@@ -16,5 +16,6 @@
   "action_remove-attribute": "Удалить атрибут {{index}}",
   "action_edit-attribute": "Редактировать атрибут {{index}}",
   "action_apply-attribute": "Применить атрибут {{index}}",
-  "action_cancel-attribute": "Отменить редактирование атрибута {{index}}"
+  "action_cancel-attribute": "Отменить редактирование атрибута {{index}}",
+  "alert_duplicate-key": "Такой ключ уже существует"
 }

@@ -218,3 +218,42 @@ export const Disabled: Story = {args: {disabled: true}};
 export const EmptyTokens: Story = {args: {emptyTokens: true}};
 export const DarkAndNarrow: Story = {args: {width: 240}, globals: {theme: 'dark'}};
 export const EditorIntegration: Story = {args: {inEditor: true, manyAttributes: true}};
+
+function ProtectedSettingsExample() {
+    const [settingsValue, setValue] = useState(initialValue);
+    return (
+        <div style={{width: 280, maxWidth: '100%'}}>
+            <QuerySettings
+                value={settingsValue}
+                onChange={setValue}
+                hiddenFields={['access']}
+                renderCustomFields={({value, onChange, disabled}) => (
+                    <Select
+                        aria-label="Visibility"
+                        width="max"
+                        value={[value.access]}
+                        disabled={disabled}
+                        options={[
+                            {value: 'private', content: 'Private'},
+                            {value: 'everyone', content: 'Everyone'},
+                        ]}
+                        onUpdate={([access]) => {
+                            if (access === 'private' || access === 'everyone')
+                                onChange({...value, access});
+                        }}
+                    />
+                )}
+                getAttributePermissions={(row) => ({
+                    canEditKey: row.id !== 'owner',
+                    canRemove: row.id !== 'owner',
+                })}
+                checkDuplicateAttributeKeys
+                validateAttribute={(draft) =>
+                    draft.value.trim() ? undefined : {value: 'Enter a value'}
+                }
+            />
+        </div>
+    );
+}
+export const ProtectedAttributes: Story = {render: () => <ProtectedSettingsExample />};
+export const ProtectedAttributesDark: Story = {...ProtectedAttributes, globals: {theme: 'dark'}};

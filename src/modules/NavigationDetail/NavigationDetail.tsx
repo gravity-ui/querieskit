@@ -18,6 +18,7 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
     onLoadSuggestions,
     actions,
     renderActions,
+    renderMenuTrigger,
     getBreadcrumbHref,
     activeTab: activeTabProp,
     onTabUpdate,
@@ -86,6 +87,7 @@ export const NavigationDetail: React.FC<NavigationDetailProps> = ({
                 location={location}
                 actions={mergedActions}
                 renderActions={renderActions}
+                renderMenuTrigger={renderMenuTrigger}
                 getBreadcrumbHref={getBreadcrumbHref}
                 onUpdate={onUpdate}
                 onLoadSuggestions={onLoadSuggestions}

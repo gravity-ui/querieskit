@@ -1,4 +1,5 @@
 import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
+import type {FieldsSelectorOption, FieldsSelectorProps} from './fieldsSelectorProps';
 import {RegisteredFormFields} from './forms';
 
 /** ISO 8601 date string or Unix timestamp in milliseconds. */
@@ -65,16 +66,10 @@ type RowFieldKey<T extends QueryListRow> = Exclude<keyof T & string, keyof Query
 
 export type QueryListFieldKey<T extends QueryListRow = QueryListRow> = RowFieldKey<T> | 'duration';
 
-export type QueryListFieldOption<K extends string = string> = {
-    id: K;
-    title: ReactNode;
-};
+export type QueryListFieldOption<K extends string = string> = FieldsSelectorOption<K>;
 
-export type QueryListVisibleFieldsConfig<T extends QueryListRow = QueryListRow> = {
-    value: QueryListFieldKey<T>[];
-    fields: QueryListFieldOption<QueryListFieldKey<T>>[];
-    onChange: (value: QueryListFieldKey<T>[]) => void;
-};
+export type QueryListVisibleFieldsConfig<T extends QueryListRow = QueryListRow> =
+    FieldsSelectorProps<QueryListFieldKey<T>>;
 
 export type QueryListEditingRenderData<T extends QueryListRow = QueryListRow> = {
     enabled: boolean;

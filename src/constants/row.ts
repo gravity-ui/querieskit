@@ -1,2 +1,3 @@
 export const SEARCH_ROW_HEIGHT = 110;
 export const NAVIGATION_ROW_HEIGHT = 32;
+export const NAVIGATION_DESCRIPTION_ROW_HEIGHT = 48;

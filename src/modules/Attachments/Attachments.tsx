@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
     Box,
     Button,
@@ -9,6 +9,7 @@ import {
     TabPanel,
     TabProvider,
     Text,
+    useFileInput,
 } from '@gravity-ui/uikit';
 import {AttachmentList, EditAttachmentItem} from '../../components/AttachmentList';
 import type {EditLinkValues} from '../../types/attachmentsEditor';
@@ -16,6 +17,8 @@ import {AttachmentListPlaceholder} from '../../components/AttachmentListPlacehol
 import type {AttachItem, AttachmentsProps} from '../../types/attachments';
 import {createUuid} from '../../helpers/createUuid';
 import {isObjectEqual} from '../../helpers/isObjectEqual';
+import {stringRequiredValidator} from '../../components/AttachmentList/helpers/stringRequiredValidator';
+import {objectLinkValidator} from '../../components/AttachmentList/helpers/objectLinkValidator';
 import {Plus} from '@gravity-ui/icons';
 import cn from 'bem-cn-lite';
 
@@ -29,19 +32,25 @@ export type {AttachmentsProps, AttachItem} from '../../types/attachments';
 
 const block = cn('qp-attachments');
 
-export const Attachments = ({
+const AttachmentsImpl = <T extends AttachItem>({
     tokens,
+    tokenRequired,
+    createAttachment,
+    onSelectFile,
+    nameValidator = stringRequiredValidator,
+    linkValidator = objectLinkValidator,
+    validateDuplicates = false,
     placeholderProps,
     attachmentListProps,
     onChange,
     onItemClick,
     attachments: customerAttachments,
     deletedAttachments: customerDeletedAttachments,
-}: AttachmentsProps) => {
+}: AttachmentsProps<T> & {createAttachment: (draft: AttachItem) => T}) => {
     const [currentTab, setCurrentTab] = useState<'Current' | 'Deleted'>('Current');
 
-    const [innerAttachList, setInnerAttachList] = useState<AttachItem[]>(customerAttachments ?? []);
-    const [innerDeletedAttachList, setInnerDeletedAttachList] = useState<AttachItem[]>(
+    const [innerAttachList, setInnerAttachList] = useState<T[]>(customerAttachments ?? []);
+    const [innerDeletedAttachList, setInnerDeletedAttachList] = useState<T[]>(
         customerDeletedAttachments ?? [],
     );
 
@@ -55,6 +64,92 @@ export const Attachments = ({
     const attachCount = useMemo(() => attachList.filter((a) => !a.isNew).length, [attachList]);
 
     const defaultAttachList = useRef(attachList);
+    const latest = useRef({
+        attachList,
+        deletedAttachList,
+        onChange,
+        onSelectFile,
+        nameValidator,
+        validateDuplicates,
+    });
+    latest.current = {
+        attachList,
+        deletedAttachList,
+        onChange,
+        onSelectFile,
+        nameValidator,
+        validateDuplicates,
+    };
+    const mounted = useRef(true);
+    const pending = useRef(false);
+    const [fileState, setFileState] = useState<{
+        file: File;
+        status: 'pending' | 'success' | 'error';
+        error?: string;
+    }>();
+    useEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, []);
+
+    const validateName = (name: unknown, id?: string) => {
+        const error = nameValidator(name);
+        if (error) return error;
+        return validateDuplicates &&
+            attachList.some((item) => item.id !== id && !item.isNew && item.name === name)
+            ? i18n('alert_duplicate-name')
+            : null;
+    };
+
+    const processFile = async (file: File) => {
+        if (pending.current || !latest.current.onSelectFile) return;
+        pending.current = true;
+        setFileState({file, status: 'pending'});
+        try {
+            const item = await latest.current.onSelectFile(file);
+            if (!mounted.current) return;
+            const current = latest.current;
+            if (
+                [...current.attachList, ...current.deletedAttachList].some(
+                    (existing) => existing.id === item.id,
+                )
+            ) {
+                throw new Error(i18n('alert_invalid-id'));
+            }
+            const nameError =
+                current.nameValidator(item.name) ||
+                (current.validateDuplicates &&
+                current.attachList.some(
+                    (existing) => !existing.isNew && existing.name === item.name,
+                )
+                    ? i18n('alert_duplicate-name')
+                    : null);
+            if (nameError) throw new Error(nameError);
+            const savedItem = {...item};
+            delete savedItem.isNew;
+            const next = [...current.attachList, savedItem];
+            setInnerAttachList(next);
+            current.onChange?.({attachments: next, deletedAttachments: current.deletedAttachList});
+            setWasAddedIds((ids) => [...ids, item.id]);
+            setFileState({file, status: 'success'});
+        } catch (error) {
+            if (mounted.current)
+                setFileState({
+                    file,
+                    status: 'error',
+                    error: error instanceof Error ? error.message : i18n('alert_file-error'),
+                });
+        } finally {
+            pending.current = false;
+        }
+    };
+    const {controlProps, triggerProps} = useFileInput({
+        onUpdate: (files) => {
+            if (files[0]) processFile(files[0]);
+        },
+    });
 
     const getDefaultValuesForLink = (linkId: string) => {
         const currentLink = attachList.find((a) => a.id === linkId);
@@ -65,7 +160,7 @@ export const Attachments = ({
         };
     };
 
-    const runAfterAttachAdded = (attachId: string, newAttach: AttachItem) => {
+    const runAfterAttachAdded = (attachId: string, newAttach: T) => {
         const editedAttach = defaultAttachList.current.find((a) => a.id === attachId);
 
         if (!editedAttach) return;
@@ -80,7 +175,10 @@ export const Attachments = ({
 
     const addEmptyAttachment = (values: Omit<AttachItem, 'id'>) => {
         const id = createUuid();
-        const patchAttachList = [...attachList.filter((a) => !a.isNew), {id, ...values}];
+        const patchAttachList = [
+            ...attachList.filter((a) => !a.isNew),
+            {...createAttachment({id, ...values}), id, ...values},
+        ];
         setInnerAttachList(patchAttachList);
         setWasAddedIds([...wasAddedIds, id]);
         setEditingIds([...editingIds, id]);
@@ -94,12 +192,18 @@ export const Attachments = ({
     const acceptAttachment = (nextAttachment: AttachItem) => {
         if (!attachList.some((attach) => attach.id === nextAttachment.id)) return;
         const patchAttachList = attachList.map((attach) =>
-            attach.id === nextAttachment.id ? nextAttachment : attach,
+            attach.id === nextAttachment.id
+                ? {...attach, ...nextAttachment, isNew: undefined}
+                : attach,
         );
+        for (const item of patchAttachList) {
+            if (item.id === nextAttachment.id) delete item.isNew;
+        }
         setEditingIds(editingIds.filter((id) => id !== nextAttachment.id));
         setInnerAttachList(patchAttachList);
         onChange?.({attachments: patchAttachList, deletedAttachments: deletedAttachList});
-        runAfterAttachAdded(nextAttachment.id, nextAttachment);
+        const saved = patchAttachList.find((item) => item.id === nextAttachment.id);
+        if (saved) runAfterAttachAdded(nextAttachment.id, saved);
     };
 
     const handleAcceptFile = (id: string, name: string) => acceptAttachment({id, name});
@@ -203,6 +307,37 @@ export const Attachments = ({
 
                 <TabPanel className={block('panel')} value="Current">
                     <Flex spacing={{py: 3}} direction="column" width="100%" height="100%" gap={3}>
+                        {onSelectFile && (
+                            <Flex direction="column" gap={2} spacing={{px: 4}}>
+                                <input
+                                    {...controlProps}
+                                    hidden
+                                    disabled={fileState?.status === 'pending'}
+                                />
+                                <Button
+                                    {...triggerProps}
+                                    disabled={fileState?.status === 'pending'}
+                                >
+                                    {i18n('action_select-file')}
+                                </Button>
+                                {fileState && (
+                                    <Text role={fileState.status === 'error' ? 'alert' : 'status'}>
+                                        {fileState.status === 'error'
+                                            ? fileState.error
+                                            : i18n(
+                                                  fileState.status === 'pending'
+                                                      ? 'value_pending'
+                                                      : 'value_success',
+                                              )}
+                                    </Text>
+                                )}
+                                {fileState?.status === 'error' && (
+                                    <Button onClick={() => processFile(fileState.file)}>
+                                        {i18n('action_retry')}
+                                    </Button>
+                                )}
+                            </Flex>
+                        )}
                         {attachList.length ? (
                             <AttachmentList
                                 {...attachmentListProps}
@@ -230,6 +365,17 @@ export const Attachments = ({
                                                 }
                                                 defaultValues={defaultLinkValues}
                                                 tokens={tokens}
+                                                tokenRequired={tokenRequired}
+                                                validator={(values, required) => {
+                                                    const errors = linkValidator(values, required);
+                                                    const nameError = validateName(
+                                                        values.name,
+                                                        attach.id,
+                                                    );
+                                                    return nameError
+                                                        ? {...errors, name: nameError}
+                                                        : errors;
+                                                }}
                                                 onCancel={() => handleCancelEdit(attach.id)}
                                             />
                                         );
@@ -239,6 +385,7 @@ export const Attachments = ({
                                         <EditAttachmentItem
                                             type="file"
                                             defaultFileName={attach.name}
+                                            validator={(name) => validateName(name, attach.id)}
                                             onAccept={(pathName) =>
                                                 handleAcceptFile(attach.id, pathName)
                                             }
@@ -249,6 +396,7 @@ export const Attachments = ({
                             />
                         ) : (
                             <AttachmentListPlaceholder
+                                addFileText={onSelectFile ? i18n('action_create-file') : undefined}
                                 onAddFile={handleAddEmptyFile}
                                 onAddLink={handleAddEmptyLink}
                                 {...placeholderProps}
@@ -258,7 +406,7 @@ export const Attachments = ({
                             <Flex spacing={{px: 4}} gap={2} wrap="wrap" shrink={0}>
                                 <Button onClick={handleAddEmptyFile}>
                                     <Icon data={Plus} />
-                                    {i18n('action_add-file')}
+                                    {i18n(onSelectFile ? 'action_create-file' : 'action_add-file')}
                                 </Button>
 
                                 <Button view="outlined" onClick={handleAddEmptyLink}>
@@ -290,3 +438,17 @@ export const Attachments = ({
         </Box>
     );
 };
+
+export function Attachments<T extends AttachItem = AttachItem>(
+    props: AttachmentsProps<T>,
+): React.JSX.Element;
+/** Preserve legacy calls that pass structurally extended data using base callbacks. */
+export function Attachments(props: AttachmentsProps): React.JSX.Element;
+export function Attachments(props: AttachmentsProps) {
+    return (
+        <AttachmentsImpl
+            {...props}
+            createAttachment={props.createAttachment ?? ((draft) => draft)}
+        />
+    );
+}

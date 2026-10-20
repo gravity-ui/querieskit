@@ -6,6 +6,7 @@ export type AttachmentListPlaceholderProps = {
     linkForDoc?: string;
     linkText?: string;
     className?: string;
+    addFileText?: ReactNode;
     onAddFile?: () => void;
     onAddLink?: () => void;
     qa?: string;

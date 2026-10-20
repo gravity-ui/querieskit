@@ -10,6 +10,7 @@ export type NavigationHeaderProps = {
     location: NavigationLocation;
     actions?: NavigationHeaderAction[];
     renderActions?: RenderNavigationHeaderActions;
+    renderMenuTrigger?: RenderNavigationHeaderActions;
     getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     onUpdate: (location: NavigationLocation) => void;
     onLoadSuggestions?: LoadPathSuggestions;

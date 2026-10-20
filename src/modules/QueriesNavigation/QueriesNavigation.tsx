@@ -44,12 +44,14 @@ export const QueriesNavigation = <
     parentRow,
     renderClusterItem,
     renderNavigationItem,
+    getItemRowConfig,
     onClusterClick,
     onItemClick,
     className,
 }: QueriesNavigationProps<TItem, TCluster>) => {
     const {loading, error, hasMore, onLoadMore} = listState ?? {};
-    const {actions, renderActions, getBreadcrumbHref, onLoadSuggestions} = header ?? {};
+    const {actions, renderActions, renderMenuTrigger, getBreadcrumbHref, onLoadSuggestions} =
+        header ?? {};
     const {value: searchValue, onUpdate: onSearchUpdate} = search ?? {};
     const {value: sortValue, onUpdate: onSortUpdate} = sort ?? {};
     const {
@@ -116,6 +118,7 @@ export const QueriesNavigation = <
                 location={{cluster: location.cluster, path: body.item.path}}
                 actions={resolvedDetailActions}
                 renderActions={renderActions}
+                renderMenuTrigger={renderMenuTrigger}
                 getBreadcrumbHref={getBreadcrumbHref}
                 onUpdate={handleNavigate}
                 onLoadSuggestions={onLoadSuggestions}
@@ -135,6 +138,7 @@ export const QueriesNavigation = <
                 location={location}
                 actions={actions}
                 renderActions={renderActions}
+                renderMenuTrigger={renderMenuTrigger}
                 getBreadcrumbHref={getBreadcrumbHref}
                 onUpdate={handleNavigate}
                 onLoadSuggestions={onLoadSuggestions}
@@ -175,6 +179,7 @@ export const QueriesNavigation = <
                         <EmptyContent variant={searchValue ? 'nothing-found' : 'no-files'} />
                     }
                     renderRowItem={renderNavigationItem}
+                    getItemRowConfig={getItemRowConfig}
                     onItemClick={handleItemClick}
                 />
             )}

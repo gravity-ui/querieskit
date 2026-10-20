@@ -5,7 +5,11 @@ import PencilIcon from '@gravity-ui/icons/svgs/pencil.svg';
 import TrashBinIcon from '@gravity-ui/icons/svgs/trash-bin.svg';
 import XmarkIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
-import type {QuerySettingsAttribute} from '../../../types/querySettings';
+import type {
+    QuerySettingsAttribute,
+    QuerySettingsAttributeErrors,
+    QuerySettingsAttributePermissions,
+} from '../../../types/querySettings';
 import i18n from '../i18n';
 import './AttributeRow.scss';
 
@@ -17,6 +21,8 @@ type Props = {
     isNew?: boolean;
     disabled: boolean;
     errors?: Partial<Record<'key' | 'value', string>>;
+    permissions?: QuerySettingsAttributePermissions;
+    validate: (draft: QuerySettingsAttribute) => QuerySettingsAttributeErrors | undefined;
     onApply: (attribute: QuerySettingsAttribute) => void;
     onCancel: () => void;
     onRemove: () => void;
@@ -29,6 +35,8 @@ export function AttributeRow({
     isNew = false,
     disabled,
     errors,
+    permissions,
+    validate,
     onApply,
     onCancel,
     onRemove,
@@ -36,10 +44,20 @@ export function AttributeRow({
 }: Props) {
     const [editing, setEditing] = useState(isNew);
     const [draft, setDraft] = useState(attribute);
+    const [validationErrors, setValidationErrors] = useState<QuerySettingsAttributeErrors>();
+    const canEditKey = permissions?.canEditKey !== false;
+    const canEditValue = permissions?.canEditValue !== false;
+    const effectiveDraft = {
+        ...draft,
+        key: canEditKey ? draft.key : attribute.key,
+        value: canEditValue ? draft.value : attribute.value,
+    };
+    const rowErrors = {...errors, ...validationErrors};
     const editButton = useRef<HTMLButtonElement>(null);
     const restoreFocus = useRef(false);
 
     useEffect(() => {
+        setValidationErrors(undefined);
         setDraft({id: attribute.id, key: attribute.key, value: attribute.value});
     }, [attribute.id, attribute.key, attribute.value]);
 
@@ -51,9 +69,18 @@ export function AttributeRow({
     }, [editing]);
 
     const finish = (apply: boolean) => {
-        if (disabled || (apply && !draft.key.trim())) return;
-        if (apply) onApply(draft);
-        else onCancel();
+        if (disabled || (apply && !effectiveDraft.key.trim())) return;
+        if (apply) {
+            if (!canEditKey && !canEditValue) return;
+            const next = effectiveDraft;
+            const nextErrors = validate(next);
+            if (nextErrors?.key || nextErrors?.value) {
+                setValidationErrors(nextErrors);
+                return;
+            }
+            onApply(next);
+        } else onCancel();
+        setValidationErrors(undefined);
         setDraft(attribute);
         restoreFocus.current = true;
         setEditing(false);
@@ -72,11 +99,12 @@ export function AttributeRow({
                                     'aria-label': i18n(`field_attribute-${field}`, {index}),
                                 }}
                                 placeholder={i18n(`field_${field}`)}
-                                value={draft[field]}
-                                autoFocus={field === 'key'}
-                                onUpdate={(next) =>
-                                    setDraft((current) => ({...current, [field]: next}))
-                                }
+                                value={effectiveDraft[field]}
+                                autoFocus={field === (canEditKey ? 'key' : 'value')}
+                                onUpdate={(next) => {
+                                    setValidationErrors(undefined);
+                                    setDraft((current) => ({...current, [field]: next}));
+                                }}
                                 onBlur={() => onBlur(field)}
                                 onKeyDown={(event) => {
                                     if (event.key === 'Escape') {
@@ -91,15 +119,21 @@ export function AttributeRow({
                                         finish(true);
                                     }
                                 }}
-                                disabled={disabled}
-                                validationState={errors?.[field] ? 'invalid' : undefined}
-                                errorMessage={errors?.[field]}
+                                disabled={
+                                    disabled || !(field === 'key' ? canEditKey : canEditValue)
+                                }
+                                validationState={rowErrors[field] ? 'invalid' : undefined}
+                                errorMessage={rowErrors[field]}
                             />
                         ))}
                         <Flex className={block('actions')}>
                             <Button
                                 view="flat"
-                                disabled={disabled || !draft.key.trim()}
+                                disabled={
+                                    disabled ||
+                                    (!canEditKey && !canEditValue) ||
+                                    !effectiveDraft.key.trim()
+                                }
                                 onClick={() => finish(true)}
                                 aria-label={i18n('action_apply-attribute', {index})}
                                 title={i18n('action_apply-attribute', {index})}
@@ -126,9 +160,10 @@ export function AttributeRow({
                         <Flex className={block('actions')}>
                             <Button
                                 view="flat"
-                                disabled={disabled}
+                                disabled={disabled || (!canEditKey && !canEditValue)}
                                 ref={editButton}
                                 onClick={() => {
+                                    setValidationErrors(undefined);
                                     setDraft(attribute);
                                     setEditing(true);
                                 }}
@@ -139,7 +174,7 @@ export function AttributeRow({
                             </Button>
                             <Button
                                 view="flat"
-                                disabled={disabled}
+                                disabled={disabled || permissions?.canRemove === false}
                                 onClick={onRemove}
                                 aria-label={i18n('action_remove-attribute', {index})}
                                 title={i18n('action_remove-attribute', {index})}

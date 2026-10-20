@@ -1,4 +1,5 @@
 import type {ReactNode} from 'react';
+import type {FieldsSelectorProps} from './fieldsSelectorProps';
 import type {QueryResultColumn, QueryResultsTableSettings} from './queryResults';
 import type {LoadPathSuggestions} from './pathEditor';
 
@@ -50,6 +51,18 @@ export type NavigationItem = {
     hasChildren?: boolean;
     disabled?: boolean;
 };
+
+export type NavigationItemRowConfig<T extends NavigationItem = NavigationItem> = {
+    description?: string;
+    indicators?: ReactNode;
+    actions?: Array<NavigationAction<T>>;
+    menuActions?: Array<NavigationAction<T>>;
+};
+
+/** Resolves presentation for application items only, never the synthetic parent row. */
+export type GetNavigationItemRowConfig<T extends NavigationItem = NavigationItem> = (
+    item: T,
+) => NavigationItemRowConfig<T>;
 
 export type NavigationSortOrder = 'asc' | 'desc';
 
@@ -140,6 +153,7 @@ export type NavigationPreviewProps<TRow extends NavigationPreviewRow = Navigatio
     defaultVisibleColumns?: string[];
     hideToolbar?: boolean;
     hideFieldsSelector?: boolean;
+    fieldsSelectorProps?: Omit<FieldsSelectorProps<string>, 'fields' | 'value' | 'onChange'>;
     className?: string;
 };
 
@@ -218,6 +232,7 @@ export type NavigationListStateConfig = {
 export type NavigationHeaderConfig = {
     actions?: NavigationHeaderAction[];
     renderActions?: RenderNavigationHeaderActions;
+    renderMenuTrigger?: RenderNavigationHeaderActions;
     getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     onLoadSuggestions?: LoadPathSuggestions;
 };

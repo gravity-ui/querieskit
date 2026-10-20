@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, {act} from 'react';
-import {createRoot, type Root} from 'react-dom/client';
+import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 import {Attachments} from '../../src/modules/Attachments';
 
@@ -8,6 +8,7 @@ const captures = vi.hoisted(() => ({edit: {} as any, list: {} as any}));
 vi.mock('@gravity-ui/uikit', () => {
     const Container = ({children}: any) => <div>{children}</div>;
     return {
+        useFileInput: () => ({controlProps: {}, triggerProps: {}}),
         Box: Container,
         Flex: Container,
         Text: Container,
