@@ -1,4 +1,4 @@
-import type {FieldsSelectorOption} from './fieldsSelectorProps';
+import type {FieldsSelectorOption, FieldsSelectorProps} from './fieldsSelectorProps';
 
 export type FieldsSearchToolbarProps<K extends string = string> = {
     search?: string;
@@ -8,5 +8,6 @@ export type FieldsSearchToolbarProps<K extends string = string> = {
     visibleFields: K[];
     onVisibleFieldsChange: (value: K[]) => void;
     hideFieldsSelector?: boolean;
+    fieldsSelectorProps?: Omit<FieldsSelectorProps<K>, 'fields' | 'value' | 'onChange'>;
     className?: string;
 };

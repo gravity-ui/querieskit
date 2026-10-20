@@ -1,6 +1,6 @@
 # QuerySettings
 
-Controlled query settings form. The module has no engine-specific behavior: the application supplies custom controls, their values, localization and validation. Query name, Access and YT operation title are always shown; query name and operation title are marked required.
+Controlled query settings form. The module has no engine-specific behavior: the application supplies custom controls, their values, localization and validation. Query name, Access and operation title are shown by default; query name and operation title are marked required.
 
 ```tsx
 import React, {useState} from 'react';
@@ -73,7 +73,7 @@ export function SettingsForm() {
 
 - `value`, `onChange(nextValue)` contain the complete state, including `custom`. General fields emit edits immediately. Attributes keep local drafts until Apply; Cancel discards a draft, and adding a row does not emit a change until Apply. Receiving new props does not emit changes.
 - `tokens` provides selectable token IDs and display titles, not credentials. Omit it to hide the selector; pass `[]` for a visible disabled selector. Options may have `disabled: true`.
-- `hiddenFields` accepts `'tokens'` and `'attributes'`. Hidden values are preserved.
+- `hiddenFields` accepts all standard field names, plus `'tokens'` (alias for `'tokenIds'`) and `'attributes'`. Hidden values are preserved and excluded from the General counter; custom fields are not counted.
 - `disabled` disables standard edits. `className` positions the form within its parent.
 - General and Attributes collapse independently. Attribute rows have stable `id` values; retain these when updating values or attaching server errors. Adding or editing a row focuses its key input. Enter applies the draft; Escape cancels it. Row actions appear on hover or keyboard focus and remain visible on touch devices. External updates to an edited attribute replace its draft; removing it also removes its editor. Unapplied drafts are discarded when the settings module unmounts.
 
@@ -111,3 +111,50 @@ Keep settings state in the application so closing the panel cannot discard it:
 `QueryEditor` owns the panel title, close action and resize behavior. Its `onChange` continues to report query text only; the form's `onChange` reports settings. With `settingsProps`, the editor renders the selected engine’s `renderSettingsFields` after Query name, followed by the application’s `renderCustomFields`. Both receive the same controlled settings value and change callback. The engine context additionally includes `engineId` and `clusterId`.
 
 Use `settings={<QuerySettings ... />}` for full manual composition instead; `settings` and `settingsProps` are mutually exclusive. QuerySettings itself remains engine-independent. See [the editor settings and built-in preset](../../widgets/QueryEditor/README.md#settings) for optional engine UI descriptions, application-supplied options and controlled form values.
+
+## Protected attributes and validation
+
+All extensions are opt-in. Existing callers retain immediate general-field changes and
+attribute-only Apply/Cancel. Permissions default to allowed; global `disabled` takes precedence.
+`validateAttribute(draft, attributes)` synchronously checks the candidate against the current
+applied rows. Return `{key, value}` error messages to keep the editor open without emitting
+`onChange`. These draft errors clear on editing or external row updates. Existing `errors`
+remain display-only server/application errors. Validation before query execution remains the
+application's responsibility.
+
+`checkDuplicateAttributeKeys` compares exact, case-sensitive keys against other applied rows,
+excluding the candidate's stable ID. It defaults to false for compatibility. It neither trims
+stored keys nor modifies existing rows. Blank keys remain blocked independently.
+
+```tsx
+function ProtectedSettings({initial}: {initial: QuerySettingsValue}) {
+  const [value, setValue] = useState(initial);
+  return (
+    <QuerySettings
+      value={value}
+      onChange={setValue}
+      hiddenFields={['access']}
+      renderCustomFields={({value, onChange, disabled}) => (
+        <Select
+          aria-label="Visibility"
+          disabled={disabled}
+          value={[value.access]}
+          options={[
+            {value: 'private', content: 'Private'},
+            {value: 'everyone', content: 'Everyone'},
+          ]}
+          onUpdate={([access]) => {
+            if (access === 'private' || access === 'everyone') onChange({...value, access});
+          }}
+        />
+      )}
+      getAttributePermissions={(row) => ({
+        canEditKey: row.id !== 'owner',
+        canRemove: row.id !== 'owner',
+      })}
+      checkDuplicateAttributeKeys
+      validateAttribute={(draft) => (draft.value.trim() ? undefined : {value: 'Enter a value'})}
+    />
+  );
+}
+```

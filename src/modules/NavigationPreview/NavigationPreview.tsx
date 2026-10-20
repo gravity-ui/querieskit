@@ -23,6 +23,7 @@ export function NavigationPreview<TRow extends NavigationPreviewRow = Navigation
     defaultVisibleColumns,
     hideToolbar,
     hideFieldsSelector,
+    fieldsSelectorProps,
     className,
 }: NavigationPreviewProps<TRow>) {
     const {columns, rows, loading, loaded, errorContent} = data;
@@ -71,6 +72,7 @@ export function NavigationPreview<TRow extends NavigationPreviewRow = Navigation
                     visibleFields={activeVisibleColumns}
                     onVisibleFieldsChange={handleVisibleColumnsChange}
                     hideFieldsSelector={hideFieldsSelector}
+                    fieldsSelectorProps={fieldsSelectorProps}
                 />
             )}
             <QueryResultsTable<TRow>

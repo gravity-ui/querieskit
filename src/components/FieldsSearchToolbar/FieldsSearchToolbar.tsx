@@ -12,6 +12,7 @@ export function FieldsSearchToolbar<K extends string = string>({
     visibleFields,
     onVisibleFieldsChange,
     hideFieldsSelector,
+    fieldsSelectorProps,
     className,
 }: FieldsSearchToolbarProps<K>) {
     const showFieldsSelector = !hideFieldsSelector && fields.length > 0;
@@ -29,6 +30,7 @@ export function FieldsSearchToolbar<K extends string = string>({
                           <FieldsSelector<K>
                               key="fields-selector"
                               buttonView="flat"
+                              {...fieldsSelectorProps}
                               fields={fields}
                               value={visibleFields}
                               onChange={onVisibleFieldsChange}

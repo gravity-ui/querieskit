@@ -6,5 +6,8 @@
   "action_cancel": "Cancel",
   "alert_value-must-be-string": "Value must be a string",
   "alert_required-field": "Required field",
-  "alert_max-length": "Maximum length is {{maxLength}}"
+  "alert_max-length": "Maximum length is {{maxLength}}",
+  "action_edit": "Edit",
+  "action_delete": "Delete",
+  "action_restore": "Restore"
 }

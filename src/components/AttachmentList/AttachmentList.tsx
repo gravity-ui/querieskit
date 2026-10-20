@@ -1,12 +1,13 @@
 import {Flex, List} from '@gravity-ui/uikit';
 import React, {useMemo} from 'react';
+import type {Attachment} from '../../types/attachments';
 import type {AttachmentListProps} from '../../types/attachmentListProps';
 import './AttachmentList.scss';
 import {isInteractiveTarget} from './helpers/isInteractiveTarget';
 import {AttachmentItem} from './internal/AttachmentItem/AttachmentItem';
 export type {AttachmentListProps} from '../../types/attachmentListProps';
 
-export const AttachmentList = ({
+export const AttachmentList = <T extends Attachment>({
     attachments,
     onEdit,
     onDelete,
@@ -19,12 +20,12 @@ export const AttachmentList = ({
     isDeleted,
     onItemClick,
     ...listProps
-}: AttachmentListProps) => {
+}: AttachmentListProps<T>) => {
     const addedIdsSet = useMemo(() => new Set(wasAddedIds), [wasAddedIds]);
     const editedIdsSet = useMemo(() => new Set(wasEditedIds), [wasEditedIds]);
     const editingIdsSet = useMemo(() => new Set(editingIds), [editingIds]);
 
-    const handleItemClick: AttachmentListProps['onItemClick'] = (
+    const handleItemClick: AttachmentListProps<T>['onItemClick'] = (
         item,
         index,
         fromKeyboard,
@@ -37,7 +38,7 @@ export const AttachmentList = ({
 
     return (
         <Flex className={className} width="100%" height="100%" overflow="auto">
-            <List<AttachmentListProps['attachments'][number]>
+            <List<T>
                 filterable={false}
                 virtualized={false}
                 items={attachments}

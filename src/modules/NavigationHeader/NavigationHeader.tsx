@@ -9,11 +9,28 @@ export const NavigationHeader: FC<NavigationHeaderProps> = ({
     location,
     actions,
     renderActions,
+    renderMenuTrigger,
     getBreadcrumbHref,
     onUpdate,
     onLoadSuggestions,
     className,
 }) => {
+    const renderHeaderActions = () => {
+        if (renderActions) {
+            return renderActions({location, actions: actions ?? []});
+        }
+        const buttons = <NavigationActionButtons size="m" actions={actions} arg={location} />;
+        if (renderMenuTrigger) {
+            return (
+                <Flex gap={1} shrink={0} alignItems="center">
+                    {buttons}
+                    {renderMenuTrigger({location, actions: actions ?? []})}
+                </Flex>
+            );
+        }
+        return buttons;
+    };
+
     return (
         <Flex gap={2} justifyContent="space-between" alignItems="center" className={className}>
             <Breadcrumbs
@@ -22,11 +39,7 @@ export const NavigationHeader: FC<NavigationHeaderProps> = ({
                 getBreadcrumbHref={getBreadcrumbHref}
                 onLoadSuggestions={onLoadSuggestions}
             />
-            {renderActions ? (
-                renderActions({location, actions: actions ?? []})
-            ) : (
-                <NavigationActionButtons size="m" actions={actions} arg={location} />
-            )}
+            {renderHeaderActions()}
         </Flex>
     );
 };

@@ -12,7 +12,14 @@ export type QuerySettingsValue<TCustom extends object = Record<string, unknown>>
 };
 
 export type QuerySettingsField = 'queryName' | 'access' | 'ytOperationTitle' | 'tokenIds';
-export type QuerySettingsHiddenField = 'tokens' | 'attributes';
+export type QuerySettingsHiddenField = QuerySettingsField | 'tokens' | 'attributes';
+
+export type QuerySettingsAttributePermissions = {
+    canEditKey?: boolean;
+    canEditValue?: boolean;
+    canRemove?: boolean;
+};
+export type QuerySettingsAttributeErrors = Partial<Record<'key' | 'value', string>>;
 export type QuerySettingsToken = {id: string; title: string; disabled?: boolean};
 
 export type QuerySettingsErrors<TCustom extends object = Record<string, unknown>> = {
@@ -49,6 +56,17 @@ export type QuerySettingsProps<TCustom extends object = Record<string, unknown>>
     renderCustomSections?: (context: QuerySettingsCustomFieldsContext<TCustom>) => ReactNode;
     errors?: QuerySettingsErrors<TCustom>;
     onFieldBlur?: (field: QuerySettingsFieldReference<TCustom>) => void;
+    /** Omitted permissions allow the operation. Global disabled takes precedence. */
+    getAttributePermissions?: (
+        attribute: QuerySettingsAttribute,
+    ) => QuerySettingsAttributePermissions;
+    /** Synchronous draft validation before Apply; errors keep the editor open. */
+    validateAttribute?: (
+        draft: QuerySettingsAttribute,
+        attributes: readonly QuerySettingsAttribute[],
+    ) => QuerySettingsAttributeErrors | undefined;
+    /** Opt-in exact, case-sensitive duplicate check against other applied rows. */
+    checkDuplicateAttributeKeys?: boolean;
     disabled?: boolean;
     className?: string;
 };

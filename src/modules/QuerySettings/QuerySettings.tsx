@@ -5,6 +5,7 @@ import cn from 'bem-cn-lite';
 import {FormField} from '../../components/FormField';
 import type {
     QuerySettingsAttribute,
+    QuerySettingsHiddenField,
     QuerySettingsProps,
     QuerySettingsValue,
 } from '../../types/querySettings';
@@ -23,9 +24,14 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>>(
     renderCustomSections,
     errors,
     onFieldBlur,
+    getAttributePermissions,
+    validateAttribute,
+    checkDuplicateAttributeKeys = false,
     disabled = false,
     className,
 }: QuerySettingsProps<TCustom>) {
+    const isVisible = (field: QuerySettingsHiddenField) => !hiddenFields.includes(field);
+    const showTokens = tokens !== undefined && isVisible('tokens') && isVisible('tokenIds');
     const id = useId();
     const nextAttribute = useRef(0);
     const [newAttributes, setNewAttributes] = useState<QuerySettingsAttribute[]>([]);
@@ -84,36 +90,41 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>>(
                 defaultExpanded
                 summary={summary(
                     i18n('title_general'),
-                    3 + Number(tokens !== undefined && !hiddenFields.includes('tokens')),
+                    Number(isVisible('queryName')) +
+                        Number(isVisible('access')) +
+                        Number(isVisible('ytOperationTitle')) +
+                        Number(showTokens),
                 )}
                 className={block('section')}
             >
                 <Flex direction="column" gap={3} className={block('content')}>
-                    {textField('queryName', i18n('field_query-name'))}
+                    {isVisible('queryName') && textField('queryName', i18n('field_query-name'))}
                     {renderCustomFields?.({value, onChange: change, errors, onFieldBlur, disabled})}
-                    <FormField
-                        label={<label htmlFor={`${id}-access`}>{i18n('field_access')}</label>}
-                    >
-                        <Select
-                            id={`${id}-access`}
-                            aria-label={i18n('field_access')}
-                            width="max"
-                            value={[value.access]}
-                            options={[
-                                {value: 'everyone', content: i18n('value_everyone')},
-                                {value: 'private', content: i18n('value_only-me')},
-                            ]}
-                            onUpdate={([access]) => {
-                                if (access === 'everyone' || access === 'private')
-                                    change({...value, access});
-                            }}
-                            onBlur={() => onFieldBlur?.({section: 'fields', field: 'access'})}
-                            disabled={disabled}
-                            validationState={errors?.fields?.access ? 'invalid' : undefined}
-                            errorMessage={errors?.fields?.access}
-                        />
-                    </FormField>
-                    {tokens !== undefined && !hiddenFields.includes('tokens') && (
+                    {isVisible('access') && (
+                        <FormField
+                            label={<label htmlFor={`${id}-access`}>{i18n('field_access')}</label>}
+                        >
+                            <Select
+                                id={`${id}-access`}
+                                aria-label={i18n('field_access')}
+                                width="max"
+                                value={[value.access]}
+                                options={[
+                                    {value: 'everyone', content: i18n('value_everyone')},
+                                    {value: 'private', content: i18n('value_only-me')},
+                                ]}
+                                onUpdate={([access]) => {
+                                    if (access === 'everyone' || access === 'private')
+                                        change({...value, access});
+                                }}
+                                onBlur={() => onFieldBlur?.({section: 'fields', field: 'access'})}
+                                disabled={disabled}
+                                validationState={errors?.fields?.access ? 'invalid' : undefined}
+                                errorMessage={errors?.fields?.access}
+                            />
+                        </FormField>
+                    )}
+                    {showTokens && (
                         <FormField
                             label={<label htmlFor={`${id}-tokens`}>{i18n('field_tokens')}</label>}
                         >
@@ -138,10 +149,11 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>>(
                             />
                         </FormField>
                     )}
-                    {textField('ytOperationTitle', i18n('field_yt-operation-title'))}
+                    {isVisible('ytOperationTitle') &&
+                        textField('ytOperationTitle', i18n('field_yt-operation-title'))}
                 </Flex>
             </Disclosure>
-            {!hiddenFields.includes('attributes') && (
+            {isVisible('attributes') && (
                 <Disclosure
                     defaultExpanded
                     summary={summary(
@@ -162,6 +174,22 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>>(
                                         isNew={isNew}
                                         disabled={disabled}
                                         errors={errors?.attributes?.[attribute.id]}
+                                        permissions={getAttributePermissions?.(attribute)}
+                                        validate={(draft) => {
+                                            const validation = {
+                                                ...validateAttribute?.(draft, value.attributes),
+                                            };
+                                            if (
+                                                checkDuplicateAttributeKeys &&
+                                                value.attributes.some(
+                                                    (row) =>
+                                                        row.id !== draft.id &&
+                                                        row.key === draft.key,
+                                                )
+                                            )
+                                                validation.key = i18n('alert_duplicate-key');
+                                            return validation;
+                                        }}
                                         onApply={(next) => {
                                             change({
                                                 ...value,

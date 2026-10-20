@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react';
 import type {IconProps} from '@gravity-ui/uikit';
-import type {AttachmentsProps} from './attachments';
+import type {AttachItem, AttachmentsProps} from './attachments';
 import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
 import type {QuerySettingsCustomFieldsContext, QuerySettingsProps} from './querySettings';
 import type {QueryParametersProps} from './queryParameters';
@@ -45,84 +45,86 @@ export type QueryEditorOptions = Omit<
     'model' | 'value' | 'language' | 'theme' | 'readOnly' | 'automaticLayout'
 >;
 
-export type QueryEditorProps<TCustom extends object = Record<string, unknown>> =
-    MonacoEditorIntegrationProps & {
-        value: string;
-        onChange: (value: string) => void;
-        clusters: QueryEditorCluster[];
-        clusterId?: string;
-        onClusterChange: (id: string) => void;
-        engines: QueryEditorEngine<TCustom>[];
-        engineId?: string;
-        onEngineChange: (id: string) => void;
-        onRun: () => void;
-        onFormat?: () => void;
-        onValidate?: () => void;
-        /** Omit built-in actions from the toolbar. External editor commands are unaffected. */
-        hiddenActions?: Array<'run' | 'format' | 'validate'>;
-        /** Unmount these panels and hide their toolbar buttons. */
-        hiddenPanels?: Array<Exclude<QueryEditorPanel, null>>;
-        actionStates?: Partial<Record<'run' | 'format' | 'validate', QueryEditorActionState>>;
-        additionalActions?: QueryEditorMenuAction[];
-        rightActions?: QueryEditorToolbarAction[];
-        /** Enables the built-in Save / Save as menu. The application owns persistence. */
-        saveProps?: QueryEditorActionState & {
-            onSave: () => void;
-            onSaveAs: () => void;
-        };
-        /** Enables the built-in share action. The editor manages popup visibility and anchoring. */
-        shareProps?: Omit<QueryShareProps, 'open' | 'onClose' | 'anchorElement'>;
-        onCodeAssistantClick?: () => void;
-        readOnly?: boolean;
-        editorOptions?: QueryEditorOptions;
-        /** Controlled active panel; null closes all panels. Omit to manage it internally. */
-        activePanel?: QueryEditorPanel;
-        /** Initial uncontrolled panel. Defaults to null (closed). */
-        defaultActivePanel?: QueryEditorPanel;
-        onActivePanelChange?: (panel: QueryEditorPanel) => void;
-        /** Controlled preferred width in pixels; constrained to available space. */
-        panelWidth?: number;
-        /** Initial uncontrolled width. Defaults to 320px. */
-        defaultPanelWidth?: number;
-        onPanelWidthChange?: (width: number) => void;
-        /** The parent supplies a bounded height through its layout or this class. */
-        className?: string;
-    } & (
-            | {
-                  /** Full custom content below the Settings heading; excludes the built-in form. */
-                  settings?: ReactNode;
-                  settingsProps?: never;
-              }
-            | {
-                  settings?: never;
-                  /** Built-in controlled form. Engine fields precede renderCustomFields from these props. */
-                  settingsProps: QuerySettingsProps<TCustom>;
-              }
-        ) &
-        (
-            | {
-                  /** Custom content below the Attachments heading; excludes the built-in module. */
-                  attachments?: ReactNode;
-                  attachmentsProps?: never;
-              }
-            | {
-                  attachments?: never;
-                  /** Forwarded to Attachments, including both lists and their change callback. */
-                  attachmentsProps: AttachmentsProps;
-              }
-        ) &
-        (
-            | {
-                  /** Custom content below the Parameters heading; excludes the built-in module. */
-                  parameters?: ReactNode;
-                  parametersProps?: never;
-              }
-            | {
-                  parameters?: never;
-                  /** Controlled parameters form. The editor owns the panel heading and close action. */
-                  parametersProps: Omit<
-                      QueryParametersProps,
-                      'onClose' | 'expanded' | 'onExpandedChange'
-                  >;
-              }
-        );
+export type QueryEditorProps<
+    TCustom extends object = Record<string, unknown>,
+    TAttachment extends AttachItem = AttachItem,
+> = MonacoEditorIntegrationProps & {
+    value: string;
+    onChange: (value: string) => void;
+    clusters: QueryEditorCluster[];
+    clusterId?: string;
+    onClusterChange: (id: string) => void;
+    engines: QueryEditorEngine<TCustom>[];
+    engineId?: string;
+    onEngineChange: (id: string) => void;
+    onRun: () => void;
+    onFormat?: () => void;
+    onValidate?: () => void;
+    /** Omit built-in actions from the toolbar. External editor commands are unaffected. */
+    hiddenActions?: Array<'run' | 'format' | 'validate'>;
+    /** Unmount these panels and hide their toolbar buttons. */
+    hiddenPanels?: Array<Exclude<QueryEditorPanel, null>>;
+    actionStates?: Partial<Record<'run' | 'format' | 'validate', QueryEditorActionState>>;
+    additionalActions?: QueryEditorMenuAction[];
+    rightActions?: QueryEditorToolbarAction[];
+    /** Enables the built-in Save / Save as menu. The application owns persistence. */
+    saveProps?: QueryEditorActionState & {
+        onSave: () => void;
+        onSaveAs: () => void;
+    };
+    /** Enables the built-in share action. The editor manages popup visibility and anchoring. */
+    shareProps?: Omit<QueryShareProps, 'open' | 'onClose' | 'anchorElement'>;
+    onCodeAssistantClick?: () => void;
+    readOnly?: boolean;
+    editorOptions?: QueryEditorOptions;
+    /** Controlled active panel; null closes all panels. Omit to manage it internally. */
+    activePanel?: QueryEditorPanel;
+    /** Initial uncontrolled panel. Defaults to null (closed). */
+    defaultActivePanel?: QueryEditorPanel;
+    onActivePanelChange?: (panel: QueryEditorPanel) => void;
+    /** Controlled preferred width in pixels; constrained to available space. */
+    panelWidth?: number;
+    /** Initial uncontrolled width. Defaults to 320px. */
+    defaultPanelWidth?: number;
+    onPanelWidthChange?: (width: number) => void;
+    /** The parent supplies a bounded height through its layout or this class. */
+    className?: string;
+} & (
+        | {
+              /** Full custom content below the Settings heading; excludes the built-in form. */
+              settings?: ReactNode;
+              settingsProps?: never;
+          }
+        | {
+              settings?: never;
+              /** Built-in controlled form. Engine fields precede renderCustomFields from these props. */
+              settingsProps: QuerySettingsProps<TCustom>;
+          }
+    ) &
+    (
+        | {
+              /** Custom content below the Attachments heading; excludes the built-in module. */
+              attachments?: ReactNode;
+              attachmentsProps?: never;
+          }
+        | {
+              attachments?: never;
+              /** Forwarded to Attachments, including both lists and their change callback. */
+              attachmentsProps: AttachmentsProps<TAttachment>;
+          }
+    ) &
+    (
+        | {
+              /** Custom content below the Parameters heading; excludes the built-in module. */
+              parameters?: ReactNode;
+              parametersProps?: never;
+          }
+        | {
+              parameters?: never;
+              /** Controlled parameters form. The editor owns the panel heading and close action. */
+              parametersProps: Omit<
+                  QueryParametersProps,
+                  'onClose' | 'expanded' | 'onExpandedChange'
+              >;
+          }
+    );

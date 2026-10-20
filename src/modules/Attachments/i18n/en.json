@@ -3,5 +3,13 @@
   "action_add-link": "Link",
   "action_remove-all": "Remove all",
   "title_current": "Current",
-  "title_deleted": "Deleted"
+  "title_deleted": "Deleted",
+  "action_select-file": "Choose local file",
+  "action_create-file": "Create empty file",
+  "action_retry": "Retry",
+  "value_pending": "Processing file",
+  "value_success": "File added",
+  "alert_file-error": "Could not process file",
+  "alert_duplicate-name": "An attachment with this name already exists",
+  "alert_invalid-id": "An attachment with this ID already exists"
 }

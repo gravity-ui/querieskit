@@ -6,13 +6,13 @@ export type AttachmentListProps<T extends Attachment = Attachment> = Omit<
     ListProps<T>,
     'items' | 'selectedItemIndex' | 'virtualized'
 > & {
-    attachments: Attachment[];
+    attachments: T[];
     className?: string;
-    onDelete?: (attachment: Attachment) => void;
-    onEdit?: (attachment: Attachment) => void;
-    onRevert?: (attachment: Attachment) => void;
+    onDelete?: (attachment: T) => void;
+    onEdit?: (attachment: T) => void;
+    onRevert?: (attachment: T) => void;
 
-    renderEditForm?: (attachment: Attachment) => ReactNode;
+    renderEditForm?: (attachment: T) => ReactNode;
 
     wasAddedIds?: string[];
     wasEditedIds?: string[];

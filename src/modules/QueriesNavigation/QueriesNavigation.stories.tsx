@@ -416,3 +416,86 @@ export const CustomDetailResolver: Story = {render: () => <CustomDetailResolverS
 export const CustomHeaderActions: Story = {render: () => <CustomHeaderActionsStory />};
 export const LinkedBreadcrumbs: Story = {render: () => <LinkedBreadcrumbsStory />};
 export const ParentRowDuringSearch: Story = {render: () => <ParentRowDuringSearchStory />};
+
+const ExtendedStandardRowsStory = () => {
+    const [location, setLocation] = useState<NavigationLocation>({
+        cluster: 'main',
+        path: '/documents',
+    });
+    const [items, setItems] = useState([
+        {
+            path: '/documents/report',
+            title: 'A very long report title that needs truncation',
+            target: '/archive/reports/an/equally/long/destination',
+            favorite: true,
+        },
+        {path: '/documents/readme', title: 'Readme', target: '/archive/readme', favorite: false},
+        {
+            path: '/documents/disabled',
+            title: 'Unavailable',
+            target: '/archive/unavailable',
+            favorite: false,
+            disabled: true,
+        },
+        {
+            path: '/documents/broken',
+            title: 'Broken shortcut',
+            target: '/missing/destination',
+            favorite: false,
+            kind: 'link' as const,
+            targetPathBroken: true,
+        },
+    ]);
+    return (
+        <div style={{width: 320, height: 400}}>
+            <QueriesNavigation
+                location={location}
+                onUpdate={setLocation}
+                items={items}
+                onItemClick={action('open-item')}
+                header={{
+                    actions: defaultActions,
+                    renderMenuTrigger: () => (
+                        <DropdownMenu
+                            items={[{text: 'Application action', action: action('header-menu')}]}
+                            renderSwitcher={(props) => (
+                                <Button {...props} view="flat" size="s">
+                                    Menu
+                                </Button>
+                            )}
+                        />
+                    ),
+                }}
+                getItemRowConfig={(item) => ({
+                    description: item.target,
+                    indicators: item.favorite ? <Text aria-label="Favorite">★</Text> : undefined,
+                    actions: [
+                        {
+                            id: 'favorite',
+                            title: item.favorite ? 'Remove from favorites' : 'Add to favorites',
+                            content: item.favorite ? '★' : '☆',
+                            onClick: (original) =>
+                                setItems((current) =>
+                                    current.map((value) =>
+                                        value.path === original.path
+                                            ? {...value, favorite: !value.favorite}
+                                            : value,
+                                    ),
+                                ),
+                        },
+                    ],
+                    menuActions: [
+                        {
+                            id: 'copy',
+                            title: 'Copy path',
+                            content: '⧉',
+                            onClick: action('copy-path'),
+                        },
+                    ],
+                })}
+            />
+        </div>
+    );
+};
+
+export const ExtendedStandardRows: Story = {render: () => <ExtendedStandardRowsStory />};

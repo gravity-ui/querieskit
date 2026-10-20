@@ -1,3 +1,8 @@
 {
-    "action_configure-visible-fields": "Настроить видимые поля"
+  "action_configure-visible-fields": "Настроить видимые поля",
+  "field_search": "Поиск полей",
+  "context_selected": "Выбрано",
+  "context_no-fields": "Поля не найдены",
+  "action_apply": "Применить",
+  "action_cancel": "Отмена"
 }

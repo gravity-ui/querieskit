@@ -98,8 +98,8 @@ export const QueriesList = <T extends QueryListRow>({
                         actions={
                             visibleFields && (
                                 <FieldsSelector
-                                    {...visibleFields}
                                     buttonView={isPanel ? 'flat' : 'normal'}
+                                    {...visibleFields}
                                 />
                             )
                         }

@@ -71,11 +71,11 @@ export const FileEdit = ({
                 onUpdate={handleChangeFileName}
             />
 
-            <Button view="flat" onClick={handleAccept}>
+            <Button aria-label={i18n('action_save')} view="flat" onClick={handleAccept}>
                 <Icon data={Check} />
             </Button>
 
-            <Button view="flat" onClick={onCancel}>
+            <Button aria-label={i18n('action_cancel')} view="flat" onClick={onCancel}>
                 <Icon data={Xmark} />
             </Button>
         </Flex>

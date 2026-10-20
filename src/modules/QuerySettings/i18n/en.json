@@ -16,5 +16,6 @@
   "action_remove-attribute": "Remove attribute {{index}}",
   "action_edit-attribute": "Edit attribute {{index}}",
   "action_apply-attribute": "Apply attribute {{index}}",
-  "action_cancel-attribute": "Cancel editing attribute {{index}}"
+  "action_cancel-attribute": "Cancel editing attribute {{index}}",
+  "alert_duplicate-key": "This key already exists"
 }

@@ -1,3 +1,4 @@
+import type {AttachItem} from '../../types/attachments';
 import type {VcsItem} from '../../types/queriesVcs';
 import React, {useId} from 'react';
 import {LayoutColumns} from '@gravity-ui/icons';
@@ -39,6 +40,55 @@ export function QueryPage<
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TVcs extends VcsItem = VcsItem,
+    TAttachment extends AttachItem = AttachItem,
+>(
+    props: QueryPageProps<
+        THistory,
+        TSaved,
+        TNavigation,
+        TCluster,
+        TTutorial,
+        TCustom,
+        TRow,
+        TMetaItem,
+        TVcs,
+        TAttachment
+    >,
+): React.JSX.Element;
+export function QueryPage<
+    THistory extends QueryHistoryRow = QueryHistoryRow,
+    TSaved extends SavedQuery = SavedQuery,
+    TNavigation extends NavigationItem = NavigationItem,
+    TCluster extends NavigationCluster = NavigationCluster,
+    TTutorial extends TutorialHistoryRow = TutorialHistoryRow,
+    TCustom extends object = Record<string, unknown>,
+    TRow extends Record<string, unknown> = Record<string, unknown>,
+    TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+    TVcs extends VcsItem = VcsItem,
+>(
+    props: QueryPageProps<
+        THistory,
+        TSaved,
+        TNavigation,
+        TCluster,
+        TTutorial,
+        TCustom,
+        TRow,
+        TMetaItem,
+        TVcs
+    >,
+): React.JSX.Element;
+export function QueryPage<
+    THistory extends QueryHistoryRow = QueryHistoryRow,
+    TSaved extends SavedQuery = SavedQuery,
+    TNavigation extends NavigationItem = NavigationItem,
+    TCluster extends NavigationCluster = NavigationCluster,
+    TTutorial extends TutorialHistoryRow = TutorialHistoryRow,
+    TCustom extends object = Record<string, unknown>,
+    TRow extends Record<string, unknown> = Record<string, unknown>,
+    TMetaItem extends NavigationMetaItem = NavigationMetaItem,
+    TVcs extends VcsItem = VcsItem,
+    TAttachment extends AttachItem = AttachItem,
 >({
     sidebarProps,
     historyActions,
@@ -59,7 +109,8 @@ export function QueryPage<
     TCustom,
     TRow,
     TMetaItem,
-    TVcs
+    TVcs,
+    TAttachment
 >) {
     const {tabs: sidebarTabs, deleteConfirmation} = useHistoryActions(
         sidebarProps.tabs,

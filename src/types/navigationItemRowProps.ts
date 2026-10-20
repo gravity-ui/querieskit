@@ -1,5 +1,7 @@
-import type {NavigationItem} from './navigation';
+import type {NavigationItem, NavigationItemRowConfig} from './navigation';
 
-export type NavigationItemRowProps = {
-    item: NavigationItem;
-};
+export type NavigationItemRowProps<T extends NavigationItem = NavigationItem> =
+    NavigationItemRowConfig<T> & {
+        item: T;
+        className?: string;
+    };

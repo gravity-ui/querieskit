@@ -179,4 +179,58 @@ describe('NavigationHeader actions', () => {
             actions: [headerAction, configAction],
         });
     });
+    it('adds a menu trigger beside standard buttons and preserves renderer precedence', () => {
+        const action = makeAction('standard');
+        const renderMenuTrigger = vi.fn(() => <button>Custom menu</button>);
+        act(() =>
+            root.render(
+                <NavigationHeader
+                    location={LOCATION}
+                    onUpdate={vi.fn()}
+                    actions={[action]}
+                    renderMenuTrigger={renderMenuTrigger}
+                />,
+            ),
+        );
+        expect(container.querySelector('[aria-label="standard"]')).not.toBeNull();
+        expect(container.textContent).toContain('Custom menu');
+        expect(renderMenuTrigger).toHaveBeenCalledWith({location: LOCATION, actions: [action]});
+        renderMenuTrigger.mockClear();
+        act(() =>
+            root.render(
+                <NavigationHeader
+                    location={LOCATION}
+                    onUpdate={vi.fn()}
+                    actions={[action]}
+                    renderMenuTrigger={renderMenuTrigger}
+                    renderActions={() => null}
+                />,
+            ),
+        );
+        expect(container.querySelector('button')).toBeNull();
+        expect(renderMenuTrigger).not.toHaveBeenCalled();
+    });
+
+    it('passes the additional trigger through detail with merged actions', () => {
+        const inherited = makeAction('inherited');
+        const extra = makeAction('extra');
+        const renderMenuTrigger = vi.fn(() => <button>Menu</button>);
+        const item = {path: '/opened', title: 'opened'};
+        act(() =>
+            root.render(
+                <QueriesNavigation
+                    location={LOCATION}
+                    onUpdate={vi.fn()}
+                    header={{actions: [inherited], renderMenuTrigger}}
+                    detail={{openedItem: item, resolve: () => ({tabs: [], actions: [extra]})}}
+                />,
+            ),
+        );
+        expect(renderMenuTrigger).toHaveBeenLastCalledWith({
+            location: {...LOCATION, path: item.path},
+            actions: [inherited, extra],
+        });
+        expect(container.querySelector('[aria-label="inherited"]')).not.toBeNull();
+        expect(container.querySelector('[aria-label="extra"]')).not.toBeNull();
+    });
 });

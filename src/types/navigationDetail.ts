@@ -14,6 +14,7 @@ export type NavigationDetailProps = {
     onLoadSuggestions?: LoadPathSuggestions;
     actions?: NavigationHeaderAction[];
     renderActions?: RenderNavigationHeaderActions;
+    renderMenuTrigger?: RenderNavigationHeaderActions;
     getBreadcrumbHref?: GetNavigationBreadcrumbHref;
     activeTab?: string;
     onTabUpdate?: (tab: string) => void;

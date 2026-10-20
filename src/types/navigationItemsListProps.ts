@@ -1,5 +1,6 @@
 import type React from 'react';
 import type {
+    GetNavigationItemRowConfig,
     NavigationItem,
     NavigationParentRowConfig,
     NavigationSortOrder,
@@ -20,6 +21,7 @@ export type NavigationItemsListProps<T extends NavigationItem = NavigationItem> 
     onLoadMore?: () => void;
     emptyContent?: React.ReactNode;
     renderRowItem?: RenderNavigationItem<T>;
+    getItemRowConfig?: GetNavigationItemRowConfig<T>;
     onItemClick?: (item: T) => void;
     className?: string;
 };

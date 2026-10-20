@@ -3,5 +3,13 @@
   "action_add-link": "Ссылка",
   "action_remove-all": "Удалить все",
   "title_current": "Текущие",
-  "title_deleted": "Удалённые"
+  "title_deleted": "Удалённые",
+  "action_select-file": "Выбрать локальный файл",
+  "action_create-file": "Создать пустой файл",
+  "action_retry": "Повторить",
+  "value_pending": "Обработка файла",
+  "value_success": "Файл добавлен",
+  "alert_file-error": "Не удалось обработать файл",
+  "alert_duplicate-name": "Вложение с таким именем уже существует",
+  "alert_invalid-id": "Вложение с таким ID уже существует"
 }

@@ -1,3 +1,8 @@
 {
-    "action_configure-visible-fields": "Configure visible fields"
+  "action_configure-visible-fields": "Configure visible fields",
+  "field_search": "Search fields",
+  "context_selected": "Selected",
+  "context_no-fields": "No fields found",
+  "action_apply": "Apply",
+  "action_cancel": "Cancel"
 }

@@ -1,4 +1,5 @@
 import type {
+    GetNavigationItemRowConfig,
     NavigationCluster,
     NavigationDetailPanelConfig,
     NavigationHeaderConfig,
@@ -28,6 +29,7 @@ export type QueriesNavigationProps<
     parentRow?: NavigationParentRowConfig;
     renderClusterItem?: RenderNavigationCluster<TCluster>;
     renderNavigationItem?: RenderNavigationItem<TItem>;
+    getItemRowConfig?: GetNavigationItemRowConfig<TItem>;
     onClusterClick?: (cluster: TCluster) => void;
     onItemClick?: (item: TItem) => void;
     className?: string;

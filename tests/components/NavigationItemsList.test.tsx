@@ -10,6 +10,7 @@ import type {NavigationItem} from '../../src/types/navigation';
 type LazyListProps = {
     items: NavigationItem[];
     isEmpty?: boolean;
+    itemHeight: (item: NavigationItem) => number;
     emptyContent?: React.ReactNode;
     renderItem: (item: NavigationItem, isActive: boolean, index: number) => React.ReactNode;
     onItemClick?: (item: NavigationItem, index: number) => void;
@@ -122,5 +123,38 @@ describe('NavigationItemsList parent row', () => {
 
         renderList({path: undefined, search: undefined});
         expect(lazyListState.props?.items).toEqual([ITEM]);
+    });
+    it('resolves only application items and uses 48px only for descriptions', () => {
+        const getItemRowConfig = vi.fn(() => ({description: '/target'}));
+        renderList({getItemRowConfig});
+        const [parent, item] = lazyListState.props!.items;
+        expect(getItemRowConfig).toHaveBeenCalledTimes(1);
+        expect(getItemRowConfig).toHaveBeenCalledWith(ITEM);
+        expect(lazyListState.props!.itemHeight(parent)).toBe(32);
+        expect(lazyListState.props!.itemHeight(item)).toBe(48);
+        renderList();
+        expect(lazyListState.props!.itemHeight(ITEM)).toBe(32);
+        getItemRowConfig.mockClear();
+        renderList({items: [], getItemRowConfig});
+        expect(getItemRowConfig).not.toHaveBeenCalled();
+    });
+    it('keeps configuration for retained list items after equal replacement objects', () => {
+        const action = vi.fn();
+        const replacement = {...ITEM};
+        renderList({
+            items: [replacement],
+            getItemRowConfig: () => ({
+                description: '/target',
+                actions: [{id: 'favorite', title: 'Favorite', content: '*', onClick: action}],
+            }),
+        });
+        // UIKit retains its old object when the new items are deeply equal.
+        expect(lazyListState.props!.itemHeight(ITEM)).toBe(48);
+        const row = lazyListState.props!.renderItem(ITEM, false, 0);
+        act(() => root.render(<>{row}</>));
+        const button = container.querySelector<HTMLButtonElement>('[aria-label="Favorite"]');
+        expect(button).not.toBeNull();
+        act(() => button!.click());
+        expect(action.mock.calls[0][0]).toBe(replacement);
     });
 });

@@ -17,6 +17,7 @@ export const AttachmentListPlaceholder = ({
     linkText: customerLinkText,
     className,
     onAddFile,
+    addFileText,
     onAddLink,
     qa,
 }: AttachmentListPlaceholderProps) => {
@@ -50,7 +51,7 @@ export const AttachmentListPlaceholder = ({
             <Flex gap={2}>
                 <Button onClick={onAddFile}>
                     <Icon data={Plus} />
-                    {i18n('action_add-file')}
+                    {addFileText ?? i18n('action_add-file')}
                 </Button>
 
                 <Button onClick={onAddLink} view="outlined">

@@ -25,6 +25,7 @@ export const EditLinkItem = ({
     onCancel,
     onChange,
     tokens,
+    tokenRequired,
     values: customerValues,
     validator = objectLinkValidator,
     defaultValues,
@@ -51,7 +52,7 @@ export const EditLinkItem = ({
 
     const wasSubmittedRef = useRef(false);
 
-    const isTokenRequired = tokens && tokens?.length > 0;
+    const isTokenRequired = tokenRequired ?? Boolean(tokens?.length);
 
     const handleUpdate = (key: string, patcValue: string) => {
         const newValues: EditLinkValues = {...values, [key]: patcValue};
@@ -155,6 +156,7 @@ export const EditLinkItem = ({
                 label={nameLabel}
                 hasClear
                 error={errors?.name}
+                errorMessage={errors?.name}
                 onKeyDown={handleInputKeyDown}
                 onUpdate={(v) => handleUpdate('name', v)}
             />
