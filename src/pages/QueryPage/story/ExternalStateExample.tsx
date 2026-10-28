@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Button, Flex, Progress, Text, TextInput} from '@gravity-ui/uikit';
 import type {editor} from 'monaco-editor';
+import {KeyCode, KeyMod} from 'monaco-editor/editor/editor.api';
 import {QueryPage} from '..';
 import {MonacoEditor} from '../../../components/MonacoEditor';
 import {createQueryEditorPreset} from '../../../helpers/queryEditorPreset';
@@ -169,6 +170,10 @@ export function ExternalStateExample() {
                                 executionPanelHeight: resultHeight,
                                 onExecutionPanelHeightChange: setResultHeight,
                                 editorProps: {
+                                    active: !fileExpanded,
+                                    // Monaco encodes modifiers and keys as a bitmask.
+                                    // eslint-disable-next-line no-bitwise
+                                    shortcuts: {run: [KeyMod.CtrlCmd | KeyCode.Enter]},
                                     value,
                                     onChange: setValue,
                                     engines,

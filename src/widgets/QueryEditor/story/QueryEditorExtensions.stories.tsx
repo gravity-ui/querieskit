@@ -275,3 +275,23 @@ function StatusExample() {
     );
 }
 export const StatusExtension: Story = {render: () => <StatusExample />};
+
+export const Commands: Story = {
+    render: () => (
+        <Example
+            // Monaco combines modifiers and key codes as a bitmask.
+            // eslint-disable-next-line no-bitwise
+            shortcuts={{run: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter]}}
+            commands={[
+                {
+                    id: 'explain',
+                    label: 'Explain',
+                    keybindings: [monaco.KeyCode.F8],
+                    run: () => {
+                        action('explain')();
+                    },
+                },
+            ]}
+        />
+    ),
+};

@@ -268,3 +268,40 @@ lifecycle and disposal responsibility.
 `onFormat` and `onValidate` are optional. Existing component usages that supply them
 continue to work. Consumer wrappers reading callbacks from `QueryEditorProps` must
 now guard calls, for example `props.onFormat?.()`, instead of assuming a callback exists.
+
+## Commands and opt-in shortcuts
+
+`shortcuts` binds the existing Run, Validate and Format handlers using Monaco
+numeric `KeyMod` / `KeyCode` combinations. Nothing is bound by default. Use `false`
+or omit an action to disable its shortcut. `hiddenActions` only hides toolbar
+buttons; explicitly configured shortcuts remain available.
+
+```tsx
+<QueryEditor
+  {...editorProps}
+  shortcuts={{run: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter], format: false}}
+  commands={[{
+    id: 'explain',
+    label: 'Explain',
+    keybindings: [monaco.KeyCode.F8],
+    disabled: explaining,
+    run: () => explain(),
+  }]}
+/>
+```
+
+Commands run only with text focus in this editor and while `active !== false`.
+Built-in commands respect the same `actionStates` as toolbar buttons; custom
+commands expose `disabled` and `loading`. Replacing handlers or bindings updates
+actions without recreating Monaco. Removing a command, replacing its extension,
+or unmounting the editor disposes registrations. IDs must be unique; the
+`querieskit.` prefix is reserved for built-in commands.
+
+`QueryPage` disables commands in inactive tabs and while expanded results hide
+the editor. A custom workspace that covers the editor must also set
+`editorProps.active=false`. Global hotkey scopes and backend submission guards
+remain the application's responsibility.
+
+For standalone Monaco integrations, import `createEditorCommandsExtension` from
+`@gravity-ui/querieskit/helpers/createEditorCommandsExtension` and pass the result
+in `extensions`. Replace the extension when its handlers or availability change.

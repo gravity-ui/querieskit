@@ -97,7 +97,10 @@ function StandardQueryWorkspace<
         >
             <div className={block('editor-region')} hidden={showExpanded}>
                 <div className={block('editor')}>
-                    <QueryEditor {...editorProps} />
+                    <QueryEditor
+                        {...editorProps}
+                        active={active && !showExpanded && editorProps.active !== false}
+                    />
                 </div>
             </div>
             <div

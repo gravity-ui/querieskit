@@ -2,6 +2,8 @@ import React, {useEffect, useId, useMemo, useState} from 'react';
 import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
+import {createEditorCommandsExtension} from '../../helpers/createEditorCommandsExtension';
+import type {EditorCommand} from '../../types/editorCommands';
 import {MonacoEditor} from '../../components/MonacoEditor';
 import {Attachments} from '../../modules/Attachments';
 import type {AttachItem} from '../../types/attachments';
@@ -108,6 +110,40 @@ export function QueryEditor<
         [props.providerContext, language, props.engineId, props.clusterId],
     );
 
+    const commandExtension = useMemo(() => {
+        const commands: EditorCommand[] = [...(props.commands ?? [])];
+        const handlers = {run: props.onRun, format: props.onFormat, validate: props.onValidate};
+        for (const id of ['run', 'format', 'validate'] as const) {
+            const keybindings = props.shortcuts?.[id];
+            const handler = handlers[id];
+            if (keybindings && keybindings.length && handler) {
+                commands.push({
+                    id: `querieskit.${id}`,
+                    label: i18n(`action_${id}`),
+                    keybindings,
+                    run: handler,
+                    ...props.actionStates?.[id],
+                });
+            }
+        }
+        return commands.length
+            ? createEditorCommandsExtension(commands, {active: props.active})
+            : undefined;
+    }, [
+        props.commands,
+        props.shortcuts,
+        props.onRun,
+        props.onFormat,
+        props.onValidate,
+        props.actionStates,
+        props.active,
+    ]);
+    const extensions = useMemo(
+        () =>
+            commandExtension ? [...(props.extensions ?? []), commandExtension] : props.extensions,
+        [props.extensions, commandExtension],
+    );
+
     return (
         <Flex direction="column" className={block(null, props.className)}>
             <QueryEditorSplit
@@ -166,7 +202,7 @@ export function QueryEditor<
                     preset={props.preset}
                     providers={props.providers}
                     providerContext={providerContext}
-                    extensions={props.extensions}
+                    extensions={extensions}
                     showStatusBar={props.showStatusBar}
                     diagnostics={props.diagnostics}
                     highlightErrorLines={props.highlightErrorLines}

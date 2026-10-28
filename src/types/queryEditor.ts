@@ -1,3 +1,4 @@
+import type {EditorCommand, QueryEditorShortcuts} from './editorCommands';
 import type {ReactNode} from 'react';
 import type {IconProps} from '@gravity-ui/uikit';
 import type {AttachItem, AttachmentsProps} from './attachments';
@@ -66,6 +67,11 @@ export type QueryEditorProps<
     engines: QueryEditorEngine<TCustom, TValue>[];
     engineId?: string;
     onEngineChange: (id: string) => void;
+    /** Whether this editor may execute its commands. Defaults to true. */
+    active?: boolean;
+    /** Opt-in bindings for existing toolbar actions. No bindings are installed by default. */
+    shortcuts?: QueryEditorShortcuts;
+    commands?: EditorCommand[];
     onRun: () => void;
     onFormat?: () => void;
     onValidate?: () => void;
