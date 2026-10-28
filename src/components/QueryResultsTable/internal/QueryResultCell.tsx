@@ -10,6 +10,7 @@ import {
     formatQueryResultValue,
 } from '../helpers/formatQueryResultValue';
 import i18n from '../i18n';
+import {resolveQueryResultCellType} from '../helpers/resolveQueryResultCellType';
 
 import './QueryResultCell.scss';
 
@@ -36,6 +37,7 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
     collapseAfterLines,
     maxInlineTextLength,
     getCellOptions,
+    getCellType,
     onCellPreview,
 }: QueryResultCellProps<TRow>) {
     const contentId = useId();
@@ -44,11 +46,15 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
     const [previewError, setPreviewError] = useState(false);
     const request = useRef<object | null>(null);
     const context = useMemo(() => ({row, value, index, column}), [row, value, index, column]);
+    const type = useMemo(
+        () => resolveQueryResultCellType(context, getCellType),
+        [context, getCellType],
+    );
     const formatted = useMemo<FormattedQueryResultValue>(() => {
         try {
             return formatQueryResultValue(
                 value,
-                column.type,
+                type,
                 formatterSettings,
                 getCellOptions?.(context),
                 maxInlineTextLength,
@@ -56,11 +62,11 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
         } catch {
             return {error: true as const, html: '', text: ''};
         }
-    }, [value, column.type, formatterSettings, getCellOptions, context, maxInlineTextLength]);
+    }, [value, type, formatterSettings, getCellOptions, context, maxInlineTextLength]);
     const {isIncomplete, tag} = cellMetadata(formatted);
     // YQL types are wire tuples: equivalent inline column definitions must not
     // reset expansion or invalidate an in-flight preview on a parent render.
-    const columnTypeKey = JSON.stringify(column.type);
+    const columnTypeKey = JSON.stringify(type);
 
     useLayoutEffect(() => {
         setExpanded(false);
@@ -79,7 +85,7 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
         setLoading(true);
         setPreviewError(false);
         try {
-            await onCellPreview({...context, isIncomplete, tag});
+            await onCellPreview({...context, type, isIncomplete, tag});
         } catch {
             if (request.current === token) setPreviewError(true);
         } finally {

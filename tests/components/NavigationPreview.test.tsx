@@ -35,6 +35,22 @@ describe('NavigationPreview integration', () => {
     function render(content: React.ReactNode) {
         act(() => root.render(<ThemeProvider>{content}</ThemeProvider>));
     }
+    it('searches and displays heterogeneous cell types using the same resolver', () => {
+        const rows = [{value: 'plain'}, {value: ['typed match']}];
+        render(
+            <NavigationPreview
+                data={{columns: [{name: 'value', type: ['DataType', 'Utf8']}], rows}}
+                search="typed match"
+                view={{
+                    getCellType: ({row}) =>
+                        Array.isArray(row.value) ? ['ListType', ['DataType', 'Utf8']] : undefined,
+                }}
+            />,
+        );
+        expect(container.textContent).toContain('typed match');
+        expect(container.textContent).not.toContain('plain');
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+    });
     it('searches displayed columns only and restores rows when cleared', () => {
         const show = (search: string, visibleColumns = ['name', 'count']) =>
             render(

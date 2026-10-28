@@ -102,6 +102,45 @@ describe.each(['table', 'results', 'navigation'] as const)('%s standard cells', 
             button(name)!.click();
         });
     }
+    it('uses the effective cell type for display, copy and preview without changing the column', async () => {
+        const preview = vi.fn();
+        const type = ['ListType', ['DataType', 'Utf8']] as const;
+        render({
+            rows: [{value: ['typed value']}],
+            getCellType: () => type,
+            maxInlineTextLength: 0,
+            onCellPreview: preview,
+        });
+        await click('Copy');
+        expect(copied.mock.calls[0][0]).toContain('typed value');
+        await click('Preview');
+        expect(preview.mock.calls[0][0]).toMatchObject({type, column: columns[0]});
+        render({getCellType: () => undefined});
+        expect(container.textContent).toContain('hello');
+    });
+    it('does not resolve a type for a custom renderer', () => {
+        const getCellType = vi.fn();
+        render({
+            columns: [{...columns[0], render: () => 'custom cell'}],
+            getCellType,
+        });
+        expect(container.textContent).toContain('custom cell');
+        expect(getCellType).not.toHaveBeenCalled();
+    });
+    it('invalidates a pending preview when the effective cell type changes', async () => {
+        const pending = deferred();
+        const onCellPreview = vi.fn(() => pending.promise);
+        render({getCellOptions: incomplete, onCellPreview});
+        await click('Preview');
+        render({
+            getCellOptions: incomplete,
+            onCellPreview,
+            getCellType: () => ['DataType', 'String'],
+        });
+        await act(async () => pending.reject(new Error('stale preview')));
+        expect(button('Retry preview')).toBeUndefined();
+        expect(button('Preview')?.disabled).toBe(false);
+    });
     it.each([5, 8, 9])(
         'collapses %i lines at threshold eight and preserves copy',
         async (lines) => {
@@ -174,6 +213,7 @@ describe.each(['table', 'results', 'navigation'] as const)('%s standard cells', 
         await click('Preview');
         expect(preview).toHaveBeenCalledWith({
             row: initialRows[0],
+            type: columns[0].type,
             value: 'hello',
             index: 0,
             column: columns[0],
