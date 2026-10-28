@@ -110,6 +110,9 @@ export * from './types/attachmentsEditor';
 
 export type * from './types/queriesVcs';
 
+export type * from './types/editorCommands';
+export {createEditorCommandsExtension} from './helpers/createEditorCommandsExtension';
+
 export type * from './types/tabularChartSource';
 export type * from './types/chartDefinitions';
 export type * from './types/chartConfiguration';

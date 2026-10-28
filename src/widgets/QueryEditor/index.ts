@@ -10,3 +10,5 @@ export type {
     QueryEditorToolbarAction,
     QueryEditorOptions,
 } from '../../types/queryEditor';
+
+export type {EditorCommand, QueryEditorShortcuts} from '../../types/editorCommands';

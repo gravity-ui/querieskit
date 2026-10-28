@@ -905,6 +905,16 @@
         "types": "./build/cjs/helpers/chartDefinitions.d.ts",
         "default": "./build/cjs/helpers/chartDefinitions.js"
       }
+    },
+    "./helpers/createEditorCommandsExtension": {
+      "import": {
+        "types": "./build/esm/helpers/createEditorCommandsExtension.d.ts",
+        "default": "./build/esm/helpers/createEditorCommandsExtension.js"
+      },
+      "require": {
+        "types": "./build/cjs/helpers/createEditorCommandsExtension.d.ts",
+        "default": "./build/cjs/helpers/createEditorCommandsExtension.js"
+      }
     }
   },
   "files": [
@@ -925,7 +935,7 @@
     "prepublishOnly": "npm run build",
     "test:tree-shaking": "npm run build && node tests/tree-shaking/check.mjs",
     "test:timeline": "vitest run tests/helpers/queryTimeline.test.ts",
-    "test:editor-helpers": "vitest run tests/helpers/editorProviders.test.ts tests/helpers/queryEditorPreset.test.ts",
+    "test:editor-helpers": "vitest run tests/helpers/editorProviders.test.ts tests/helpers/queryEditorPreset.test.ts tests/helpers/editorCommands.test.ts",
     "test:editors:browser": "playwright test",
     "test:parameters": "vitest run tests/helpers/queryParameters.test.ts tests/helpers/parameterDate.test.ts",
     "test:types": "tsc -p tests/types",
