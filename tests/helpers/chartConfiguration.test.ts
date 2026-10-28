@@ -1,5 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {validateChartConfiguration} from '../../src/helpers/validateChartConfiguration';
+import {validateChartDefinition} from '../../src/helpers/chartDefinitions';
 import {isChartFieldsFormComplete} from '../../src/helpers/chartFieldsForm';
 import type {ChartConfiguration} from '../../src/types/chartConfiguration';
 import type {ChartFieldsFormProps} from '../../src/types/chartEditor';
@@ -14,11 +15,7 @@ const xy = {
     xTitle: 'Time',
     yTitle: 'Count',
 } satisfies ChartConfiguration;
-const pie = {
-    chartType: 'pie',
-    categoryFieldId: 'category',
-    valueFieldId: 'value',
-} as const;
+const pie = {chartType: 'pie', categoryFieldId: 'category', valueFieldId: 'value'} as const;
 const treemap = {
     chartType: 'treemap',
     levels: [{id: 'level', fieldId: 'category'}],
@@ -41,10 +38,7 @@ const configurations: ChartConfiguration[] = [
     sankey,
 ];
 const available: Pick<ChartFieldsFormProps, 'chartTypeOptions' | 'getFieldOptions'> = {
-    chartTypeOptions: configurations.map(({chartType}) => ({
-        value: chartType,
-        content: chartType,
-    })),
+    chartTypeOptions: configurations.map(({chartType}) => ({value: chartType, content: chartType})),
     getFieldOptions: () =>
         ['', 'time', 'category', 'source', 'target', 'value'].map((value) => ({
             value,
@@ -53,14 +47,20 @@ const available: Pick<ChartFieldsFormProps, 'chartTypeOptions' | 'getFieldOption
 };
 
 describe('completed chart configurations', () => {
-    it.each(configurations)('normalizes completed $chartType bindings', (configuration) => {
-        const result = validateChartConfiguration({
-            ...configuration,
-            extra: 'not persisted',
-        });
-        expect(result).toEqual({valid: true, configuration});
-        expect(isChartFieldsFormComplete(configuration, available)).toBe(true);
-    });
+    it.each(configurations)(
+        'normalizes and persists completed $chartType bindings',
+        (configuration) => {
+            const result = validateChartConfiguration({...configuration, extra: 'not persisted'});
+            expect(result).toEqual({valid: true, configuration});
+            expect(isChartFieldsFormComplete(configuration, available)).toBe(true);
+            expect(
+                validateChartDefinition({version: 1, id: 'chart', fieldsFormValues: configuration}),
+            ).toEqual({
+                valid: true,
+                definition: {version: 1, id: 'chart', fieldsFormValues: configuration},
+            });
+        },
+    );
 
     it.each([
         {...xy, dimensionFieldId: ''},
@@ -73,11 +73,12 @@ describe('completed chart configurations', () => {
     ] satisfies ChartConfiguration[])(
         'accepts custom empty-string field IDs: %j',
         (configuration) => {
-            expect(validateChartConfiguration(configuration)).toEqual({
-                valid: true,
-                configuration,
-            });
+            expect(validateChartConfiguration(configuration)).toEqual({valid: true, configuration});
             expect(isChartFieldsFormComplete(configuration, available)).toBe(true);
+            expect(
+                validateChartDefinition({version: 1, id: 'chart', fieldsFormValues: configuration})
+                    .valid,
+            ).toBe(true);
         },
     );
 
@@ -126,30 +127,36 @@ describe('completed chart configurations', () => {
         expect(result.valid).toBe(false);
         if (result.valid) throw new Error('Invalid configuration was accepted');
         expect(result.issues).toEqual([
-            {
-                code: path === 'chartType' ? 'unsupported-type' : 'invalid-definition',
-                path,
-            },
+            {code: path === 'chartType' ? 'unsupported-type' : 'invalid-definition', path},
         ]);
+        expect(validateChartDefinition({version: 1, id: 'chart', fieldsFormValues: input})).toEqual(
+            {
+                valid: false,
+                issues: result.issues.map((issue) => ({
+                    ...issue,
+                    path: path ? `fieldsFormValues.${path}` : 'fieldsFormValues',
+                })),
+            },
+        );
     });
 
     it('shares structural rejection with form completion, independently of available fields', () => {
         const invalid = {...xy, measureItems: [{id: '', fieldId: 'value'}]};
         expect(isChartFieldsFormComplete(invalid, available)).toBe(false);
         expect(validateChartConfiguration(invalid).valid).toBe(false);
+        expect(
+            validateChartDefinition({version: 1, id: 'chart', fieldsFormValues: invalid}).valid,
+        ).toBe(false);
     });
 
     it('preserves bindings when their fields are temporarily unavailable', () => {
-        expect(
-            isChartFieldsFormComplete(xy, {
-                ...available,
-                getFieldOptions: () => [],
-            }),
-        ).toBe(false);
-        expect(validateChartConfiguration(xy)).toEqual({
-            valid: true,
-            configuration: xy,
-        });
+        expect(isChartFieldsFormComplete(xy, {...available, getFieldOptions: () => []})).toBe(
+            false,
+        );
+        expect(validateChartConfiguration(xy)).toEqual({valid: true, configuration: xy});
+        expect(validateChartDefinition({version: 1, id: 'chart', fieldsFormValues: xy}).valid).toBe(
+            true,
+        );
         expect(isChartFieldsFormComplete(xy, available)).toBe(true);
     });
 
@@ -173,5 +180,16 @@ describe('completed chart configurations', () => {
             },
         });
         expect(input.measureItems[0]).toHaveProperty('extra', true);
+    });
+
+    it('retains envelope diagnostics for unsupported versions and invalid chart IDs', () => {
+        expect(validateChartDefinition({version: 2, id: 'chart', fieldsFormValues: xy})).toEqual({
+            valid: false,
+            issues: [{code: 'unsupported-version', path: 'version'}],
+        });
+        expect(validateChartDefinition({version: 1, id: '', fieldsFormValues: xy})).toEqual({
+            valid: false,
+            issues: [{code: 'invalid-definition', path: 'id'}],
+        });
     });
 });

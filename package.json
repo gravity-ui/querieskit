@@ -895,6 +895,16 @@
         "types": "./build/cjs/helpers/validateChartConfiguration.d.ts",
         "default": "./build/cjs/helpers/validateChartConfiguration.js"
       }
+    },
+    "./helpers/chartDefinitions": {
+      "import": {
+        "types": "./build/esm/helpers/chartDefinitions.d.ts",
+        "default": "./build/esm/helpers/chartDefinitions.js"
+      },
+      "require": {
+        "types": "./build/cjs/helpers/chartDefinitions.d.ts",
+        "default": "./build/cjs/helpers/chartDefinitions.js"
+      }
     }
   },
   "files": [

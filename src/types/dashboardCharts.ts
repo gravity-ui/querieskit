@@ -1,3 +1,5 @@
+import type {ChartDefinition} from './chartDefinitions';
+import type {ChartDataResolver} from './tabularChartSource';
 import type {FlexProps} from '@gravity-ui/uikit';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
 import type {DashboardProps} from './dashboard';
@@ -5,8 +7,8 @@ import type {
     ChartData,
     ChartEditorProps,
     ChartFieldsChartType,
-    ChartFieldsEditorProps,
     ChartFieldsDataSource,
+    ChartFieldsEditorProps,
     ChartFieldsFormValues,
     ChartSeries,
 } from './chartEditor';
@@ -35,27 +37,45 @@ type DashboardChartsCommonProps = {
     className?: string;
     gap?: FlexProps['gap'];
     dashboardProps?: Pick<DashboardProps, 'grid' | 'focusable' | 'className'>;
-    chartItems?: DashboardItem[];
     defaultLayout?: DashboardProps['defaultLayout'];
     layout?: DashboardProps['layout'];
-    onItemsChange?: (items: DashboardItem[]) => void;
     onLayoutChange?: (layout: ConfigLayout[]) => void;
+};
+
+type ItemStateProps = {
+    chartItems?: DashboardItem[];
+    onItemsChange?: (items: DashboardItem[]) => void;
+    chartDefinitions?: never;
+    onDefinitionsChange?: never;
+};
+type DefinitionStateProps = {
+    chartDefinitions: ChartDefinition[];
+    onDefinitionsChange: (definitions: ChartDefinition[]) => void;
+    chartItems?: never;
+    onItemsChange?: never;
 };
 
 export type DashboardChartsProps = DashboardChartsCommonProps &
     (
-        | {
+        | ({
               editorMode?: 'series';
               dataSource: {
                   [chartType in ChartSeries['type']]?: ChartEditorProps['chartSeriesMap'];
               };
               chartEditorProps?: Omit<ChartEditorProps, 'onSubmit' | 'onCancel' | 'chartSeriesMap'>;
               chartFieldsEditorProps?: never;
-          }
-        | {
+          } & ItemStateProps)
+        | ({
               editorMode: 'fields';
               chartFieldsEditorProps: DashboardChartFieldsEditorProps;
               dataSource?: never;
               chartEditorProps?: never;
-          }
+          } & (
+              | ItemStateProps
+              | (DefinitionStateProps & {
+                    chartFieldsEditorProps: DashboardChartFieldsEditorProps & {
+                        resolveChartData: ChartDataResolver;
+                    };
+                })
+          ))
     );

@@ -1,6 +1,9 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {action} from 'storybook/actions';
+import {Button, Flex} from '@gravity-ui/uikit';
+import {createTabularChartSource} from '../../../helpers/createTabularChartSource';
+import type {ChartDefinition} from '../../../types/chartDefinitions';
 
 import {DashboardCharts} from '../DashboardCharts';
 import type {DashboardChartsProps} from '../../../types/dashboardCharts';
@@ -98,6 +101,7 @@ export const FieldsEditor: Story = {
 
 function SavedFieldsDashboard(args: DashboardChartsProps) {
     const [items, setItems] = useState(args.chartItems);
+    if (args.chartDefinitions) return <DashboardCharts {...args} />;
     return (
         <div className="qp-dashboard-charts-story">
             <DashboardCharts
@@ -137,4 +141,56 @@ export const FieldsEditorSavedNonXY: Story = {
             },
         },
     },
+};
+
+function TabularDefinitionsExample() {
+    const [missing, setMissing] = useState(false);
+    const [definitions, setDefinitions] = useState<ChartDefinition[]>([
+        {
+            version: 1,
+            id: 'requests',
+            fieldsFormValues: {
+                chartType: 'line',
+                dimensionFieldId: 'time',
+                dimensionAxisType: 'datetime',
+                measureItems: [{id: 'requests', fieldId: 'count'}],
+                chartTitle: 'Requests',
+                showLegend: true,
+            },
+        },
+    ]);
+    const source = useMemo(
+        () =>
+            createTabularChartSource({
+                fields: [
+                    {id: 'time', name: 'Time', type: 'datetime' as const},
+                    ...(!missing ? [{id: 'count', name: 'Count', type: 'number' as const}] : []),
+                ],
+                rows: [
+                    {time: Date.UTC(2026, 0, 1), count: 4},
+                    {time: Date.UTC(2026, 0, 2), count: 9},
+                ],
+                getValue: (row, id) => row[id as keyof typeof row],
+            }),
+        [missing],
+    );
+    return (
+        <div className="qp-dashboard-charts-story">
+            <Flex direction="column" gap={3} height="100%">
+                <Button onClick={() => setMissing((value) => !value)}>
+                    {missing ? 'Restore count field' : 'Hide count field'}
+                </Button>
+                <DashboardCharts
+                    editorMode="fields"
+                    chartFieldsEditorProps={source}
+                    chartDefinitions={definitions}
+                    onDefinitionsChange={setDefinitions}
+                />
+            </Flex>
+        </div>
+    );
+}
+
+export const TabularDefinitions: Story = {
+    render: () => <TabularDefinitionsExample />,
 };

@@ -1,5 +1,10 @@
 import {describe, expect, it, vi} from 'vitest';
 import {createTabularChartSource} from '../../src/helpers/createTabularChartSource';
+import {
+    extractChartDefinition,
+    restoreChartDefinition,
+    validateChartDefinition,
+} from '../../src/helpers/chartDefinitions';
 import type {TabularChartField, TabularChartType} from '../../src/types/tabularChartSource';
 import type {ChartXYConfiguration} from '../../src/types/chartConfiguration';
 import {validateChartConfiguration} from '../../src/helpers/validateChartConfiguration';
@@ -23,11 +28,7 @@ const values: ChartXYConfiguration = {
     showLegend: true,
 };
 function source(rows: Record<string, unknown>[], schema = fields) {
-    return createTabularChartSource({
-        fields: schema,
-        rows,
-        getValue: (row, id) => row[id],
-    });
+    return createTabularChartSource({fields: schema, rows, getValue: (row, id) => row[id]});
 }
 
 describe('tabular chart source', () => {
@@ -77,10 +78,7 @@ describe('tabular chart source', () => {
     });
 
     it('rejects missing, nonnumeric and infinite values without converting them to zero', () => {
-        const rows = [null, undefined, '', '5', NaN, Infinity, 0].map((a) => ({
-            category: 'C',
-            a,
-        }));
+        const rows = [null, undefined, '', '5', NaN, Infinity, 0].map((a) => ({category: 'C', a}));
         const data = source(rows).getChartData({
             ...values,
             measureItems: [values.measureItems[0]],
@@ -120,9 +118,7 @@ describe('tabular chart source', () => {
             getValue: () => undefined,
             chartTypes: ['pie'],
         });
-        expect(adapter.resolveChartData(values)).toEqual({
-            status: 'unsupported-type',
-        });
+        expect(adapter.resolveChartData(values)).toEqual({status: 'unsupported-type'});
         expect(
             source([]).resolveChartData({
                 ...values,
@@ -132,8 +128,8 @@ describe('tabular chart source', () => {
     });
 });
 
-describe('tabular source appearance', () => {
-    it('leaves appearance to the editor, including through the legacy adapter', () => {
+describe('saved chart definitions', () => {
+    it('leaves appearance to the editor or restoration, including through the legacy adapter', () => {
         const adapter = source([{category: 'C', a: 1, b: 2}]);
         const result = adapter.resolveChartData(values);
         expect(result.status).toBe('ready');
@@ -142,5 +138,75 @@ describe('tabular source appearance', () => {
         expect(result.data).not.toHaveProperty('legend');
         expect(result.data.xAxis).not.toHaveProperty('title');
         expect(adapter.getChartData(values)).toEqual(result.data);
+        const restored = restoreChartDefinition(
+            {version: 1, id: 'chart', fieldsFormValues: values},
+            adapter.resolveChartData,
+        );
+        if (restored.status !== 'ready') throw new Error('Not restored');
+        expect(restored.item.chartData.title?.text).toBe(values.chartTitle);
+        expect(restored.item.chartData.legend?.enabled).toBe(true);
+        expect(restored.item.chartData.xAxis?.title?.text).toBe(values.xTitle);
+    });
+
+    it('round trips appearance and series order without persisting data', () => {
+        const adapter = source([{category: 'C', a: 1, b: 2}]);
+        const extracted = extractChartDefinition({
+            id: 'chart',
+            chartData: adapter.getChartData(values)!,
+            fieldsFormValues: values,
+        });
+        expect(extracted.valid).toBe(true);
+        if (!extracted.valid) return;
+        const parsed = validateChartDefinition(JSON.parse(JSON.stringify(extracted.definition)));
+        expect(parsed).toEqual(extracted);
+        expect(JSON.stringify(extracted.definition)).not.toContain('series');
+        const restored = restoreChartDefinition(extracted.definition, adapter.resolveChartData);
+        if (restored.status !== 'ready') throw new Error('Not restored');
+        expect(restored.item.chartData.title?.text).toBe('Saved');
+        expect(restored.item.chartData.legend?.enabled).toBe(true);
+        expect(extractChartDefinition(restored.item)).toEqual(extracted);
+    });
+
+    it('preserves temporarily missing definitions and restores them with the same ID', () => {
+        const definition = {version: 1 as const, id: 'chart', fieldsFormValues: values};
+        const result = restoreChartDefinition(definition, source([], []).resolveChartData);
+        expect(result.status).toBe('missing-fields');
+        expect(result.definition).toBe(definition);
+        const ready = restoreChartDefinition(
+            result.definition,
+            source([{category: 'C', a: 1, b: 2}]).resolveChartData,
+        );
+        expect(ready.status).toBe('ready');
+    });
+
+    it.each([
+        null,
+        {},
+        {version: 2},
+        {version: 1, id: '', fieldsFormValues: values},
+        {version: 1, id: 'x', fieldsFormValues: {...values, dimensionFieldId: undefined}},
+        {
+            version: 1,
+            id: 'x',
+            fieldsFormValues: {...values, measureItems: [{id: '', fieldId: 'a'}]},
+        },
+        {
+            version: 1,
+            id: 'x',
+            fieldsFormValues: {...values, measureItems: [{id: 'row', fieldId: null}]},
+        },
+        {version: 1, id: 'x', fieldsFormValues: {...values, chartType: 'unknown'}},
+        {
+            version: 1,
+            id: 'x',
+            fieldsFormValues: {
+                ...values,
+                measureItems: [values.measureItems[0], values.measureItems[0]],
+            },
+        },
+    ])('diagnoses invalid persisted input %j', (input) => {
+        const result = validateChartDefinition(input);
+        expect(result.valid).toBe(false);
+        if (!result.valid) expect(result.issues).toHaveLength(1);
     });
 });

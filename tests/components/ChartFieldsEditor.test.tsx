@@ -11,6 +11,7 @@ import type {
     ChartXYFormValues,
 } from '../../src/types/chartEditor';
 import {ChartFieldsEditor} from '../../src/modules/ChartFieldsEditor';
+import {restoreChartDefinition} from '../../src/helpers/chartDefinitions';
 import type {ChartXYConfiguration} from '../../src/types/chartConfiguration';
 
 const captured = vi.hoisted(() => ({
@@ -92,7 +93,7 @@ it('uses structured missing-field diagnostics without invoking the legacy adapte
 });
 
 it.each(['bar-x', 'bar-y'] as const)(
-    'uses a resolver-only source and applies appearance for %s',
+    'uses a resolver-only source and matches restored appearance for %s',
     (chartType) => {
         const configuration: ChartXYConfiguration = {...values, chartType};
         const resolveChartData = vi.fn(() => ({status: 'ready' as const, data}));
@@ -103,6 +104,12 @@ it.each(['bar-x', 'bar-y'] as const)(
             resolveChartData,
         });
         expect(resolveChartData).toHaveBeenCalledWith(configuration);
+        const restored = restoreChartDefinition(
+            {version: 1, id: 'chart', fieldsFormValues: configuration},
+            resolveChartData,
+        );
+        if (restored.status !== 'ready') throw new Error('Not restored');
+        expect(captured.chart).toEqual(restored.item.chartData);
         expect(captured.chart?.title?.text).toBe('Title');
         expect(captured.chart?.legend?.enabled).toBe(true);
         expect(captured.chart?.xAxis?.title?.text).toBe('Day');

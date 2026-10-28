@@ -14,6 +14,8 @@ import type {
 import type {DashboardChartsProps, DashboardItem} from '../../src/types/dashboardCharts';
 import type {AddChartButtonProps} from '../../src/components/AddChartButton/AddChartButton';
 import type {DashboardProps} from '../../src/components/Dashboard';
+import type {ChartDefinition} from '../../src/types/chartDefinitions';
+import type {ChartConfiguration} from '../../src/types/chartConfiguration';
 import {DashboardCharts} from '../../src/widgets/DashboardCharts/DashboardCharts';
 
 const mocks = vi.hoisted(() => ({
@@ -93,7 +95,7 @@ const chartData: ChartData = {
     yAxis: [{title: {text: 'Count'}}],
     legend: {enabled: true},
 };
-const mapping: ChartXYFormValues = {
+const mapping: ChartConfiguration = {
     chartType: 'line',
     dimensionAxisType: 'category',
     dimensionFieldId: 'day',
@@ -262,7 +264,7 @@ describe('DashboardCharts editor orchestration', () => {
             targetFieldId: 'target',
             valueFieldId: 'value',
         },
-    ] satisfies ChartSelectedFormValues[])(
+    ] satisfies ChartConfiguration[])(
         'persists and reopens the complete $chartType mapping',
         (selection) => {
             const onItemsChange = vi.fn();
@@ -419,5 +421,145 @@ describe('DashboardCharts editor orchestration', () => {
         render({...fieldsProps, chartItems: [], onItemsChange});
         expect(container.querySelector('[data-chart-id="existing"]')).toBeNull();
         expect(container.querySelector('[data-testid="empty"]')).not.toBeNull();
+    });
+    it.each([
+        {...mapping, dimensionFieldId: ''},
+        {...mapping, measureItems: [{id: 'measure', fieldId: ''}]},
+        {chartType: 'pie', categoryFieldId: '', valueFieldId: 'requests'},
+        {chartType: 'treemap', levels: [{id: 'level', fieldId: ''}], valueFieldId: 'requests'},
+    ] satisfies ChartConfiguration[])(
+        'saves and reopens a $chartType definition with an empty-string field ID',
+        (selection) => {
+            const onDefinitionsChange = vi.fn();
+            const props: DashboardChartsProps = {
+                editorMode: 'fields',
+                chartDefinitions: [],
+                onDefinitionsChange,
+                chartFieldsEditorProps: {
+                    ...fieldsProps.chartFieldsEditorProps,
+                    chartTypeOptions: [{value: selection.chartType, content: selection.chartType}],
+                    getFieldOptions: () => [
+                        {value: '', content: 'Unnamed field'},
+                        {value: 'day', content: 'Day'},
+                        {value: 'requests', content: 'Requests'},
+                        {value: 'errors', content: 'Errors'},
+                    ],
+                    resolveChartData: () => ({status: 'ready', data: chartData}),
+                },
+            };
+            render(props);
+            add(selection.chartType);
+            act(() => fieldsEditor().onSubmit?.(chartData, selection));
+            expect(onDefinitionsChange).toHaveBeenCalledExactlyOnceWith([
+                {version: 1, id: expect.any(String), fieldsFormValues: selection},
+            ]);
+            expect(container.querySelector('[data-testid="modal"]')).toBeNull();
+            const saved = onDefinitionsChange.mock.lastCall?.[0] as ChartDefinition[] | undefined;
+            if (!saved) throw new Error('Definition was not saved');
+            render({...props, chartDefinitions: saved});
+            edit();
+            expect(fieldsEditor().formValues).toEqual(selection);
+        },
+    );
+
+    it('keeps a rejected definition draft open and saves it after correction', () => {
+        const onDefinitionsChange = vi.fn();
+        render({
+            editorMode: 'fields',
+            chartDefinitions: [],
+            onDefinitionsChange,
+            chartFieldsEditorProps: {
+                ...fieldsProps.chartFieldsEditorProps,
+                resolveChartData: () => ({status: 'ready', data: chartData}),
+            },
+        });
+        add();
+        const invalid: ChartConfiguration = {...mapping, measureItems: []};
+        act(() => fieldsEditor().onChange?.(invalid));
+        act(() => fieldsEditor().onSubmit?.(chartData, invalid));
+        expect(onDefinitionsChange).not.toHaveBeenCalled();
+        expect(container.querySelector('[role="alert"]')?.textContent).toBeTruthy();
+        expect(fieldsEditor().formValues).toEqual(invalid);
+        expect(container.querySelector<HTMLDivElement>('[data-testid="modal"]')?.hidden).toBe(
+            false,
+        );
+
+        act(() => fieldsEditor().onChange?.(mapping));
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        act(() => fieldsEditor().onSubmit?.(chartData, mapping));
+        expect(onDefinitionsChange).toHaveBeenCalledExactlyOnceWith([
+            {version: 1, id: expect.any(String), fieldsFormValues: mapping},
+        ]);
+        expect(container.querySelector('[data-testid="modal"]')).toBeNull();
+        add();
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+    });
+
+    it('clears a definition save error when canceling the draft', () => {
+        const onDefinitionsChange = vi.fn();
+        render({
+            editorMode: 'fields',
+            chartDefinitions: [],
+            onDefinitionsChange,
+            chartFieldsEditorProps: {
+                ...fieldsProps.chartFieldsEditorProps,
+                resolveChartData: () => ({status: 'ready', data: chartData}),
+            },
+        });
+        add();
+        act(() => fieldsEditor().onSubmit?.(chartData, {...mapping, measureItems: []}));
+        expect(container.querySelector('[role="alert"]')).not.toBeNull();
+        act(() => fieldsEditor().onCancel?.());
+        add();
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        expect(onDefinitionsChange).not.toHaveBeenCalled();
+    });
+
+    it('retains unavailable definitions during editing and restores their placeholders', () => {
+        const hidden: ChartDefinition = {
+            version: 1,
+            id: 'hidden',
+            fieldsFormValues: {...mapping, chartTitle: 'Unavailable'},
+        };
+        const visible: ChartDefinition = {version: 1, id: 'visible', fieldsFormValues: mapping};
+        const onDefinitionsChange = vi.fn();
+        const editorProps = {
+            ...fieldsProps.chartFieldsEditorProps,
+            resolveChartData: (values: ChartSelectedFormValues) =>
+                values.chartTitle === 'Unavailable'
+                    ? {status: 'missing-fields' as const, fieldIds: ['missing']}
+                    : {status: 'ready' as const, data: chartData},
+        };
+        const props: DashboardChartsProps = {
+            editorMode: 'fields',
+            chartFieldsEditorProps: editorProps,
+            chartDefinitions: [hidden, visible],
+            onDefinitionsChange,
+        };
+        render(props);
+        expect(container.querySelector('[data-chart-id="hidden"]')).not.toBeNull();
+        expect(container.querySelectorAll('[data-testid="chart"]')).toHaveLength(1);
+        edit();
+        act(() => fieldsEditor().onSubmit?.(chartData, {...mapping, chartTitle: 'Edited'}));
+        expect(onDefinitionsChange.mock.lastCall?.[0][0]).toEqual(hidden);
+        expect(onDefinitionsChange.mock.lastCall?.[0][1].fieldsFormValues.chartTitle).toBe(
+            'Edited',
+        );
+        const remove = container.querySelector<HTMLButtonElement>(
+            '[data-chart-id="hidden"] button',
+        )!;
+        act(() => remove.click());
+        expect(onDefinitionsChange).toHaveBeenLastCalledWith([visible]);
+        // Controlled state remains visible until accepted, and returning fields restore the same ID.
+        expect(container.querySelector('[data-chart-id="hidden"]')).not.toBeNull();
+        render({
+            ...props,
+            chartFieldsEditorProps: {
+                ...editorProps,
+                resolveChartData: () => ({status: 'ready', data: chartData}),
+            },
+        });
+        expect(container.querySelectorAll('[data-testid="chart"]')).toHaveLength(2);
+        expect(container.querySelector('[data-chart-id="hidden"]')).not.toBeNull();
     });
 });
