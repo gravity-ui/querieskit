@@ -1,7 +1,8 @@
-import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
-import {Flex, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
+import React, {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {Button, Flex, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {QueryResultsTable} from '../../components/QueryResultsTable';
+import {FieldsSelector} from '../../components/FieldsSelector';
 import type {QueryResultsProps, QueryResultsView} from '../../types/queryResults';
 import {QueryResultsSchema} from './internal/QueryResultsSchema';
 import i18n from './i18n';
@@ -32,6 +33,8 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     title,
     toolbarContent,
     actions,
+    pagination,
+    columnVisibility,
     view: controlledView,
     defaultView = 'result',
     onViewChange,
@@ -42,6 +45,14 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     const view = controlledView ?? uncontrolledView;
     const toolbarRef = useRef<HTMLDivElement>(null);
     const [toolbarHeight, setToolbarHeight] = useState(0);
+    const displayedColumns = useMemo(() => {
+        if (columnVisibility?.value === undefined) return columns;
+        const byName = new Map(columns.map((column) => [column.name, column]));
+        return [...new Set(columnVisibility.value)].flatMap((name) => {
+            const column = byName.get(name);
+            return column ? [column] : [];
+        });
+    }, [columns, columnVisibility?.value]);
 
     useLayoutEffect(() => {
         const toolbar = toolbarRef.current;
@@ -86,7 +97,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     } else {
         content = (
             <QueryResultsTable
-                columns={columns}
+                columns={displayedColumns}
                 rows={rows}
                 loading={loading}
                 rowKey={rowKey}
@@ -130,6 +141,33 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                     })}
                 </Text>
                 {toolbarContent && <div className={block('toolbar-content')}>{toolbarContent}</div>}
+                {view === 'result' && pagination?.hasMore && (
+                    <Button
+                        loading={pagination.loading}
+                        disabled={pagination.loading}
+                        onClick={() => {
+                            if (pagination.hasMore && !pagination.loading) pagination.onLoadMore();
+                        }}
+                    >
+                        {pagination.buttonLabel ?? i18n('action_load-more')}
+                    </Button>
+                )}
+                {view === 'result' && columnVisibility && (
+                    <FieldsSelector
+                        fields={columns.map((column) => ({
+                            id: column.name,
+                            title: column.header ?? column.name,
+                            searchText:
+                                typeof column.header === 'string' ? column.header : column.name,
+                        }))}
+                        value={columnVisibility.value ?? columns.map((column) => column.name)}
+                        onChange={columnVisibility.onChange}
+                        buttonLabel={columnVisibility.buttonLabel}
+                        applyMode="explicit"
+                        searchable
+                        showSelectedCount
+                    />
+                )}
                 {actions && <div className={block('actions')}>{actions}</div>}
             </Flex>
             <div className={block('content')}>{content}</div>

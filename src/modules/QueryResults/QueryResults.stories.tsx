@@ -555,6 +555,33 @@ export const SchemaWithoutTableDecorations: Story = {
     ),
 };
 
+function ControlledResultsStory() {
+    const [visible, setVisible] = useState<string[]>();
+    const [count, setCount] = useState(1);
+    const [loading, setLoading] = useState(false);
+    return (
+        <QueryResults
+            columns={columns}
+            rows={rows.slice(0, count)}
+            totalRows={rows.length}
+            columnVisibility={{value: visible, onChange: setVisible}}
+            pagination={{
+                hasMore: count < rows.length,
+                loading,
+                onLoadMore: async () => {
+                    setLoading(true);
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    setCount((value) => value + 1);
+                    setLoading(false);
+                },
+            }}
+            actions={<Button onClick={() => setVisible(undefined)}>Show all columns</Button>}
+        />
+    );
+}
+
+export const ControlledResults: Story = {render: () => <ControlledResultsStory />};
+
 export const HeterogeneousCellTypes: Story = {
     render: () => (
         <QueryResults

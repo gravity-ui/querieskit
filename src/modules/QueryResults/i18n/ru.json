@@ -1,6 +1,7 @@
 {
   "tab_result": "Результат",
   "tab_schema": "Схема",
+  "action_load-more": "Загрузить ещё",
   "field_name": "Название",
   "field_type": "Тип",
   "action_expand-type": "Развернуть тип",

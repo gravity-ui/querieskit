@@ -8,4 +8,6 @@ export type {
     QueryResultsTableSettings,
     QueryResultFormatterSettings,
     QueryResultSchemaType,
+    QueryResultsPagination,
+    QueryResultsColumnVisibility,
 } from '../../types/queryResults';
