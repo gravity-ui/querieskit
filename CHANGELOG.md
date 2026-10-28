@@ -17,6 +17,23 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [4.0.0](https://github.com/gravity-ui/querieskit/compare/v3.6.1...v4.0.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **dashboard:** reconcile controlled layouts by item ID
+
+### Features
+
+* **charts:** add validated configurations and tabular sources ([c6e643f](https://github.com/gravity-ui/querieskit/commit/c6e643fe24ef9a11ccf5ac4f3e59710f59bd2849))
+* **charts:** persist definitions and restore unavailable charts ([d9e353c](https://github.com/gravity-ui/querieskit/commit/d9e353cffd52866dcb189cbb92e16938ba5a60d2))
+* **dashboard:** reconcile controlled layouts by item ID ([f93dec2](https://github.com/gravity-ui/querieskit/commit/f93dec2ed9cbdac62cddae9b311ad90a0936f624))
+* **editor:** add instance-scoped commands and opt-in shortcuts ([3869d47](https://github.com/gravity-ui/querieskit/commit/3869d47e99187ab5f0b2b2124a3596eb510f9c4a))
+* **results:** add pagination and column visibility controls ([12665dc](https://github.com/gravity-ui/querieskit/commit/12665dcaa78874229f3dda5db2df1e4e40cfd2b1))
+* **results:** support per-cell value types ([b847045](https://github.com/gravity-ui/querieskit/commit/b84704505231f01015a148f8e1e05af53e533b8d))
+* **settings:** add change metadata and typed attribute codecs ([7bc2c64](https://github.com/gravity-ui/querieskit/commit/7bc2c64246450324890d72716b8c7701e9ee8324))
+
 ## [3.6.1](https://github.com/gravity-ui/querieskit/compare/v3.6.0...v3.6.1) (2026-10-21)
 
 
