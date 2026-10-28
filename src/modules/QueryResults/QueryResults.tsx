@@ -27,6 +27,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     collapseAfterLines,
     maxInlineTextLength,
     getCellOptions,
+    getCellType,
     onCellPreview,
     title,
     toolbarContent,
@@ -97,6 +98,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                 collapseAfterLines={collapseAfterLines}
                 maxInlineTextLength={maxInlineTextLength}
                 getCellOptions={getCellOptions}
+                getCellType={getCellType}
                 onCellPreview={onCellPreview}
             />
         );

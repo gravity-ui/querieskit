@@ -3,7 +3,7 @@
 `QueryResults`, `QueryResultsTable`, `NavigationPreview.view`, and the `result`
 tab of `QueryExecutionPanel` accept the same cell options. Values remain in YQL wire format; QueriesKit handles
 Unipika conversion, HTML, copying, local expansion, and preview actions.
-`column.render` replaces this entire pipeline, including `getCellOptions`.
+`column.render` replaces this entire pipeline, including `getCellOptions` and `getCellType`.
 
 `QueryResultsTableSettings<Row>` also shares `rowKey`, `displayIndices`,
 `stripedRows`, and `stickyHead` between results and navigation. Navigation keeps
@@ -65,7 +65,7 @@ wire values remain supported. Supply the original YQL type in each column.
 
 The callback has the signature
 `(context: QueryResultCellPreviewContext<Row>) => void | Promise<void>`.
-Its context contains `row`, `value`, `index`, `column`, `isIncomplete`, and `tag`.
+Its context contains `row`, `value`, `index`, `column`, the effective `type`, `isIncomplete`, and `tag`.
 The application owns requests, cancellation, metadata, and modal windows:
 
 - For inline loading (for example, audio or images), fetch the remaining value,
@@ -185,6 +185,19 @@ tooltip. Healthy siblings continue rendering.
 `undefined` uses the standard view. Loading, empty and error states are unchanged.
 Schema completeness depends on the supplied `columns`: excluded columns cannot
 be reconstructed by the library.
+
+## Per-cell types
+
+`getCellType(context)` returns a YQL wire type for a single value; returning
+`undefined` uses `column.type`. The same option is supported on
+`QueryResultsTable`, result tabs and `NavigationPreview.view`, including preview
+search. Use `row` and `column.name` to look up backend type metadata; `index`
+is the current row position and can change when filtering or reordering.
+
+The effective type drives formatting, copying, truncation and preview, while
+`column.type` and `column.schemaType` continue to describe column headers and
+Schema. The **Heterogeneous Cell Types** story shows strings, numbers and lists
+in one column. Backend registry decoding remains the application's responsibility.
 
 Storybook examples **Schema Acceptance**, **Schema Type Families**, **Schema Resize
 And Scroll**, **Schema Updates**, and **Schema Without Table Decorations** cover

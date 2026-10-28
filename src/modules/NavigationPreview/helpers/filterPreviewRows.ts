@@ -1,4 +1,5 @@
 import {formatQueryResultValue} from '../../../components/QueryResultsTable/helpers/formatQueryResultValue';
+import {resolveQueryResultCellType} from '../../../components/QueryResultsTable/helpers/resolveQueryResultCellType';
 import {filterNavigationRows} from '../../../helpers/filterNavigationRows';
 import type {QueryResultCellSettings, QueryResultColumn} from '../../../types/queryResults';
 
@@ -21,10 +22,11 @@ export function filterPreviewRows<TRow extends Record<string, unknown>>(
 
             try {
                 const value = row[column.name];
-                const options = settings?.getCellOptions?.({row, value, index, column});
+                const context = {row, value, index, column};
+                const options = settings?.getCellOptions?.(context);
                 const formatted = formatQueryResultValue(
                     value,
-                    column.type,
+                    resolveQueryResultCellType(context, settings?.getCellType),
                     settings?.formatterSettings,
                     // Clipboard overrides are not the displayed value.
                     {...options, copyText: undefined},

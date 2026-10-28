@@ -69,7 +69,12 @@ export type QueryResultCellOptions = {
 };
 
 export type QueryResultCellPreviewContext<TRow extends Record<string, unknown>> =
-    QueryResultCellRenderContext<TRow> & {isIncomplete: boolean; tag?: string};
+    QueryResultCellRenderContext<TRow> & {
+        /** Effective value type; does not replace the column's declared schema. */
+        type: QueryResultDataType;
+        isIncomplete: boolean;
+        tag?: string;
+    };
 
 export type QueryResultCellSettings<TRow extends Record<string, unknown>> = {
     formatterSettings?: QueryResultFormatterSettings;
@@ -78,6 +83,8 @@ export type QueryResultCellSettings<TRow extends Record<string, unknown>> = {
     collapseAfterLines?: number;
     /** Replace HTML when formatted text reaches this length. Unlimited by default. */
     maxInlineTextLength?: number;
+    /** Resolves a wire type for an individual cell. Undefined uses column.type. */
+    getCellType?: (context: QueryResultCellRenderContext<TRow>) => QueryResultDataType | undefined;
     getCellOptions?: (context: QueryResultCellRenderContext<TRow>) => QueryResultCellOptions;
     onCellPreview?: (context: QueryResultCellPreviewContext<TRow>) => void | Promise<void>;
 };

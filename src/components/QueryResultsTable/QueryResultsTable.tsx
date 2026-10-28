@@ -27,6 +27,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
     collapseAfterLines = maxVisibleLines,
     maxInlineTextLength,
     getCellOptions,
+    getCellType,
     onCellPreview,
     emptyVariant,
     displayIndices = true,
@@ -68,6 +69,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
                                 collapseAfterLines={collapseAfterLines}
                                 maxInlineTextLength={maxInlineTextLength}
                                 getCellOptions={getCellOptions}
+                                getCellType={getCellType}
                                 onCellPreview={onCellPreview}
                             />
                         ),
@@ -80,6 +82,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
             collapseAfterLines,
             maxInlineTextLength,
             getCellOptions,
+            getCellType,
             onCellPreview,
         ],
     );

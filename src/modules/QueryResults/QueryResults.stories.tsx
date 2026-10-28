@@ -554,3 +554,17 @@ export const SchemaWithoutTableDecorations: Story = {
         />
     ),
 };
+
+export const HeterogeneousCellTypes: Story = {
+    render: () => (
+        <QueryResults
+            columns={[{name: 'value', type: ['DataType', 'Utf8'], schemaType: {name: 'Any'}}]}
+            rows={[{value: 'text'}, {value: ['list', 'items']}, {value: 42}]}
+            getCellType={({value}) => {
+                if (Array.isArray(value)) return ['ListType', ['DataType', 'Utf8']];
+                if (typeof value === 'number') return ['DataType', 'Int32'];
+                return undefined;
+            }}
+        />
+    ),
+};
