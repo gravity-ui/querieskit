@@ -3,5 +3,10 @@
   "action_save-chart": "Сохранить",
   "action_delete-chart": "Удалить",
   "context_no-charts": "Графиков пока нет",
-  "context_add-first-chart": "Добавьте график, чтобы начать собирать дашборд"
+  "context_add-first-chart": "Добавьте график, чтобы начать собирать дашборд",
+  "alert_empty-data": "Нет данных для графика",
+  "alert_missing-fields": "Выбранные поля недоступны",
+  "alert_invalid-selection": "График не может использовать текущие поля",
+  "alert_invalid-definition": "Не удалось сохранить график. Проверьте его настройки и попробуйте ещё раз.",
+  "alert_unsupported-type": "Тип графика недоступен"
 }

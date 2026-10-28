@@ -111,6 +111,12 @@ export * from './types/attachmentsEditor';
 export type * from './types/queriesVcs';
 
 export type * from './types/tabularChartSource';
+export type * from './types/chartDefinitions';
 export type * from './types/chartConfiguration';
 export {validateChartConfiguration} from './helpers/validateChartConfiguration';
 export {createTabularChartSource} from './helpers/createTabularChartSource';
+export {
+    validateChartDefinition,
+    extractChartDefinition,
+    restoreChartDefinition,
+} from './helpers/chartDefinitions';

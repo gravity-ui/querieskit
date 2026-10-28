@@ -8,6 +8,11 @@ export type {
 } from '../../types/dashboardCharts';
 
 export type {
+    ChartDefinition,
+    ChartDefinitionValidation,
+    RestoredChartDefinition,
+} from '../../types/chartDefinitions';
+export type {
     TabularChartSource,
     TabularChartSourceOptions,
     TabularChartField,

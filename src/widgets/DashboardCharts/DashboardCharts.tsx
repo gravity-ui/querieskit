@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {ChartSeries} from '@gravity-ui/charts';
-import {Flex, Modal} from '@gravity-ui/uikit';
+import {Button, Flex, Modal, Text} from '@gravity-ui/uikit';
 import type {ConfigLayout} from '@gravity-ui/dashkit';
 import cn from 'bem-cn-lite';
 
@@ -25,6 +25,7 @@ import {
     isXYFormValues,
 } from '../../helpers/chartFieldsForm';
 import i18n from './i18n';
+import {extractChartDefinition, restoreChartDefinition} from '../../helpers/chartDefinitions';
 import {getChartTypeLabel} from '../../helpers/chartLabels';
 import './DashboardCharts.scss';
 
@@ -90,6 +91,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
         emptyDescription,
         dashboardProps,
         onItemsChange,
+        onDefinitionsChange,
         onLayoutChange,
         className,
         gap = 1,
@@ -97,12 +99,28 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
     const [innerChartItems, setInnerChartItems] = useState<DashboardItem[]>(
         customerChartsItems ?? [],
     );
-    const chartItems = customerChartsItems ?? innerChartItems;
+    const definitions = props.chartDefinitions;
+    const resolveChartData =
+        props.editorMode === 'fields' ? props.chartFieldsEditorProps.resolveChartData : undefined;
+    const restoredDefinitions = useMemo(
+        () =>
+            resolveChartData
+                ? definitions?.map((definition) =>
+                      restoreChartDefinition(definition, resolveChartData),
+                  )
+                : undefined,
+        [definitions, resolveChartData],
+    );
+    const chartItems = restoredDefinitions
+        ? restoredDefinitions.flatMap((result) => (result.status === 'ready' ? [result.item] : []))
+        : (customerChartsItems ?? innerChartItems);
     const [draftChart, setDraftChart] = useState<DraftChart | null>(null);
+    const [saveError, setSaveError] = useState(false);
     const editorMode = props.editorMode ?? 'series';
 
     useEffect(() => {
         setDraftChart(null);
+        setSaveError(false);
     }, [editorMode]);
 
     const chartOptions = (() => {
@@ -125,6 +143,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
     })();
 
     const handleChartSelect = (chartType: ChartSeries['type']) => {
+        setSaveError(false);
         if (props.editorMode === 'fields') {
             if (!isChartFieldsChartType(chartType)) return;
             setDraftChart({
@@ -147,7 +166,10 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
         }
     };
 
-    const handleCancelDraft = () => setDraftChart(null);
+    const handleCancelDraft = () => {
+        setDraftChart(null);
+        setSaveError(false);
+    };
 
     const handleSubmitChart = (chart: ChartData, fieldsFormValues?: ChartFieldsFormValues) => {
         if (!draftChart) return;
@@ -161,15 +183,32 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
         const actualChartItems = draftChart.id
             ? chartItems.map((item) => (item.id === newChart.id ? newChart : item))
             : [...chartItems, newChart];
+        if (definitions && onDefinitionsChange) {
+            const extracted = extractChartDefinition(newChart);
+            if (!extracted.valid) {
+                setSaveError(true);
+                return;
+            }
+            onDefinitionsChange(
+                draftChart.id
+                    ? definitions.map((definition) =>
+                          definition.id === newChart.id ? extracted.definition : definition,
+                      )
+                    : [...definitions, extracted.definition],
+            );
+        } else {
+            setInnerChartItems(actualChartItems);
+            onItemsChange?.(actualChartItems);
+        }
         setDraftChart(null);
-        setInnerChartItems(actualChartItems);
-        onItemsChange?.(actualChartItems);
+        setSaveError(false);
     };
 
     const handleEditChart = useCallback(
         (id: string) => {
             const item = chartItems.find((candidate) => candidate.id === id);
             if (!item) return;
+            setSaveError(false);
             const chart = item.chartData;
             const chartType = chart.series.data[0]?.type;
             if (props.editorMode === 'fields') {
@@ -197,34 +236,57 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
     const handleDeleteChart = useCallback(
         (id: string) => {
             const newChartItems = chartItems.filter((item) => item.id !== id);
-            setInnerChartItems(newChartItems);
-            onItemsChange?.(newChartItems);
+            if (definitions && onDefinitionsChange) {
+                onDefinitionsChange(definitions.filter((definition) => definition.id !== id));
+            } else {
+                setInnerChartItems(newChartItems);
+                onItemsChange?.(newChartItems);
+            }
         },
-        [chartItems, onItemsChange],
+        [chartItems, onItemsChange, definitions, onDefinitionsChange],
     );
 
     const handleLayoutChange = (patchedLayout: ConfigLayout[]) => onLayoutChange?.(patchedLayout);
-    const dashboardItems = useMemo(
-        () =>
-            chartItems.map(({id, chartData}) => ({
-                id,
-                content: (
-                    <Chart
-                        key={id}
-                        data={chartData}
-                        controlsVisibility="hover"
-                        onPencilEdit={() => handleEditChart(id)}
-                        actions={[
-                            {
-                                text: i18n('action_delete-chart'),
-                                onClick: () => handleDeleteChart(id),
-                            },
-                        ]}
-                    />
-                ),
-            })),
-        [chartItems, handleEditChart, handleDeleteChart],
-    );
+    const dashboardItems = useMemo(() => {
+        const renderChart = ({id, chartData}: DashboardItem) => ({
+            id,
+            content: (
+                <Chart
+                    key={id}
+                    data={chartData}
+                    controlsVisibility="hover"
+                    onPencilEdit={() => handleEditChart(id)}
+                    actions={[
+                        {text: i18n('action_delete-chart'), onClick: () => handleDeleteChart(id)},
+                    ]}
+                />
+            ),
+        });
+        return restoredDefinitions
+            ? restoredDefinitions.map((result) =>
+                  result.status === 'ready'
+                      ? renderChart(result.item)
+                      : {
+                            id: result.definition.id,
+                            content: (
+                                <Flex
+                                    direction="column"
+                                    gap={2}
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    height="100%"
+                                >
+                                    <Text>{result.definition.fieldsFormValues.chartTitle}</Text>
+                                    <Text color="secondary">{i18n(`alert_${result.status}`)}</Text>
+                                    <Button onClick={() => handleDeleteChart(result.definition.id)}>
+                                        {i18n('action_delete-chart')}
+                                    </Button>
+                                </Flex>
+                            ),
+                        },
+              )
+            : chartItems.map(renderChart);
+    }, [chartItems, restoredDefinitions, handleEditChart, handleDeleteChart]);
 
     const draftMatchesMode = draftChart?.mode === editorMode;
 
@@ -244,7 +306,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
                     onSelect={handleChartSelect}
                     disabled={chartOptions.every((option) => option.disabled)}
                 />
-                {chartItems.length > 0 ? (
+                {dashboardItems.length > 0 ? (
                     <Dashboard
                         items={dashboardItems}
                         defaultLayout={defaultLayout}
@@ -266,7 +328,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
                 keepMounted={Boolean(draftChart)}
                 disableBodyScrollLock={!active}
                 onOpenChange={(open) => {
-                    if (!open) setDraftChart(null);
+                    if (!open) handleCancelDraft();
                 }}
                 contentOverflow="auto"
                 contentClassName={block('modal')}
@@ -289,25 +351,35 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
                     />
                 )}
                 {draftChart?.mode === 'fields' && props.editorMode === 'fields' && (
-                    <ChartFieldsEditor
-                        {...props.chartFieldsEditorProps}
-                        formValues={draftChart.formValues}
-                        onChange={(formValues) => {
-                            setDraftChart({...draftChart, formValues});
-                            props.chartFieldsEditorProps.onChange?.(formValues);
-                        }}
-                        onSubmit={handleSubmitChart}
-                        onCancel={handleCancelDraft}
-                        formProps={{
-                            ...props.chartFieldsEditorProps.formProps,
-                            labels: {
-                                submitLabel: draftChart.id
-                                    ? i18n('action_save-chart')
-                                    : i18n('action_add-chart'),
-                                ...props.chartFieldsEditorProps.formProps?.labels,
-                            },
-                        }}
-                    />
+                    <Flex direction="column" height="100%">
+                        {saveError && (
+                            <Flex shrink={0}>
+                                <Text color="danger" role="alert">
+                                    {i18n('alert_invalid-definition')}
+                                </Text>
+                            </Flex>
+                        )}
+                        <ChartFieldsEditor
+                            {...props.chartFieldsEditorProps}
+                            formValues={draftChart.formValues}
+                            onChange={(formValues) => {
+                                setDraftChart({...draftChart, formValues});
+                                setSaveError(false);
+                                props.chartFieldsEditorProps.onChange?.(formValues);
+                            }}
+                            onSubmit={handleSubmitChart}
+                            onCancel={handleCancelDraft}
+                            formProps={{
+                                ...props.chartFieldsEditorProps.formProps,
+                                labels: {
+                                    submitLabel: draftChart.id
+                                        ? i18n('action_save-chart')
+                                        : i18n('action_add-chart'),
+                                    ...props.chartFieldsEditorProps.formProps?.labels,
+                                },
+                            }}
+                        />
+                    </Flex>
                 )}
             </Modal>
         </React.Fragment>
