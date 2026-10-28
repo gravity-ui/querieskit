@@ -1,3 +1,7 @@
 {
-  "alert_no-chart-data": "Нет данных для графика"
+  "alert_no-chart-data": "Нет данных для графика",
+  "alert_empty-data": "Нет данных для графика",
+  "alert_missing-fields": "Выбранные поля недоступны",
+  "alert_invalid-selection": "Выберите доступные поля графика",
+  "alert_unsupported-type": "Тип графика недоступен"
 }

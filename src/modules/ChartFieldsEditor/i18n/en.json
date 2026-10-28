@@ -1,3 +1,7 @@
 {
-  "alert_no-chart-data": "No chart data"
+  "alert_no-chart-data": "No chart data",
+  "alert_empty-data": "No chart data",
+  "alert_missing-fields": "Selected fields are unavailable",
+  "alert_invalid-selection": "Select available chart fields",
+  "alert_unsupported-type": "Chart type is unavailable"
 }
