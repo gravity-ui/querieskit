@@ -10,6 +10,9 @@ export type DashboardRenderItem = {
 
 export type DashboardProps = {
     items: DashboardRenderItem[];
+    /** Controlled layout, matched by item ID. */
+    layout?: ConfigLayout[];
+    /** Initial layout for uncontrolled mode only. */
     defaultLayout?: ConfigLayout[];
     grid?: ReactGridLayoutProps;
     focusable?: boolean;

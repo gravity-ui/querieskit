@@ -1,5 +1,5 @@
 import React from 'react';
-import type {Config} from '@gravity-ui/dashkit';
+import type {ConfigLayout} from '@gravity-ui/dashkit';
 import type {DashboardProps} from '../../types/dashboard';
 import {Flex} from '@gravity-ui/uikit';
 import {DRAG_HANDLE_CLASSNAME, DashPlate} from './internal/DashPlate';
@@ -22,6 +22,7 @@ DashKit.reloadPlugins({
 export const Dashboard = ({
     items,
     defaultLayout,
+    layout,
     grid: customerGridState,
     focusable = false,
     className,
@@ -29,10 +30,16 @@ export const Dashboard = ({
     onItemFocus,
     onItemBlur,
 }: DashboardProps) => {
-    const {config, gridGroups} = useDashboardConfig(items, customerGridState, defaultLayout);
+    const {config, gridGroups, changeLayout} = useDashboardConfig(
+        items,
+        customerGridState,
+        defaultLayout,
+        layout,
+    );
 
-    const handleChange = ({config: nextConfig}: {config: Config}) => {
-        onLayoutChange?.(nextConfig.layout);
+    const handleChange = ({layout: next}: {layout: ConfigLayout[]}) => {
+        const changed = changeLayout(next);
+        if (changed) onLayoutChange?.(changed);
     };
 
     return (
@@ -45,7 +52,8 @@ export const Dashboard = ({
                     noOverlay
                     draggableHandleClassName={DRAG_HANDLE_CLASSNAME}
                     focusable={focusable}
-                    onChange={handleChange}
+                    onDragStop={handleChange}
+                    onResizeStop={handleChange}
                     onItemFocus={({id}) => {
                         const index = items.findIndex((item) => item.id === id);
                         if (index !== -1) onItemFocus?.(items[index].content, index);
