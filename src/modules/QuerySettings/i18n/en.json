@@ -17,5 +17,6 @@
   "action_edit-attribute": "Edit attribute {{index}}",
   "action_apply-attribute": "Apply attribute {{index}}",
   "action_cancel-attribute": "Cancel editing attribute {{index}}",
-  "alert_duplicate-key": "This key already exists"
+  "alert_duplicate-key": "This key already exists",
+  "alert_attribute-edit-not-allowed": "Editing this attribute is not allowed"
 }

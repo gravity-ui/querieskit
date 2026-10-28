@@ -5,8 +5,8 @@ import {FormField} from '../../../../../components/FormField';
 import type {QueryEditorEngineSettingsContext} from '../../../../../types/queryEditor';
 import type {BuiltinEngineSettings} from '../../../../../types/builtinQueryEngines';
 
-type Props<TCustom extends BuiltinEngineSettings> = {
-    context: QueryEditorEngineSettingsContext<TCustom>;
+type Props<TCustom extends BuiltinEngineSettings, TValue> = {
+    context: QueryEditorEngineSettingsContext<TCustom, TValue>;
     field: keyof BuiltinEngineSettings;
     title: string;
     options: SelectOption[];
@@ -15,7 +15,7 @@ type Props<TCustom extends BuiltinEngineSettings> = {
     hasClear?: boolean;
 };
 
-export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings>({
+export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings, TValue>({
     context: {value, onChange, errors, onFieldBlur, disabled},
     field,
     title,
@@ -23,7 +23,7 @@ export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings>({
     displayedValue,
     loading,
     hasClear,
-}: Props<TCustom>) {
+}: Props<TCustom, TValue>) {
     const id = useId();
     const error = errors?.custom?.[field];
 
@@ -38,7 +38,10 @@ export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings>({
                 value={displayedValue ? [displayedValue] : []}
                 onUpdate={([next]) => {
                     if (!disabled) {
-                        onChange({...value, custom: {...value.custom, [field]: next}});
+                        onChange(
+                            {...value, custom: {...value.custom, [field]: next}},
+                            {changes: [{section: 'custom', field}]},
+                        );
                     }
                 }}
                 onBlur={() => onFieldBlur?.({section: 'custom', field})}

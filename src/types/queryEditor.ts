@@ -10,21 +10,29 @@ export type QueryEditorPanel = 'settings' | 'attachments' | 'parameters' | null;
 
 export type QueryEditorCluster = {id: string; title: string; disabled?: boolean};
 
-export type QueryEditorEngineSettingsContext<TCustom extends object = Record<string, unknown>> =
-    QuerySettingsCustomFieldsContext<TCustom> & {
-        engineId: string;
-        clusterId?: string;
-    };
+export type QueryEditorEngineSettingsContext<
+    TCustom extends object = Record<string, unknown>,
+    TValue = string,
+> = QuerySettingsCustomFieldsContext<TCustom, TValue> & {
+    engineId: string;
+    clusterId?: string;
+};
 
-export type QueryEditorEngine<TCustom extends object = Record<string, unknown>> =
-    QueryEditorCluster & {
-        /** Registered Monaco language ID, e.g. yql or clickhouse. */
-        language: string;
-        /** Fields rendered after Query name when the built-in settings form is used. */
-        renderSettingsFields?: (context: QueryEditorEngineSettingsContext<TCustom>) => ReactNode;
-        /** Engine-specific sections rendered after Attributes in the built-in settings form. */
-        renderSettingsSections?: (context: QueryEditorEngineSettingsContext<TCustom>) => ReactNode;
-    };
+export type QueryEditorEngine<
+    TCustom extends object = Record<string, unknown>,
+    TValue = string,
+> = QueryEditorCluster & {
+    /** Registered Monaco language ID, e.g. yql or clickhouse. */
+    language: string;
+    /** Fields rendered after Query name when the built-in settings form is used. */
+    renderSettingsFields?: (
+        context: QueryEditorEngineSettingsContext<TCustom, TValue>,
+    ) => ReactNode;
+    /** Engine-specific sections rendered after Attributes in the built-in settings form. */
+    renderSettingsSections?: (
+        context: QueryEditorEngineSettingsContext<TCustom, TValue>,
+    ) => ReactNode;
+};
 
 export type QueryEditorActionState = {disabled?: boolean; loading?: boolean};
 
@@ -48,13 +56,14 @@ export type QueryEditorOptions = Omit<
 export type QueryEditorProps<
     TCustom extends object = Record<string, unknown>,
     TAttachment extends AttachItem = AttachItem,
+    TValue = string,
 > = MonacoEditorIntegrationProps & {
     value: string;
     onChange: (value: string) => void;
     clusters: QueryEditorCluster[];
     clusterId?: string;
     onClusterChange: (id: string) => void;
-    engines: QueryEditorEngine<TCustom>[];
+    engines: QueryEditorEngine<TCustom, TValue>[];
     engineId?: string;
     onEngineChange: (id: string) => void;
     onRun: () => void;
@@ -98,7 +107,7 @@ export type QueryEditorProps<
         | {
               settings?: never;
               /** Built-in controlled form. Engine fields precede renderCustomFields from these props. */
-              settingsProps: QuerySettingsProps<TCustom>;
+              settingsProps: QuerySettingsProps<TCustom, TValue>;
           }
     ) &
     (

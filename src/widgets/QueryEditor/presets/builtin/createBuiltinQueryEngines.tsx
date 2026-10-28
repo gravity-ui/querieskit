@@ -17,8 +17,9 @@ const isActive = (clique: BuiltinQueryClique) =>
 /** Creates engine descriptors from already loaded data; never fetches or initializes settings. */
 export function createBuiltinQueryEngines<
     TCustom extends BuiltinEngineSettings = BuiltinEngineSettings,
->(options: BuiltinQueryEnginesOptions = {}): QueryEditorEngine<TCustom>[] {
-    const engines: Record<BuiltinQueryEngineId, QueryEditorEngine<TCustom>> = {
+    TValue = string,
+>(options: BuiltinQueryEnginesOptions = {}): QueryEditorEngine<TCustom, TValue>[] {
+    const engines: Record<BuiltinQueryEngineId, QueryEditorEngine<TCustom, TValue>> = {
         yql: {
             id: 'yql',
             title: 'YQL',

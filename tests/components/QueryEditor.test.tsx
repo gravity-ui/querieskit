@@ -417,7 +417,7 @@ describe('QueryEditor', () => {
             );
             input.dispatchEvent(new Event('input', {bubbles: true}));
         });
-        expect(onSettingsChange).toHaveBeenCalledExactlyOnceWith({...value, queryName: 'Edited'});
+        expect(onSettingsChange).toHaveBeenCalledExactlyOnceWith({...value, queryName: 'Edited'}, {changes: [{section: 'fields', field: 'queryName'}]});
         expect(props.onChange).not.toHaveBeenCalled();
         key('ArrowLeft');
         click(button('Close Settings'));

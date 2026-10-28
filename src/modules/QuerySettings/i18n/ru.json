@@ -17,5 +17,6 @@
   "action_edit-attribute": "Редактировать атрибут {{index}}",
   "action_apply-attribute": "Применить атрибут {{index}}",
   "action_cancel-attribute": "Отменить редактирование атрибута {{index}}",
-  "alert_duplicate-key": "Такой ключ уже существует"
+  "alert_duplicate-key": "Такой ключ уже существует",
+  "alert_attribute-edit-not-allowed": "Редактирование этого атрибута запрещено"
 }

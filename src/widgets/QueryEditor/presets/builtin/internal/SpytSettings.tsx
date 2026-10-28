@@ -11,10 +11,10 @@ import './SpytSettings.scss';
 
 const block = cn('qp-spyt-settings');
 
-export function SpytSettings<TCustom extends BuiltinEngineSettings>({
+export function SpytSettings<TCustom extends BuiltinEngineSettings, TValue>({
     context: {value, onChange, errors, onFieldBlur, disabled, clusterId},
 }: {
-    context: QueryEditorEngineSettingsContext<TCustom>;
+    context: QueryEditorEngineSettingsContext<TCustom, TValue>;
 }) {
     const theme = useThemeValue();
     const saved = value.custom.spytConfig ?? '{}';
@@ -38,7 +38,10 @@ export function SpytSettings<TCustom extends BuiltinEngineSettings>({
             return;
         }
         setInvalid(false);
-        onChange({...value, custom: {...value.custom, spytConfig: draft}});
+        onChange(
+            {...value, custom: {...value.custom, spytConfig: draft}},
+            {changes: [{section: 'custom', field: 'spytConfig'}]},
+        );
     };
 
     return (

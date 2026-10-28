@@ -256,10 +256,13 @@ describe('createBuiltinQueryEngines', () => {
         expect(optionValues()).toEqual(['v1', 'v2']);
         expect(selector().value).toEqual(['v1']);
         act(() => selector().onUpdate?.(['v2']));
-        expect(onChange).toHaveBeenCalledExactlyOnceWith({
-            ...context.value,
-            custom: {...context.value.custom, yqlVersion: 'v2'},
-        });
+        expect(onChange).toHaveBeenCalledExactlyOnceWith(
+            {
+                ...context.value,
+                custom: {...context.value.custom, yqlVersion: 'v2'},
+            },
+            {changes: [{section: 'custom', field: 'yqlVersion'}]},
+        );
         expect(context.value).toEqual(original);
         context.value = {...context.value, custom: {pool: 'research'}};
         render('yql', {yql: {versions: ['v1', 'v2']}});
@@ -288,10 +291,13 @@ describe('createBuiltinQueryEngines', () => {
             selector().options?.find((option) => 'value' in option && option.value === 'disabled'),
         ).toMatchObject({disabled: true});
         act(() => selector().onUpdate?.(['healthy']));
-        expect(onChange).toHaveBeenCalledExactlyOnceWith({
-            ...context.value,
-            custom: {...context.value.custom, clique: 'healthy'},
-        });
+        expect(onChange).toHaveBeenCalledExactlyOnceWith(
+            {
+                ...context.value,
+                custom: {...context.value.custom, clique: 'healthy'},
+            },
+            {changes: [{section: 'custom', field: 'clique'}]},
+        );
     });
 
     it('hides stale CHYT aliases only after loading finishes and never resets parent data', () => {
@@ -321,15 +327,21 @@ describe('createBuiltinQueryEngines', () => {
         });
         expect(optionValues()).toEqual(['//one', '//two']);
         act(() => selector().onUpdate?.(['//one']));
-        expect(onChange).toHaveBeenLastCalledWith({
-            ...context.value,
-            custom: {...context.value.custom, discoveryGroup: '//one'},
-        });
+        expect(onChange).toHaveBeenLastCalledWith(
+            {
+                ...context.value,
+                custom: {...context.value.custom, discoveryGroup: '//one'},
+            },
+            {changes: [{section: 'custom', field: 'discoveryGroup'}]},
+        );
         act(() => selector().onUpdate?.([]));
-        expect(onChange).toHaveBeenLastCalledWith({
-            ...context.value,
-            custom: {...context.value.custom, discoveryGroup: undefined},
-        });
+        expect(onChange).toHaveBeenLastCalledWith(
+            {
+                ...context.value,
+                custom: {...context.value.custom, discoveryGroup: undefined},
+            },
+            {changes: [{section: 'custom', field: 'discoveryGroup'}]},
+        );
     });
 
     it.each([
@@ -394,10 +406,13 @@ describe('createBuiltinQueryEngines', () => {
         act(() => editor.props?.onChange?.('{"spark.executor.cores": 2}'));
         expect(onChange).not.toHaveBeenCalled();
         clickAction('Save');
-        expect(onChange).toHaveBeenCalledExactlyOnceWith({
-            ...context.value,
-            custom: {...context.value.custom, spytConfig: '{"spark.executor.cores": 2}'},
-        });
+        expect(onChange).toHaveBeenCalledExactlyOnceWith(
+            {
+                ...context.value,
+                custom: {...context.value.custom, spytConfig: '{"spark.executor.cores": 2}'},
+            },
+            {changes: [{section: 'custom', field: 'spytConfig'}]},
+        );
         context.value = onChange.mock.calls[0][0];
         renderSpyt();
         act(() => editor.props?.onChange?.('{"draft": true}'));

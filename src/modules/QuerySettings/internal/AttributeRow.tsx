@@ -7,6 +7,7 @@ import XmarkIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
 import type {
     QuerySettingsAttribute,
+    QuerySettingsAttributeCodec,
     QuerySettingsAttributeErrors,
     QuerySettingsAttributePermissions,
 } from '../../../types/querySettings';
@@ -15,22 +16,33 @@ import './AttributeRow.scss';
 
 const block = cn('qp-settings-attribute-row');
 
-type Props = {
-    attribute: QuerySettingsAttribute;
+type Props<TValue> = {
+    id: string;
+    attribute?: QuerySettingsAttribute<TValue>;
+    codec?: QuerySettingsAttributeCodec<TValue>;
     index: number;
     isNew?: boolean;
     disabled: boolean;
     errors?: Partial<Record<'key' | 'value', string>>;
     permissions?: QuerySettingsAttributePermissions;
-    validate: (draft: QuerySettingsAttribute) => QuerySettingsAttributeErrors | undefined;
-    onApply: (attribute: QuerySettingsAttribute) => void;
+    validate: (draft: QuerySettingsAttribute<TValue>) => QuerySettingsAttributeErrors | undefined;
+    onApply: (attribute: QuerySettingsAttribute<TValue>, valueChanged: boolean) => void;
     onCancel: () => void;
     onRemove: () => void;
     onBlur: (field: 'key' | 'value') => void;
 };
 
-export function AttributeRow({
+function formatAttributeValue<TValue>(
+    attribute: QuerySettingsAttribute<TValue> | undefined,
+    codec: QuerySettingsAttributeCodec<TValue> | undefined,
+) {
+    return attribute ? (codec?.format ?? String)(attribute.value) : '';
+}
+
+export function AttributeRow<TValue>({
+    id,
     attribute,
+    codec,
     index,
     isNew = false,
     disabled,
@@ -41,16 +53,19 @@ export function AttributeRow({
     onCancel,
     onRemove,
     onBlur,
-}: Props) {
+}: Props<TValue>) {
     const [editing, setEditing] = useState(isNew);
-    const [draft, setDraft] = useState(attribute);
+    const key = attribute?.key ?? '';
+    const rawValue = attribute?.value;
+    const text = formatAttributeValue(attribute, codec);
+    const [draft, setDraft] = useState({key, value: text});
     const [validationErrors, setValidationErrors] = useState<QuerySettingsAttributeErrors>();
     const canEditKey = permissions?.canEditKey !== false;
     const canEditValue = permissions?.canEditValue !== false;
     const effectiveDraft = {
         ...draft,
-        key: canEditKey ? draft.key : attribute.key,
-        value: canEditValue ? draft.value : attribute.value,
+        key: canEditKey ? draft.key : key,
+        value: canEditValue ? draft.value : text,
     };
     const rowErrors = {...errors, ...validationErrors};
     const editButton = useRef<HTMLButtonElement>(null);
@@ -58,8 +73,8 @@ export function AttributeRow({
 
     useEffect(() => {
         setValidationErrors(undefined);
-        setDraft({id: attribute.id, key: attribute.key, value: attribute.value});
-    }, [attribute.id, attribute.key, attribute.value]);
+        setDraft({key, value: text});
+    }, [id, key, rawValue, text]);
 
     useEffect(() => {
         if (!editing && restoreFocus.current) {
@@ -72,16 +87,30 @@ export function AttributeRow({
         if (disabled || (apply && !effectiveDraft.key.trim())) return;
         if (apply) {
             if (!canEditKey && !canEditValue) return;
-            const next = effectiveDraft;
+            const valueChanged = isNew || effectiveDraft.value !== text;
+            let nextValue: TValue;
+            if (!valueChanged && attribute) {
+                nextValue = attribute.value;
+            } else {
+                const parsed = codec
+                    ? codec.parse(effectiveDraft.value)
+                    : {value: effectiveDraft.value as TValue};
+                if ('error' in parsed) {
+                    setValidationErrors({value: parsed.error});
+                    return;
+                }
+                nextValue = parsed.value;
+            }
+            const next = {id, key: effectiveDraft.key, value: nextValue};
             const nextErrors = validate(next);
             if (nextErrors?.key || nextErrors?.value) {
                 setValidationErrors(nextErrors);
                 return;
             }
-            onApply(next);
+            onApply(next, valueChanged);
         } else onCancel();
         setValidationErrors(undefined);
-        setDraft(attribute);
+        setDraft({key, value: text});
         restoreFocus.current = true;
         setEditing(false);
     };
@@ -154,8 +183,8 @@ export function AttributeRow({
                 ) : (
                     <>
                         <div className={block('text')}>
-                            <Text color="secondary">{attribute.key}: </Text>
-                            <Text>{attribute.value}</Text>
+                            <Text color="secondary">{key}: </Text>
+                            <Text>{text}</Text>
                         </div>
                         <Flex className={block('actions')}>
                             <Button
@@ -164,7 +193,7 @@ export function AttributeRow({
                                 ref={editButton}
                                 onClick={() => {
                                     setValidationErrors(undefined);
-                                    setDraft(attribute);
+                                    setDraft({key, value: text});
                                     setEditing(true);
                                 }}
                                 aria-label={i18n('action_edit-attribute', {index})}

@@ -20,14 +20,16 @@ const block = cn('qp-query-editor');
 export function QueryEditor<
     TCustom extends object = Record<string, unknown>,
     TAttachment extends AttachItem = AttachItem,
->(props: QueryEditorProps<TCustom, TAttachment>): React.JSX.Element;
+    TValue = string,
+>(props: QueryEditorProps<TCustom, TAttachment, TValue>): React.JSX.Element;
 export function QueryEditor<TCustom extends object = Record<string, unknown>>(
     props: QueryEditorProps<TCustom>,
 ): React.JSX.Element;
 export function QueryEditor<
     TCustom extends object = Record<string, unknown>,
     TAttachment extends AttachItem = AttachItem,
->(props: QueryEditorProps<TCustom, TAttachment>) {
+    TValue = string,
+>(props: QueryEditorProps<TCustom, TAttachment, TValue>) {
     const {
         activePanel: controlledPanel,
         defaultActivePanel = null,
@@ -69,7 +71,8 @@ export function QueryEditor<
     const language = engine?.language ?? 'plaintext';
     const settingsProps = props.settingsProps;
     const settings = settingsProps ? (
-        <QuerySettings
+        <QuerySettings<TCustom, TValue>
+            key="settings"
             {...settingsProps}
             renderCustomFields={(context) => (
                 <>
