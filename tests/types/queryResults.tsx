@@ -1,5 +1,9 @@
 import React from 'react';
-import {QueryResults} from '../../src/modules/QueryResults';
+import {
+    QueryResults,
+    type QueryResultsColumnVisibility,
+    type QueryResultsPagination,
+} from '../../src/modules/QueryResults';
 import {NavigationPreview} from '../../src/modules/NavigationPreview';
 import {QueryExecutionPanel} from '../../src/widgets/QueryExecutionPanel';
 import type {
@@ -9,6 +13,8 @@ import type {
 } from '../../src/types/queryResults';
 
 type Row = {id: string; value: unknown; wireType: QueryResultDataType};
+const pagination: QueryResultsPagination = {hasMore: true, onLoadMore: async () => {}};
+const columnVisibility: QueryResultsColumnVisibility = {value: undefined, onChange: () => {}};
 const settings: QueryResultCellSettings<Row> = {
     getCellType: ({row, column}) => (column.name === 'value' ? row.wireType : undefined),
     onCellPreview: ({type, row}) => {
@@ -21,6 +27,8 @@ const settings: QueryResultCellSettings<Row> = {
 const props: QueryResultsProps<Row> = {
     columns: [{name: 'value', type: ['DataType', 'Utf8']}],
     rows: [],
+    pagination,
+    columnVisibility,
     ...settings,
 };
 

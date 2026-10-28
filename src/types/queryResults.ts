@@ -117,6 +117,20 @@ export type QueryResultsSchemaRenderContext<TRow extends Record<string, unknown>
     columns: Array<QueryResultColumn<TRow>>;
 };
 
+export type QueryResultsPagination = {
+    hasMore: boolean;
+    loading?: boolean;
+    onLoadMore: () => void;
+    buttonLabel?: string;
+};
+
+export type QueryResultsColumnVisibility = {
+    /** Undefined shows all current columns; [] explicitly hides every column. */
+    value?: string[];
+    onChange: (value: string[]) => void;
+    buttonLabel?: string;
+};
+
 export type QueryResultsProps<TRow extends Record<string, unknown>> =
     QueryResultsTableSettings<TRow> & {
         columns: Array<QueryResultColumn<TRow>>;
@@ -128,6 +142,8 @@ export type QueryResultsProps<TRow extends Record<string, unknown>> =
         title?: ReactNode;
         toolbarContent?: ReactNode;
         actions?: ReactNode;
+        pagination?: QueryResultsPagination;
+        columnVisibility?: QueryResultsColumnVisibility;
         view?: QueryResultsView;
         defaultView?: QueryResultsView;
         onViewChange?: (view: QueryResultsView) => void;

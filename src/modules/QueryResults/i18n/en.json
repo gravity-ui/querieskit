@@ -1,6 +1,7 @@
 {
   "tab_result": "Full result",
   "tab_schema": "Schema",
+  "action_load-more": "Load more",
   "field_name": "Name",
   "field_type": "Type",
   "action_expand-type": "Expand type",

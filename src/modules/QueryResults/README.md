@@ -183,8 +183,43 @@ tooltip. Healthy siblings continue rendering.
 
 `renderSchema` still replaces the standard renderer; returning `null` or
 `undefined` uses the standard view. Loading, empty and error states are unchanged.
-Schema completeness depends on the supplied `columns`: excluded columns cannot
-be reconstructed by the library.
+Schema completeness depends on the supplied `columns`: pass the full list and use
+`columnVisibility` to restrict only the Result view.
+
+## Controlled result controls
+
+`columnVisibility={{value, onChange}}` enables the built-in searchable selector
+with explicit Apply and a selected count. `value: undefined` shows all current
+columns; `[]` is an explicitly empty selection. Column names in `value` define
+the display order. Unknown names are ignored for display without emitting a
+change; they can become visible again when the columns return. Apply commits
+the currently available selection. Schema always receives the full columns.
+
+`pagination={{hasMore, loading, onLoadMore}}` adds a Load more button. The
+application owns cursors, fetching, errors and appended rows. `hasMore` is never
+inferred from `totalRows`. Use `pagination.loading` for a pending next page;
+reserve top-level `loading` for initial result loading. Existing rows remain
+visible during pagination, and clicks are blocked while pagination is loading.
+Return failures through application UI, for example `toolbarContent`, retaining
+the previous rows and permitting a retry when loading becomes false.
+
+Both controls appear only in Result view. Toolbar order is view switch, row
+count, `toolbarContent`, Load more, column selector, and custom `actions`.
+Both configurations accept `buttonLabel` to override their localized caption
+or accessible name. Existing slots and independently managed controls still work.
+
+```tsx
+<QueryResults
+  columns={columns}
+  rows={rows}
+  columnVisibility={{value: selectedColumnNames, onChange: setSelectedColumnNames}}
+  pagination={{hasMore, loading: loadingNextPage, onLoadMore: loadNextPage}}
+  actions={<DownloadResults />}
+/>
+```
+
+The **Controlled Results** story demonstrates asynchronous callbacks with
+application-owned state and no Redux dependency.
 
 ## Per-cell types
 
