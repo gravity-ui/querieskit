@@ -257,3 +257,38 @@ function ProtectedSettingsExample() {
 }
 export const ProtectedAttributes: Story = {render: () => <ProtectedSettingsExample />};
 export const ProtectedAttributesDark: Story = {...ProtectedAttributes, globals: {theme: 'dark'}};
+
+function TypedAttributesExample() {
+    const [value, setValue] = useState<QuerySettingsValue<CustomSettings, unknown>>({
+        ...initialValue,
+        attributes: [
+            {id: 'limit', key: 'limit', value: 100},
+            {id: 'enabled', key: 'enabled', value: true},
+            {id: 'options', key: 'options', value: {pool: 'research'}},
+        ],
+    });
+    return (
+        <div style={{width: 420, maxWidth: '100%'}}>
+            <QuerySettings
+                value={value}
+                hiddenFields={['access', 'tokens', 'ytOperationTitle']}
+                onChange={(next, change) => {
+                    setValue(next);
+                    action('settingsChange')(next, change);
+                }}
+                attributeCodec={{
+                    format: (raw) => JSON.stringify(raw),
+                    parse: (text) => {
+                        try {
+                            return {value: JSON.parse(text) as unknown};
+                        } catch {
+                            return {error: 'Enter a JSON value'};
+                        }
+                    },
+                }}
+                checkDuplicateAttributeKeys
+            />
+        </div>
+    );
+}
+export const TypedAttributes: Story = {render: () => <TypedAttributesExample />};

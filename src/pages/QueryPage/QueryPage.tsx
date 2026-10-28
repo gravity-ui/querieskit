@@ -41,6 +41,7 @@ export function QueryPage<
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TVcs extends VcsItem = VcsItem,
     TAttachment extends AttachItem = AttachItem,
+    TValue = string,
 >(
     props: QueryPageProps<
         THistory,
@@ -52,7 +53,8 @@ export function QueryPage<
         TRow,
         TMetaItem,
         TVcs,
-        TAttachment
+        TAttachment,
+        TValue
     >,
 ): React.JSX.Element;
 export function QueryPage<
@@ -89,6 +91,7 @@ export function QueryPage<
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TVcs extends VcsItem = VcsItem,
     TAttachment extends AttachItem = AttachItem,
+    TValue = string,
 >({
     sidebarProps,
     historyActions,
@@ -110,7 +113,8 @@ export function QueryPage<
     TRow,
     TMetaItem,
     TVcs,
-    TAttachment
+    TAttachment,
+    TValue
 >) {
     const {tabs: sidebarTabs, deleteConfirmation} = useHistoryActions(
         sidebarProps.tabs,

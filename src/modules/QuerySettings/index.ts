@@ -1,6 +1,9 @@
 export {QuerySettings} from './QuerySettings';
 export type {
     QuerySettingsAttribute,
+    QuerySettingsAttributeCodec,
+    QuerySettingsChange,
+    QuerySettingsChangeOperation,
     QuerySettingsAttributePermissions,
     QuerySettingsAttributeErrors,
     QuerySettingsValue,

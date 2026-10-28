@@ -5,7 +5,12 @@ import {type Root, createRoot} from 'react-dom/client';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {QuerySettings} from '../../src/modules/QuerySettings';
-import type {QuerySettingsProps, QuerySettingsValue} from '../../src/types/querySettings';
+import type {
+    QuerySettingsAttributeCodec,
+    QuerySettingsChange,
+    QuerySettingsProps,
+    QuerySettingsValue,
+} from '../../src/types/querySettings';
 import {setLang} from '../../src/i18n';
 
 type Custom = {yqlVersion: string};
@@ -28,7 +33,11 @@ const tokens = [
 describe('QuerySettings', () => {
     let root: Root;
     let container: HTMLDivElement;
-    let onChange: ReturnType<typeof vi.fn<(value: QuerySettingsValue<Custom>) => void>>;
+    let onChange: ReturnType<
+        typeof vi.fn<
+            (value: QuerySettingsValue<Custom>, change?: QuerySettingsChange<Custom>) => void
+        >
+    >;
 
     beforeEach(() => {
         globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -101,18 +110,24 @@ describe('QuerySettings', () => {
         render();
         expect(onChange).not.toHaveBeenCalled();
         change(input('Query name'), '');
-        expect(onChange).toHaveBeenCalledExactlyOnceWith({...initialValue, queryName: ''});
+        expect(onChange).toHaveBeenCalledExactlyOnceWith(
+            {...initialValue, queryName: ''},
+            {changes: [{section: 'fields', field: 'queryName'}]},
+        );
         expect(input('Query name').value).toBe('Example');
         expect(initialValue).toEqual(original);
         render({value: {...initialValue, queryName: 'Accepted'}});
         expect(input('Query name').value).toBe('Accepted');
         expect(onChange).toHaveBeenCalledTimes(1);
         change(input('YT operation title'), 'New operation');
-        expect(onChange).toHaveBeenLastCalledWith({
-            ...initialValue,
-            queryName: 'Accepted',
-            ytOperationTitle: 'New operation',
-        });
+        expect(onChange).toHaveBeenLastCalledWith(
+            {
+                ...initialValue,
+                queryName: 'Accepted',
+                ytOperationTitle: 'New operation',
+            },
+            {changes: [{section: 'fields', field: 'ytOperationTitle'}]},
+        );
     });
 
     it('hides all standard fields without clearing values and counts only visible fields', () => {
@@ -225,7 +240,10 @@ describe('QuerySettings', () => {
         expect(container.querySelector('[aria-label="Tokens"]')).toBeNull();
         expect(container.querySelector('[aria-label="Attribute key 1"]')).toBeNull();
         change(input('Query name'), 'Renamed');
-        expect(onChange).toHaveBeenLastCalledWith({...initialValue, queryName: 'Renamed'});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {...initialValue, queryName: 'Renamed'},
+            {changes: [{section: 'fields', field: 'queryName'}]},
+        );
         render({tokens});
         expect(container.textContent).toContain('pool: research');
         expect(onChange).toHaveBeenCalledTimes(1);
@@ -419,14 +437,23 @@ describe('QuerySettings', () => {
         };
         act(() => button('Access').click());
         act(() => option('Only me').click());
-        expect(onChange).toHaveBeenLastCalledWith({...initialValue, access: 'private'});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {...initialValue, access: 'private'},
+            {changes: [{section: 'fields', field: 'access'}]},
+        );
         act(() => button('Tokens').click());
         act(() => option('Second token').click());
-        expect(onChange).toHaveBeenLastCalledWith({...initialValue, tokenIds: ['first', 'second']});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {...initialValue, tokenIds: ['first', 'second']},
+            {changes: [{section: 'fields', field: 'tokenIds'}]},
+        );
         const next = lastValue();
         render({value: next, tokens});
         act(() => option('First token').click());
-        expect(onChange).toHaveBeenLastCalledWith({...next, tokenIds: ['second']});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {...next, tokenIds: ['second']},
+            {changes: [{section: 'fields', field: 'tokenIds'}]},
+        );
     });
 
     it('renders standalone custom sections after Attributes with the same change context', () => {
@@ -492,5 +519,185 @@ describe('QuerySettings', () => {
         act(() => input('YQL version').focus());
         act(() => input('YQL version').blur());
         expect(onFieldBlur).toHaveBeenLastCalledWith({section: 'custom', field: 'yqlVersion'});
+    });
+
+    it('reports compound attribute changes once and identifies removal and addition by ID', () => {
+        render();
+        act(() => button('Edit attribute 1').click());
+        change(input('Attribute key 1'), 'renamed');
+        change(input('Attribute value 1'), 'updated');
+        act(() => button('Apply attribute 1').click());
+        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(onChange.mock.lastCall?.[1]).toEqual({
+            changes: [
+                {section: 'attributes', operation: 'rename', id: 'a'},
+                {section: 'attributes', operation: 'update-value', id: 'a'},
+            ],
+        });
+        act(() => button('Remove attribute 2').click());
+        expect(onChange.mock.lastCall?.[1]).toEqual({
+            changes: [{section: 'attributes', operation: 'remove', id: 'b'}],
+        });
+        act(() => button('Add attribute').click());
+        change(input('Attribute key 3'), 'new');
+        act(() => button('Apply attribute 3').click());
+        expect(onChange.mock.lastCall?.[1]).toEqual({
+            changes: [{section: 'attributes', operation: 'add', id: lastValue().attributes[2].id}],
+        });
+    });
+
+    it.each([42, false, {nested: [1, 2]}])(
+        'preserves raw %j when renaming or applying unchanged text',
+        (raw) => {
+            const parse = vi.fn((text: string) => ({value: JSON.parse(text) as unknown}));
+            const codec: QuerySettingsAttributeCodec<unknown> = {format: JSON.stringify, parse};
+            const typedChange = vi.fn();
+            const value: QuerySettingsValue<Custom, unknown> = {
+                ...initialValue,
+                attributes: [{id: 'typed', key: 'original', value: raw}],
+            };
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QuerySettings
+                            value={value}
+                            onChange={typedChange}
+                            attributeCodec={codec}
+                        />
+                    </ThemeProvider>,
+                ),
+            );
+            act(() => button('Edit attribute 1').click());
+            change(input('Attribute key 1'), 'renamed');
+            act(() => button('Apply attribute 1').click());
+            expect(parse).not.toHaveBeenCalled();
+            expect(typedChange.mock.lastCall?.[0].attributes[0].value).toBe(raw);
+            expect(typedChange.mock.lastCall?.[0].attributes[0].id).toBe('typed');
+            expect(typedChange.mock.lastCall?.[1]).toEqual({
+                changes: [{section: 'attributes', operation: 'rename', id: 'typed'}],
+            });
+            act(() => button('Edit attribute 1').click());
+            act(() => button('Apply attribute 1').click());
+            expect(parse).not.toHaveBeenCalled();
+            expect(typedChange.mock.lastCall?.[1]).toEqual({changes: []});
+        },
+    );
+
+    it('parses only applied changed text, retains invalid drafts and validates parsed values', () => {
+        const parse = vi.fn((text: string) =>
+            /^\d+$/.test(text) ? {value: Number(text)} : {error: 'Enter an integer'},
+        );
+        const codec: QuerySettingsAttributeCodec<number> = {format: String, parse};
+        const typedChange = vi.fn();
+        const validateAttribute = vi.fn(({value}: {value: number}) =>
+            value > 10 ? {value: 'Too large'} : undefined,
+        );
+        const value: QuerySettingsValue<Custom, number> = {
+            ...initialValue,
+            attributes: [{id: 'typed', key: 'count', value: 5}],
+        };
+        act(() =>
+            root.render(
+                <ThemeProvider>
+                    <QuerySettings
+                        value={value}
+                        onChange={typedChange}
+                        attributeCodec={codec}
+                        validateAttribute={validateAttribute}
+                    />
+                </ThemeProvider>,
+            ),
+        );
+        act(() => button('Edit attribute 1').click());
+        change(input('Attribute value 1'), 'bad');
+        expect(parse).not.toHaveBeenCalled();
+        act(() => button('Apply attribute 1').click());
+        expect(container.textContent).toContain('Enter an integer');
+        expect(input('Attribute value 1').value).toBe('bad');
+        expect(validateAttribute).not.toHaveBeenCalled();
+        expect(typedChange).not.toHaveBeenCalled();
+        change(input('Attribute value 1'), '11');
+        act(() => button('Apply attribute 1').click());
+        expect(container.textContent).toContain('Too large');
+        expect(typedChange).not.toHaveBeenCalled();
+        change(input('Attribute value 1'), '8');
+        act(() => button('Apply attribute 1').click());
+        expect(typedChange.mock.lastCall?.[0].attributes).toEqual([
+            {id: 'typed', key: 'count', value: 8},
+        ]);
+        expect(typedChange.mock.lastCall?.[1]).toEqual({
+            changes: [{section: 'attributes', operation: 'update-value', id: 'typed'}],
+        });
+        expect(validateAttribute).toHaveBeenLastCalledWith(
+            {id: 'typed', key: 'count', value: 8},
+            value.attributes,
+        );
+        act(() => button('Add attribute').click());
+        change(input('Attribute key 2'), 'added');
+        act(() => button('Apply attribute 2').click());
+        expect(input('Attribute value 2').value).toBe('');
+        expect(typedChange).toHaveBeenCalledTimes(1);
+        change(input('Attribute value 2'), '9');
+        act(() => button('Apply attribute 2').click());
+        expect(typedChange.mock.lastCall?.[0].attributes[1]).toEqual({
+            id: expect.any(String),
+            key: 'added',
+            value: 9,
+        });
+    });
+
+    it('keeps codec values controlled and respects permissions and duplicate checks', () => {
+        const parse = vi.fn((text: string) => ({value: Number(text)}));
+        const codec: QuerySettingsAttributeCodec<number> = {format: String, parse};
+        const typedChange = vi.fn();
+        let value: QuerySettingsValue<Custom, number> = {
+            ...initialValue,
+            attributes: [
+                {id: 'a', key: 'first', value: 1},
+                {id: 'b', key: 'second', value: 2},
+            ],
+        };
+        const renderTyped = (locked = false) =>
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QuerySettings
+                            value={value}
+                            onChange={typedChange}
+                            attributeCodec={codec}
+                            checkDuplicateAttributeKeys
+                            getAttributePermissions={() => ({canEditValue: !locked})}
+                        />
+                    </ThemeProvider>,
+                ),
+            );
+        renderTyped();
+        act(() => button('Edit attribute 1').click());
+        change(input('Attribute key 1'), 'second');
+        act(() => button('Apply attribute 1').click());
+        expect(container.textContent).toContain('This key already exists');
+        expect(typedChange).not.toHaveBeenCalled();
+        value = {...value, attributes: [{id: 'a', key: 'external', value: 3}, value.attributes[1]]};
+        renderTyped();
+        expect(input('Attribute key 1').value).toBe('external');
+        expect(input('Attribute value 1').value).toBe('3');
+        change(input('Attribute value 1'), '4');
+        renderTyped(true);
+        expect(input('Attribute value 1').value).toBe('3');
+        expect(input('Attribute value 1').disabled).toBe(true);
+        change(input('Attribute key 1'), 'renamed');
+        act(() => button('Apply attribute 1').click());
+        expect(parse).not.toHaveBeenCalled();
+        expect(typedChange.mock.lastCall?.[0].attributes[0]).toEqual({
+            id: 'a',
+            key: 'renamed',
+            value: 3,
+        });
+        act(() => button('Add attribute').click());
+        change(input('Attribute key 3'), 'protected');
+        change(input('Attribute value 3'), '4');
+        act(() => button('Apply attribute 3').click());
+        expect(typedChange).toHaveBeenCalledTimes(1);
+        expect(container.textContent).toContain('Editing this attribute is not allowed');
     });
 });

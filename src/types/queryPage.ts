@@ -24,8 +24,9 @@ export type QueryPageQueryTab<
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TAttachment extends AttachItem = AttachItem,
+    TValue = string,
 > = Extract<QueryTabItem, {type: 'query'}> & {
-    editorProps: QueryEditorProps<TCustom, TAttachment>;
+    editorProps: QueryEditorProps<TCustom, TAttachment, TValue>;
     executionPanelProps: QueryExecutionPanelProps<TRow, TMetaItem>;
     /** Wrap the standard workspace without changing its identity or parent structure. */
     renderWorkspace?: (context: QueryPageWorkspaceContext) => ReactNode;
@@ -46,7 +47,8 @@ export type QueryPageTab<
     TRow extends Record<string, unknown> = Record<string, unknown>,
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TAttachment extends AttachItem = AttachItem,
-> = QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment> | QueryPageComparisonTab;
+    TValue = string,
+> = QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment, TValue> | QueryPageComparisonTab;
 
 /** Persistence and comparison data loading remain the application's responsibility. */
 export type QueryPageHistoryActions<T extends QueryHistoryRow = QueryHistoryRow> = {
@@ -67,13 +69,14 @@ export type QueryPageProps<
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TVcs extends VcsItem = VcsItem,
     TAttachment extends AttachItem = AttachItem,
+    TValue = string,
 > = {
     /** Default history menu callbacks. Custom getRowActions replaces the menu. */
     historyActions?: QueryPageHistoryActions<THistory>;
     sidebarProps: QueriesSidebarProps<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>;
     /** Visited workspaces stay mounted until their item is removed. */
     tabsProps: Omit<QueryTabsProps, 'items'> & {
-        items: QueryPageTab<TCustom, TRow, TMetaItem, TAttachment>[];
+        items: QueryPageTab<TCustom, TRow, TMetaItem, TAttachment, TValue>[];
     };
     /** Preferred width in pixels, constrained to the available space. */
     sidebarWidth?: number;
