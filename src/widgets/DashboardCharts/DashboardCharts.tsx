@@ -85,6 +85,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
         active = true,
         chartItems: customerChartsItems,
         defaultLayout,
+        layout,
         emptyTitle,
         emptyDescription,
         dashboardProps,
@@ -247,6 +248,7 @@ export const DashboardCharts = (props: DashboardChartsProps) => {
                     <Dashboard
                         items={dashboardItems}
                         defaultLayout={defaultLayout}
+                        layout={layout}
                         onLayoutChange={handleLayoutChange}
                         className={block('dashboard')}
                         {...dashboardProps}

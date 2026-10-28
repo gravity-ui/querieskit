@@ -35,6 +35,7 @@ type DashboardChartsCommonProps = {
     dashboardProps?: Pick<DashboardProps, 'grid' | 'focusable' | 'className'>;
     chartItems?: DashboardItem[];
     defaultLayout?: DashboardProps['defaultLayout'];
+    layout?: DashboardProps['layout'];
     onItemsChange?: (items: DashboardItem[]) => void;
     onLayoutChange?: (layout: ConfigLayout[]) => void;
 };
