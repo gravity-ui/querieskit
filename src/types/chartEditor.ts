@@ -1,4 +1,6 @@
 import type {ReactNode} from 'react';
+import type {ChartDataResolver, ChartDataUnavailable} from './tabularChartSource';
+import type {ChartConfiguration} from './chartConfiguration';
 import type {
     ChartData as BaseChartData,
     ChartSeries as BaseChartSeries,
@@ -168,22 +170,32 @@ export type ChartFieldsFormProps = {
     onSubmit?: () => void;
 };
 
+/** A structured resolver takes precedence when both adapters are supplied. */
+export type ChartFieldsDataSource =
+    | {
+          resolveChartData: ChartDataResolver;
+          getChartData?: (values: ChartSelectedFormValues) => ChartData | undefined;
+      }
+    | {
+          resolveChartData?: undefined;
+          getChartData: (values: ChartSelectedFormValues) => ChartData | undefined;
+      };
+
 export type ChartFieldsEditorProps = Pick<
     ChartFieldsFormProps,
     'chartTypeOptions' | 'getFieldOptions' | 'axisVariants' | 'formValues' | 'onCancel'
-> & {
-    /**
-     * Pure adapter called for complete selections; return undefined when data is unavailable.
-     * Empty XY measure rows are omitted from preview selections without changing the draft.
-     * The editor applies appearance and, for XY charts only, axis settings.
-     */
-    getChartData: (values: ChartSelectedFormValues) => ChartData | undefined;
-    onChange?: (values: ChartFieldsFormValues) => void;
-    onSubmit?: (chartData: ChartData, values: ChartSelectedFormValues) => void;
-    className?: string;
-    emptyDataLabel?: string;
-    formProps?: Pick<ChartFieldsFormProps, 'disabled' | 'submitDisabled' | 'labels' | 'className'>;
-};
+> &
+    ChartFieldsDataSource & {
+        getUnavailableLabel?: (result: ChartDataUnavailable) => ReactNode;
+        onChange?: (values: ChartFieldsFormValues) => void;
+        onSubmit?: (chartData: ChartData, values: ChartConfiguration) => void;
+        className?: string;
+        emptyDataLabel?: string;
+        formProps?: Pick<
+            ChartFieldsFormProps,
+            'disabled' | 'submitDisabled' | 'labels' | 'className'
+        >;
+    };
 
 export type ChartEditorProps = Pick<ChartEditorFormProps, 'axisVariants'> & {
     className?: string;

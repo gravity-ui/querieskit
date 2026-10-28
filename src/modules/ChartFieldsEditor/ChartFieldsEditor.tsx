@@ -5,8 +5,11 @@ import cn from 'bem-cn-lite';
 
 import {ChartFieldsForm} from '../../components/ChartFieldsForm';
 import {isChartFieldsFormComplete, isXYFormValues} from '../../helpers/chartFieldsForm';
-import type {ChartData, ChartFieldsEditorProps} from '../../types/chartEditor';
+import type {ChartFieldsEditorProps} from '../../types/chartEditor';
 import i18n from './i18n';
+import {applyChartFieldsAppearance} from '../../helpers/applyChartFieldsAppearance';
+import type {ChartDataResult} from '../../types/tabularChartSource';
+import {validateChartConfiguration} from '../../helpers/validateChartConfiguration';
 
 import './ChartFieldsEditor.scss';
 
@@ -18,6 +21,8 @@ export function ChartFieldsEditor({
     axisVariants,
     formValues,
     getChartData,
+    resolveChartData,
+    getUnavailableLabel,
     onChange,
     onSubmit,
     onCancel,
@@ -31,7 +36,7 @@ export function ChartFieldsEditor({
         axisVariants,
     });
 
-    const chartData = useMemo<ChartData | undefined>(() => {
+    const result = useMemo<ChartDataResult>(() => {
         // Unfilled measure rows belong to the draft, not to the preview selection.
         const previewValues = isXYFormValues(formValues)
             ? {
@@ -41,38 +46,33 @@ export function ChartFieldsEditor({
                   ),
               }
             : formValues;
+        const validated = validateChartConfiguration(previewValues);
+        if (!validated.valid) return {status: 'invalid-selection'};
+        const configuration = validated.configuration;
+        const resolved = resolveChartData?.(configuration);
+        if (resolved && resolved.status !== 'ready') return resolved;
         if (
-            !isChartFieldsFormComplete(previewValues, {
+            !isChartFieldsFormComplete(configuration, {
                 chartTypeOptions,
                 getFieldOptions,
                 axisVariants,
             })
         )
-            return undefined;
-        const data = getChartData(previewValues);
+            return {status: 'invalid-selection'};
+        const data = resolved?.status === 'ready' ? resolved.data : getChartData?.(configuration);
         if (!data || !data.series.data.some((series) => series.data.length > 0)) {
-            return undefined;
+            return {status: 'empty-data'};
         }
-        const configured: ChartData = {
-            ...data,
-            title: {...data.title, text: formValues.chartTitle ?? ''},
-            legend: {...data.legend, enabled: Boolean(formValues.showLegend)},
-        };
-        if (isXYFormValues(formValues)) {
-            const horizontal = formValues.chartType === 'bar-y';
-            configured.xAxis = {
-                ...data.xAxis,
-                ...(!horizontal && {type: formValues.dimensionAxisType}),
-                title: {...data.xAxis?.title, text: formValues.xTitle ?? ''},
-            };
-            configured.yAxis = (data.yAxis?.length ? data.yAxis : [{}]).map((axis) => ({
-                ...axis,
-                ...(horizontal && {type: formValues.dimensionAxisType}),
-                title: {...axis.title, text: formValues.yTitle ?? ''},
-            }));
-        }
-        return configured;
-    }, [formValues, getChartData, chartTypeOptions, getFieldOptions, axisVariants]);
+        return {status: 'ready', data: applyChartFieldsAppearance(data, configuration)};
+    }, [
+        formValues,
+        getChartData,
+        resolveChartData,
+        chartTypeOptions,
+        getFieldOptions,
+        axisVariants,
+    ]);
+    const chartData = result.status === 'ready' ? result.data : undefined;
 
     const cannotSubmit =
         !isComplete || !chartData || formProps?.disabled || formProps?.submitDisabled;
@@ -87,7 +87,10 @@ export function ChartFieldsEditor({
                 ) : (
                     <Flex width="100%" height="100%" centerContent>
                         <Text color="secondary">
-                            {emptyDataLabel ?? i18n('alert_no-chart-data')}
+                            {result.status !== 'ready' &&
+                                (getUnavailableLabel?.(result) ??
+                                    emptyDataLabel ??
+                                    i18n(`alert_${result.status}`))}
                         </Text>
                     </Flex>
                 )}
@@ -107,8 +110,10 @@ export function ChartFieldsEditor({
                     }}
                     submitDisabled={cannotSubmit}
                     onSubmit={() => {
-                        if (!cannotSubmit && chartData && isComplete)
-                            onSubmit?.(chartData, formValues);
+                        if (!cannotSubmit && chartData && isComplete) {
+                            const validated = validateChartConfiguration(formValues);
+                            if (validated.valid) onSubmit?.(chartData, validated.configuration);
+                        }
                     }}
                 />
             </Box>

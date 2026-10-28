@@ -11,6 +11,7 @@ import type {
     ChartXYFormValues,
 } from '../../src/types/chartEditor';
 import {ChartFieldsEditor} from '../../src/modules/ChartFieldsEditor';
+import type {ChartXYConfiguration} from '../../src/types/chartConfiguration';
 
 const captured = vi.hoisted(() => ({
     form: undefined as ChartFieldsFormProps | undefined,
@@ -36,7 +37,7 @@ const data: ChartData = {
     legend: {enabled: false},
     title: {text: 'Old title'},
 };
-const values: ChartXYFormValues = {
+const values: ChartXYConfiguration = {
     chartType: 'line',
     dimensionAxisType: 'category',
     dimensionFieldId: 'day',
@@ -77,6 +78,54 @@ function render(overrides: Partial<ChartFieldsEditorProps> = {}) {
         ),
     );
 }
+
+it('uses structured missing-field diagnostics without invoking the legacy adapter', () => {
+    const getChartData = vi.fn(() => data);
+    render({
+        getChartData,
+        resolveChartData: () => ({status: 'missing-fields', fieldIds: ['count']}),
+        getUnavailableLabel: (result) => `Unavailable: ${result.fieldIds?.join(', ')}`,
+    });
+    expect(getChartData).not.toHaveBeenCalled();
+    expect(container.textContent).toContain('Unavailable: count');
+    expect(captured.form?.submitDisabled).toBe(true);
+});
+
+it.each(['bar-x', 'bar-y'] as const)(
+    'uses a resolver-only source and applies appearance for %s',
+    (chartType) => {
+        const configuration: ChartXYConfiguration = {...values, chartType};
+        const resolveChartData = vi.fn(() => ({status: 'ready' as const, data}));
+        render({
+            formValues: configuration,
+            chartTypeOptions: [{value: chartType, content: chartType}],
+            getChartData: undefined,
+            resolveChartData,
+        });
+        expect(resolveChartData).toHaveBeenCalledWith(configuration);
+        expect(captured.chart?.title?.text).toBe('Title');
+        expect(captured.chart?.legend?.enabled).toBe(true);
+        expect(captured.chart?.xAxis?.title?.text).toBe('Day');
+        expect(captured.chart?.yAxis?.[0].title?.text).toBe('Count');
+        const dimension =
+            chartType === 'bar-y' ? captured.chart?.yAxis?.[0] : captured.chart?.xAxis;
+        expect(dimension?.type).toBe('category');
+    },
+);
+
+it('uses a ready resolver result in preference to the legacy adapter', () => {
+    const getChartData = vi.fn(() => undefined);
+    render({getChartData, resolveChartData: () => ({status: 'ready', data})});
+    expect(getChartData).not.toHaveBeenCalled();
+    expect(captured.chart?.series).toBe(data.series);
+});
+
+it('does not call the resolver for a structurally incomplete configuration', () => {
+    const resolveChartData = vi.fn(() => ({status: 'ready' as const, data}));
+    render({formValues: {chartType: 'pie'}, resolveChartData});
+    expect(resolveChartData).not.toHaveBeenCalled();
+    expect(captured.form?.submitDisabled).toBe(true);
+});
 
 it('preserves adapter configuration and submits the exact configured preview with controlled values', () => {
     const onSubmit = vi.fn();

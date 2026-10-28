@@ -6,6 +6,7 @@ import type {
     ChartEditorProps,
     ChartFieldsChartType,
     ChartFieldsEditorProps,
+    ChartFieldsDataSource,
     ChartFieldsFormValues,
     ChartSeries,
 } from './chartEditor';
@@ -19,11 +20,12 @@ export type DashboardItem = {
 
 export type DashboardChartFieldsEditorProps = Omit<
     ChartFieldsEditorProps,
-    'formValues' | 'onSubmit' | 'onCancel'
-> & {
-    /** Optional initial bindings for each chart type selected in the Add chart menu. */
-    getInitialFormValues?: (chartType: ChartFieldsChartType) => ChartFieldsFormValues;
-};
+    'formValues' | 'onSubmit' | 'onCancel' | 'resolveChartData' | 'getChartData'
+> &
+    ChartFieldsDataSource & {
+        /** Optional initial bindings for each chart type selected in the Add chart menu. */
+        getInitialFormValues?: (chartType: ChartFieldsChartType) => ChartFieldsFormValues;
+    };
 
 type DashboardChartsCommonProps = {
     /** Hide the editor while inactive, preserving its draft. Defaults to true. */

@@ -7,34 +7,28 @@ import type {
     ChartFieldsFormValues,
     ChartSelectedFormValues,
     ChartXYFormValues,
-    ChartXYType,
 } from '../types/chartEditor';
 
-export const defaultChartAxisVariants: readonly ChartAxisType[] = [
-    'category',
-    'datetime',
-    'linear',
-    'logarithmic',
-];
+import type {ChartConfiguration} from '../types/chartConfiguration';
+import {
+    defaultChartAxisVariants,
+    isXYChartType,
+    validateChartConfiguration,
+} from './validateChartConfiguration';
 
-const xyTypes: readonly ChartXYType[] = ['line', 'area', 'scatter', 'bar-x', 'bar-y'];
-const supportedTypes: readonly ChartFieldsChartType[] = [...xyTypes, 'pie', 'treemap', 'sankey'];
+export {
+    defaultChartAxisVariants,
+    isXYChartType,
+    isChartFieldsChartType,
+} from './validateChartConfiguration';
 
 type FieldsConfig = Pick<
     ChartFieldsFormProps,
     'chartTypeOptions' | 'getFieldOptions' | 'axisVariants'
 >;
 
-export function isXYChartType(type: string | undefined): type is ChartXYType {
-    return xyTypes.some((candidate) => candidate === type);
-}
-
 export function isXYFormValues(values: ChartFieldsFormValues): values is ChartXYFormValues {
     return isXYChartType(values.chartType);
-}
-
-export function isChartFieldsChartType(type: string | undefined): type is ChartFieldsChartType {
-    return supportedTypes.some((candidate) => candidate === type);
 }
 
 function isAvailable(value: string | undefined, options: readonly ChartEditorOption[]) {
@@ -43,58 +37,42 @@ function isAvailable(value: string | undefined, options: readonly ChartEditorOpt
     );
 }
 
-function areItemsAvailable(
-    items: readonly ChartFieldItem[],
-    options: readonly ChartEditorOption[],
-) {
-    return (
-        Array.isArray(items) &&
-        items.length > 0 &&
-        items.every((item) => isAvailable(item.fieldId, options)) &&
-        new Set(items.map((item) => item.fieldId)).size === items.length &&
-        new Set(items.map((item) => item.id)).size === items.length
-    );
-}
-
 export function isChartFieldsFormComplete(
     values: ChartFieldsFormValues,
     {chartTypeOptions, getFieldOptions, axisVariants = defaultChartAxisVariants}: FieldsConfig,
-): values is ChartSelectedFormValues {
-    const {chartType} = values;
-    if (
-        !chartType ||
-        !isChartFieldsChartType(chartType) ||
-        !isAvailable(chartType, chartTypeOptions)
-    ) {
-        return false;
-    }
+): values is ChartConfiguration {
+    const result = validateChartConfiguration(values);
+    if (!result.valid) return false;
+    const configuration = result.configuration;
+    const {chartType} = configuration;
+    if (!isAvailable(chartType, chartTypeOptions)) return false;
     const options = (role: Parameters<typeof getFieldOptions>[0]['role']) =>
         getFieldOptions({chartType, role});
-    if (isXYFormValues(values)) {
+    if ('measureItems' in configuration) {
         return (
-            isAvailable(values.dimensionFieldId, options('dimension')) &&
-            values.dimensionAxisType !== undefined &&
-            axisVariants.includes(values.dimensionAxisType) &&
-            areItemsAvailable(values.measureItems, options('measure'))
+            isAvailable(configuration.dimensionFieldId, options('dimension')) &&
+            axisVariants.includes(configuration.dimensionAxisType) &&
+            configuration.measureItems.every((item) =>
+                isAvailable(item.fieldId, options('measure')),
+            )
         );
     }
-    switch (values.chartType) {
+    switch (configuration.chartType) {
         case 'pie':
             return (
-                isAvailable(values.categoryFieldId, options('category')) &&
-                isAvailable(values.valueFieldId, options('value'))
+                isAvailable(configuration.categoryFieldId, options('category')) &&
+                isAvailable(configuration.valueFieldId, options('value'))
             );
         case 'treemap':
             return (
-                areItemsAvailable(values.levels, options('level')) &&
-                isAvailable(values.valueFieldId, options('value'))
+                configuration.levels.every((item) => isAvailable(item.fieldId, options('level'))) &&
+                isAvailable(configuration.valueFieldId, options('value'))
             );
         case 'sankey':
             return (
-                isAvailable(values.sourceFieldId, options('source')) &&
-                isAvailable(values.targetFieldId, options('target')) &&
-                values.sourceFieldId !== values.targetFieldId &&
-                isAvailable(values.valueFieldId, options('value'))
+                isAvailable(configuration.sourceFieldId, options('source')) &&
+                isAvailable(configuration.targetFieldId, options('target')) &&
+                isAvailable(configuration.valueFieldId, options('value'))
             );
         default:
             return false;

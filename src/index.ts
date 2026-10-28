@@ -109,3 +109,8 @@ export * from './types/navigationDetailResolvers';
 export * from './types/attachmentsEditor';
 
 export type * from './types/queriesVcs';
+
+export type * from './types/tabularChartSource';
+export type * from './types/chartConfiguration';
+export {validateChartConfiguration} from './helpers/validateChartConfiguration';
+export {createTabularChartSource} from './helpers/createTabularChartSource';
