@@ -6,12 +6,20 @@ by `QueryResults`. Search and column selection remain navigation features.
 See [standard result cells](../QueryResults/README.md) for formatting, copying,
 expansion, incomplete values, and the preview lifecycle.
 
-Search uses the formatted text of visible standard cells, including wire
+Search resolves `view.getCellValue` before using the formatted text of visible standard cells, including wire
 envelopes and nested collections, with the table and cell formatter settings.
-Clipboard text overrides do not affect search. Custom-rendered columns retain
+Clipboard text overrides do not affect search. Accessor errors contribute no match for that cell; other columns remain searchable. Custom-rendered columns retain
 search by their raw string, number, or boolean values. The exported
 `filterPreviewRows` helper accepts typed columns and optional cell settings as
 its fourth argument; existing calls with string column names remain supported.
+
+`getCellValue` is optional and also passes through `createTableDetailConfig` via
+`resolvePreviewView`. It receives a raw value; downstream type/options/preview
+callbacks receive the resolved value and the original row. Custom renderers and
+string-column helper calls keep their existing raw-value behavior. Use the row
+or a stable ID for lookup: search indices refer to input rows, whereas rendered
+indices refer to filtered rows. See [source row accessors](../QueryResults/README.md#accessing-values-in-source-rows)
+for the shared contract, error behavior, and a table/chart example.
 
 ## API migration
 
@@ -44,7 +52,7 @@ const columns: QueryResultColumn<Row>[] = [
 Row indices remain off by default in navigation and on in results. Set
 `displayIndices` explicitly to use the same presentation. Other shared options
 include `rowKey`, `stripedRows`, `stickyHead`, `formatterSettings`,
-`maxVisibleLines`, `collapseAfterLines`, `maxInlineTextLength`, `getCellOptions`,
+`maxVisibleLines`, `collapseAfterLines`, `maxInlineTextLength`, `getCellValue`, `getCellType`, `getCellOptions`,
 and `onCellPreview`.
 
 ## Direct and factory usage

@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {
     ArrowDownToLine,
@@ -8,12 +8,16 @@ import {
     Gear,
     LayoutColumns,
 } from '@gravity-ui/icons';
-import {Button, Dialog, Flex, Icon, Link} from '@gravity-ui/uikit';
+import {Button, Dialog, Flex, Icon, Link, Text} from '@gravity-ui/uikit';
 import {action} from 'storybook/actions';
 import {QueryResults} from './QueryResults';
+import {NavigationPreview} from '../NavigationPreview';
+import {createTabularChartSource} from '../../helpers/createTabularChartSource';
 import type {
     QueryResultCellPreviewContext,
+    QueryResultCellSettings,
     QueryResultColumn,
+    QueryResultDataType,
     QueryResultsView,
 } from '../../types/queryResults';
 
@@ -595,3 +599,111 @@ export const HeterogeneousCellTypes: Story = {
         />
     ),
 };
+
+type SourceCell = {value: unknown; type: QueryResultDataType; incomplete?: boolean};
+type SourceRow = Record<string, SourceCell>;
+const sourceColumns: QueryResultColumn<SourceRow>[] = [
+    {name: 'name', type: ['DataType', 'Utf8']},
+    {name: 'amount', type: ['DataType', 'Int32']},
+    {name: 'details', type: ['DataType', 'Utf8'], schemaType: {name: 'Any'}},
+];
+const sourceRows: SourceRow[] = [
+    {
+        name: {value: 'Alpha', type: ['DataType', 'Utf8']},
+        amount: {value: 12, type: ['DataType', 'Int32']},
+        details: {value: 'Partial details', type: ['DataType', 'Utf8'], incomplete: true},
+    },
+    {
+        name: {value: 'Beta', type: ['DataType', 'Utf8']},
+        amount: {value: 7, type: ['DataType', 'Int32']},
+        details: {value: ['one', 'two'], type: ['ListType', ['DataType', 'Utf8']]},
+    },
+];
+const sourceCellSettings: QueryResultCellSettings<SourceRow> = {
+    getCellValue: ({row, column}) => row[column.name]?.value,
+    getCellType: ({row, column}) => row[column.name]?.type,
+    getCellOptions: ({row, column}) => ({isIncomplete: row[column.name]?.incomplete}),
+};
+const sourceRowKey = (row: SourceRow) => String(row.name.value);
+
+function SourceRowsStory() {
+    const [data, setData] = useState(sourceRows);
+    const [search, setSearch] = useState('');
+    const onCellPreview = useCallback(
+        async ({row, column}: QueryResultCellPreviewContext<SourceRow>) => {
+            // The application owns loading and immutable updates, identified by the source row ID.
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            setData((current) =>
+                current.map((item) =>
+                    item.name.value === row.name.value
+                        ? {
+                              ...item,
+                              [column.name]: {
+                                  ...item[column.name],
+                                  value: 'Full details loaded by the application',
+                                  incomplete: false,
+                              },
+                          }
+                        : item,
+                ),
+            );
+        },
+        [],
+    );
+    const settings = useMemo(
+        () => ({
+            ...sourceCellSettings,
+            rowKey: sourceRowKey,
+            onCellPreview,
+            stickyHead: false as const,
+        }),
+        [onCellPreview],
+    );
+    const chartResult = useMemo(
+        () =>
+            createTabularChartSource({
+                rows: data,
+                fields: [
+                    {id: 'name', name: 'Name', type: 'string'},
+                    {id: 'amount', name: 'Amount', type: 'number'},
+                ],
+                // Charts consume normalized primitives, independently of the table wire formatter.
+                getValue: (row, field) => row[field]?.value,
+            }).resolveChartData({
+                chartType: 'pie',
+                categoryFieldId: 'name',
+                valueFieldId: 'amount',
+            }),
+        [data],
+    );
+    return (
+        <Flex direction="column" gap={4}>
+            <Text>
+                Both tables use the same source rows. Preview loads Alpha details in both tables.
+            </Text>
+            <QueryResults title="Query results" columns={sourceColumns} rows={data} {...settings} />
+            <Flex direction="column" gap={2}>
+                <Text variant="subheader-1">Navigation preview</Text>
+                <NavigationPreview
+                    data={{columns: sourceColumns, rows: data}}
+                    view={settings}
+                    search={search}
+                    onSearchUpdate={setSearch}
+                    searchPlaceholder="Search resolved values (try one)"
+                />
+            </Flex>
+            <Flex direction="column" gap={2}>
+                <Text variant="subheader-1">Chart source output from the same rows</Text>
+                <pre>
+                    {JSON.stringify(
+                        chartResult.status === 'ready' ? chartResult.data.series.data : chartResult,
+                        null,
+                        2,
+                    )}
+                </pre>
+            </Flex>
+        </Flex>
+    );
+}
+
+export const SourceRows: Story = {render: () => <SourceRowsStory />};

@@ -102,6 +102,180 @@ describe.each(['table', 'results', 'navigation'] as const)('%s standard cells', 
             button(name)!.click();
         });
     }
+    it('uses the extracted value throughout the standard pipeline and retains source identities', async () => {
+        const value = Object.freeze(['nested value']);
+        const row = Object.freeze({value: Object.freeze({payload: value})});
+        const type = ['ListType', ['DataType', 'Utf8']] as const;
+        const getCellValue = vi.fn<NonNullable<QueryResultsTableProps<Row>['getCellValue']>>(
+            ({value: raw}) => (raw as {payload: unknown}).payload,
+        );
+        const getCellType = vi.fn<NonNullable<QueryResultsTableProps<Row>['getCellType']>>(
+            () => type,
+        );
+        const getCellOptions = vi.fn<NonNullable<QueryResultsTableProps<Row>['getCellOptions']>>(
+            () => ({}),
+        );
+        const onCellPreview = vi.fn();
+        render({rows: [row], getCellValue, getCellType, getCellOptions, onCellPreview});
+        expect(container.textContent).toContain('nested value');
+        await click('Copy');
+        expect(copied.mock.calls[0][0]).toContain('nested value');
+        render({
+            rows: [row],
+            getCellValue,
+            getCellType,
+            getCellOptions,
+            onCellPreview,
+            maxInlineTextLength: 0,
+        });
+        await click('Preview');
+        for (const [context] of getCellValue.mock.calls) {
+            expect(context).toEqual({row, value: row.value, index: 0, column: columns[0]});
+            expect(context.row).toBe(row);
+            expect(context.value).toBe(row.value);
+        }
+        for (const callback of [getCellType, getCellOptions, onCellPreview]) {
+            const context = callback.mock.calls.at(-1)?.[0];
+            expect(context).toMatchObject({row, value, index: 0, column: columns[0]});
+            expect(context.row).toBe(row);
+            expect(context.value).toBe(value);
+        }
+        expect(row.value.payload).toBe(value);
+    });
+    it.each([null, undefined, ''])(
+        'passes an extracted %j literally without a raw-value fallback',
+        (value) => {
+            const getCellOptions = vi.fn<
+                NonNullable<QueryResultsTableProps<Row>['getCellOptions']>
+            >(() => ({}));
+            render({getCellValue: () => value, getCellOptions});
+            expect(getCellOptions).toHaveBeenCalled();
+            expect(getCellOptions.mock.calls.at(-1)?.[0].value).toBe(value);
+            expect(container.textContent).not.toContain('hello');
+        },
+    );
+    it('preserves explicit metadata and clipboard overrides for extracted wire envelopes', async () => {
+        const value = {val: 'partial', inc: true};
+        const onCellPreview = vi.fn();
+        render({
+            getCellValue: () => value,
+            formatterSettings: {treatValAsData: true},
+            getCellOptions: () => ({isIncomplete: false, tag: 'application/data', copyText: ''}),
+            maxInlineTextLength: 0,
+            onCellPreview,
+        });
+        await click('Copy');
+        expect(copied).toHaveBeenCalledWith('');
+        await click('Preview');
+        expect(onCellPreview.mock.calls[0][0]).toMatchObject({
+            value,
+            isIncomplete: false,
+            tag: 'application/data',
+        });
+    });
+    it('isolates accessor errors, skips dependent callbacks and recovers', () => {
+        const getCellType = vi.fn<NonNullable<QueryResultsTableProps<Row>['getCellType']>>(
+            () => columns[0].type,
+        );
+        const getCellOptions = vi.fn<NonNullable<QueryResultsTableProps<Row>['getCellOptions']>>(
+            () => ({}),
+        );
+        const onCellPreview = vi.fn();
+        render({
+            getCellValue: () => {
+                throw Error('accessor failed');
+            },
+            getCellType,
+            getCellOptions,
+            onCellPreview,
+        });
+        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+            'Unable to format value',
+        );
+        expect(getCellType).not.toHaveBeenCalled();
+        expect(getCellOptions).not.toHaveBeenCalled();
+        expect(button('Copy')).toBeUndefined();
+        expect(button('Preview')).toBeUndefined();
+        render({getCellValue: () => 'recovered', getCellType, getCellOptions, onCellPreview});
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        expect(container.textContent).toContain('recovered');
+    });
+    it('invalidates preview across accessor failure and recovery with an undefined value', async () => {
+        const old = deferred();
+        const next = deferred();
+        const onCellPreview = vi
+            .fn()
+            .mockReturnValueOnce(old.promise)
+            .mockReturnValueOnce(next.promise);
+        const props: Partial<QueryResultsTableProps<Row>> = {
+            columns: [{name: 'value', type: ['NullType']}],
+            getCellValue: () => undefined,
+            getCellOptions: incomplete,
+            onCellPreview,
+        };
+        render(props);
+        await click('Preview');
+        render({
+            ...props,
+            getCellValue: () => {
+                throw Error('failed');
+            },
+        });
+        expect(button('Preview')).toBeUndefined();
+        render(props);
+        await click('Preview');
+        await act(async () => old.reject(Error('stale')));
+        expect(button('Preview')?.disabled).toBe(true);
+        expect(button('Retry preview')).toBeUndefined();
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        await act(async () => next.resolve());
+        expect(button('Preview')?.disabled).toBe(false);
+    });
+    it('keeps expansion and pending preview when the accessor allocates an object', async () => {
+        const getCellValue = () => ({val: 'one\ntwo\nthree\nfour\nfive\nsix'});
+        const props: Partial<QueryResultsTableProps<Row>> = {
+            getCellValue,
+            formatterSettings: {treatValAsData: true},
+        };
+        render(props);
+        await click('Show more');
+        expect(button('Show less')?.getAttribute('aria-expanded')).toBe('true');
+        await click('Copy');
+        expect(button('Show less')).toBeDefined();
+        const pending = deferred();
+        const onCellPreview = vi.fn(() => pending.promise);
+        render({...props, getCellOptions: incomplete, onCellPreview});
+        await click('Preview');
+        expect(button('Preview')?.disabled).toBe(true);
+        await click('Preview');
+        expect(onCellPreview).toHaveBeenCalledTimes(1);
+        await act(async () => pending.reject(Error('failed')));
+        expect(button('Retry preview')).toBeDefined();
+    });
+    it('renders an immutable source update after preview and allows copying the loaded value', async () => {
+        type Cell = {payload: string; incomplete: boolean};
+        const initialCell = Object.freeze({payload: 'partial', incomplete: true});
+        const initialRow = Object.freeze({value: initialCell});
+        const props: Partial<QueryResultsTableProps<Row>> = {
+            rows: [initialRow],
+            getCellValue: ({row}) => (row.value as Cell).payload,
+            getCellOptions: ({row}) => ({isIncomplete: (row.value as Cell).incomplete}),
+            onCellPreview: async ({row}) => {
+                expect(row).toBe(initialRow);
+                await Promise.resolve();
+                render({...props, rows: [{value: {payload: 'loaded value', incomplete: false}}]});
+            },
+        };
+        render(props);
+        expect(button('Copy')).toBeUndefined();
+        await click('Preview');
+        expect(container.textContent).toContain('loaded value');
+        expect(button('Preview')).toBeUndefined();
+        await click('Copy');
+        expect(copied.mock.calls[0][0]).toContain('loaded value');
+        expect(initialRow.value).toBe(initialCell);
+        expect(initialCell.payload).toBe('partial');
+    });
     it('uses the effective cell type for display, copy and preview without changing the column', async () => {
         const preview = vi.fn();
         const type = ['ListType', ['DataType', 'Utf8']] as const;
@@ -331,14 +505,27 @@ describe.each(['table', 'results', 'navigation'] as const)('%s standard cells', 
         const options = vi.fn(() => {
             throw Error('must not run');
         });
+        const getCellValue = vi.fn(() => {
+            throw Error('must not run');
+        });
+        const customRender = vi.fn<
+            NonNullable<QueryResultsTableProps<Row>['columns'][number]['render']>
+        >(() => <span>Custom</span>);
+        const rows = [{value: Symbol('invalid')}];
         render({
-            columns: [{...columns[0], render: () => <span>Custom</span>}],
-            rows: [{value: Symbol('invalid')}],
+            columns: [{...columns[0], render: customRender}],
+            rows,
+            getCellValue,
             getCellOptions: options,
         });
         expect(container.textContent).toContain('Custom');
         expect(container.querySelector('[role="alert"]')).toBeNull();
         expect(options).not.toHaveBeenCalled();
+        expect(getCellValue).not.toHaveBeenCalled();
+        expect(customRender.mock.calls.at(-1)?.[0]).toMatchObject({
+            row: rows[0],
+            value: rows[0].value,
+        });
     });
     it('renders object wire envelopes and detects server incompleteness', async () => {
         const value = {val: 'part', inc: true};

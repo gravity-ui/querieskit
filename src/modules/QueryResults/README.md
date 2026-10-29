@@ -3,7 +3,7 @@
 `QueryResults`, `QueryResultsTable`, `NavigationPreview.view`, and the `result`
 tab of `QueryExecutionPanel` accept the same cell options. Values remain in YQL wire format; QueriesKit handles
 Unipika conversion, HTML, copying, local expansion, and preview actions.
-`column.render` replaces this entire pipeline, including `getCellOptions` and `getCellType`.
+`column.render` replaces this entire pipeline, including `getCellValue`, `getCellOptions` and `getCellType`.
 
 `QueryResultsTableSettings<Row>` also shares `rowKey`, `displayIndices`,
 `stripedRows`, and `stickyHead` between results and navigation. Navigation keeps
@@ -60,6 +60,86 @@ function cellOptions(metadata: LegacyCellMetadata): QueryResultCellOptions {
 Enable `treatValAsData` for web-json wrappers such as
 `{val: 'partial text', inc: true}` or `{val: 'AP8=', b64: true}`. Plain YQL
 wire values remain supported. Supply the original YQL type in each column.
+
+## Accessing values in source rows
+
+Use `getCellValue` to keep application-owned rows containing nested fields or typed
+wrappers while retaining standard cells. It receives the original `row`, `column`,
+`index`, and raw `value = row[column.name]`. Its result becomes `context.value`
+for `getCellType`, `getCellOptions`, and `onCellPreview`; `context.row` keeps its
+original identity. Without an accessor, the raw value is used. Returning
+`undefined` is a valid result, not a request to fall back to the raw value.
+
+The standard pipeline is value resolution → per-cell type → cell options →
+formatting, copying, and preview. The accessor result must still be a supported
+YQL wire value: this API adapts storage shape, not arbitrary value formats.
+`copyText`, `isIncomplete`, `tag`, and formatter overrides keep their precedence.
+`column.render` bypasses the entire pipeline and receives the original raw value.
+Column types and `schemaType` continue to describe Schema independently of rows.
+
+```tsx
+import {QueryResults} from '@gravity-ui/querieskit/modules/QueryResults';
+import {NavigationPreview} from '@gravity-ui/querieskit/modules/NavigationPreview';
+import {createTabularChartSource} from '@gravity-ui/querieskit/helpers/createTabularChartSource';
+import type {QueryResultCellSettings, QueryResultColumn, QueryResultDataType} from '@gravity-ui/querieskit';
+
+type Cell = {value: unknown; type: QueryResultDataType; incomplete?: boolean};
+type Row = Record<string, Cell>;
+
+const rows: Row[] = [{
+  name: {value: 'Alpha', type: ['DataType', 'Utf8']},
+  amount: {value: 12, type: ['DataType', 'Int32']},
+}];
+const columns: QueryResultColumn<Row>[] = [
+  {name: 'name', type: ['DataType', 'Utf8']},
+  {name: 'amount', type: ['DataType', 'Int32']},
+];
+const settings: QueryResultCellSettings<Row> = {
+  getCellValue: ({row, column}) => row[column.name]?.value,
+  getCellType: ({row, column}) => row[column.name]?.type,
+  getCellOptions: ({row, column}) => ({isIncomplete: row[column.name]?.incomplete}),
+};
+
+<QueryResults rows={rows} columns={columns} {...settings} />;
+<NavigationPreview data={{rows, columns}} view={settings} />;
+
+const source = createTabularChartSource({
+  rows,
+  fields: [
+    {id: 'name', name: 'Name', type: 'string'},
+    {id: 'amount', name: 'Amount', type: 'number'},
+  ],
+  getValue: (row, field) => row[field]?.value,
+});
+```
+
+Chart accessors consume normalized primitives, not formatted table text or HTML.
+For example, datetime chart values are Unix milliseconds; converting backend dates
+or numeric strings belongs to the application. The table and chart can share the
+same rows without requiring identical accessor implementations. Transport decoding,
+registry resolution, caching and requests also remain application responsibilities.
+
+Accessors must be synchronous and free of side effects. They can run repeatedly
+for rendering and navigation search; no exact invocation count is guaranteed.
+Keep callbacks stable and preserve object-valued results when their data has not
+changed, using application memoization when conversion is needed. Local cell
+interactions reuse the resolved context. Immutable row updates trigger resolution
+again; no second transformed row model is stored by QueriesKit.
+
+`index` is the position in the currently processed set, not a stable row ID.
+Navigation search uses the input index, while its table uses the filtered index.
+Use `row` or its stable ID for value and metadata lookup, rather than an external
+array indexed by `index`.
+
+If the accessor throws, the cell shows the existing formatting error without
+calling type/options callbacks or offering copy/preview actions. A failed search
+cell contributes no match; other columns can still match. Updating the input or
+accessor permits recovery and invalidates the cell's previous preview request.
+
+The **Source Rows** Storybook example uses one state-owned row array in results,
+searchable navigation preview and a chart source. Preview simulates loading the
+complete value and immutably replaces the source row, updating both tables.
+An application-owned modal preview is also supported and need not update rows.
 
 ## Preview ownership and lifecycle
 

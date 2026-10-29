@@ -76,6 +76,21 @@ describe('QueryResults Schema integration', () => {
         expect(container.querySelector('.data-table__sticky_head')).not.toBeNull();
         expect(container.querySelector('[class*="sort-icon"]')).toBeNull();
     });
+    it.each([{sourceRows: []}, {sourceRows: [{name: {value: 'wrapped'}}]}])(
+        'keeps schema independent of value callbacks with rows %j',
+        ({sourceRows}) => {
+            const getCellValue = vi.fn(() => {
+                throw Error('schema must not read cells');
+            });
+            const getCellType = vi.fn(() => ['DataType', 'Utf8'] as const);
+            render({rows: sourceRows, getCellValue, getCellType}, true);
+            expect(rows()).toHaveLength(3);
+            expect(rows()[0].children[2].textContent).toContain('String');
+            expect(rows()[1].children[2].textContent).toContain('Int64');
+            expect(getCellValue).not.toHaveBeenCalled();
+            expect(getCellType).not.toHaveBeenCalled();
+        },
+    );
     it('forwards table appearance settings, including explicit disable and fixed header', () => {
         render({displayIndices: false, stripedRows: false, stickyHead: false});
         expect(rows()[0].children.length).toBe(2);

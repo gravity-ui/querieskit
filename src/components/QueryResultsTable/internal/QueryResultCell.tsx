@@ -10,6 +10,7 @@ import {
     formatQueryResultValue,
 } from '../helpers/formatQueryResultValue';
 import i18n from '../i18n';
+import {resolveQueryResultCellContext} from '../helpers/resolveQueryResultCellContext';
 import {resolveQueryResultCellType} from '../helpers/resolveQueryResultCellType';
 
 import './QueryResultCell.scss';
@@ -36,6 +37,7 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
     maxVisibleLines,
     collapseAfterLines,
     maxInlineTextLength,
+    getCellValue,
     getCellOptions,
     getCellType,
     onCellPreview,
@@ -45,15 +47,24 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
     const [loading, setLoading] = useState(false);
     const [previewError, setPreviewError] = useState(false);
     const request = useRef<object | null>(null);
-    const context = useMemo(() => ({row, value, index, column}), [row, value, index, column]);
+    const context = useMemo(() => {
+        try {
+            return resolveQueryResultCellContext({row, value, index, column}, getCellValue);
+        } catch {
+            return undefined;
+        }
+    }, [row, value, index, column, getCellValue]);
+    const resolvedValue = context?.value;
+    const resolutionError = context === undefined;
     const type = useMemo(
-        () => resolveQueryResultCellType(context, getCellType),
-        [context, getCellType],
+        () => (context ? resolveQueryResultCellType(context, getCellType) : column.type),
+        [context, getCellType, column.type],
     );
     const formatted = useMemo<FormattedQueryResultValue>(() => {
+        if (!context) return {error: true, html: '', text: ''};
         try {
             return formatQueryResultValue(
-                value,
+                context.value,
                 type,
                 formatterSettings,
                 getCellOptions?.(context),
@@ -62,7 +73,7 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
         } catch {
             return {error: true as const, html: '', text: ''};
         }
-    }, [value, type, formatterSettings, getCellOptions, context, maxInlineTextLength]);
+    }, [type, formatterSettings, getCellOptions, context, maxInlineTextLength]);
     const {isIncomplete, tag} = cellMetadata(formatted);
     // YQL types are wire tuples: equivalent inline column definitions must not
     // reset expansion or invalidate an in-flight preview on a parent render.
@@ -76,10 +87,20 @@ export function QueryResultCell<TRow extends Record<string, unknown>>({
         return () => {
             request.current = null;
         };
-    }, [row, value, index, column.name, columnTypeKey, isIncomplete, tag]);
+    }, [
+        row,
+        value,
+        resolvedValue,
+        resolutionError,
+        index,
+        column.name,
+        columnTypeKey,
+        isIncomplete,
+        tag,
+    ]);
 
     const preview = async () => {
-        if (!onCellPreview || request.current) return;
+        if (!context || !onCellPreview || request.current) return;
         const token = {};
         request.current = token;
         setLoading(true);

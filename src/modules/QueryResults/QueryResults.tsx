@@ -27,6 +27,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     maxVisibleLines,
     collapseAfterLines,
     maxInlineTextLength,
+    getCellValue,
     getCellOptions,
     getCellType,
     onCellPreview,
@@ -108,6 +109,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                 maxVisibleLines={maxVisibleLines}
                 collapseAfterLines={collapseAfterLines}
                 maxInlineTextLength={maxInlineTextLength}
+                getCellValue={getCellValue}
                 getCellOptions={getCellOptions}
                 getCellType={getCellType}
                 onCellPreview={onCellPreview}
