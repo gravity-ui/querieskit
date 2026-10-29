@@ -464,12 +464,14 @@ describe('QueryExecutionPanel', () => {
         expect(dashboardProps).not.toHaveBeenCalled();
     });
     it('forwards standard cell settings and callbacks unchanged to a result tab', () => {
+        const getCellValue = vi.fn(({value}: {value: unknown}) => value);
         const getCellOptions = vi.fn(() => ({isIncomplete: true, tag: 'image/png'}));
         const onCellPreview = vi.fn();
         const formatterSettings = {treatValAsData: true, maxListSize: 50};
         const props: QueryResultsProps<Record<string, unknown>> = {
             columns: [{name: 'value', type: ['DataType', 'String']}],
             rows: [{value: {val: 'partial', inc: true}}],
+            getCellValue,
             getCellOptions,
             onCellPreview,
             maxVisibleLines: 5,
@@ -481,12 +483,14 @@ describe('QueryExecutionPanel', () => {
 
         const forwarded = resultProps.mock.calls.at(-1)?.[0];
         expect(forwarded).toEqual(props);
+        expect(forwarded.getCellValue).toBe(getCellValue);
         expect(forwarded.getCellOptions).toBe(getCellOptions);
         expect(forwarded.onCellPreview).toBe(onCellPreview);
         expect(forwarded.formatterSettings).toBe(formatterSettings);
         expect(forwarded.columns).toBe(props.columns);
         expect(forwarded.rows).toBe(props.rows);
         expect(getCellOptions).not.toHaveBeenCalled();
+        expect(getCellValue).not.toHaveBeenCalled();
         expect(onCellPreview).not.toHaveBeenCalled();
     });
     it('preserves visited content through loading and retry, and pauses hidden content', () => {

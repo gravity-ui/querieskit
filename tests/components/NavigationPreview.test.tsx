@@ -35,6 +35,66 @@ describe('NavigationPreview integration', () => {
     function render(content: React.ReactNode) {
         act(() => root.render(<ThemeProvider>{content}</ThemeProvider>));
     }
+    it('searches extracted heterogeneous values without changing row identities or index semantics', () => {
+        const rows = [
+            Object.freeze({
+                value: Object.freeze({value: 'plain', type: ['DataType', 'Utf8'] as const}),
+            }),
+            Object.freeze({
+                value: Object.freeze({
+                    value: ['typed match'],
+                    type: ['ListType', ['DataType', 'Utf8']] as const,
+                }),
+            }),
+        ];
+        const getCellValue = vi.fn(({row}: {row: (typeof rows)[number]}) => row.value.value);
+        const view = {
+            getCellValue,
+            getCellType: ({row}: {row: (typeof rows)[number]}) => row.value.type,
+        };
+        const columns = [{name: 'value', type: ['DataType', 'Utf8'] as const}];
+        const filtered = filterPreviewRows(rows, columns, 'typed match', view);
+        expect(filtered).toEqual([rows[1]]);
+        expect(filtered[0]).toBe(rows[1]);
+        getCellValue.mockClear();
+        render(<NavigationPreview data={{columns, rows}} search="typed match" view={view} />);
+        expect(container.textContent).toContain('typed match');
+        expect(container.textContent).not.toContain('plain');
+        const calls = getCellValue.mock.calls.map(
+            ([context]) => context as {row: (typeof rows)[number]; index: number},
+        );
+        expect(calls.some(({row, index}) => row === rows[1] && index === 1)).toBe(true);
+        expect(calls.some(({row, index}) => row === rows[1] && index === 0)).toBe(true);
+        render(<NavigationPreview data={{columns, rows}} search="" view={view} />);
+        expect(container.textContent).toContain('plain');
+        expect(container.textContent).toContain('typed match');
+    });
+    it('isolates accessor failures in search and preserves legacy and custom-renderer search', () => {
+        const rows = [
+            {value: 'broken', neighbor: 'match'},
+            {value: 'match', neighbor: 'other'},
+        ];
+        const getCellValue = vi.fn(
+            ({row, column}: {row: (typeof rows)[number]; column: {name: string}}) => {
+                if (column.name === 'value') throw Error('invalid cell');
+                return row.neighbor;
+            },
+        );
+        const columns = [
+            {name: 'value', type: ['DataType', 'Utf8'] as const},
+            {name: 'neighbor', type: ['DataType', 'Utf8'] as const},
+        ];
+        const settings = {getCellValue, getCellOptions: () => ({copyText: 'clipboard-only'})};
+        expect(filterPreviewRows(rows, columns, 'match', settings)).toEqual([rows[0]]);
+        expect(filterPreviewRows(rows, columns, 'clipboard-only', settings)).toEqual([]);
+        expect(filterPreviewRows(rows, [columns[0]], 'match', settings)).toEqual([]);
+        getCellValue.mockClear();
+        expect(filterPreviewRows(rows, ['value'], 'match', settings)).toEqual([rows[1]]);
+        expect(
+            filterPreviewRows(rows, [{...columns[0], render: () => 'custom'}], 'match', settings),
+        ).toEqual([rows[1]]);
+        expect(getCellValue).not.toHaveBeenCalled();
+    });
     it('searches and displays heterogeneous cell types using the same resolver', () => {
         const rows = [{value: 'plain'}, {value: ['typed match']}];
         render(
@@ -133,6 +193,7 @@ describe('NavigationPreview integration', () => {
         const item = {path: '/table', title: 'table'};
         const onCellPreview = vi.fn();
         const resolvePreviewView = vi.fn(() => ({
+            getCellValue: ({value}: {value: unknown}) => `extracted ${String(value)}`,
             getCellOptions: () => ({isIncomplete: true}),
             onCellPreview,
             displayIndices: true,
@@ -155,6 +216,7 @@ describe('NavigationPreview integration', () => {
         expect(preview).not.toBeNull();
         await act(async () => preview?.click());
         expect(onCellPreview.mock.calls[0][0].row).toBe(data.rows[1]);
+        expect(onCellPreview.mock.calls[0][0].value).toBe('extracted Beta record');
         const input = container.querySelector('input');
         act(() => {
             Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(

@@ -54,7 +54,9 @@ export type QueryResultColumn<TRow extends Record<string, unknown>> = {
 
 export type QueryResultCellRenderContext<TRow extends Record<string, unknown>> = {
     row: TRow;
+    /** Raw for getCellValue/column.render; resolved for other standard-cell callbacks. */
     value: unknown;
+    /** Position in the current input; may change after filtering or reordering. */
     index: number;
     column: QueryResultColumn<TRow>;
 };
@@ -77,6 +79,12 @@ export type QueryResultCellPreviewContext<TRow extends Record<string, unknown>> 
     };
 
 export type QueryResultCellSettings<TRow extends Record<string, unknown>> = {
+    /**
+     * Synchronously extracts a YQL wire value from the raw cell context.
+     * Undefined is a valid result. Must be pure; index is not a stable row ID.
+     * Other cell callbacks receive this value while row remains unchanged.
+     */
+    getCellValue?: (context: QueryResultCellRenderContext<TRow>) => unknown;
     formatterSettings?: QueryResultFormatterSettings;
     maxVisibleLines?: number;
     /** Collapse only above this line count. Defaults to maxVisibleLines. */
@@ -102,7 +110,7 @@ export type QueryResultsTableSettings<TRow extends Record<string, unknown>> =
 export type QueryResultsTableProps<TRow extends Record<string, unknown>> =
     QueryResultsTableSettings<TRow> & {
         columns: Array<QueryResultColumn<TRow>>;
-        /** Values use the YQL wire representation consumed by @gravity-ui/unipika. */
+        /** Original rows. Cell values (or getCellValue results) must use YQL wire representation. */
         rows: TRow[];
         loading?: boolean;
         loaded?: boolean;
@@ -134,7 +142,7 @@ export type QueryResultsColumnVisibility = {
 export type QueryResultsProps<TRow extends Record<string, unknown>> =
     QueryResultsTableSettings<TRow> & {
         columns: Array<QueryResultColumn<TRow>>;
-        /** Values use the YQL wire representation consumed by @gravity-ui/unipika. */
+        /** Original rows. Cell values (or getCellValue results) must use YQL wire representation. */
         rows: TRow[];
         totalRows?: number;
         loading?: boolean;

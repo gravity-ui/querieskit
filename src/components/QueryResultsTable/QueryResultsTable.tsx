@@ -26,6 +26,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
     maxVisibleLines = DEFAULT_MAX_VISIBLE_LINES,
     collapseAfterLines = maxVisibleLines,
     maxInlineTextLength,
+    getCellValue,
     getCellOptions,
     getCellType,
     onCellPreview,
@@ -68,6 +69,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
                                 maxVisibleLines={maxVisibleLines}
                                 collapseAfterLines={collapseAfterLines}
                                 maxInlineTextLength={maxInlineTextLength}
+                                getCellValue={getCellValue}
                                 getCellOptions={getCellOptions}
                                 getCellType={getCellType}
                                 onCellPreview={onCellPreview}
@@ -81,6 +83,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
             maxVisibleLines,
             collapseAfterLines,
             maxInlineTextLength,
+            getCellValue,
             getCellOptions,
             getCellType,
             onCellPreview,

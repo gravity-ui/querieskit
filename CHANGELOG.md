@@ -11,6 +11,8 @@
 
 ### Features
 
+- Add optional `getCellValue` to shared result-cell settings. Results and navigation preview (including search) can use original application rows while retaining standard formatting, copying and preview. For example, replace `rows={sourceRows.map((row) => ({value: row.value.value}))}` with `rows={sourceRows} getCellValue={({row, column}) => row[column.name]?.value}`; use `getCellType` for wrapped type metadata. No migration is required for existing consumers.
+
 - Add editor `hiddenActions` / `hiddenPanels`, execution-panel `headerActions` / `statusContent`, and per-query `renderWorkspace` composition. The QueryPage `ExternalState` example demonstrates controlled integration with an adjacent file editor while retaining the query workspace.
 
 - Upgrade the standard Result Schema with expandable types, optional markers, tags, parameters, and one-based indices. Share indices, stripes and sticky-header settings with Result. Add optional `column.schemaType` and public `QueryResultSchemaType` for neutral schema descriptions; existing YQL types work automatically and Result value formatting is unchanged.
