@@ -130,3 +130,6 @@ export {
     extractChartDefinition,
     restoreChartDefinition,
 } from './helpers/chartDefinitions';
+
+export type * from './types/queryWorkspaceLayout';
+export type * from './types/resizeHandle';

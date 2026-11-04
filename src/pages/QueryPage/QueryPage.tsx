@@ -16,8 +16,8 @@ import {DeleteQueryDialog} from './internal/DeleteQueryDialog';
 import {useHistoryActions} from './internal/useHistoryActions';
 import {QueryWorkspace} from './internal/QueryWorkspace';
 import {QueryPagePanel} from './internal/QueryPagePanel';
-import {ResizeHandle} from './internal/ResizeHandle';
-import {useElementSize, useLayoutState} from './internal/useLayoutState';
+import {ResizeHandle} from '../../components/ResizeHandle';
+import {useElementSize, useLayoutState} from '../../helpers/useLayoutState';
 import i18n from './i18n';
 import './QueryPage.scss';
 
