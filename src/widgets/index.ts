@@ -15,3 +15,8 @@ export type {
 } from './QueriesSidebar';
 export {QueryEditor} from './QueryEditor';
 export {createBuiltinQueryEngines} from './QueryEditor/presets/builtin';
+
+export {
+    BuiltinEngineSettingsFields,
+    BuiltinEngineSettingsSections,
+} from './QueryEditor/presets/builtin';

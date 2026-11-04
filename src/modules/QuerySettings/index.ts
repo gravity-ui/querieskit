@@ -15,3 +15,9 @@ export type {
     QuerySettingsCustomFieldsContext,
     QuerySettingsProps,
 } from '../../types/querySettings';
+export type {
+    QuerySettingsFieldBinding,
+    QuerySettingsSection,
+    QuerySettingsSectionsProps,
+    QuerySettingsStandardFields,
+} from '../../types/querySettings';

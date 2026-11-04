@@ -38,7 +38,10 @@ type Assert<T extends true> = T;
 export type VcsContractChecks = [
     Assert<Equal<PageProps['sidebarProps'], SidebarProps>>,
     Assert<
-        Equal<Extract<SidebarProps['tabs'][number], {type: 'vcs'}>['props'], QueriesVcsProps<File>>
+        Equal<
+            NonNullable<Extract<SidebarProps['tabs'][number], {type: 'vcs'}>['props']>,
+            QueriesVcsProps<File>
+        >
     >,
 ];
 

@@ -228,7 +228,7 @@ function Example({
                         header: <Text variant="subheader-2">Queries</Text>,
                         keepMounted: true,
                         tabs: sidebarTabs.map((tab) =>
-                            tab.type === 'history'
+                            tab.type === 'history' && tab.props
                                 ? {
                                       ...tab,
                                       props: {

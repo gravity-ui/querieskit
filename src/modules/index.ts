@@ -80,3 +80,7 @@ export type {ChartFieldsEditorProps} from './ChartFieldsEditor';
 export * from './QueryComparison';
 
 export {QueriesVcs} from './QueriesVcs';
+
+export {QueryWorkspaceLayout} from './QueryWorkspaceLayout';
+
+export {QueryAttributesEditor} from './QueryAttributesEditor';

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Box,
     Button,
@@ -14,7 +14,13 @@ import {
 import {AttachmentList, EditAttachmentItem} from '../../components/AttachmentList';
 import type {EditLinkValues} from '../../types/attachmentsEditor';
 import {AttachmentListPlaceholder} from '../../components/AttachmentListPlaceholder';
-import type {AttachItem, AttachmentsProps} from '../../types/attachments';
+import type {
+    AttachItem,
+    AttachmentDraft,
+    AttachmentsChange,
+    AttachmentsProps,
+    AttachmentsValue,
+} from '../../types/attachments';
 import {createUuid} from '../../helpers/createUuid';
 import {isObjectEqual} from '../../helpers/isObjectEqual';
 import {stringRequiredValidator} from '../../components/AttachmentList/helpers/stringRequiredValidator';
@@ -46,23 +52,59 @@ const AttachmentsImpl = <T extends AttachItem>({
     onItemClick,
     attachments: customerAttachments,
     deletedAttachments: customerDeletedAttachments,
+    defaultAttachments = [],
+    defaultDeletedAttachments = [],
+    drafts: customerDrafts,
+    defaultDrafts = [],
+    onDraftsChange,
 }: AttachmentsProps<T> & {createAttachment: (draft: AttachItem) => T}) => {
     const [currentTab, setCurrentTab] = useState<'Current' | 'Deleted'>('Current');
 
-    const [innerAttachList, setInnerAttachList] = useState<T[]>(customerAttachments ?? []);
-    const [innerDeletedAttachList, setInnerDeletedAttachList] = useState<T[]>(
-        customerDeletedAttachments ?? [],
-    );
+    const [innerAttachList, setInnerAttachList] = useState<T[]>(defaultAttachments);
+    const [innerDeletedAttachList, setInnerDeletedAttachList] =
+        useState<T[]>(defaultDeletedAttachments);
 
-    const [editingIds, setEditingIds] = useState<string[]>([]);
+    const [innerDrafts, setInnerDrafts] = useState<AttachmentDraft[]>(defaultDrafts);
+    const drafts = customerDrafts ?? innerDrafts;
+    const setDrafts = (next: AttachmentDraft[]) => {
+        if (customerDrafts === undefined) setInnerDrafts(next);
+        onDraftsChange?.(next);
+    };
+
     const [wasAddedIds, setWasAddedIds] = useState<string[]>([]);
     const [wasEdited, setWasEditedIds] = useState<string[]>([]);
     const [restoreErrorId, setRestoreErrorId] = useState<string>();
+    const [draftError, setDraftError] = useState<{id: string; message: string}>();
 
     const attachList = customerAttachments ?? innerAttachList;
     const deletedAttachList = customerDeletedAttachments ?? innerDeletedAttachList;
 
-    const attachCount = useMemo(() => attachList.filter((a) => !a.isNew).length, [attachList]);
+    const attachCount = attachList.length;
+    const draftIds = new Set<string>();
+    let invalidDraftIdentity = false;
+    const editableDrafts = drafts.filter(({mode, value}) => {
+        const duplicate = draftIds.has(value.id);
+        draftIds.add(value.id);
+        const collision =
+            mode === 'create' &&
+            [...attachList, ...deletedAttachList].some((item) => item.id === value.id);
+        if (duplicate || collision) {
+            invalidDraftIdentity = true;
+            return false;
+        }
+        return mode === 'create' || attachList.some((item) => item.id === value.id);
+    });
+    const editingIds = editableDrafts.map(({value}) => value.id);
+    const displayedAttachments: AttachItem[] = [
+        ...attachList,
+        ...editableDrafts.filter(({mode}) => mode === 'create').map(({value}) => value),
+    ];
+    const emit = (next: AttachmentsValue<T>, change: AttachmentsChange<T>) => {
+        if (customerAttachments === undefined) setInnerAttachList(next.attachments);
+        if (customerDeletedAttachments === undefined)
+            setInnerDeletedAttachList(next.deletedAttachments);
+        onChange?.(next, change);
+    };
 
     const defaultAttachList = useRef(attachList);
     const latest = useRef({
@@ -72,6 +114,8 @@ const AttachmentsImpl = <T extends AttachItem>({
         onSelectFile,
         nameValidator,
         validateDuplicates,
+        emit,
+        drafts,
     });
     latest.current = {
         attachList,
@@ -80,6 +124,8 @@ const AttachmentsImpl = <T extends AttachItem>({
         onSelectFile,
         nameValidator,
         validateDuplicates,
+        emit,
+        drafts,
     };
     const mounted = useRef(true);
     const pending = useRef(false);
@@ -96,8 +142,7 @@ const AttachmentsImpl = <T extends AttachItem>({
     }, []);
 
     const hasDuplicateName = (name: unknown, id?: string) =>
-        validateDuplicates &&
-        attachList.some((item) => item.id !== id && !item.isNew && item.name === name);
+        validateDuplicates && attachList.some((item) => item.id !== id && item.name === name);
 
     const restoreError = deletedAttachList.some(
         (item) => item.id === restoreErrorId && hasDuplicateName(item.name, item.id),
@@ -118,26 +163,27 @@ const AttachmentsImpl = <T extends AttachItem>({
             if (!mounted.current) return;
             const current = latest.current;
             if (
-                [...current.attachList, ...current.deletedAttachList].some(
-                    (existing) => existing.id === item.id,
-                )
+                [
+                    ...current.attachList,
+                    ...current.deletedAttachList,
+                    ...current.drafts.map(({value}) => value),
+                ].some((existing) => existing.id === item.id)
             ) {
                 throw new Error(i18n('alert_invalid-id'));
             }
             const nameError =
                 current.nameValidator(item.name) ||
                 (current.validateDuplicates &&
-                current.attachList.some(
-                    (existing) => !existing.isNew && existing.name === item.name,
-                )
+                current.attachList.some((existing) => existing.name === item.name)
                     ? i18n('alert_duplicate-name')
                     : null);
             if (nameError) throw new Error(nameError);
             const savedItem = {...item};
-            delete savedItem.isNew;
             const next = [...current.attachList, savedItem];
-            setInnerAttachList(next);
-            current.onChange?.({attachments: next, deletedAttachments: current.deletedAttachList});
+            current.emit(
+                {attachments: next, deletedAttachments: current.deletedAttachList},
+                {type: 'create', item: savedItem},
+            );
             setWasAddedIds((ids) => [...ids, item.id]);
             setFileState({file, status: 'success'});
         } catch (error) {
@@ -157,15 +203,6 @@ const AttachmentsImpl = <T extends AttachItem>({
         },
     });
 
-    const getDefaultValuesForLink = (linkId: string) => {
-        const currentLink = attachList.find((a) => a.id === linkId);
-        return {
-            name: currentLink?.name ?? '',
-            link: currentLink?.link ?? '',
-            token: currentLink?.token ?? '',
-        };
-    };
-
     const runAfterAttachAdded = (attachId: string, newAttach: T) => {
         const editedAttach = defaultAttachList.current.find((a) => a.id === attachId);
 
@@ -180,63 +217,70 @@ const AttachmentsImpl = <T extends AttachItem>({
     };
 
     const addEmptyAttachment = (values: Omit<AttachItem, 'id'>) => {
-        const id = createUuid();
-        const patchAttachList = [
-            ...attachList.filter((a) => !a.isNew),
-            {...createAttachment({id, ...values}), id, ...values},
-        ];
-        setInnerAttachList(patchAttachList);
-        setWasAddedIds([...wasAddedIds, id]);
-        setEditingIds([...editingIds, id]);
-        onChange?.({attachments: patchAttachList, deletedAttachments: deletedAttachList});
+        const value = {id: createUuid(), ...values};
+        setDrafts([...drafts, {mode: 'create', value}]);
     };
-
-    const handleAddEmptyFile = () => addEmptyAttachment({name: '', isNew: true});
-    const handleAddEmptyLink = () =>
-        addEmptyAttachment({name: '', token: '', link: '', isNew: true});
-
-    const acceptAttachment = (nextAttachment: AttachItem) => {
-        if (!attachList.some((attach) => attach.id === nextAttachment.id)) return;
-        const patchAttachList = attachList.map((attach) =>
-            attach.id === nextAttachment.id
-                ? {...attach, ...nextAttachment, isNew: undefined}
-                : attach,
+    const handleAddEmptyFile = () => addEmptyAttachment({name: ''});
+    const handleAddEmptyLink = () => addEmptyAttachment({name: '', token: '', link: ''});
+    const updateDraft = (id: string, patch: Partial<AttachItem>) => {
+        setDraftError(undefined);
+        setDrafts(
+            drafts.map((draft) =>
+                draft.value.id === id ? {...draft, value: {...draft.value, ...patch, id}} : draft,
+            ),
         );
-        for (const item of patchAttachList) {
-            if (item.id === nextAttachment.id) delete item.isNew;
-        }
-        setEditingIds(editingIds.filter((id) => id !== nextAttachment.id));
-        setInnerAttachList(patchAttachList);
-        onChange?.({attachments: patchAttachList, deletedAttachments: deletedAttachList});
-        const saved = patchAttachList.find((item) => item.id === nextAttachment.id);
-        if (saved) runAfterAttachAdded(nextAttachment.id, saved);
     };
-
+    const discardDraft = (id: string) => {
+        setDraftError(undefined);
+        setDrafts(drafts.filter(({value}) => value.id !== id));
+    };
+    const acceptAttachment = (value: AttachItem) => {
+        const draft = editableDrafts.find((item) => item.value.id === value.id);
+        if (!draft) return;
+        const previous = attachList.find((item) => item.id === value.id);
+        if (draft.mode === 'update' && !previous) return;
+        if (
+            draft.mode === 'create' &&
+            [...attachList, ...deletedAttachList].some((item) => item.id === value.id)
+        )
+            return;
+        let item: T;
+        if (draft.mode === 'create') {
+            try {
+                item = {...createAttachment({...value}), ...value};
+            } catch (error) {
+                setDraftError({
+                    id: value.id,
+                    message: error instanceof Error ? error.message : i18n('alert_create-error'),
+                });
+                return;
+            }
+        } else {
+            if (!previous) return;
+            item = {...previous, ...value};
+        }
+        const attachments =
+            draft.mode === 'create'
+                ? [...attachList, item]
+                : attachList.map((existing) => (existing.id === item.id ? item : existing));
+        emit(
+            {attachments, deletedAttachments: deletedAttachList},
+            previous ? {type: 'update', item, previous} : {type: 'create', item},
+        );
+        discardDraft(value.id);
+        if (draft.mode === 'create') setWasAddedIds([...wasAddedIds, item.id]);
+        else runAfterAttachAdded(item.id, item);
+    };
     const handleAcceptFile = (id: string, name: string) => acceptAttachment({id, name});
     const handleAcceptLink = (id: string, link: EditLinkValues) => acceptAttachment({id, ...link});
-
-    const handleCancelEdit = (fileId: string) => {
-        const patchEditingIds = editingIds.filter((id) => id !== fileId);
-        const patchAttachList = attachList.filter((a) => !a.isNew);
-
-        const wasItNewAttach = attachList.some((a) => a.isNew);
-        if (wasItNewAttach) {
-            setWasAddedIds(wasAddedIds.filter((id) => id !== fileId));
-        }
-
-        setInnerAttachList(patchAttachList);
-        setEditingIds(patchEditingIds);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: deletedAttachList,
-        });
-    };
-
-    const handleEdit = (editAttachId: string) => {
-        const patchEditingIds = [...editingIds, editAttachId];
-
-        setEditingIds(patchEditingIds);
+    const handleCancelEdit = discardDraft;
+    const handleEdit = (id: string) => {
+        const item = attachList.find((value) => value.id === id);
+        if (!item || drafts.some(({value}) => value.id === id)) return;
+        const value: AttachItem = {id, name: item.name};
+        if (item.link !== undefined) value.link = item.link;
+        if (item.token !== undefined) value.token = item.token;
+        setDrafts([...drafts, {mode: 'update', value}]);
     };
 
     const handleDelete = (attachId: string) => {
@@ -247,29 +291,22 @@ const AttachmentsImpl = <T extends AttachItem>({
         const patchAttachList = attachList.filter((a) => a.id !== attachId);
         const patchDeletedAttachList = [...deletedAttachList, deletedAttachmen];
 
-        setInnerAttachList(patchAttachList);
-        setInnerDeletedAttachList(patchDeletedAttachList);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: patchDeletedAttachList,
-        });
+        emit(
+            {attachments: patchAttachList, deletedAttachments: patchDeletedAttachList},
+            {type: 'delete', item: deletedAttachmen},
+        );
+        discardDraft(attachId);
     };
 
     const handleDeleteAll = () => {
         const patchAttachList: never[] = [];
-        const patchDeletedAttachList = [
-            ...deletedAttachList,
-            ...attachList.filter((a) => !a.isNew),
-        ];
+        const patchDeletedAttachList = [...deletedAttachList, ...attachList];
 
-        setInnerAttachList(patchAttachList);
-        setInnerDeletedAttachList(patchDeletedAttachList);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: patchDeletedAttachList,
-        });
+        emit(
+            {attachments: patchAttachList, deletedAttachments: patchDeletedAttachList},
+            {type: 'delete-all', items: attachList},
+        );
+        setDrafts([]);
     };
 
     const handleRevertDelete = (attachId: string) => {
@@ -286,13 +323,10 @@ const AttachmentsImpl = <T extends AttachItem>({
         const patchAttachList = [...attachList, revertAttach];
         const patchDeletedAttachList = deletedAttachList.filter((a) => a.id !== attachId);
 
-        setInnerAttachList(patchAttachList);
-        setInnerDeletedAttachList(patchDeletedAttachList);
-
-        onChange?.({
-            attachments: patchAttachList,
-            deletedAttachments: patchDeletedAttachList,
-        });
+        emit(
+            {attachments: patchAttachList, deletedAttachments: patchDeletedAttachList},
+            {type: 'restore', item: revertAttach},
+        );
     };
 
     return (
@@ -319,6 +353,17 @@ const AttachmentsImpl = <T extends AttachItem>({
 
                 <TabPanel className={block('panel')} value="Current">
                     <Flex spacing={{py: 3}} direction="column" width="100%" height="100%" gap={3}>
+                        {(invalidDraftIdentity ||
+                            (draftError &&
+                                drafts.some(({value}) => value.id === draftError.id))) && (
+                            <Box spacing={{px: 4}}>
+                                <Text role="alert" color="danger">
+                                    {invalidDraftIdentity
+                                        ? i18n('alert_invalid-id')
+                                        : draftError?.message}
+                                </Text>
+                            </Box>
+                        )}
                         {onSelectFile && (
                             <Flex direction="column" gap={2} spacing={{px: 4}}>
                                 <input
@@ -350,24 +395,36 @@ const AttachmentsImpl = <T extends AttachItem>({
                                 )}
                             </Flex>
                         )}
-                        {attachList.length ? (
+                        {displayedAttachments.length ? (
                             <AttachmentList
                                 {...attachmentListProps}
                                 className={block('list', attachmentListProps?.className)}
-                                attachments={attachList}
+                                attachments={displayedAttachments}
                                 wasAddedIds={wasAddedIds}
                                 wasEditedIds={wasEdited}
                                 editingIds={editingIds}
                                 onEdit={(attach) => handleEdit(attach.id)}
                                 onDelete={(attach) => handleDelete(attach.id)}
-                                onItemClick={onItemClick}
+                                onItemClick={(item, index, fromKeyboard, event) => {
+                                    const original = attachList.find(
+                                        (value) => value.id === item.id,
+                                    );
+                                    if (original)
+                                        onItemClick?.(original, index, fromKeyboard, event);
+                                }}
                                 renderEditForm={(attach) => {
-                                    const isLink = typeof attach.link === 'string';
+                                    const draft = editableDrafts.find(
+                                        ({value}) => value.id === attach.id,
+                                    );
+                                    if (!draft) return null;
+                                    const isLink = typeof draft.value.link === 'string';
 
                                     if (isLink) {
-                                        const defaultLinkValues = getDefaultValuesForLink(
-                                            attach.id,
-                                        );
+                                        const linkValues = {
+                                            name: draft.value.name,
+                                            link: draft.value.link ?? '',
+                                            token: draft.value.token ?? '',
+                                        };
 
                                         return (
                                             <EditAttachmentItem
@@ -375,7 +432,10 @@ const AttachmentsImpl = <T extends AttachItem>({
                                                 onAccept={(link) =>
                                                     handleAcceptLink(attach.id, link)
                                                 }
-                                                defaultValues={defaultLinkValues}
+                                                values={linkValues}
+                                                onChange={(values) =>
+                                                    updateDraft(attach.id, values)
+                                                }
                                                 tokens={tokens}
                                                 tokenRequired={tokenRequired}
                                                 validator={(values, required) => {
@@ -396,7 +456,10 @@ const AttachmentsImpl = <T extends AttachItem>({
                                     return (
                                         <EditAttachmentItem
                                             type="file"
-                                            defaultFileName={attach.name}
+                                            fileName={draft.value.name}
+                                            onChangeFileName={(name) =>
+                                                updateDraft(attach.id, {name})
+                                            }
                                             validator={(name) => validateName(name, attach.id)}
                                             onAccept={(pathName) =>
                                                 handleAcceptFile(attach.id, pathName)
@@ -414,7 +477,7 @@ const AttachmentsImpl = <T extends AttachItem>({
                                 {...placeholderProps}
                             />
                         )}
-                        {Boolean(attachList.length) && (
+                        {Boolean(displayedAttachments.length) && (
                             <Flex spacing={{px: 4}} gap={2} wrap="wrap" shrink={0}>
                                 <Button onClick={handleAddEmptyFile}>
                                     <Icon data={Plus} />

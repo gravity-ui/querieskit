@@ -1,7 +1,12 @@
 import React from 'react';
 import {Attachments} from '../../src/modules/Attachments';
 import {AttachmentList} from '../../src/components/AttachmentList';
-import type {AttachItem, AttachmentsProps} from '../../src/types/attachments';
+import type {
+    AttachItem,
+    AttachmentDraft,
+    AttachmentsChange,
+    AttachmentsProps,
+} from '../../src/types/attachments';
 
 type DocumentAttachment = AttachItem & {content: string};
 const items: DocumentAttachment[] = [{id: 'a', name: 'query.sql', content: 'select 1'}];
@@ -50,3 +55,18 @@ export const props: AttachmentsProps<DocumentAttachment> = {
     attachments: items,
     createAttachment: (draft) => ({...draft, content: ''}),
 };
+
+const drafts: AttachmentDraft[] = [{mode: 'update', value: {id: 'a', name: 'unfinished'}}];
+export const controlledDrafts = (
+    <Attachments<DocumentAttachment>
+        attachments={items}
+        drafts={drafts}
+        onDraftsChange={(next) => next[0]?.value.name.toUpperCase()}
+        createAttachment={(input) => ({...input, content: ''})}
+        onChange={(_next, change) => {
+            if (change.type === 'update') change.previous.content.toUpperCase();
+            if (change.type === 'delete-all') change.items[0]?.content.toUpperCase();
+        }}
+    />
+);
+export const operation: AttachmentsChange<DocumentAttachment> = {type: 'create', item: items[0]};

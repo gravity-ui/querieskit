@@ -82,7 +82,7 @@ For standalone use and the full contract, see [QueryShare](../../modules/QuerySh
 
 ## Settings
 
-Pass `settingsProps` to use the built-in `QuerySettings` form. Its generic custom values are shared with the engine descriptions:
+Pass `settingsProps` to use the built-in `QuerySettings` form. In aggregate mode, its generic custom values are shared with the engine descriptions:
 
 ```tsx
 import {useState} from 'react';
@@ -113,11 +113,31 @@ const engines = createBuiltinQueryEngines({
 />;
 ```
 
-`QueryEditorEngine<TCustom>.renderSettingsFields` receives the `QuerySettings` context (`value`, `onChange`, `errors`, `onFieldBlur`, `disabled`) plus `engineId` and `clusterId`. The selected engine's fields appear after Query name, followed by `settingsProps.renderCustomFields` for application-wide fields. Missing or unknown engines add no fields. Render callbacks own accessibility, localization and error presentation for their controls.
+In aggregate mode, `QueryEditorEngine<TCustom>.renderSettingsFields` receives the `QuerySettings` context (`value`, `onChange`, `errors`, `onFieldBlur`, `disabled`) plus `engineId` and `clusterId`. The selected engine's fields appear after Query name, followed by `settingsProps.renderCustomFields` for application-wide fields. Missing or unknown engines add no fields. Render callbacks own accessibility, localization and error presentation for their controls.
 
 Use `renderSettingsSections` on an engine for separate sections after Attributes, followed by the application's `settingsProps.renderCustomSections`. Both callbacks receive the same context as their field counterparts. The built-in preset uses this slot for the SPYT JSON configuration with Save and Cancel actions.
 
 The editor never resets settings when engine or cluster changes. The application owns loading, defaults, validation, and any reset/migration in `onEngineChange` or `onClusterChange`. Settings changes use `settingsProps.onChange`; the editor's `onChange` remains text-only. Closing the panel keeps its content mounted.
+
+For independently owned values, use `settingsProps={{mode: 'sections', ...}}` instead:
+
+```tsx
+<QueryEditor
+  {...editorProps}
+  settingsProps={{
+    mode: 'sections',
+    general: {queryName: {value: title, onChange: setTitle}},
+    attributes: {items: attributes, onChange: setAttributes},
+    sections: [{id: 'sharing', title: 'Sharing', content: <ApplicationSharing />}],
+  }}
+/>
+```
+
+This mode does not require an aggregate settings object or inject engine renderers.
+Each binding owns its change callback; omit `general` to use only application-defined
+sections. To reuse built-in engine controls, compose `BuiltinEngineSettingsFields`
+in `general.customFields`, or use the `settings` slot for a custom composition with
+`BuiltinEngineSettingsSections`. See [independent bindings](presets/builtin/README.md#independent-bindings).
 
 For a completely custom panel, use `settings={<YourSettings />}` instead. `settings` and `settingsProps` are mutually exclusive; the raw slot does not automatically render engine fields. Without either prop, the panel contains its heading and close action. The panel owns heading, closing and resizing in both modes.
 
@@ -181,7 +201,14 @@ Pass `attachmentsProps` to forward the existing `Attachments` contract:
 />
 ```
 
-`onChange` receives both current and deleted lists, including draft rows (`isNew`). The editor forwards events without copying state or uploading files. Tokens retain the Attachments format `{value, title}`. The application owns persistence and loading.
+`onChange(next, change)` proposes committed current and deleted lists, with operation
+metadata. Add, typing and Cancel update separate drafts and do not emit committed
+changes. Pass `drafts` and `onDraftsChange` through `attachmentsProps` to persist unfinished
+input or observe it for unsaved-change prompts. The editor forwards events without
+copying state or uploading files. Tokens retain the Attachments format `{value, title}`.
+The application owns persistence and loading. See the [Attachments guide and migration
+notes](../../modules/Attachments/README.md) for default collections, creation factories
+and the replacement for `isNew`.
 
 Alternatively, pass `attachments={<YourAttachments />}` for custom content. The slot and `attachmentsProps` are mutually exclusive. Without either, an empty Attachments component manages its lists internally. Both contents stay mounted when closed or switched, preserving drafts and the selected tab.
 

@@ -26,6 +26,8 @@ export function SidebarTabContent<
     tab: QueriesSidebarTab<THistory, TSaved, TNavigation, TCluster, TTutorial, TVcs>;
     active: boolean;
 }) {
+    if (tab.renderContent) return tab.renderContent({active});
+
     switch (tab.type) {
         case 'history':
             return <QueriesHistory title={i18n('title_history')} {...tab.props} />;
@@ -37,7 +39,5 @@ export function SidebarTabContent<
             return <TutorialsHistory {...tab.props} />;
         case 'vcs':
             return <QueriesVcs {...tab.props} />;
-        case 'custom':
-            return tab.renderContent({active});
     }
 }

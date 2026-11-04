@@ -915,6 +915,36 @@
         "types": "./build/cjs/helpers/createEditorCommandsExtension.d.ts",
         "default": "./build/cjs/helpers/createEditorCommandsExtension.js"
       }
+    },
+    "./modules/QueryWorkspaceLayout": {
+      "import": {
+        "types": "./build/esm/modules/QueryWorkspaceLayout/index.d.ts",
+        "default": "./build/esm/modules/QueryWorkspaceLayout/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryWorkspaceLayout/index.d.ts",
+        "default": "./build/cjs/modules/QueryWorkspaceLayout/index.js"
+      }
+    },
+    "./components/ResizeHandle": {
+      "import": {
+        "types": "./build/esm/components/ResizeHandle/index.d.ts",
+        "default": "./build/esm/components/ResizeHandle/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/ResizeHandle/index.d.ts",
+        "default": "./build/cjs/components/ResizeHandle/index.js"
+      }
+    },
+    "./modules/QueryAttributesEditor": {
+      "import": {
+        "types": "./build/esm/modules/QueryAttributesEditor/index.d.ts",
+        "default": "./build/esm/modules/QueryAttributesEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryAttributesEditor/index.d.ts",
+        "default": "./build/cjs/modules/QueryAttributesEditor/index.js"
+      }
     }
   },
   "files": [

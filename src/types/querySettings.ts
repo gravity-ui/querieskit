@@ -1,12 +1,19 @@
 import type {ReactNode} from 'react';
+import type {
+    QueryAttributesEditorProps,
+    QuerySettingsAttribute,
+    QuerySettingsAttributeCodec,
+    QuerySettingsAttributeErrors,
+    QuerySettingsAttributePermissions,
+} from './queryAttributesEditor';
 
-export type QuerySettingsAttribute<TValue = string> = {id: string; key: string; value: TValue};
-
-/** Parsing is explicit: the library never infers JSON, numbers or booleans from text. */
-export type QuerySettingsAttributeCodec<TValue> = {
-    format: (value: TValue) => string;
-    parse: (text: string) => {value: TValue} | {error: string};
-};
+// Preserve the existing settings entrypoint while the standalone editor owns these types.
+export type {
+    QuerySettingsAttribute,
+    QuerySettingsAttributeCodec,
+    QuerySettingsAttributeErrors,
+    QuerySettingsAttributePermissions,
+} from './queryAttributesEditor';
 
 export type QuerySettingsChangeOperation<TCustom extends object = Record<string, unknown>> =
     | {section: 'fields'; field: QuerySettingsField}
@@ -33,12 +40,6 @@ export type QuerySettingsValue<
 export type QuerySettingsField = 'queryName' | 'access' | 'ytOperationTitle' | 'tokenIds';
 export type QuerySettingsHiddenField = QuerySettingsField | 'tokens' | 'attributes';
 
-export type QuerySettingsAttributePermissions = {
-    canEditKey?: boolean;
-    canEditValue?: boolean;
-    canRemove?: boolean;
-};
-export type QuerySettingsAttributeErrors = Partial<Record<'key' | 'value', string>>;
 export type QuerySettingsToken = {id: string; title: string; disabled?: boolean};
 
 export type QuerySettingsErrors<TCustom extends object = Record<string, unknown>> = {
@@ -71,6 +72,7 @@ export type QuerySettingsProps<
     TCustom extends object = Record<string, unknown>,
     TValue = string,
 > = {
+    mode?: never;
     value: QuerySettingsValue<TCustom, TValue>;
     /** Receives the full next value. Attribute drafts are emitted only when applied. */
     onChange: (
@@ -107,3 +109,53 @@ export type QuerySettingsProps<
         ? {attributeCodec?: QuerySettingsAttributeCodec<TValue>}
         : {attributeCodec: QuerySettingsAttributeCodec<TValue>}
     : {attributeCodec: QuerySettingsAttributeCodec<TValue>});
+
+/** An independently controlled standard field. Omit its binding to omit the control. */
+export type QuerySettingsFieldBinding<T> = {
+    value: T;
+    onChange: (value: T) => void;
+    onBlur?: () => void;
+    /** Required-field presentation and accessibility; defaults to false in section mode. */
+    required?: boolean;
+    error?: string;
+    disabled?: boolean;
+};
+
+/** Optional opinionated standard fields. Use custom sections without general for other models. */
+export type QuerySettingsStandardFields = {
+    queryName?: QuerySettingsFieldBinding<string>;
+    access?: QuerySettingsFieldBinding<'everyone' | 'private'>;
+    ytOperationTitle?: QuerySettingsFieldBinding<string>;
+    tokens?: QuerySettingsFieldBinding<string[]> & {items: QuerySettingsToken[]};
+    customFields?: ReactNode;
+};
+
+export type QuerySettingsSection = {
+    id: string;
+    title: ReactNode;
+    content: ReactNode;
+    defaultExpanded?: boolean;
+};
+
+/** Independent bindings for applications whose settings do not share one state object. */
+export type QuerySettingsSectionsProps<TValue = string> = {
+    mode: 'sections';
+    value?: never;
+    onChange?: never;
+    tokens?: never;
+    hiddenFields?: never;
+    renderCustomFields?: never;
+    renderCustomSections?: never;
+    errors?: never;
+    onFieldBlur?: never;
+    getAttributePermissions?: never;
+    validateAttribute?: never;
+    attributeCodec?: never;
+    checkDuplicateAttributeKeys?: never;
+    /** Optional standard-field bindings; generic sections do not require this preset. */
+    general?: QuerySettingsStandardFields;
+    attributes?: QueryAttributesEditorProps<TValue>;
+    sections?: QuerySettingsSection[];
+    disabled?: boolean;
+    className?: string;
+};

@@ -222,3 +222,32 @@ replace `editorProps` and `executionPanelProps` with `comparisonProps`.
 The default history Delete action opens a confirmation dialog with the query name and an
 irrecoverable-data warning. `onDelete` is called only after confirmation; canceling or
 closing the dialog leaves the query unchanged. Custom `getRowActions` retain their own behavior.
+
+## Application-owned query containers
+
+A query tab may provide `renderContent({active})` **instead of** `editorProps` and
+`executionPanelProps`. This keeps data hooks and overlays inside an independent
+container for each session without assembling all widget props at page level.
+
+```tsx
+{
+  id: sessionId,
+  type: 'query',
+  title: sessionTitle,
+  status: 'draft',
+  renderContent: ({active}) => <SessionWorkspace id={sessionId} active={active} />,
+}
+```
+
+The same first-visit mounting, retention and removal rules apply. Put hooks in
+`SessionWorkspace`, not in the render callback. The callback receives parent-tab
+activity; the container owns its data and overlays. `renderContent` is exclusive
+with standard widget props and `renderWorkspace`.
+
+Use the public `QueryWorkspaceLayout` inside the container to retain the standard
+editor/results geometry, resize controls and collapse/expand behavior. Supply its
+`showResults` explicitly, because a custom container's data is opaque to the page.
+Unlike the standard props-based path, the page does not infer results visibility
+from tab status in this mode. See [the layout guide](../../modules/QueryWorkspaceLayout/README.md).
+The Composition stories show both local React state and an external store with
+independent sessions; neither architecture is required by the library.

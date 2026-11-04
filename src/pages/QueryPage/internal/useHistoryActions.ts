@@ -30,7 +30,9 @@ export function useHistoryActions<
     const canDelete = Boolean(
         pendingDelete &&
         actions?.onDelete &&
-        tabs.some((tab) => tab.type === 'history' && tab.id === pendingDelete.tabId),
+        tabs.some(
+            (tab) => tab.type === 'history' && Boolean(tab.props) && tab.id === pendingDelete.tabId,
+        ),
     );
     useEffect(() => {
         if (!canDelete) setPendingDelete(undefined);
@@ -38,7 +40,7 @@ export function useHistoryActions<
 
     useEffect(() => {
         const historyIds = new Set(
-            tabs.filter((tab) => tab.type === 'history').map((tab) => tab.id),
+            tabs.filter((tab) => tab.type === 'history' && tab.props).map((tab) => tab.id),
         );
         setStates((current) => {
             const removed = Object.keys(current).filter((id) => !historyIds.has(id));
@@ -60,7 +62,7 @@ export function useHistoryActions<
     };
 
     const historyTabs: typeof tabs = tabs.map((tab) => {
-        if (tab.type !== 'history') return tab;
+        if (tab.type !== 'history' || !tab.props) return tab;
         const {props} = tab;
         const state = states[tab.id];
         // Prefer refreshed rows, but retain snapshots when search or pagination hides them.

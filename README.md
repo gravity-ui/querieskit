@@ -121,8 +121,9 @@ Controlled VCS browsing with provider, optional repository, and branch selection
 
 ### QueryPage
 
-Composes a shared `QueriesSidebar` with `QueryTabs`. Each query tab owns an independent
-`QueryEditor` and `QueryExecutionPanel`, including its results layout. Visited workspaces
+Composes a shared `QueriesSidebar` with `QueryTabs`. A standard query tab owns an independent
+`QueryEditor` and `QueryExecutionPanel`, including its results layout. Alternatively, supply
+`renderContent({active})` for an application-owned workspace with its own data hooks. Visited workspaces
 stay mounted when switching tabs; removing a tab releases its workspace. The query tab
 strip stays visible when results expand. Your application owns the tab list, selection,
 query data, actions, and navigation. See [the QueryPage guide](src/pages/QueryPage/README.md)
@@ -154,10 +155,30 @@ import {QueryPage} from '@gravity-ui/querieskit/pages/QueryPage';
 
 ### QueriesSidebar
 
-Combines history, saved queries, navigation and tutorials in one panel. Supply
+Combines history, saved queries, navigation, VCS and tutorials in one panel. Supply
 an ordered `tabs` array and an optional `header` for product selection or actions.
 Use `hideTabs` with `activeTab` when navigation lives outside the sidebar.
+Standard tabs accept either module `props` or `renderContent({active})` for an application
+container while retaining their standard title and icon.
 See [the API and migration guide](src/widgets/QueriesSidebar/README.md).
+
+### Independent workspace and settings composition
+
+Use [QueryWorkspaceLayout](src/modules/QueryWorkspaceLayout/README.md) for the resizable
+editor/results layout without supplying widget props or a query data model. Its render
+slots receive activity and layout state; the application owns data loading and decides
+when results are visible. The standalone `ResizeHandle` is also available from
+`components/ResizeHandle` for custom layouts.
+
+[QuerySettings](src/modules/QuerySettings/README.md#independent-sections) supports independent
+field bindings and custom sections alongside its aggregate convenience form. Standard
+query fields are optional. [QueryAttributesEditor](src/modules/QueryAttributesEditor/README.md)
+provides Apply/Cancel attribute editing without the surrounding form. Both modules have
+individual imports under `modules/`.
+
+[Attachments](src/modules/Attachments/README.md) keeps unfinished editor drafts separate
+from committed application objects. Use `onDraftsChange` for unfinished edits and
+`onChange` for committed action proposals; see its migration notes when replacing `isNew`.
 
 ### Query editors
 

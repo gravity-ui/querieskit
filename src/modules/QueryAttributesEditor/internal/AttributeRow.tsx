@@ -10,7 +10,7 @@ import type {
     QuerySettingsAttributeCodec,
     QuerySettingsAttributeErrors,
     QuerySettingsAttributePermissions,
-} from '../../../types/querySettings';
+} from '../../../types/queryAttributesEditor';
 import i18n from '../i18n';
 import './AttributeRow.scss';
 

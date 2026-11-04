@@ -7,8 +7,8 @@ import {
 } from '../../src';
 import {
     type QueryPageProps as EntrypointProps,
-    QueryPage as QueryPageEntrypoint,
     type QueryPageWorkspaceContext as EntrypointWorkspaceContext,
+    QueryPage as QueryPageEntrypoint,
 } from '../../src/pages/QueryPage';
 import type {QueryHistoryRow} from '../../src/types/history';
 import type {SavedQuery} from '../../src/types/savedQueries';
@@ -49,8 +49,8 @@ export type ContractChecks = [
     Assert<
         Equal<Props['sidebarProps'], QueriesSidebarProps<History, Saved, Item, Cluster, Tutorial>>
     >,
-    Assert<Equal<Tab['editorProps'], QueryEditorProps<Settings>>>,
-    Assert<Equal<Tab['executionPanelProps'], QueryExecutionPanelProps<Row, Meta>>>,
+    Assert<Equal<NonNullable<Tab['editorProps']>, QueryEditorProps<Settings>>>,
+    Assert<Equal<NonNullable<Tab['executionPanelProps']>, QueryExecutionPanelProps<Row, Meta>>>,
     Assert<
         Equal<Props, EntrypointProps<History, Saved, Item, Cluster, Tutorial, Settings, Row, Meta>>
     >,
