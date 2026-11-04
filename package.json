@@ -26,6 +26,16 @@
         "default": "./build/cjs/modules/QuerySettings/index.js"
       }
     },
+    "./modules/QueryAttributesEditor": {
+      "import": {
+        "types": "./build/esm/modules/QueryAttributesEditor/index.d.ts",
+        "default": "./build/esm/modules/QueryAttributesEditor/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryAttributesEditor/index.d.ts",
+        "default": "./build/cjs/modules/QueryAttributesEditor/index.js"
+      }
+    },
     "./modules/QueryEditor": {
       "import": {
         "types": "./build/esm/widgets/QueryEditor/index.d.ts",

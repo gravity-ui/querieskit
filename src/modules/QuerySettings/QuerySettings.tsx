@@ -1,17 +1,16 @@
-import React, {useId, useRef, useState} from 'react';
-import {Button, Disclosure, Flex, Icon, Select, Text, TextInput} from '@gravity-ui/uikit';
-import PlusIcon from '@gravity-ui/icons/svgs/plus.svg';
+import React, {useId} from 'react';
+import {Disclosure, Flex, Select, Text, TextInput} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import {FormField} from '../../components/FormField';
 import type {
     QuerySettingsChange,
-    QuerySettingsChangeOperation,
     QuerySettingsHiddenField,
     QuerySettingsProps,
     QuerySettingsValue,
 } from '../../types/querySettings';
 import i18n from './i18n';
-import {AttributeRow} from './internal/AttributeRow';
+import {QueryAttributesEditor} from '../QueryAttributesEditor';
+import type {QueryAttributesEditorProps} from '../../types/queryAttributesEditor';
 import './QuerySettings.scss';
 
 const block = cn('qp-query-settings');
@@ -35,9 +34,6 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>, 
     const isVisible = (field: QuerySettingsHiddenField) => !hiddenFields.includes(field);
     const showTokens = tokens !== undefined && isVisible('tokens') && isVisible('tokenIds');
     const id = useId();
-    const nextAttribute = useRef(0);
-    const [newAttributes, setNewAttributes] = useState<Array<{id: string}>>([]);
-    const addButton = useRef<HTMLButtonElement>(null);
     const change = (
         next: QuerySettingsValue<TCustom, TValue>,
         details?: QuerySettingsChange<TCustom>,
@@ -45,21 +41,6 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>, 
         if (disabled) return;
         if (details) onChange(next, details);
         else onChange(next);
-    };
-    const addAttribute = () => {
-        if (disabled) return;
-        const existingIds = new Set(
-            [...value.attributes, ...newAttributes].map((attribute) => attribute.id),
-        );
-        let attributeId: string;
-        do {
-            attributeId = `${id}-attribute-${++nextAttribute.current}`;
-        } while (existingIds.has(attributeId));
-        setNewAttributes((current) => [...current, {id: attributeId}]);
-    };
-    const discardNewAttribute = (attributeId: string) => {
-        setNewAttributes((current) => current.filter((row) => row.id !== attributeId));
-        addButton.current?.focus();
     };
     const summary = (title: string, count: number) => (
         <Flex alignItems="center" gap={2}>
@@ -173,135 +154,34 @@ export function QuerySettings<TCustom extends object = Record<string, unknown>, 
             {isVisible('attributes') && (
                 <Disclosure
                     defaultExpanded
-                    summary={summary(
-                        i18n('title_attributes'),
-                        value.attributes.length + newAttributes.length,
-                    )}
+                    summary={summary(i18n('title_attributes'), value.attributes.length)}
                     className={block('section')}
                 >
                     <Flex direction="column" gap={3} className={block('content')}>
-                        <Flex direction="column" gap={1}>
-                            {[...value.attributes, ...newAttributes].map((attributeRow, index) => {
-                                const attribute = value.attributes[index];
-                                const isNew = attribute === undefined;
-                                const rowId = attributeRow.id;
-                                // Legacy string drafts exposed their empty value to permissions.
-                                // Typed drafts have no raw value until the codec successfully parses.
-                                const permissionAttribute =
-                                    attribute ??
-                                    (attributeCodec
-                                        ? undefined
-                                        : {id: rowId, key: '', value: '' as TValue});
-                                return (
-                                    <AttributeRow
-                                        key={rowId}
-                                        id={rowId}
-                                        attribute={attribute}
-                                        codec={attributeCodec}
-                                        index={index + 1}
-                                        isNew={isNew}
-                                        disabled={disabled}
-                                        errors={errors?.attributes?.[rowId]}
-                                        permissions={
-                                            permissionAttribute
-                                                ? getAttributePermissions?.(permissionAttribute)
-                                                : undefined
-                                        }
-                                        validate={(draft) => {
-                                            const validation = {
-                                                ...validateAttribute?.(draft, value.attributes),
-                                            };
-                                            if (isNew && attributeCodec) {
-                                                const permissions =
-                                                    getAttributePermissions?.(draft);
-                                                if (permissions?.canEditKey === false)
-                                                    validation.key = i18n(
-                                                        'alert_attribute-edit-not-allowed',
-                                                    );
-                                                if (permissions?.canEditValue === false)
-                                                    validation.value = i18n(
-                                                        'alert_attribute-edit-not-allowed',
-                                                    );
-                                            }
-                                            if (
-                                                checkDuplicateAttributeKeys &&
-                                                value.attributes.some(
-                                                    (row) =>
-                                                        row.id !== draft.id &&
-                                                        row.key === draft.key,
-                                                )
-                                            )
-                                                validation.key = i18n('alert_duplicate-key');
-                                            return validation;
-                                        }}
-                                        onApply={(next, valueChanged) => {
-                                            const changes: QuerySettingsChangeOperation<TCustom>[] =
-                                                [];
-                                            const operation = (
-                                                kind: 'add' | 'rename' | 'update-value',
-                                            ) =>
-                                                changes.push({
-                                                    section: 'attributes',
-                                                    operation: kind,
-                                                    id: rowId,
-                                                });
-                                            if (isNew) operation('add');
-                                            else {
-                                                if (next.key !== attribute.key) operation('rename');
-                                                if (valueChanged) operation('update-value');
-                                            }
-                                            change(
-                                                {
-                                                    ...value,
-                                                    attributes: isNew
-                                                        ? [...value.attributes, next]
-                                                        : value.attributes.map((row) =>
-                                                              row.id === next.id ? next : row,
-                                                          ),
-                                                },
-                                                {changes},
-                                            );
-                                            if (isNew) discardNewAttribute(rowId);
-                                        }}
-                                        onCancel={() => {
-                                            if (isNew) discardNewAttribute(rowId);
-                                        }}
-                                        onRemove={() =>
-                                            change(
-                                                {
-                                                    ...value,
-                                                    attributes: value.attributes.filter(
-                                                        (row) => row.id !== rowId,
-                                                    ),
-                                                },
-                                                {
-                                                    changes: [
-                                                        {
-                                                            section: 'attributes',
-                                                            operation: 'remove',
-                                                            id: rowId,
-                                                        },
-                                                    ],
-                                                },
-                                            )
-                                        }
-                                        onBlur={(field) =>
-                                            onFieldBlur?.({
-                                                section: 'attributes',
-                                                id: rowId,
-                                                field,
-                                            })
-                                        }
-                                    />
-                                );
-                            })}
-                        </Flex>
-                        <Flex>
-                            <Button ref={addButton} onClick={addAttribute} disabled={disabled}>
-                                <Icon data={PlusIcon} size={16} />
-                                {i18n('action_add-attribute')}
-                            </Button>
-                        </Flex>
+                        <QueryAttributesEditor<TValue>
+                            key="attributes"
+                            {...({attributeCodec} as QueryAttributesEditorProps<TValue>)}
+                            items={value.attributes}
+                            onChange={(attributes, operations) =>
+                                change(
+                                    {...value, attributes},
+                                    {
+                                        changes: operations.map((operation) => ({
+                                            ...operation,
+                                            section: 'attributes' as const,
+                                        })),
+                                    },
+                                )
+                            }
+                            errors={errors?.attributes}
+                            onFieldBlur={(field) =>
+                                onFieldBlur?.({...field, section: 'attributes'})
+                            }
+                            getAttributePermissions={getAttributePermissions}
+                            validateAttribute={validateAttribute}
+                            checkDuplicateAttributeKeys={checkDuplicateAttributeKeys}
+                            disabled={disabled}
+                        />
                     </Flex>
                 </Disclosure>
             )}
