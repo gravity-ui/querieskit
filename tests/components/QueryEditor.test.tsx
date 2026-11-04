@@ -417,7 +417,10 @@ describe('QueryEditor', () => {
             );
             input.dispatchEvent(new Event('input', {bubbles: true}));
         });
-        expect(onSettingsChange).toHaveBeenCalledExactlyOnceWith({...value, queryName: 'Edited'}, {changes: [{section: 'fields', field: 'queryName'}]});
+        expect(onSettingsChange).toHaveBeenCalledExactlyOnceWith(
+            {...value, queryName: 'Edited'},
+            {changes: [{section: 'fields', field: 'queryName'}]},
+        );
         expect(props.onChange).not.toHaveBeenCalled();
         key('ArrowLeft');
         click(button('Close Settings'));
@@ -918,17 +921,20 @@ describe('QueryEditor', () => {
         });
         updateInput(panel('Attachments').querySelector<HTMLInputElement>('input')!, 'data');
         click(textButton('Save', panel('Attachments')));
-        expect(onChange).toHaveBeenLastCalledWith({
-            attachments: [
-                {
-                    id: expect.any(String),
-                    name: 'data',
-                    link: 'https://example.com/data',
-                    token: 'service',
-                },
-            ],
-            deletedAttachments: [],
-        });
+        expect(onChange).toHaveBeenLastCalledWith(
+            {
+                attachments: [
+                    {
+                        id: expect.any(String),
+                        name: 'data',
+                        link: 'https://example.com/data',
+                        token: 'service',
+                    },
+                ],
+                deletedAttachments: [],
+            },
+            expect.objectContaining({type: 'create'}),
+        );
     });
     it('forwards controlled attachment changes for add, edit, delete and restore without changing query text', () => {
         const onItemClick = vi.fn();
@@ -959,27 +965,36 @@ describe('QueryEditor', () => {
         updateInput(input, 'renamed.csv');
         act(() => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})));
         const renamed = {...original, name: 'renamed.csv'};
-        expect(onChange).toHaveBeenLastCalledWith({attachments: [renamed], deletedAttachments: []});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {attachments: [renamed], deletedAttachments: []},
+            expect.objectContaining({item: renamed}),
+        );
         expect(original.name).toBe('original.csv');
         click(hoverRow().querySelectorAll('button')[1]);
-        expect(onChange).toHaveBeenLastCalledWith({attachments: [], deletedAttachments: [renamed]});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {attachments: [], deletedAttachments: [renamed]},
+            {type: 'delete', item: renamed},
+        );
         click(tab('Deleted'));
         click(hoverRow().querySelector('button')!);
-        expect(onChange).toHaveBeenLastCalledWith({attachments: [renamed], deletedAttachments: []});
+        expect(onChange).toHaveBeenLastCalledWith(
+            {attachments: [renamed], deletedAttachments: []},
+            expect.objectContaining({item: renamed}),
+        );
         click(tab('Current'));
         click(textButton('File', panel('Attachments')));
-        expect(onChange).toHaveBeenLastCalledWith({
-            attachments: [renamed, {id: expect.any(String), name: '', isNew: true}],
-            deletedAttachments: [],
-        });
-        const draft = attachmentsProps.attachments![1];
+        expect(onChange).toHaveBeenCalledTimes(3);
+        expect(attachmentsProps.attachments).toEqual([renamed]);
         input = panel('Attachments').querySelector<HTMLInputElement>('input')!;
         updateInput(input, 'new.csv');
         act(() => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})));
-        expect(onChange).toHaveBeenLastCalledWith({
-            attachments: [renamed, {id: draft.id, name: 'new.csv'}],
-            deletedAttachments: [],
-        });
+        expect(onChange).toHaveBeenLastCalledWith(
+            {
+                attachments: [renamed, {id: expect.any(String), name: 'new.csv'}],
+                deletedAttachments: [],
+            },
+            {type: 'create', item: {id: expect.any(String), name: 'new.csv'}},
+        );
         expect(props.onChange).not.toHaveBeenCalled();
         expect(editor.mount).toHaveBeenCalledTimes(1);
     });

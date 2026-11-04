@@ -11,5 +11,6 @@
   "value_success": "Файл добавлен",
   "alert_file-error": "Не удалось обработать файл",
   "alert_duplicate-name": "Вложение с таким именем уже существует",
-  "alert_invalid-id": "Вложение с таким ID уже существует"
+  "alert_invalid-id": "Вложение с таким ID уже существует",
+  "alert_create-error": "Не удалось создать вложение"
 }

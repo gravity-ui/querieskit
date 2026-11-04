@@ -170,6 +170,10 @@ See [the QueryEditor guide](src/widgets/QueryEditor/README.md),
 Extensions stories. Individual imports are available from `components/MonacoEditor`,
 `widgets/QueryEditor`, and `helpers/queryEditorPreset`.
 
+[Attachments](src/modules/Attachments/README.md) keeps unfinished editor drafts separate
+from committed application objects. Use `onDraftsChange` for unfinished edits and
+`onChange` for committed action proposals; see its migration notes when replacing `isNew`.
+
 ```tsx
 import {QueryEditor} from '@gravity-ui/querieskit/widgets/QueryEditor';
 ```

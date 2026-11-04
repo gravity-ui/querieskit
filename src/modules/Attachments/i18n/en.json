@@ -11,5 +11,6 @@
   "value_success": "File added",
   "alert_file-error": "Could not process file",
   "alert_duplicate-name": "An attachment with this name already exists",
-  "alert_invalid-id": "An attachment with this ID already exists"
+  "alert_invalid-id": "An attachment with this ID already exists",
+  "alert_create-error": "Could not create attachment"
 }
