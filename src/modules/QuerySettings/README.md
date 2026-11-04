@@ -1,6 +1,6 @@
 # QuerySettings
 
-Controlled query settings form. The module has no engine-specific behavior: the application supplies custom controls, their values, localization and validation. Query name, Access and operation title are shown by default; query name and operation title are marked required.
+Controlled settings composition with an optional standard query-field set. The application supplies custom controls, their values, localization and validation. In aggregate mode, Query name, Access and operation title are shown by default; query name and operation title are marked required.
 
 ```tsx
 import React, {useState} from 'react';
@@ -233,9 +233,74 @@ Typed values also pass through `QueryEditorProps<TCustom, TAttachment, TValue>` 
 the same attribute type in its settings contexts. All new generic parameters default to string.
 
 
-## Standalone attributes
+## Independent sections
 
-Use [QueryAttributesEditor](../QueryAttributesEditor/README.md) for Apply/Cancel attribute
-editing without the surrounding settings form. Attribute types are owned by its contract
-and remain available through QuerySettings compatibility re-exports. The Attributes
-counter counts committed rows, excluding unfinished additions.
+Use `mode="sections"` when fields belong to separate state owners. Omitted bindings omit
+controls; no aggregate value, dummy hidden fields or change-routing callback is required.
+This mode is mutually exclusive with the aggregate `value/onChange` contract.
+
+```tsx
+<QuerySettings
+  mode="sections"
+  general={{
+    queryName: {value: title, onChange: setTitle, onBlur: saveTitle},
+    tokens: {value: tokenIds, onChange: setTokenIds, items: availableTokens},
+    customFields: <ApplicationAccessControl />,
+  }}
+  attributes={{items: attributes, onChange: setAttributes}}
+  sections={[{id: 'limits', title: 'Limits', content: <ApplicationLimits />}]}
+/>
+```
+
+Standard field bindings also support `error` and `disabled`. Top-level `disabled` disables
+standard fields and attributes; application-rendered `customFields` and section `content`
+own their disabled state, validation and persistence. Section IDs must remain stable.
+General is omitted when its configuration is absent. Custom sections default to expanded;
+set `defaultExpanded: false` to initially collapse one.
+
+Pass the same configuration through `QueryEditor.settingsProps`. In independent mode the
+editor does not inject aggregate engine renderers. Compose `BuiltinEngineSettingsFields`
+in `general.customFields`, or supply the editor's `settings` slot for a fully custom form.
+The aggregate mode remains available for applications that store one form object.
+
+Attributes are also available independently as `QueryAttributesEditor`. It owns unfinished
+row drafts; the application owns committed stable-ID rows. In the aggregate convenience
+form the Attributes counter counts committed rows, excluding unfinished additions.
+
+
+## Composition and the standard field set
+
+`sections` composes application-owned content without requiring query names, tokens,
+access values, engine settings, or an aggregate form model. For example, an application
+with its own visibility policy can provide its existing editor directly:
+
+```tsx
+<QuerySettings
+  mode="sections"
+  sections={[{
+    id: 'sharing',
+    title: 'Sharing',
+    content: <VisibilityEditor value={visibility} onChange={setVisibility} />,
+  }]}
+/>
+```
+
+The optional `general: QuerySettingsStandardFields` is an opinionated convenience
+set: Query name, `'everyone' | 'private'` access, token IDs, and YT operation title.
+It is not the model required by custom sections or `QueryAttributesEditor`. Omit
+`general` for applications with different concepts; use `general.customFields` to
+extend the standard set. Engine-specific controls remain in the optional presets.
+This is composition of React content, not a schema-driven form engine.
+
+Both aggregate and independently bound modes use the same internal field renderer.
+The aggregate adapter supplies bindings and change metadata; it owns no alternate
+control markup. Presentation differences are explicit: aggregate mode enables
+section counters and marks name/operation title required; independent bindings
+use `required: false` by default and can opt in per field. `required` supplies the
+visible marker and `aria-required`, while the application still owns validation.
+Counters in aggregate mode count visible standard fields and applied attributes;
+custom fields and unfinished attribute additions are excluded.
+
+Attribute types are owned by the standalone `QueryAttributesEditor` contract and
+exported from that module. Existing `QuerySettingsAttribute`, codec, permissions,
+and error type exports through `QuerySettings` remain aliases of the same types.

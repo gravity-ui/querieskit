@@ -3,7 +3,11 @@ import type {ReactNode} from 'react';
 import type {IconProps} from '@gravity-ui/uikit';
 import type {AttachItem, AttachmentsProps} from './attachments';
 import type {MonacoEditorConfig, MonacoEditorIntegrationProps} from './monacoEditor';
-import type {QuerySettingsCustomFieldsContext, QuerySettingsProps} from './querySettings';
+import type {
+    QuerySettingsCustomFieldsContext,
+    QuerySettingsProps,
+    QuerySettingsSectionsProps,
+} from './querySettings';
 import type {QueryParametersProps} from './queryParameters';
 import type {QueryShareProps} from './queryShare';
 
@@ -113,7 +117,8 @@ export type QueryEditorProps<
         | {
               settings?: never;
               /** Built-in controlled form. Engine fields precede renderCustomFields from these props. */
-              settingsProps: QuerySettingsProps<TCustom, TValue>;
+              settingsProps:
+                  QuerySettingsProps<TCustom, TValue> | QuerySettingsSectionsProps<TValue>;
           }
     ) &
     (

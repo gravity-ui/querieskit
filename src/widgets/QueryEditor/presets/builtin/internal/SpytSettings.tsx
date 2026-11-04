@@ -4,27 +4,29 @@ import CheckIcon from '@gravity-ui/icons/svgs/check.svg';
 import XmarkIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
 import {MonacoEditor} from '../../../../../components/MonacoEditor';
-import type {QueryEditorEngineSettingsContext} from '../../../../../types/queryEditor';
-import type {BuiltinEngineSettings} from '../../../../../types/builtinQueryEngines';
+import type {
+    BuiltinEngineSettings,
+    BuiltinEngineSettingsBinding,
+} from '../../../../../types/builtinQueryEngines';
 import i18n from '../i18n';
 import './SpytSettings.scss';
 
 const block = cn('qp-spyt-settings');
 
-export function SpytSettings<TCustom extends BuiltinEngineSettings, TValue>({
+export function SpytSettings<TCustom extends BuiltinEngineSettings>({
     context: {value, onChange, errors, onFieldBlur, disabled, clusterId},
 }: {
-    context: QueryEditorEngineSettingsContext<TCustom, TValue>;
+    context: BuiltinEngineSettingsBinding<TCustom>;
 }) {
     const theme = useThemeValue();
-    const saved = value.custom.spytConfig ?? '{}';
+    const saved = value.spytConfig ?? '{}';
     const [draft, setDraft] = useState(saved);
     const [invalid, setInvalid] = useState(false);
     useEffect(() => {
         setDraft(saved);
         setInvalid(false);
     }, [saved, clusterId]);
-    const error = invalid ? i18n('alert_invalid-spyt-config') : errors?.custom?.spytConfig;
+    const error = invalid ? i18n('alert_invalid-spyt-config') : errors?.spytConfig;
     const save = () => {
         if (disabled) return;
         try {
@@ -38,10 +40,7 @@ export function SpytSettings<TCustom extends BuiltinEngineSettings, TValue>({
             return;
         }
         setInvalid(false);
-        onChange(
-            {...value, custom: {...value.custom, spytConfig: draft}},
-            {changes: [{section: 'custom', field: 'spytConfig'}]},
-        );
+        onChange({...value, spytConfig: draft}, 'spytConfig');
     };
 
     return (
@@ -60,7 +59,7 @@ export function SpytSettings<TCustom extends BuiltinEngineSettings, TValue>({
                                 setInvalid(false);
                             }
                         }}
-                        onBlur={() => onFieldBlur?.({section: 'custom', field: 'spytConfig'})}
+                        onBlur={() => onFieldBlur?.('spytConfig')}
                         monacoConfig={{
                             ariaLabel: i18n('field_spyt-config'),
                             minimap: {enabled: false},

@@ -1,3 +1,4 @@
+import type {QuerySettingsCustomFieldsContext} from '../../types/querySettings';
 import React, {useEffect, useId, useMemo, useState} from 'react';
 import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
@@ -71,35 +72,42 @@ export function QueryEditor<
     };
     const engine = props.engines.find((item) => item.id === props.engineId);
     const language = engine?.language ?? 'plaintext';
+    let settings = props.settings;
     const settingsProps = props.settingsProps;
-    const settings = settingsProps ? (
-        <QuerySettings<TCustom, TValue>
-            key="settings"
-            {...settingsProps}
-            renderCustomFields={(context) => (
-                <>
-                    {engine?.renderSettingsFields?.({
-                        ...context,
-                        engineId: engine.id,
-                        clusterId: props.clusterId,
-                    })}
-                    {settingsProps.renderCustomFields?.(context)}
-                </>
-            )}
-            renderCustomSections={(context) => (
-                <>
-                    {engine?.renderSettingsSections?.({
-                        ...context,
-                        engineId: engine.id,
-                        clusterId: props.clusterId,
-                    })}
-                    {settingsProps.renderCustomSections?.(context)}
-                </>
-            )}
-        />
-    ) : (
-        props.settings
-    );
+    if (settingsProps?.mode === 'sections') {
+        settings = <QuerySettings {...settingsProps} />;
+    } else if (settingsProps) {
+        settings = (
+            <QuerySettings<TCustom, TValue>
+                key="settings"
+                {...settingsProps}
+                renderCustomFields={(
+                    context: QuerySettingsCustomFieldsContext<TCustom, TValue>,
+                ) => (
+                    <>
+                        {engine?.renderSettingsFields?.({
+                            ...context,
+                            engineId: engine.id,
+                            clusterId: props.clusterId,
+                        })}
+                        {settingsProps.renderCustomFields?.(context)}
+                    </>
+                )}
+                renderCustomSections={(
+                    context: QuerySettingsCustomFieldsContext<TCustom, TValue>,
+                ) => (
+                    <>
+                        {engine?.renderSettingsSections?.({
+                            ...context,
+                            engineId: engine.id,
+                            clusterId: props.clusterId,
+                        })}
+                        {settingsProps.renderCustomSections?.(context)}
+                    </>
+                )}
+            />
+        );
+    }
     const providerContext = useMemo(
         () => ({
             ...props.providerContext,
