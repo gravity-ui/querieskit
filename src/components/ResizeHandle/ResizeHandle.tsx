@@ -4,17 +4,17 @@ import './ResizeHandle.scss';
 
 const block = cn('qp-page-resize-handle');
 
-type Props = {
-    orientation: 'horizontal' | 'vertical';
-    value: number;
-    min: number;
-    max?: number;
-    label: string;
-    controls: string;
-    onChange: (value: number) => void;
-};
+import type {ResizeHandleProps} from '../../types/resizeHandle';
 
-export function ResizeHandle({orientation, value, min, max, label, controls, onChange}: Props) {
+export function ResizeHandle({
+    orientation,
+    value,
+    min,
+    max,
+    label,
+    controls,
+    onChange,
+}: ResizeHandleProps) {
     const drag = useRef<{id: number; position: number; value: number} | undefined>(undefined);
     const vertical = orientation === 'vertical';
     const update = (next: number) => {

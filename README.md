@@ -159,6 +159,14 @@ an ordered `tabs` array and an optional `header` for product selection or action
 Use `hideTabs` with `activeTab` when navigation lives outside the sidebar.
 See [the API and migration guide](src/widgets/QueriesSidebar/README.md).
 
+### Independent workspace and settings composition
+
+Use [QueryWorkspaceLayout](src/modules/QueryWorkspaceLayout/README.md) for the resizable
+editor/results layout without supplying widget props or a query data model. Its render
+slots receive activity and layout state; the application owns data loading and decides
+when results are visible. The standalone `ResizeHandle` is also available from
+`components/ResizeHandle` for custom layouts.
+
 ### Query editors
 
 `MonacoEditor` and `QueryEditor` support model-scoped language providers, custom

@@ -99,3 +99,5 @@ export type {QueryGraphProps} from './QueryGraph';
 export {DataTypePopup} from './DataTypePopup';
 export type {DataTypePopupProps} from './DataTypePopup';
 export * from './MonacoDiffEditor';
+
+export {ResizeHandle} from './ResizeHandle';
