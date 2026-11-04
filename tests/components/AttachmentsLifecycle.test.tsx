@@ -68,32 +68,29 @@ describe.each(['available', 'unavailable'] as const)('randomUUID %s', (availabil
         }
     });
 
-    it.each(['file', 'link'] as const)(
-        'adds and accepts a %s with one callback per action',
-        (kind) => {
-            const onChange = vi.fn();
-            act(() => root.render(<Attachments onChange={onChange} />));
-            act(() => container.querySelectorAll('button')[kind === 'file' ? 0 : 1].click());
-            expect(onChange).toHaveBeenCalledOnce();
-            const draft = onChange.mock.calls[0][0].attachments[0];
-            expect(draft).toMatchObject({name: '', isNew: true});
-            expect(draft.id).toMatch(/^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$/);
-            expect(captures.edit.type).toBe(kind);
-            const accepted =
-                kind === 'file'
-                    ? {name: 'query.sql'}
-                    : {name: 'Docs', link: 'https://example.com', token: 'token'};
-            act(() => captures.edit.onAccept(kind === 'file' ? accepted.name : accepted));
-            expect(onChange).toHaveBeenCalledTimes(2);
-            expect(onChange.mock.calls[1][0]).toEqual({
-                attachments: [{id: draft.id, ...accepted}],
-                deletedAttachments: [],
-            });
-            expect(captures.list.editingIds).toEqual([]);
-            expect(captures.list.wasAddedIds).toEqual([draft.id]);
-            expect(container.textContent).toContain(accepted.name);
-        },
-    );
+    it.each(['file', 'link'] as const)('keeps a %s draft local until Apply', (kind) => {
+        const onChange = vi.fn();
+        act(() => root.render(<Attachments onChange={onChange} />));
+        act(() => container.querySelectorAll('button')[kind === 'file' ? 0 : 1].click());
+        expect(onChange).not.toHaveBeenCalled();
+        const draft = captures.list.attachments[0];
+        expect(draft).toMatchObject({name: ''});
+        expect(draft.id).toMatch(/^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$/);
+        expect(captures.edit.type).toBe(kind);
+        const accepted =
+            kind === 'file'
+                ? {name: 'query.sql'}
+                : {name: 'Docs', link: 'https://example.com', token: 'token'};
+        act(() => captures.edit.onAccept(kind === 'file' ? accepted.name : accepted));
+        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(onChange.mock.calls[0][0]).toEqual({
+            attachments: [{id: draft.id, ...accepted}],
+            deletedAttachments: [],
+        });
+        expect(captures.list.editingIds).toEqual([]);
+        expect(captures.list.wasAddedIds).toEqual([draft.id]);
+        expect(container.textContent).toContain(accepted.name);
+    });
 });
 
 it('accepts an existing attachment edit and preserves the deleted list', () => {
@@ -107,9 +104,12 @@ it('accepts an existing attachment edit and preserves the deleted list', () => {
     );
     act(() => captures.list.onEdit(item));
     act(() => captures.edit.onAccept('after.sql'));
-    expect(onChange).toHaveBeenCalledExactlyOnceWith({
-        attachments: [{id: 'a', name: 'after.sql'}],
-        deletedAttachments: deleted,
-    });
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(
+        {
+            attachments: [{id: 'a', name: 'after.sql'}],
+            deletedAttachments: deleted,
+        },
+        {type: 'update', previous: item, item: {id: 'a', name: 'after.sql'}},
+    );
     expect(captures.list.wasEditedIds).toEqual(['a']);
 });

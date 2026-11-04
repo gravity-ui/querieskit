@@ -181,7 +181,14 @@ Pass `attachmentsProps` to forward the existing `Attachments` contract:
 />
 ```
 
-`onChange` receives both current and deleted lists, including draft rows (`isNew`). The editor forwards events without copying state or uploading files. Tokens retain the Attachments format `{value, title}`. The application owns persistence and loading.
+`onChange(next, change)` proposes committed current and deleted lists, with operation
+metadata. Add, typing and Cancel update separate drafts and do not emit committed
+changes. Pass `drafts` and `onDraftsChange` through `attachmentsProps` to persist unfinished
+input or observe it for unsaved-change prompts. The editor forwards events without
+copying state or uploading files. Tokens retain the Attachments format `{value, title}`.
+The application owns persistence and loading. See the [Attachments guide and migration
+notes](../../modules/Attachments/README.md) for default collections, creation factories
+and the replacement for `isNew`.
 
 Alternatively, pass `attachments={<YourAttachments />}` for custom content. The slot and `attachmentsProps` are mutually exclusive. Without either, an empty Attachments component manages its lists internally. Both contents stay mounted when closed or switched, preserving drafts and the selected tab.
 

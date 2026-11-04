@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
 import {fn} from 'storybook/test';
+import {Flex} from '@gravity-ui/uikit';
 import {Attachments} from './Attachments';
+import type {AttachmentDraft} from '../../types/attachments';
 
 type AttachmentsProps = React.ComponentProps<typeof Attachments>;
 type Attachment = NonNullable<AttachmentsProps['attachments']>[number];
@@ -141,11 +143,11 @@ export const Default: Story = {
     },
 };
 
-/** Initial files and links supplied through the uncontrolled `attachments` API. */
+/** Initial files and links; subsequent edits are managed locally. */
 export const WithAttachments: Story = {
     args: {
-        attachments,
-        deletedAttachments: [],
+        defaultAttachments: attachments,
+        defaultDeletedAttachments: [],
         onItemClick: console.info,
     },
 };
@@ -153,16 +155,16 @@ export const WithAttachments: Story = {
 /** Current and deleted collections. Open the Deleted tab to restore an attachment. */
 export const WithDeletedAttachments: Story = {
     args: {
-        attachments,
-        deletedAttachments,
+        defaultAttachments: attachments,
+        defaultDeletedAttachments: deletedAttachments,
         onItemClick: console.info,
     },
 };
 
 export const WithLongList: Story = {
     args: {
-        attachments: attachmentsLongList,
-        deletedAttachments: [],
+        defaultAttachments: attachmentsLongList,
+        defaultDeletedAttachments: [],
         onItemClick: console.info,
     },
 };
@@ -179,10 +181,10 @@ const ControlledAttachments = (props: AttachmentsProps) => {
             attachments={currentAttachments}
             deletedAttachments={currentDeletedAttachments}
             onItemClick={console.info}
-            onChange={(payload) => {
+            onChange={(payload, change) => {
                 setCurrentAttachments(payload.attachments);
                 setCurrentDeletedAttachments(payload.deletedAttachments);
-                props.onChange?.(payload);
+                props.onChange?.(payload, change);
             }}
         />
     );
@@ -217,5 +219,32 @@ export const FileProcessingError: Story = {
         onSelectFile: async () => {
             throw new Error('The application could not process the file.');
         },
+    },
+};
+
+/** Persist unfinished edits independently of committed application attachments. */
+export const ControlledDrafts: Story = {
+    render: function ControlledDraftsStory(args) {
+        const [drafts, setDrafts] = useState<AttachmentDraft[]>([]);
+        const [value, setValue] = useState({attachments, deletedAttachments: [] as Attachment[]});
+        return (
+            <Flex direction="column" height="100%" gap={2}>
+                <Flex role="status" shrink={0}>
+                    {drafts.length ? 'Unfinished edits' : 'No unfinished edits'}
+                </Flex>
+                <Flex grow={1} style={{minHeight: 0}}>
+                    <Attachments
+                        {...args}
+                        {...value}
+                        drafts={drafts}
+                        onDraftsChange={setDrafts}
+                        onChange={(next, change) => {
+                            setValue(next);
+                            args.onChange?.(next, change);
+                        }}
+                    />
+                </Flex>
+            </Flex>
+        );
     },
 };
