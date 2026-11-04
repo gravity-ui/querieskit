@@ -19,6 +19,17 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [4.2.0](https://github.com/gravity-ui/querieskit/compare/v4.1.0...v4.2.0) (2026-11-04)
+
+
+### Features
+
+* **attachments:** separate drafts from committed items ([eb16e65](https://github.com/gravity-ui/querieskit/commit/eb16e65af6d88cf752b674e033b268315b360a55))
+* **layout:** expose reusable query workspace layout ([c57187a](https://github.com/gravity-ui/querieskit/commit/c57187a7571878413bd09120fdbb21525700c657))
+* **settings:** expose standalone query attributes editor ([351e99e](https://github.com/gravity-ui/querieskit/commit/351e99e07ad4b90be3a6d7c1d40ba6babcee2e8a))
+* **settings:** support independent settings bindings ([27d7fbb](https://github.com/gravity-ui/querieskit/commit/27d7fbb145ce05436a673133da13397039efaae5))
+* **workspace:** support application-owned page and sidebar content ([e8e6224](https://github.com/gravity-ui/querieskit/commit/e8e622448d2c1077d37bf9eb83c84a70c98709fc))
+
 ## [4.1.0](https://github.com/gravity-ui/querieskit/compare/v4.0.0...v4.1.0) (2026-10-29)
 
 
