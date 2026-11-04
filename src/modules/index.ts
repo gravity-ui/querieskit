@@ -74,6 +74,7 @@ export type {
 } from './QueriesNavigation';
 export {QueryShare} from './QueryShare';
 export {QuerySettings} from './QuerySettings';
+export {QueryAttributesEditor} from './QueryAttributesEditor';
 export {QueryParameters} from './QueryParameters';
 export {ChartFieldsEditor} from './ChartFieldsEditor';
 export type {ChartFieldsEditorProps} from './ChartFieldsEditor';

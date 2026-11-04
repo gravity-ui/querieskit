@@ -231,3 +231,11 @@ attribute rows.
 Typed values also pass through `QueryEditorProps<TCustom, TAttachment, TValue>` and the final
 `TValue` parameter of `QueryPageProps`. `createBuiltinQueryEngines<TCustom, TValue>()` preserves
 the same attribute type in its settings contexts. All new generic parameters default to string.
+
+
+## Standalone attributes
+
+Use [QueryAttributesEditor](../QueryAttributesEditor/README.md) for Apply/Cancel attribute
+editing without the surrounding settings form. Attribute types are owned by its contract
+and remain available through QuerySettings compatibility re-exports. The Attributes
+counter counts committed rows, excluding unfinished additions.

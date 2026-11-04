@@ -9,6 +9,7 @@ export type {QueryTabItem, QueryTabsProps} from './types/queryTabs';
 export * from './types/queryEditor';
 export * from './types/queryShare';
 export * from './types/querySettings';
+export type * from './types/queryAttributesEditor';
 export * from './types/queryParameters';
 export * from './types/builtinQueryEngines';
 export type {MonacoEditorProps, MonacoEditorIntegrationProps} from './types/monacoEditor';

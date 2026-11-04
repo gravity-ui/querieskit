@@ -1,12 +1,19 @@
 import type {ReactNode} from 'react';
 
-export type QuerySettingsAttribute<TValue = string> = {id: string; key: string; value: TValue};
+import type {
+    QuerySettingsAttribute,
+    QuerySettingsAttributeCodec,
+    QuerySettingsAttributeErrors,
+    QuerySettingsAttributePermissions,
+} from './queryAttributesEditor';
 
-/** Parsing is explicit: the library never infers JSON, numbers or booleans from text. */
-export type QuerySettingsAttributeCodec<TValue> = {
-    format: (value: TValue) => string;
-    parse: (text: string) => {value: TValue} | {error: string};
-};
+// Preserve the existing settings entrypoint while the standalone editor owns these types.
+export type {
+    QuerySettingsAttribute,
+    QuerySettingsAttributeCodec,
+    QuerySettingsAttributeErrors,
+    QuerySettingsAttributePermissions,
+} from './queryAttributesEditor';
 
 export type QuerySettingsChangeOperation<TCustom extends object = Record<string, unknown>> =
     | {section: 'fields'; field: QuerySettingsField}
@@ -33,12 +40,6 @@ export type QuerySettingsValue<
 export type QuerySettingsField = 'queryName' | 'access' | 'ytOperationTitle' | 'tokenIds';
 export type QuerySettingsHiddenField = QuerySettingsField | 'tokens' | 'attributes';
 
-export type QuerySettingsAttributePermissions = {
-    canEditKey?: boolean;
-    canEditValue?: boolean;
-    canRemove?: boolean;
-};
-export type QuerySettingsAttributeErrors = Partial<Record<'key' | 'value', string>>;
 export type QuerySettingsToken = {id: string; title: string; disabled?: boolean};
 
 export type QuerySettingsErrors<TCustom extends object = Record<string, unknown>> = {
