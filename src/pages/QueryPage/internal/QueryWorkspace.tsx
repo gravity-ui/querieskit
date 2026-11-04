@@ -1,7 +1,7 @@
 import type {AttachItem} from '../../../types/attachments';
 import React from 'react';
 import type {NavigationMetaItem} from '../../../types/navigation';
-import type {QueryPageQueryTab} from '../../../types/queryPage';
+import type {QueryPageCustomQueryTab, QueryPageQueryTab} from '../../../types/queryPage';
 import {QueryEditor} from '../../../widgets/QueryEditor';
 import {QueryExecutionPanel} from '../../../widgets/QueryExecutionPanel';
 import {QueryWorkspaceLayout} from '../../../modules/QueryWorkspaceLayout';
@@ -13,7 +13,7 @@ type Props<
     TAttachment extends AttachItem,
     TValue,
 > = {
-    tab: QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment, TValue>;
+    tab: QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment, TValue> | QueryPageCustomQueryTab;
     active: boolean;
 };
 
@@ -24,6 +24,7 @@ export function QueryWorkspace<
     TAttachment extends AttachItem,
     TValue,
 >({tab, active}: Props<TCustom, TRow, TMetaItem, TAttachment, TValue>) {
+    if (tab.renderContent) return tab.renderContent({active});
     const children = <StandardQueryWorkspace tab={tab} active={active} />;
     return tab.renderWorkspace ? tab.renderWorkspace({children, active}) : children;
 }

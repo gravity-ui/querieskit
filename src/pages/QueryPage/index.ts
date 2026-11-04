@@ -7,3 +7,5 @@ export type {
     QueryPageHistoryActions,
     QueryPageWorkspaceContext,
 } from '../../types/queryPage';
+
+export type {QueryPageCustomQueryTab, QueryPageContentContext} from '../../types/queryPage';

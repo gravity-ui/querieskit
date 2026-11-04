@@ -151,6 +151,39 @@ describe('QueriesSidebar', () => {
         expect(panel().textContent).toContain('Count 1');
     });
 
+    it.each([
+        ['history', 'History'],
+        ['saved', 'Saved'],
+        ['navigation', 'Navigation'],
+        ['tutorials', 'Tutorials'],
+        ['vcs', 'Version control'],
+    ] as const)('renders a connected %s section with its standard tab identity', (type, title) => {
+        const renderContent = vi.fn(({active}: {active: boolean}) => (
+            <div data-active={String(active)}>
+                <Counter />
+            </div>
+        ));
+        const tabs: QueriesSidebarTab[] = [{id: 'connected', type, renderContent}, custom('other')];
+        render({tabs, activeTab: 'other', keepMounted: true});
+        expect(renderContent).not.toHaveBeenCalled();
+        expect(tab(title).querySelector('svg')).not.toBeNull();
+        render({tabs, activeTab: 'connected', keepMounted: true});
+        const first = panel();
+        expect(first.getAttribute('aria-labelledby')).toBe(tab(title).id);
+        expect(first.querySelector('[data-active]')?.getAttribute('data-active')).toBe('true');
+        act(() => first.querySelector('button')!.click());
+        render({tabs, activeTab: 'other', keepMounted: true});
+        expect(first.hidden).toBe(true);
+        expect(first.querySelector('[data-active]')?.getAttribute('data-active')).toBe('false');
+        render({tabs, activeTab: 'connected', keepMounted: true});
+        expect(panel()).toBe(first);
+        expect(panel().textContent).toBe('Count 1');
+        render({tabs, activeTab: 'other', keepMounted: false});
+        expect(first.textContent).toBe('');
+        render({tabs, activeTab: 'connected', keepMounted: false});
+        expect(panel().textContent).toBe('Count 0');
+    });
+
     it('selects defaults, switches by keyboard and falls back when a tab is disabled or removed', () => {
         render({defaultActiveTab: 'b'});
         expect(tab('b').getAttribute('aria-selected')).toBe('true');

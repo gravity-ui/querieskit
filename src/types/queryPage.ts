@@ -26,6 +26,7 @@ export type QueryPageQueryTab<
     TAttachment extends AttachItem = AttachItem,
     TValue = string,
 > = Extract<QueryTabItem, {type: 'query'}> & {
+    renderContent?: never;
     editorProps: QueryEditorProps<TCustom, TAttachment, TValue>;
     executionPanelProps: QueryExecutionPanelProps<TRow, TMetaItem>;
     /** Wrap the standard workspace without changing its identity or parent structure. */
@@ -36,6 +37,16 @@ export type QueryPageQueryTab<
     defaultExecutionPanelHeight?: number;
     onExecutionPanelHeightChange?: (height: number) => void;
 };
+
+/** A retained application container; no widget props or data model are required. */
+export type QueryPageCustomQueryTab = Extract<QueryTabItem, {type: 'query'}> & {
+    renderContent: (context: QueryPageContentContext) => ReactNode;
+    editorProps?: never;
+    executionPanelProps?: never;
+    renderWorkspace?: never;
+};
+
+export type QueryPageContentContext = {active: boolean};
 
 /** A comparison workspace has no query editor or execution panel. */
 export type QueryPageComparisonTab = Extract<QueryTabItem, {type: 'comparison'}> & {
@@ -48,7 +59,10 @@ export type QueryPageTab<
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TAttachment extends AttachItem = AttachItem,
     TValue = string,
-> = QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment, TValue> | QueryPageComparisonTab;
+> =
+    | QueryPageQueryTab<TCustom, TRow, TMetaItem, TAttachment, TValue>
+    | QueryPageCustomQueryTab
+    | QueryPageComparisonTab;
 
 /** Persistence and comparison data loading remain the application's responsibility. */
 export type QueryPageHistoryActions<T extends QueryHistoryRow = QueryHistoryRow> = {

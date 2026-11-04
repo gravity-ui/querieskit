@@ -3,7 +3,9 @@ import React, {act, useState} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
 import {ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {QueryPage} from '../../src/pages/QueryPage';
 import {QueryWorkspaceLayout} from '../../src/modules/QueryWorkspaceLayout';
+import type {QueryPageProps} from '../../src/types/queryPage';
 import type {QueryWorkspaceLayoutProps} from '../../src/types/queryWorkspaceLayout';
 
 vi.mock('../../src/widgets/QueryEditor', () => ({QueryEditor: () => null}));
@@ -55,6 +57,62 @@ describe('workspace composition', () => {
         expect(element).not.toBeNull();
         act(() => element?.click());
     }
+
+    it('retains independent hooked containers until their tab is removed', () => {
+        const renderers = ['a', 'b'].map((id) =>
+            vi.fn(({active}: {active: boolean}) => <Session id={id} active={active} />),
+        );
+        const items: QueryPageProps['tabsProps']['items'] = ['a', 'b'].map((id, index) => ({
+            id,
+            type: 'query',
+            title: id,
+            status: 'draft',
+            renderContent: renderers[index],
+        }));
+        function render(activeTab: string, nextItems = items) {
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QueryPage
+                            sidebarProps={{
+                                tabs: [
+                                    {
+                                        id: 'history',
+                                        type: 'history',
+                                        renderContent: ({active}) => (
+                                            <Session id="history" active={active} />
+                                        ),
+                                    },
+                                ],
+                            }}
+                            tabsProps={{
+                                items: nextItems,
+                                activeTab,
+                                onActiveTabChange: vi.fn(),
+                                onAddTab: vi.fn(),
+                                onCloseTab: vi.fn(),
+                            }}
+                        />
+                    </ThemeProvider>,
+                ),
+            );
+        }
+        render('a');
+        expect(renderers[1]).not.toHaveBeenCalled();
+        click('[data-session="a"]');
+        const first = container.querySelector('[data-session="a"]');
+        render('b');
+        expect(first?.getAttribute('data-active')).toBe('false');
+        click('[data-session="b"]');
+        render('a');
+        expect(container.querySelector('[data-session="a"]')).toBe(first);
+        expect(first?.textContent).toBe('1');
+        expect(first?.getAttribute('data-active')).toBe('true');
+        render('b', [items[1]]);
+        expect(container.contains(first)).toBe(false);
+        render('a');
+        expect(container.querySelector('[data-session="a"]')?.textContent).toBe('0');
+    });
 
     it('retains slots while propagating visibility and layout controls', () => {
         const props: QueryWorkspaceLayoutProps = {
