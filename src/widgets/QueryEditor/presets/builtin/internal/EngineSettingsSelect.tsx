@@ -2,11 +2,13 @@ import React, {useId} from 'react';
 import {Select} from '@gravity-ui/uikit';
 import type {SelectOption} from '@gravity-ui/uikit';
 import {FormField} from '../../../../../components/FormField';
-import type {QueryEditorEngineSettingsContext} from '../../../../../types/queryEditor';
-import type {BuiltinEngineSettings} from '../../../../../types/builtinQueryEngines';
+import type {
+    BuiltinEngineSettings,
+    BuiltinEngineSettingsBinding,
+} from '../../../../../types/builtinQueryEngines';
 
-type Props<TCustom extends BuiltinEngineSettings, TValue> = {
-    context: QueryEditorEngineSettingsContext<TCustom, TValue>;
+type Props<TCustom extends BuiltinEngineSettings> = {
+    context: BuiltinEngineSettingsBinding<TCustom>;
     field: keyof BuiltinEngineSettings;
     title: string;
     options: SelectOption[];
@@ -15,7 +17,7 @@ type Props<TCustom extends BuiltinEngineSettings, TValue> = {
     hasClear?: boolean;
 };
 
-export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings, TValue>({
+export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings>({
     context: {value, onChange, errors, onFieldBlur, disabled},
     field,
     title,
@@ -23,9 +25,9 @@ export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings, TVal
     displayedValue,
     loading,
     hasClear,
-}: Props<TCustom, TValue>) {
+}: Props<TCustom>) {
     const id = useId();
-    const error = errors?.custom?.[field];
+    const error = errors?.[field];
 
     return (
         <FormField label={<label htmlFor={id}>{title}</label>}>
@@ -38,13 +40,10 @@ export function EngineSettingsSelect<TCustom extends BuiltinEngineSettings, TVal
                 value={displayedValue ? [displayedValue] : []}
                 onUpdate={([next]) => {
                     if (!disabled) {
-                        onChange(
-                            {...value, custom: {...value.custom, [field]: next}},
-                            {changes: [{section: 'custom', field}]},
-                        );
+                        onChange({...value, [field]: next}, field);
                     }
                 }}
-                onBlur={() => onFieldBlur?.({section: 'custom', field})}
+                onBlur={() => onFieldBlur?.(field)}
                 disabled={disabled || (loading && options.length === 0)}
                 loading={loading}
                 hasClear={hasClear}

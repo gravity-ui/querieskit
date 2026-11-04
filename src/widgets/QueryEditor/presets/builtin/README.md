@@ -63,3 +63,27 @@ Completion data and navigation are supplied through application callbacks passed
 `createQueryEditorPreset`. QueriesKit invokes those callbacks; the application owns
 any data loading and routing. See [custom engine composition](../../README.md#built-in-engine-preset)
 for combining built-in descriptors with an application-defined engine.
+
+
+## Independent bindings
+
+`BuiltinEngineSettingsFields` and `BuiltinEngineSettingsSections` render the same builtin
+controls with `value: BuiltinEngineSettings`, `onChange(nextValue, field)`, `engineId`,
+`clusterId`, `options`, optional per-field `errors`, `onFieldBlur(field)` and `disabled`.
+They do not require `QuerySettingsValue`. Extra fields on the supplied value are preserved.
+The application still supplies choices and owns fetching, defaults and persistence.
+
+```tsx
+<BuiltinEngineSettingsFields
+  engineId={engineId}
+  value={engineSettings}
+  onChange={(next, field) => updateEngineSetting(field, next[field])}
+  options={engineOptions}
+/>
+```
+
+Fields renders YQL version, CHYT clique or SPYT discovery selection. Sections renders the
+SPYT Connect configuration editor when enabled; it includes its own disclosure. For a
+custom form, compose these blocks in the editor's `settings` slot. With independent
+`QuerySettings` sections, place Fields in `general.customFields`. The existing
+`createBuiltinQueryEngines` renderers adapt the same controls to aggregate settings.

@@ -42,3 +42,19 @@ export type BuiltinQueryEnginesOptions = {
         loading?: boolean;
     };
 };
+
+/** Engine settings bound independently from the standard query settings form. */
+export type BuiltinEngineSettingsBinding<T extends BuiltinEngineSettings = BuiltinEngineSettings> =
+    {
+        value: T;
+        onChange: (value: T, field: keyof BuiltinEngineSettings) => void;
+        errors?: Partial<Record<keyof BuiltinEngineSettings, string>>;
+        onFieldBlur?: (field: keyof BuiltinEngineSettings) => void;
+        disabled?: boolean;
+        clusterId?: string;
+    };
+export type BuiltinEngineSettingsProps<T extends BuiltinEngineSettings = BuiltinEngineSettings> =
+    BuiltinEngineSettingsBinding<T> & {
+        engineId: string;
+        options?: BuiltinQueryEnginesOptions;
+    };

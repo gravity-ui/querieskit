@@ -179,6 +179,14 @@ They define language selection, labels and settings controls using application-s
 The previous package subpath `modules/QueryEditor` remains a compatibility alias for the widget.
 The built-in preset is available only under the widget subpath.
 
+### Independent settings composition
+
+[QuerySettings](src/modules/QuerySettings/README.md#independent-sections) supports independent
+field bindings and custom sections alongside its aggregate convenience form. Standard
+query fields are optional. [QueryAttributesEditor](src/modules/QueryAttributesEditor/README.md)
+provides Apply/Cancel attribute editing without the surrounding form. Both modules have
+individual imports under `modules/`.
+
 ### QueryExecutionPanel
 
 A query execution panel with ordered, typed tabs, custom content, automatic tab
