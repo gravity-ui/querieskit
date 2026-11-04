@@ -40,10 +40,12 @@ Invalid IDs are skipped, with development warnings. If selection is unavailable,
 the first enabled tab is displayed; an empty or entirely disabled set displays
 no content. In controlled mode this fallback does not rewrite application state.
 
-Built-in types are `history`, `saved`, `navigation` and `tutorials`; their `props`
-use the corresponding module contract. Titles and icons are localized defaults.
+Built-in types are `history`, `saved`, `navigation`, `tutorials` and `vcs`. Supply
+either `props` with the corresponding module contract or `renderContent({active})`
+with application content; these options are mutually exclusive. Both modes keep
+the standard localized tab title and icon.
 The widget and tab types accept generic row types in the order history, saved,
-navigation item, navigation cluster, tutorial.
+navigation item, navigation cluster, tutorial, VCS item.
 
 A `custom` tab has `id`, `title` (a string accessible name), `icon` (React content)
 and `renderContent({active})`. All tab types accept `disabled`.
@@ -71,7 +73,12 @@ always discards its contents. Application-controlled state follows supplied prop
 The option controls only panel contents. Hooks called above `QueriesSidebar` to
 prepare `tab.props` continue running even when a panel unmounts. Put loading,
 delayed search and polling hooks inside a component adapter returned by
-`custom.renderContent`. Do not call hooks directly inside `renderContent`.
+`renderContent` on a standard or custom tab. Do not call hooks directly inside
+`renderContent`: return a component that owns those hooks. Keep the returned
+component type and keys stable to preserve state when the callback is recreated.
+
+`QueryPage.historyActions` decorates only history tabs using `props`. A history
+tab with `renderContent` owns its own editing, comparison and deletion actions.
 
 ```tsx
 import {useEffect, useState} from 'react';
@@ -120,9 +127,7 @@ function HistoryAdapter({
   tabs={[
     {
       id: 'history',
-      type: 'custom',
-      title: 'History',
-      icon: null,
+      type: 'history',
       renderContent: () => <HistoryAdapter loadHistory={loadHistory} />,
     },
     // Other sections use their own adapters in the same way.
@@ -155,7 +160,7 @@ to the same module files through `package.json`; no widget wrappers remain.
 Direct physical imports such as `@gravity-ui/querieskit/build/esm/widgets/<Name>`
 must migrate to the new public module entrypoints. Prefer these entrypoints for
 standalone sections: they do not import `QueriesSidebar` or unrelated sections.
-The combined sidebar includes all four built-in renderers in its dependency graph.
+The combined sidebar includes all five built-in renderers in its dependency graph.
 
 History places its visible-fields selector next to the search input. Saved queries
 always display the available date, engine and author metadata; `SavedQueriesProps`

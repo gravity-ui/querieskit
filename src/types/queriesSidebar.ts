@@ -17,6 +17,14 @@ export type QueriesSidebarTabBase = {
 
 export type QueriesSidebarTabRenderContext = {active: boolean};
 
+type StandardSidebarContent<TProps> =
+    | {props: TProps; renderContent?: never}
+    | {
+          props?: never;
+          /** Keep the standard tab label/icon and provide a component with its own data hooks. */
+          renderContent: (context: QueriesSidebarTabRenderContext) => ReactNode;
+      };
+
 export type QueriesSidebarTab<
     THistory extends QueryHistoryRow = QueryHistoryRow,
     TSaved extends SavedQuery = SavedQuery,
@@ -26,11 +34,13 @@ export type QueriesSidebarTab<
     TVcs extends VcsItem = VcsItem,
 > = QueriesSidebarTabBase &
     (
-        | {type: 'history'; props: QueriesHistoryProps<THistory>}
-        | {type: 'saved'; props: SavedQueriesProps<TSaved>}
-        | {type: 'navigation'; props: QueriesNavigationProps<TNavigation, TCluster>}
-        | {type: 'vcs'; props: QueriesVcsProps<TVcs>}
-        | {type: 'tutorials'; props: TutorialsHistoryProps<TTutorial>}
+        | ({type: 'history'} & StandardSidebarContent<QueriesHistoryProps<THistory>>)
+        | ({type: 'saved'} & StandardSidebarContent<SavedQueriesProps<TSaved>>)
+        | ({type: 'navigation'} & StandardSidebarContent<
+              QueriesNavigationProps<TNavigation, TCluster>
+          >)
+        | ({type: 'vcs'} & StandardSidebarContent<QueriesVcsProps<TVcs>>)
+        | ({type: 'tutorials'} & StandardSidebarContent<TutorialsHistoryProps<TTutorial>>)
         | {
               type: 'custom';
               /** Accessible name and tooltip for the icon-only tab. */
