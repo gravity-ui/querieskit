@@ -83,3 +83,6 @@ export * from './QueryComparison';
 export {QueriesVcs} from './QueriesVcs';
 
 export {QueryWorkspaceLayout} from './QueryWorkspaceLayout';
+
+export {QueryPageLayout} from './QueryPageLayout';
+export type {QueryPageLayoutProps, QueryPageLayoutHeaderContext} from './QueryPageLayout';

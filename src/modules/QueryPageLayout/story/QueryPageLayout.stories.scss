@@ -1,0 +1,17 @@
+.qp-query-page-layout-story {
+    height: 720px;
+    max-height: 90vh;
+
+    &__panel {
+        box-sizing: border-box;
+        padding: var(--g-spacing-4);
+        min-width: 0;
+        height: 100%;
+        overflow: auto;
+    }
+
+    &__header {
+        min-width: 0;
+        padding: var(--g-spacing-2);
+    }
+}

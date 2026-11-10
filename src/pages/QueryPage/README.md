@@ -32,6 +32,14 @@ import {QueryPage} from '@gravity-ui/querieskit/pages/QueryPage';
 and the page entrypoint. The parent must provide a bounded height. The page scrolls
 when minimum sizes do not fit; it does not automatically switch to a mobile layout.
 
+## Compose a page without QueryPage
+
+Use [QueryPageLayout](../../modules/QueryPageLayout/README.md) for the same sidebar
+geometry with your own sidebar, header and workspace. It needs no query tab model
+or widget props. `QueryPage` composes that shell with its existing tabs, history
+actions and retained workspaces; existing consumers need no migration. Nest
+`QueryWorkspaceLayout` inside the shell when you also need editor/results resizing.
+
 ## Contracts and tab lifecycle
 
 | Prop | Contract |
@@ -163,7 +171,8 @@ Move top-level `editorProps` and `executionPanelProps` into each `tabsProps.item
 entry. Move `executionPanelHeight`, `defaultExecutionPanelHeight`, and
 `onExecutionPanelHeightChange` into the corresponding item as well. Replace
 `editorHeader={<QueryTabs {...tabsProps} />}` with the page's built-in `tabsProps`.
-For a single-query page, supply one item and set `hideCloseOnLastTab` as appropriate.
+For a single-query page with a tab strip, supply one item and set `hideCloseOnLastTab` as appropriate.
+For a page without a tab strip, use `QueryPageLayout` with your own workspace.
 Sidebar props and layout controls remain at page level.
 
 Data loading, execution, saving, routing, validation and persistence belong to the
