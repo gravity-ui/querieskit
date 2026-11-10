@@ -1,5 +1,6 @@
 import type React from 'react';
 import type {
+    NavigationDetailTab,
     NavigationItem,
     NavigationMetaConfig,
     NavigationMetaItem,
@@ -40,6 +41,14 @@ export type NavigationViewResolver<
     TRow extends NavigationViewRow = NavigationViewRow,
 > = (item: TItem) => NavigationViewConfig<TRow> | undefined;
 
+export type BuiltinTableDetailTabId = 'schema' | 'preview' | 'meta' | 'view';
+
+/** A standard tab, a partial standard-tab override, or a complete custom tab. */
+export type TableDetailTab =
+    | BuiltinTableDetailTabId
+    | ({id: BuiltinTableDetailTabId} & Partial<Omit<NavigationDetailTab, 'id'>>)
+    | NavigationDetailTab;
+
 export type CreateTableDetailConfigOptions<
     TItem extends NavigationItem = NavigationItem,
     TColumn extends NavigationSchemaColumn = NavigationSchemaColumn,
@@ -47,6 +56,8 @@ export type CreateTableDetailConfigOptions<
     TMetaItem extends NavigationMetaItem = NavigationMetaItem,
     TViewRow extends NavigationViewRow = NavigationViewRow,
 > = {
+    /** Ordered tabs. Omit for schema, preview, meta, view. A callback receives the opened item. */
+    tabs?: readonly TableDetailTab[] | ((item: TItem) => readonly TableDetailTab[]);
     resolveSchema?: NavigationSchemaResolver<TItem, TColumn>;
     resolvePreview?: NavigationPreviewResolver<TItem, TRow>;
     resolvePreviewView?: NavigationPreviewViewResolver<TItem, TRow>;

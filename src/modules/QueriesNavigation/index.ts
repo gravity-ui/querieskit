@@ -3,6 +3,8 @@ export type {QueriesNavigationProps} from './QueriesNavigation';
 export {createTableDetailConfig} from './helpers/createTableDetailConfig';
 export type {
     CreateTableDetailConfigOptions,
+    BuiltinTableDetailTabId,
+    TableDetailTab,
     NavigationMetaRenderer,
     NavigationMetaResolver,
     NavigationPreviewResolver,

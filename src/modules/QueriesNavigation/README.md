@@ -98,3 +98,51 @@ actions. The slot is also available on `NavigationHeader` and `NavigationDetail`
 `header.renderActions` keeps its existing full-replacement semantics and takes precedence over
 `renderMenuTrigger`, including when it returns `null`. Without the new optional props,
 existing header and row behavior remains unchanged.
+
+## Compose table detail tabs
+
+`createTableDetailConfig()` still creates `schema`, `preview`, `meta`, and `view`,
+in that order, with `schema` selected initially. The existing data resolvers and
+`renderMeta` continue to work without migration.
+
+Supply `tabs` to select and order standard tabs, replace individual contents, or
+include custom tabs. A string keeps the standard renderer and translated title.
+An object with a standard ID overrides only the supplied properties. A custom ID
+requires a title and uses the existing `NavigationDetailTab` contract.
+
+```tsx
+import {createTableDetailConfig} from '@gravity-ui/querieskit/modules/QueriesNavigation';
+
+const resolve = createTableDetailConfig<Table>({
+  resolveMeta: (table) => table.metadata,
+  tabs: (table) => [
+    'meta',
+    {id: 'schema', content: <ApplicationSchema table={table} />},
+    {
+      id: 'preview',
+      renderContent: ({search, onSearchUpdate}) => (
+        <ApplicationPreview table={table} search={search} onSearchUpdate={onSearchUpdate} />
+      ),
+    },
+    {id: 'activity', title: 'Activity', content: <TableActivity table={table} />},
+  ],
+});
+```
+
+Here metadata retains its standard implementation, schema and preview use application
+components, and `view` is excluded. `Table` is the application's type extending
+`NavigationItem`; loading and actions stay in those application components.
+The callback receives the current typed item each time the factory resolves a table.
+For content that does not depend on the item, pass a readonly array directly instead.
+
+An explicitly supplied `content` (including `null`) removes the standard renderer.
+An explicit `renderContent` uses the normal navigation render context and takes
+precedence over `content`, with `content` as the existing nullish-result fallback.
+A title-only override retains the standard renderer. Keep IDs unique.
+
+With explicit `tabs`, the first visible, enabled tab is the default. An empty array
+produces no tabs, and a list with no selectable tabs has no default. Omitting `tabs`
+preserves the previous configuration. `hasSearch` remains `false`; use the resulting
+standard `NavigationDetailConfig` to enable shared search or supply controlled search
+through the detail panel. Arbitrary `NavigationDetailConfig` objects remain supported
+without this preset.
