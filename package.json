@@ -945,6 +945,16 @@
         "types": "./build/cjs/components/ResizeHandle/index.d.ts",
         "default": "./build/cjs/components/ResizeHandle/index.js"
       }
+    },
+    "./modules/QueryPageLayout": {
+      "import": {
+        "types": "./build/esm/modules/QueryPageLayout/index.d.ts",
+        "default": "./build/esm/modules/QueryPageLayout/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/QueryPageLayout/index.d.ts",
+        "default": "./build/cjs/modules/QueryPageLayout/index.js"
+      }
     }
   },
   "files": [

@@ -162,6 +162,24 @@ Standard tabs accept either module `props` or `renderContent({active})` for an a
 container while retaining their standard title and icon.
 See [the API and migration guide](src/widgets/QueriesSidebar/README.md).
 
+### Page composition without query tabs
+
+Use [QueryPageLayout](src/modules/QueryPageLayout/README.md) to combine your own
+sidebar, optional header and workspace without using `QueryPage` or creating a tab
+model. The shell owns sidebar resizing and visibility; applications provide content
+and may control the layout state. `QueryPage` uses the same shell for its ready-made
+query tab composition.
+
+```tsx
+import {QueryPageLayout} from '@gravity-ui/querieskit/modules/QueryPageLayout';
+
+<div style={{height: 800}}>
+  <QueryPageLayout sidebar={<ApplicationSidebar />} header={<WorkspaceTitle />}>
+    <ApplicationWorkspace />
+  </QueryPageLayout>
+</div>;
+```
+
 ### Independent workspace composition
 
 Use [QueryWorkspaceLayout](src/modules/QueryWorkspaceLayout/README.md) for the resizable
