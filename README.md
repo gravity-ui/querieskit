@@ -276,6 +276,11 @@ function HistoryPanel() {
 }
 ```
 
+[SimpleForm](src/components/SimpleForm/README.md) and its built-in field types are
+available through `components/SimpleForm`; the root field descriptor type is
+`SimpleFormField`. Type-only imports include all standard fields, and applications
+can augment the public `FormFieldPropsRegistry` for custom controls.
+
 ### SavedQueries
 
 Saved queries with search, filters, editable titles, comparison, configurable metadata,

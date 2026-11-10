@@ -37,9 +37,3 @@ export const CheckboxGroupField: FC<CheckboxGroupFieldProps> = ({
         </Flex>
     );
 };
-
-declare module '../../types/forms' {
-    interface FormFieldPropsRegistry {
-        checkboxGroup: CheckboxGroupFieldProps;
-    }
-}

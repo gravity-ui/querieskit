@@ -134,3 +134,5 @@ export {
 
 export type * from './types/queryWorkspaceLayout';
 export type * from './types/resizeHandle';
+
+export type {BaseFormField, FormFieldPropsRegistry, RegisteredFormFields} from './types/forms';
