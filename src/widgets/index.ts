@@ -14,7 +14,7 @@ export type {
     QueriesSidebarTabRenderContext,
 } from './QueriesSidebar';
 export {QueryEditor} from './QueryEditor';
-export {createBuiltinQueryEngines} from './QueryEditor/presets/builtin';
+export {createBuiltinQueryEngines, createBuiltinQuerySettings} from './QueryEditor/presets/builtin';
 
 export {
     BuiltinEngineSettingsFields,

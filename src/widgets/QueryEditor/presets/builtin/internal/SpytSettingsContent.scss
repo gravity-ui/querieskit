@@ -1,0 +1,17 @@
+.qp-spyt-settings-content {
+    min-width: 0;
+
+    &__editor-frame {
+        overflow: hidden;
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+
+        &_invalid {
+            border-color: var(--g-color-line-danger);
+        }
+    }
+
+    &__editor {
+        height: 188px;
+    }
+}
