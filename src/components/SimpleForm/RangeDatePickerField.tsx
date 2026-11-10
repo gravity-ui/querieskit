@@ -34,9 +34,3 @@ export const RangeDatePickerField: FC<RangeDatePickerFieldProps> = ({value, titl
         </Flex>
     );
 };
-
-declare module '../../types/forms' {
-    interface FormFieldPropsRegistry {
-        rangeDatePicker: RangeDatePickerFieldProps;
-    }
-}

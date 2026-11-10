@@ -10,9 +10,3 @@ export const SelectField: FC<SelectFieldProps> = ({value, options, title, onChan
         </Flex>
     );
 };
-
-declare module '../../types/forms' {
-    interface FormFieldPropsRegistry {
-        select: SelectFieldProps;
-    }
-}

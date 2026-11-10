@@ -10,9 +10,3 @@ export const SwitchField: FC<SwitchFieldProps> = ({title, value, onChange}) => {
         </Flex>
     );
 };
-
-declare module '../../types/forms' {
-    interface FormFieldPropsRegistry {
-        switch: SwitchFieldProps;
-    }
-}

@@ -955,6 +955,16 @@
         "types": "./build/cjs/modules/QueryPageLayout/index.d.ts",
         "default": "./build/cjs/modules/QueryPageLayout/index.js"
       }
+    },
+    "./components/SimpleForm": {
+      "import": {
+        "types": "./build/esm/components/SimpleForm/index.d.ts",
+        "default": "./build/esm/components/SimpleForm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/SimpleForm/index.d.ts",
+        "default": "./build/cjs/components/SimpleForm/index.js"
+      }
     }
   },
   "files": [
@@ -980,7 +990,7 @@
     "test:parameters": "vitest run tests/helpers/queryParameters.test.ts tests/helpers/parameterDate.test.ts",
     "test:types": "tsc -p tests/types",
     "test:page:browser": "playwright test tests/browser/queryPage.spec.ts",
-    "test:package-contract": "node tests/tree-shaking/check-published.mjs",
+    "test:package-contract": "node tests/tree-shaking/check-published.mjs && node tests/types/check-simple-form-package.mjs",
     "test:consumer": "node tests/tree-shaking/consumer.mjs"
   },
   "repository": {

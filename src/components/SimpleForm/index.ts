@@ -13,3 +13,4 @@ export type {SwitchFieldProps} from '../../types/simpleFormProps';
 export {RangeDatePickerField} from './RangeDatePickerField';
 export type {RangeDatePickerFieldProps} from '../../types/simpleFormProps';
 export {registerFormControl} from './helpers';
+export type {BaseFormField, FormFieldPropsRegistry, RegisteredFormFields} from '../../types/forms';

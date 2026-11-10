@@ -8,6 +8,9 @@ files, so generated Babel helpers and package exports are exercised.
 - `node tests/tree-shaking/check-published.mjs`: declared runtime dependencies,
   absence of full Monaco imports, every explicit export's JS/types resolution,
   deferred editors in history lists, and isolated lightweight component styles.
+- `node tests/types/check-simple-form-package.mjs`: isolated type-only consumers
+  of root and SimpleForm entrypoints, built-in field props and custom augmentation.
+  Included in `npm run test:package-contract`.
 - `node tests/tree-shaking/consumer.mjs`: pack the built library, install it in a
   temporary consumer with Babel runtime 8 at the application root, verify that
   the library independently resolves runtime 7, then build production webpack
