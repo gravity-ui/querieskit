@@ -1,3 +1,5 @@
+import type {QuerySettingsSectionsProps} from './querySettings';
+
 export type BuiltinQueryEngineId = 'yql' | 'chyt' | 'spyt' | 'ql';
 
 /** Engine-specific form data. Backend key conversion and defaults belong to the application. */
@@ -58,3 +60,11 @@ export type BuiltinEngineSettingsProps<T extends BuiltinEngineSettings = Builtin
         engineId: string;
         options?: BuiltinQueryEnginesOptions;
     };
+
+/** Opt-in builtin controls composed with independently owned settings sections. */
+export type BuiltinQuerySettingsOptions<
+    TCustom extends BuiltinEngineSettings = BuiltinEngineSettings,
+    TValue = string,
+> = Omit<QuerySettingsSectionsProps<TValue>, 'mode'> & {
+    engine: BuiltinEngineSettingsProps<TCustom>;
+};

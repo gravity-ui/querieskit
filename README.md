@@ -220,6 +220,11 @@ query fields are optional. [QueryAttributesEditor](src/modules/QueryAttributesEd
 provides Apply/Cancel attribute editing without the surrounding form. Both modules have
 individual imports under `modules/`.
 
+For section-mode settings with builtin engines, use `createBuiltinQuerySettings`
+from `widgets/QueryEditor/presets/builtin` or the root. It composes the existing
+independent engine binding with application fields and sections, without requiring
+aggregate query settings. See the [preset guide](src/widgets/QueryEditor/presets/builtin/README.md#composing-section-mode-settings).
+
 ### QueryExecutionPanel
 
 A query execution panel with ordered, typed tabs, custom content, automatic tab

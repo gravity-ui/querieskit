@@ -3,7 +3,11 @@ import React, {act} from 'react';
 import {type Root, createRoot} from 'react-dom/client';
 import {type SelectProps, ThemeProvider, configure} from '@gravity-ui/uikit';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {createBuiltinQueryEngines} from '../../src/widgets/QueryEditor/presets/builtin';
+import {
+    createBuiltinQueryEngines,
+    createBuiltinQuerySettings,
+} from '../../src/widgets/QueryEditor/presets/builtin';
+import {QuerySettings} from '../../src/modules/QuerySettings';
 import type {QueryEditorEngineSettingsContext} from '../../src/types/queryEditor';
 import type {
     BuiltinEngineSettings,
@@ -377,13 +381,13 @@ describe('createBuiltinQueryEngines', () => {
         },
     );
 
-    function renderSpyt() {
+    function renderSpyt(keepMounted = true) {
         const engine = createBuiltinQueryEngines<Custom>({spyt: {connectAvailable: true}}).find(
             ({id}) => id === 'spyt',
         );
         act(() =>
             root.render(
-                <ThemeProvider>
+                <ThemeProvider defaultProps={{Disclosure: {keepMounted}}}>
                     {engine?.renderSettingsSections?.({...context, engineId: 'spyt'})}
                 </ThemeProvider>,
             ),
@@ -398,8 +402,51 @@ describe('createBuiltinQueryEngines', () => {
         act(() => button.click());
     }
 
+    it('retains the legacy SPYT draft and validation when disclosure content unmounts', () => {
+        renderSpyt(false);
+        act(() => editor.props?.onChange?.('{broken'));
+        clickAction('Save');
+        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+            'Enter a valid JSON object',
+        );
+        const toggle = container.querySelector<HTMLButtonElement>('[aria-expanded]');
+        if (!toggle) throw new Error('Missing SPYT disclosure');
+        const toggleDisclosure = () => {
+            act(() => toggle.click());
+            act(() =>
+                container
+                    .querySelector('[role="region"]')
+                    ?.dispatchEvent(new Event('animationend', {bubbles: true})),
+            );
+        };
+        toggleDisclosure();
+        expect(container.querySelector('.qp-spyt-settings-content')).toBeNull();
+        toggleDisclosure();
+        expect(editor.props?.value).toBe('{broken');
+        expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+            'Enter a valid JSON object',
+        );
+        clickAction('Cancel');
+        expect(editor.props?.value).toBe('{}');
+        expect(container.querySelector('[role="alert"]')).toBeNull();
+        act(() => editor.props?.onChange?.('{"unsaved": true}'));
+        toggleDisclosure();
+        context.value = {
+            ...context.value,
+            custom: {...context.value.custom, spytConfig: '{"external": true}'},
+        };
+        renderSpyt(false);
+        toggleDisclosure();
+        expect(editor.props?.value).toBe('{"external": true}');
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
     it('keeps SPYT edits local until Save and Cancel restores the controlled config', () => {
         renderSpyt();
+        expect(
+            container.querySelector('.qp-spyt-settings__content > .qp-spyt-settings__editor-frame'),
+        ).not.toBeNull();
+        expect(editor.props?.className).toContain('qp-spyt-settings__editor');
         expect(editor.props?.value).toBe('{}');
         expect(editor.props?.language).toBe('json');
         expect(onChange).not.toHaveBeenCalled();
@@ -430,6 +477,9 @@ describe('createBuiltinQueryEngines', () => {
             expect(container.querySelector('[role="alert"]')?.textContent).toBe(
                 'Enter a valid JSON object',
             );
+            expect(
+                container.querySelector('.qp-spyt-settings__editor-frame_invalid'),
+            ).not.toBeNull();
             expect(onChange).not.toHaveBeenCalled();
             clickAction('Cancel');
             expect(container.querySelector('[role="alert"]')).toBeNull();
@@ -467,5 +517,143 @@ describe('createBuiltinQueryEngines', () => {
             section: 'custom',
             field: 'spytConfig',
         });
+    });
+
+    function sectionOptions(engineId = 'yql') {
+        return {
+            engine: {
+                engineId,
+                clusterId: context.clusterId,
+                options: {
+                    yql: {versions: ['v1', 'v2']},
+                    spyt: {connectAvailable: true},
+                },
+                value: context.value.custom,
+                onChange,
+                onFieldBlur,
+                errors: {yqlVersion: 'Version rejected'},
+            },
+            general: {customFields: <span>Application field</span>},
+            sections: [
+                {id: 'sharing', title: 'Sharing', content: <span>Application section</span>},
+            ],
+        };
+    }
+
+    it('composes one engine field with application content through section-mode QueryEditor', () => {
+        const options = sectionOptions();
+        act(() =>
+            root.render(
+                <ThemeProvider>
+                    <QueryEditor
+                        engines={createBuiltinQueryEngines(options.engine.options)}
+                        engineId="yql"
+                        clusters={[]}
+                        value="SELECT 1"
+                        onChange={vi.fn()}
+                        onEngineChange={vi.fn()}
+                        onClusterChange={vi.fn()}
+                        onRun={vi.fn()}
+                        onFormat={vi.fn()}
+                        onValidate={vi.fn()}
+                        defaultActivePanel="settings"
+                        settingsProps={createBuiltinQuerySettings(options)}
+                    />
+                </ThemeProvider>,
+            ),
+        );
+        expect(container.querySelectorAll('[aria-label="YQL version"]')).toHaveLength(1);
+        expect(container.textContent).toContain('Application field');
+        expect(container.textContent).toContain('Application section');
+        expect(selector().errorMessage).toBe('Version rejected');
+        act(() => selector().onUpdate?.(['v2']));
+        expect(onChange).toHaveBeenCalledExactlyOnceWith(
+            {...context.value.custom, yqlVersion: 'v2'},
+            'yqlVersion',
+        );
+        act(() => selector().onBlur?.({} as React.FocusEvent));
+        expect(onFieldBlur).toHaveBeenCalledExactlyOnceWith('yqlVersion');
+    });
+
+    it.each(['form', 'engine'] as const)(
+        'honors %s disabled without changing external state',
+        (disabled) => {
+            const options = sectionOptions();
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QuerySettings
+                            {...createBuiltinQuerySettings({
+                                ...options,
+                                disabled: disabled === 'form',
+                                engine: {...options.engine, disabled: disabled === 'engine'},
+                            })}
+                        />
+                    </ThemeProvider>,
+                ),
+            );
+            expect(selector().disabled).toBe(true);
+            act(() => selector().onUpdate?.(['v2']));
+            expect(onChange).not.toHaveBeenCalled();
+        },
+    );
+
+    it('places the SPYT section before application sections without nested disclosures or ID collisions', () => {
+        const options = sectionOptions('spyt');
+        const props = createBuiltinQuerySettings({
+            ...options,
+            sections: [
+                {id: 'builtin:spyt', title: 'Application', content: 'Custom'},
+                ...options.sections,
+            ],
+        });
+        expect(props.sections?.map(({id}) => id)).toEqual([
+            'builtin:spyt:1',
+            'builtin:spyt',
+            'sharing',
+        ]);
+        act(() =>
+            root.render(
+                <ThemeProvider>
+                    <QuerySettings {...props} />
+                </ThemeProvider>,
+            ),
+        );
+        const summaries = [...container.querySelectorAll('[aria-expanded]')].map(
+            (node) => node.textContent,
+        );
+        expect(summaries).toEqual(['General', 'SPYT', 'Application', 'Sharing']);
+        expect(container.querySelector('.qp-spyt-settings')).toBeNull();
+        act(() => editor.props?.onChange?.('{"threads": 2}'));
+        clickAction('Save');
+        expect(onChange).toHaveBeenCalledExactlyOnceWith(
+            {...context.value.custom, spytConfig: '{"threads": 2}'},
+            'spytConfig',
+        );
+    });
+
+    it('keeps section settings controlled across external updates and engine changes', () => {
+        function renderSections(engineId: string) {
+            act(() =>
+                root.render(
+                    <ThemeProvider>
+                        <QuerySettings {...createBuiltinQuerySettings(sectionOptions(engineId))} />
+                    </ThemeProvider>,
+                ),
+            );
+        }
+        renderSections('yql');
+        expect(selector().value).toEqual(['v1']);
+        context.value.custom.yqlVersion = 'v2';
+        renderSections('yql');
+        expect(selector().value).toEqual(['v2']);
+        renderSections('spyt');
+        expect(container.querySelector('[aria-label="YQL version"]')).toBeNull();
+        act(() => editor.props?.onChange?.('{"unsaved": true}'));
+        renderSections('ql');
+        expect(container.querySelector('.qp-spyt-settings-content')).toBeNull();
+        renderSections('spyt');
+        expect(editor.props?.value).toBe('{}');
+        expect(onChange).not.toHaveBeenCalled();
     });
 });

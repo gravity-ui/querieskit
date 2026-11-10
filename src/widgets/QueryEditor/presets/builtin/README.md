@@ -87,3 +87,60 @@ SPYT Connect configuration editor when enabled; it includes its own disclosure. 
 custom form, compose these blocks in the editor's `settings` slot. With independent
 `QuerySettings` sections, place Fields in `general.customFields`. The existing
 `createBuiltinQueryEngines` renderers adapt the same controls to aggregate settings.
+
+## Composing section-mode settings
+
+`createBuiltinQuerySettings` creates `QuerySettingsSectionsProps` from an independent
+engine binding and optional application fields and sections. Reuse one options
+object for the engine descriptors and settings helper:
+
+```tsx
+const engineOptions = {
+  yql: {versions: ['stable', 'preview']},
+  spyt: {connectAvailable: true},
+};
+const engines = createBuiltinQueryEngines(engineOptions);
+
+<QueryEditor
+  {...editorProps}
+  engines={engines}
+  engineId={engineId}
+  settingsProps={createBuiltinQuerySettings({
+    engine: {
+      engineId,
+      clusterId,
+      options: engineOptions,
+      value: engineSettings,
+      onChange: setEngineSettings,
+      errors: engineErrors,
+      onFieldBlur: validateEngineField,
+    },
+    general: {
+      queryName: {value: queryName, onChange: setQueryName},
+      customFields: <ApplicationFields />,
+    },
+    sections: [{id: 'sharing', title: 'Sharing', content: <ApplicationSharing />}],
+  })}
+/>
+```
+
+The helper returns `mode: 'sections'`: `QueryEditor` therefore does not inject the
+aggregate engine renderers a second time. Builtin fields precede `general.customFields`.
+Standard general/attribute sections retain their usual order; the builtin SPYT
+section follows them and precedes application `sections`, whose array order is
+preserved. The SPYT content has a single disclosure. Its generated ID starts with
+`builtin:spyt` and receives a numeric suffix if an application section uses that ID.
+
+The helper creates no settings state. Values, errors and blur callbacks go directly
+through `engine`; global `disabled` or `engine.disabled` disables builtin controls.
+Applications still control disabled state and validation for custom React nodes.
+Engine changes never reset applied settings or emit changes; switching away from
+SPYT unmounts its local, unapplied JSON draft. SPYT Save/Cancel and JSON validation
+keep the existing behavior, including resynchronization on external value/cluster
+changes. Unknown engines and QL add no controls; YQL with no versions adds none.
+
+The existing aggregate `settingsProps` and fully custom `settings={<YourSettings />}`
+APIs are unchanged. Continue using the raw `BuiltinEngineSettingsFields` and
+`BuiltinEngineSettingsSections` blocks for completely custom compositions. Pass
+application content only to the helper's custom slots; manually adding those same
+builtin blocks as well would render them twice.

@@ -135,8 +135,12 @@ For independently owned values, use `settingsProps={{mode: 'sections', ...}}` in
 
 This mode does not require an aggregate settings object or inject engine renderers.
 Each binding owns its change callback; omit `general` to use only application-defined
-sections. To reuse built-in engine controls, compose `BuiltinEngineSettingsFields`
-in `general.customFields`, or use the `settings` slot for a custom composition with
+sections. To combine builtin controls with independent bindings, pass
+`settingsProps={createBuiltinQuerySettings({engine: engineBinding, ...sectionOptions})}`.
+Reuse the same engine options as `createBuiltinQueryEngines`; see
+[section-mode composition](presets/builtin/README.md#composing-section-mode-settings).
+For manual composition, `BuiltinEngineSettingsFields` remains available for
+`general.customFields`, and the `settings` slot accepts fully custom content with
 `BuiltinEngineSettingsSections`. See [independent bindings](presets/builtin/README.md#independent-bindings).
 
 For a completely custom panel, use `settings={<YourSettings />}` instead. `settings` and `settingsProps` are mutually exclusive; the raw slot does not automatically render engine fields. Without either prop, the panel contains its heading and close action. The panel owns heading, closing and resizing in both modes.
