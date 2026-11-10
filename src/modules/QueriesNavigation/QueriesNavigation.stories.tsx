@@ -530,3 +530,31 @@ const ExtendedStandardRowsStory = () => {
 };
 
 export const ExtendedStandardRows: Story = {render: () => <ExtendedStandardRowsStory />};
+
+const PartialTableDetailsStory = () => {
+    const table: NavigationItem & {owner: string} = {
+        path: '/home/events',
+        title: 'Events',
+        owner: 'analytics',
+    };
+    const resolve = createTableDetailConfig<typeof table>({
+        resolveMeta: (item) => ({groups: [{items: [{name: 'Owner', value: item.owner}]}]}),
+        tabs: (item) => [
+            'meta',
+            {id: 'schema', content: <Text>Application schema for {item.title}</Text>},
+            {id: 'preview', renderContent: () => <Text>Application preview of {item.path}</Text>},
+            {id: 'activity', title: 'Activity', content: <Text>No recent changes</Text>},
+        ],
+    });
+    return (
+        <div style={{width: 560, height: 400}}>
+            <QueriesNavigation
+                location={{cluster: undefined, path: '/home'}}
+                onUpdate={onBreadcrumbsUpdate}
+                detail={{openedItem: table, resolve}}
+            />
+        </div>
+    );
+};
+
+export const PartialTableDetails: Story = {render: () => <PartialTableDetailsStory />};

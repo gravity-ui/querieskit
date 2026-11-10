@@ -427,6 +427,11 @@ segments are derived from normalized single-slash paths; the parser does not pre
 `parentRow.showDuringSearch` defaults to `false`. Set it to `true` to keep the parent navigation
 row available while search results are filtered, including when the result list is empty.
 
+`createTableDetailConfig({tabs})` accepts an ordered list of standard IDs, standard
+tab overrides and custom tab descriptors. A callback can build that list from the
+opened item. Omit `tabs` to keep the existing schema/preview/meta/view preset. See
+[partial table composition](src/modules/QueriesNavigation/README.md).
+
 ## Widgets
 
 | Widget | Description |

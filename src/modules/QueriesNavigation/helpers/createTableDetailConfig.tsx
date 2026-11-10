@@ -1,4 +1,7 @@
-import type {CreateTableDetailConfigOptions} from '../../../types/navigationDetailResolvers';
+import type {
+    BuiltinTableDetailTabId,
+    CreateTableDetailConfigOptions,
+} from '../../../types/navigationDetailResolvers';
 import React from 'react';
 import {NavigationMeta} from '../../../modules/NavigationMeta';
 import {NavigationPreview} from '../../../modules/NavigationPreview';
@@ -7,6 +10,7 @@ import {NavigationView} from '../../../modules/NavigationView';
 import type {
     NavigationDetailConfig,
     NavigationDetailConfigFactory,
+    NavigationDetailTab,
     NavigationItem,
     NavigationMetaItem,
     NavigationPreviewRow,
@@ -25,6 +29,7 @@ export const createTableDetailConfig = <
     options?: CreateTableDetailConfigOptions<TItem, TColumn, TRow, TMetaItem, TViewRow>,
 ): NavigationDetailConfigFactory<TItem> => {
     const {
+        tabs: configuredTabs,
         resolveSchema,
         resolvePreview,
         resolvePreviewView,
@@ -33,9 +38,9 @@ export const createTableDetailConfig = <
         resolveView,
     } = options ?? {};
 
-    return (item): NavigationDetailConfig => ({
-        tabs: [
-            {
+    return (item): NavigationDetailConfig => {
+        const standardTabs: Record<BuiltinTableDetailTabId, NavigationDetailTab> = {
+            schema: {
                 id: 'schema',
                 title: i18n('tab_schema'),
                 renderContent: ({search, onSearchUpdate, searchPlaceholder}) => {
@@ -50,7 +55,7 @@ export const createTableDetailConfig = <
                     );
                 },
             },
-            {
+            preview: {
                 id: 'preview',
                 title: i18n('tab_preview'),
                 renderContent: ({search, onSearchUpdate, searchPlaceholder}) => {
@@ -66,7 +71,7 @@ export const createTableDetailConfig = <
                     );
                 },
             },
-            {
+            meta: {
                 id: 'meta',
                 title: i18n('tab_meta'),
                 renderContent: () => {
@@ -79,7 +84,7 @@ export const createTableDetailConfig = <
                     );
                 },
             },
-            {
+            view: {
                 id: 'view',
                 title: i18n('tab_view'),
                 renderContent: ({search, onSearchUpdate, searchPlaceholder}) => {
@@ -94,9 +99,32 @@ export const createTableDetailConfig = <
                     );
                 },
             },
-        ],
-        defaultTab: 'schema',
-        hasSearch: false,
-        searchPlaceholder: i18n('field_detail-search-placeholder'),
-    });
+        };
+        const requestedTabs =
+            typeof configuredTabs === 'function' ? configuredTabs(item) : configuredTabs;
+        const tabs = requestedTabs
+            ? requestedTabs.map((tab): NavigationDetailTab => {
+                  if (typeof tab === 'string') return standardTabs[tab];
+                  const standard = Object.prototype.hasOwnProperty.call(standardTabs, tab.id)
+                      ? standardTabs[tab.id as BuiltinTableDetailTabId]
+                      : undefined;
+                  if (!standard) return tab as NavigationDetailTab;
+                  // A supplied content node replaces the preset renderer, including null.
+                  return {
+                      ...standard,
+                      ...('content' in tab ? {renderContent: undefined} : {}),
+                      ...tab,
+                  };
+              })
+            : Object.values(standardTabs);
+        return {
+            tabs,
+            defaultTab:
+                requestedTabs === undefined
+                    ? 'schema'
+                    : tabs.find((tab) => !tab.hidden && !tab.disabled)?.id,
+            hasSearch: false,
+            searchPlaceholder: i18n('field_detail-search-placeholder'),
+        };
+    };
 };
