@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import {test} from 'vitest';
 import React from 'react';
 
 import type {QueryGraphEdge, QueryGraphNode} from '../src/types/queryGraph';

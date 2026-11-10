@@ -1,14 +1,15 @@
-import {expect, test} from '@playwright/test';
+import {expect, test, type Page} from '@playwright/test';
 import type {} from './fixture/query-page';
 
-test.beforeEach(async ({page}) => {
-    await page.goto('/query-page.html');
+async function openQueryPage(page: Page, tallTabs = false) {
+    await page.goto(`/query-page.html?tallTabs=${tallTabs ? 1 : 0}`);
     await expect(page.locator('.monaco-editor')).toBeVisible();
-});
+}
 
 test('resizes by pointer and keyboard and retains drafts through layout changes', async ({
     page,
 }) => {
+    await openQueryPage(page);
     const sidebar = page.getByRole('separator', {name: 'Resize sidebar'});
     const results = page.getByRole('separator', {name: 'Resize results'});
     await sidebar.press('ArrowRight');
@@ -55,6 +56,7 @@ test('resizes by pointer and keyboard and retains drafts through layout changes'
 });
 
 test('small containers scroll without overlapping editor and results', async ({page}) => {
+    await openQueryPage(page);
     await page.setViewportSize({width: 480, height: 260});
     const editor = (await page.locator('.qp-query-workspace__editor').boundingBox())!;
     const results = (await page.locator('.qp-query-workspace__results').boundingBox())!;
@@ -76,10 +78,9 @@ for (const tallTabs of [false, true]) {
     test(`restores layout after repeated result collapse with tall tab strip=${tallTabs}`, async ({
         page,
     }) => {
-        await page.goto(`/query-page.html?tallTabs=${tallTabs ? 1 : 0}`);
+        await openQueryPage(page, tallTabs);
         const editor = page.locator('.qp-query-workspace__editor');
         const monaco = page.locator('.monaco-editor');
-        await expect(monaco).toBeVisible();
         const initialHeight = await editor.evaluate((element) => element.clientHeight);
         for (let cycle = 0; cycle < 3; cycle++) {
             await page.getByRole('button', {name: 'Collapse content', exact: true}).click();
@@ -111,6 +112,7 @@ for (const tallTabs of [false, true]) {
 }
 
 test('tabs own separate editors, undo history, result state and panel layout', async ({page}) => {
+    await openQueryPage(page);
     const first = page.getByRole('tabpanel', {name: 'Query 1', exact: true, includeHidden: true});
     const second = page.getByRole('tabpanel', {name: 'Query 2', exact: true, includeHidden: true});
     await expect(page.locator('.monaco-editor')).toHaveCount(1);
@@ -163,6 +165,7 @@ test('tabs own separate editors, undo history, result state and panel layout', a
 test('tab header toggle hides the entire sidebar and restores its width', async ({
     page,
 }, testInfo) => {
+    await openQueryPage(page);
     const tabs = page.locator('.qp-query-tabs');
     const sidebar = page.locator('.qp-query-page__sidebar');
     const divider = page.getByRole('separator', {name: 'Resize sidebar'});
@@ -191,6 +194,7 @@ test('tab header toggle hides the entire sidebar and restores its width', async 
 test('factory engines activate their presets in each QueryPage editor and release them on close', async ({
     page,
 }) => {
+    await openQueryPage(page);
     const first = page.getByRole('tabpanel', {name: 'Query 1', exact: true, includeHidden: true});
     const pageErrors: string[] = [];
     page.on('pageerror', (error) => pageErrors.push(error.message));

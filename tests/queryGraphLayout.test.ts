@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import {test} from 'vitest';
 
 // Import the installed algorithm directly: the package root also loads browser-only CSS.
 import {layoutGraph} from '../node_modules/@gravity-ui/graph/build/plugins/layered/layout';
