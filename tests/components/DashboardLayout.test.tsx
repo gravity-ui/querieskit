@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React, {act} from 'react';
 import {createRoot} from 'react-dom/client';
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, describe, expect, it} from 'vitest';
 import type {DashboardProps} from '../../src/types/dashboard';
 import {createDefaultLayout} from '../../src/components/Dashboard/helpers/createDefaultLayout';
 import {useDashboardConfig} from '../../src/components/Dashboard/hooks/useDashboardConfig';
@@ -11,11 +11,12 @@ const b = {i: 'b', x: 2, y: 0, w: 2, h: 2};
 const items = ['a', 'b'].map((id) => ({id, content: null}));
 let current: ReturnType<typeof useDashboardConfig>;
 let root: ReturnType<typeof createRoot> | undefined;
-function Fixture(props: DashboardProps) {
+type FixtureProps = Pick<DashboardProps, 'items' | 'grid' | 'defaultLayout' | 'layout'>;
+function Fixture(props: FixtureProps) {
     current = useDashboardConfig(props.items, props.grid, props.defaultLayout, props.layout);
     return null;
 }
-function render(props: DashboardProps) {
+function render(props: FixtureProps) {
     if (!root) root = createRoot(document.createElement('div'));
     act(() => root!.render(<Fixture {...props} />));
 }
@@ -58,16 +59,16 @@ describe('dashboard layout', () => {
         render({items});
         expect(current.config.layout.find(({i}) => i === 'a')?.y).toBe(2);
     });
-    it('controlled updates are authoritative and never emit reconciliation events', () => {
-        const onLayoutChange = vi.fn();
-        render({items, layout: [a, b], onLayoutChange});
+    it('keeps controlled layout authoritative and returns only changed layouts', () => {
+        render({items, layout: [a, b]});
         act(() => {
-            current.changeLayout([{...a, y: 20}, b]);
+            expect(current.changeLayout([{...a, y: 20}, b])).toEqual([{...a, y: 20}, b]);
         });
         expect(current.config.layout).toEqual([a, b]);
-        render({items, layout: [{...a, y: 8}, b], onLayoutChange});
+        render({items, layout: [{...a, y: 8}, b]});
         expect(current.config.layout[0].y).toBe(8);
-        expect(onLayoutChange).not.toHaveBeenCalled();
-        expect(current.changeLayout(current.config.layout)).toBeUndefined();
+        act(() => {
+            expect(current.changeLayout(current.config.layout)).toBeUndefined();
+        });
     });
 });

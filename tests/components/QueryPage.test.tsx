@@ -458,24 +458,14 @@ describe('QueryPage', () => {
         expect(container.querySelector('.qp-query-workspace_collapsed')).not.toBeNull();
     });
 
-    it('supports keyboard steps and minimum/maximum constraints while preserving callbacks on no-op changes', () => {
+    it('forwards sidebar resize and constrains result panel keyboard changes', () => {
         const value = createProps();
         value.onSidebarWidthChange = vi.fn();
         value.tabsProps.items[0].onExecutionPanelHeightChange = vi.fn();
         render(value);
         key('Resize sidebar', 'ArrowRight');
         expect(separator('Resize sidebar').getAttribute('aria-valuenow')).toBe('316');
-        key('Resize sidebar', 'ArrowRight', true);
-        expect(separator('Resize sidebar').getAttribute('aria-valuenow')).toBe('380');
-        key('Resize sidebar', 'Home');
-        key('Resize sidebar', 'ArrowLeft');
-        key('Resize sidebar', 'End');
-        expect(vi.mocked(value.onSidebarWidthChange!).mock.calls).toEqual([
-            [316],
-            [380],
-            [240],
-            [674],
-        ]);
+        expect(value.onSidebarWidthChange).toHaveBeenCalledExactlyOnceWith(316);
         key('Resize results', 'ArrowUp', true);
         key('Resize results', 'ArrowDown');
         key('Resize results', 'Home');

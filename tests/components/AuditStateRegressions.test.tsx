@@ -170,3 +170,32 @@ it('Dashboard forwards current content/index and ignores removed items', () => {
     captures.dash.onItemFocus({id: 'b'});
     expect(onItemFocus).toHaveBeenCalledOnce();
 });
+
+it.each(['onDragStop', 'onResizeStop'] as const)(
+    'Dashboard emits %s changes but not controlled updates or unchanged layouts',
+    (event) => {
+        const onLayoutChange = vi.fn();
+        const items = [{id: 'a', content: 'A'}];
+        const initial = [{i: 'a', x: 0, y: 0, w: 2, h: 4}];
+        const show = (layout: typeof initial) =>
+            render(<Dashboard items={items} layout={layout} onLayoutChange={onLayoutChange} />);
+        show(initial);
+        expect(onLayoutChange).not.toHaveBeenCalled();
+
+        const external = [{...initial[0], y: 8}];
+        show(external);
+        expect(captures.dash.config.layout).toEqual(external);
+        act(() => captures.dash[event]({layout: external.map((item) => ({...item}))}));
+        expect(onLayoutChange).not.toHaveBeenCalled();
+
+        const changed = [{...external[0], y: 12}];
+        act(() => captures.dash[event]({layout: changed}));
+        expect(onLayoutChange).toHaveBeenCalledExactlyOnceWith(changed);
+        expect(captures.dash.config.layout).toEqual(external);
+
+        show(changed);
+        act(() => captures.dash[event]({layout: changed}));
+        expect(captures.dash.config.layout).toEqual(changed);
+        expect(onLayoutChange).toHaveBeenCalledTimes(1);
+    },
+);
