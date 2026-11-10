@@ -12,7 +12,7 @@ export {Breadcrumbs} from './Breadcrumbs';
 export type {BreadcrumbsProps} from './Breadcrumbs';
 export {PathEditor} from './PathEditor';
 export type {PathEditorProps} from './PathEditor';
-export {HistoryFilter} from './HistoryFilter';
+export {HistoryFilter, createHistoryFilter} from './HistoryFilter';
 export {HistoryPrivateIcon} from './HistoryPrivateIcon';
 export {FieldsSelector} from './FieldsSelector';
 export type {FieldsSelectorOption, FieldsSelectorProps} from './FieldsSelector';

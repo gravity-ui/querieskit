@@ -1,2 +1,10 @@
 export {HistoryFilter} from './HistoryFilter';
-export type {HistoryFilterProps} from '../../types/historyFilter';
+export {createHistoryFilter} from './createHistoryFilter';
+export type {
+    HistoryFilterProps,
+    HistoryFilterConfig,
+    HistoryFilterFieldsContext,
+    CustomHistoryFilterConfig,
+    CustomHistoryFilterOptions,
+    CustomHistoryFilterProps,
+} from '../../types/historyFilter';

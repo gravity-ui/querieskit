@@ -1,8 +1,9 @@
 import React from 'react';
-import {Button, Flex, Text} from '@gravity-ui/uikit';
+import {Button, Flex, Select, Text, TextInput} from '@gravity-ui/uikit';
 import type {Meta, StoryObj} from '@storybook/react';
 import {FormField} from '../SimpleForm';
 import {HistoryFilter} from './HistoryFilter';
+import {createHistoryFilter} from './createHistoryFilter';
 
 const meta: Meta<typeof HistoryFilter> = {
     title: 'Components/HistoryFilter',
@@ -94,3 +95,78 @@ function ExternalUpdatesExample() {
 
 /** Edit multiple fields, Apply or Reset, and replace the values externally. */
 export const ExternalUpdates: Story = {render: () => <ExternalUpdatesExample />};
+
+type CustomFilterValues = {
+    period: {from: string; to: string};
+    owner: string;
+    statuses: string[];
+    engines: string[];
+};
+
+const customDefaults: CustomFilterValues = {
+    period: {from: '', to: ''},
+    owner: '',
+    statuses: [],
+    engines: [],
+};
+
+function CustomFieldsExample() {
+    const [applied, setApplied] = React.useState(customDefaults);
+    const filter = createHistoryFilter({
+        initialValues: customDefaults,
+        values: applied,
+        isChanged: JSON.stringify(applied) !== JSON.stringify(customDefaults),
+        onApply: setApplied,
+        onReset: () => setApplied(customDefaults),
+        renderFields: ({value, onChange}) => (
+            <Flex direction="column" gap={3}>
+                <TextInput
+                    label="From"
+                    placeholder="YYYY-MM-DD"
+                    value={value.period.from}
+                    onUpdate={(from) => onChange({...value, period: {...value.period, from}})}
+                />
+                <TextInput
+                    label="To"
+                    placeholder="YYYY-MM-DD"
+                    value={value.period.to}
+                    onUpdate={(to) => onChange({...value, period: {...value.period, to}})}
+                />
+                <TextInput
+                    label="User"
+                    value={value.owner}
+                    onUpdate={(owner) => onChange({...value, owner})}
+                />
+                <Select
+                    label="Status"
+                    multiple
+                    value={value.statuses}
+                    options={[
+                        {value: 'running', content: 'Running'},
+                        {value: 'completed', content: 'Completed'},
+                    ]}
+                    onUpdate={(statuses) => onChange({...value, statuses})}
+                />
+                <Select
+                    label="Engine"
+                    multiple
+                    value={value.engines}
+                    options={[
+                        {value: 'sql', content: 'SQL'},
+                        {value: 'custom', content: 'Custom engine'},
+                    ]}
+                    onUpdate={(engines) => onChange({...value, engines})}
+                />
+            </Flex>
+        ),
+    });
+    return (
+        <Flex direction="column" gap={3} alignItems="flex-start">
+            <HistoryFilter {...filter} />
+            <Text>Applied: {JSON.stringify(applied)}</Text>
+        </Flex>
+    );
+}
+
+/** Typed application fields share the standard draft, Apply/Reset actions and popup. */
+export const CustomFields: Story = {render: () => <CustomFieldsExample />};

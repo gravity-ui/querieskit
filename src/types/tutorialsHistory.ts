@@ -1,6 +1,6 @@
+import type {HistoryFilterConfig} from './historyFilter';
 import type React from 'react';
 import type {
-    QueryListFilterConfig,
     QueryListItem,
     QueryListLinkRenderer,
     QueryListRowRenderData,
@@ -13,7 +13,7 @@ export type TutorialsHistoryProps<T extends TutorialHistoryRow = TutorialHistory
     title?: string;
     logo?: React.ReactNode;
     search: QueryListSearchConfig;
-    filter?: QueryListFilterConfig;
+    filter?: HistoryFilterConfig;
     items: QueryListItem<T>[];
     selectedRowId?: T['id'];
     renderRowItem?: (data: QueryListRowRenderData<T>) => React.ReactNode;

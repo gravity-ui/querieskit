@@ -276,6 +276,14 @@ function HistoryPanel() {
 }
 ```
 
+### Custom history filters
+
+Use `createHistoryFilter` from the root or `components/HistoryFilter` to supply typed
+application fields while keeping the standard popup, draft, Apply and Reset actions.
+Pass its result to a history module's `filter` prop or spread it into `HistoryFilter`.
+Existing SimpleForm-based configurations continue to work unchanged. See the
+[filter lifecycle and examples](src/components/HistoryFilter/README.md).
+
 [SimpleForm](src/components/SimpleForm/README.md) and its built-in field types are
 available through `components/SimpleForm`; the root field descriptor type is
 `SimpleFormField`. Type-only imports include all standard fields, and applications

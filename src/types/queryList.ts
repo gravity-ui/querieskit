@@ -1,6 +1,6 @@
 import type {ComponentPropsWithoutRef, ReactElement, ReactNode} from 'react';
 import type {FieldsSelectorOption, FieldsSelectorProps} from './fieldsSelectorProps';
-import {RegisteredFormFields} from './forms';
+import type {RegisteredFormFields} from './forms';
 
 /** ISO 8601 date string or Unix timestamp in milliseconds. */
 export type QueryTimestamp = string | number;
@@ -40,6 +40,7 @@ export type QueryListSearchConfig = {
 };
 
 export type QueryListFilterConfig = {
+    customFilter?: never;
     fields?: RegisteredFormFields[];
     values?: Record<string, any>;
     initialValues?: Record<string, any>;
