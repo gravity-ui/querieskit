@@ -19,6 +19,21 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [4.3.0](https://github.com/gravity-ui/querieskit/compare/v4.2.0...v4.3.0) (2026-11-10)
+
+
+### Features
+
+* add composable query page layout ([81b06f6](https://github.com/gravity-ui/querieskit/commit/81b06f6fe919d30fca94d0c79ba89e5273d5954b))
+* compose built-in engine settings with independent sections ([0b75ddb](https://github.com/gravity-ui/querieskit/commit/0b75ddb7e269fd08bc30d03b88980309e68a4c60))
+* customize table detail preset tabs ([c1c56c6](https://github.com/gravity-ui/querieskit/commit/c1c56c6485cc5a1b367cf86feffde0bdf5cdab06))
+* support typed custom history filter fields ([553112e](https://github.com/gravity-ui/querieskit/commit/553112ec057d20ec4eac9ee070df63f723437662))
+
+
+### Bug Fixes
+
+* expose built-in SimpleForm field types through public entrypoints ([14d80e1](https://github.com/gravity-ui/querieskit/commit/14d80e17a3e06ed3e69b0cc21ea81263347f675c))
+
 ## [4.2.0](https://github.com/gravity-ui/querieskit/compare/v4.1.0...v4.2.0) (2026-11-04)
 
 
