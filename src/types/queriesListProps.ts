@@ -1,9 +1,9 @@
+import type {HistoryFilterConfig} from './historyFilter';
 import type React from 'react';
 import type {QueryListPanelOptions} from './listPanel';
 import type {
     QueryListComparisonConfig,
     QueryListEditingConfig,
-    QueryListFilterConfig,
     QueryListItem,
     QueryListLinkRenderer,
     QueryListRow,
@@ -18,7 +18,7 @@ export type QueriesListProps<T extends QueryListRow> = QueryListPanelOptions & {
     title: React.ReactNode;
     logo?: React.ReactNode;
     search: QueryListSearchConfig;
-    filter?: QueryListFilterConfig;
+    filter?: HistoryFilterConfig;
     items: QueryListItem<T>[];
     selectedRowId?: T['id'];
     editing?: QueryListEditingConfig<T>;

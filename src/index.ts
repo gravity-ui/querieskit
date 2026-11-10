@@ -111,7 +111,14 @@ export type {QueryDurationProps} from './types/queryDurationProps';
 export type {QueryStatusIconProps} from './types/queryStatusIconProps';
 export type {HistoryHeaderProps} from './types/historyHeaderProps';
 
-export type {HistoryFilterProps} from './types/historyFilter';
+export type {
+    HistoryFilterProps,
+    HistoryFilterConfig,
+    CustomHistoryFilterProps,
+    CustomHistoryFilterConfig,
+    CustomHistoryFilterOptions,
+    HistoryFilterFieldsContext,
+} from './types/historyFilter';
 export type {NavigationDetailProps} from './types/navigationDetail';
 export * from './types/navigationDetailResolvers';
 export * from './types/attachmentsEditor';
