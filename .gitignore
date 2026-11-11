@@ -13,6 +13,7 @@ yarn-error.log*
 /storybook-static
 /test-results
 /playwright-report
+/tests/visual/__screenshots__/local-*
 
 # Personal
 .idea/

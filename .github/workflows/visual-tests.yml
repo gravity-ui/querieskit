@@ -1,0 +1,51 @@
+name: Visual tests
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: Generate baseline screenshots for review and download
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare screenshots
+        if: ${{ !inputs.update_snapshots }}
+        run: npm run test:visual
+      - name: Generate screenshots
+        if: ${{ inputs.update_snapshots }}
+        run: npm run test:visual:update
+      - name: Upload report and failure traces
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-report
+          path: |
+            playwright-report/visual
+            test-results/visual
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload baseline screenshots
+        if: ${{ inputs.update_snapshots && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: tests/visual/**/*.spec.ts-snapshots/*-chromium-linux.png
+          if-no-files-found: error
