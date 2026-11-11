@@ -42,3 +42,11 @@ type Story = StoryObj<typeof TutorialSearchRow>;
 
 /** Default tutorial search row */
 export const Default: Story = {};
+
+export const LongTitle: Story = {
+    args: {
+        item: makeRow({
+            title: 'Getting started with YQL: a detailed introduction to querying multiple data sources',
+        }),
+    },
+};

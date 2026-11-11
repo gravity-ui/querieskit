@@ -11,3 +11,22 @@ test('permanent sharing dialog', async ({page, openStory}) => {
     // The dialog lives in a portal outside #storybook-root.
     await expect(dialog).toHaveScreenshot('sharing.png');
 });
+
+for (const story of ['initial', 'temporary', 'error']) {
+    test(story, async ({page, openStory}) => {
+        await openStory(`modules-queryshare--${story}`);
+        const dialog = page.getByRole('dialog', {name: 'Public link'});
+        await expect(dialog).toBeVisible();
+        if (story === 'initial')
+            await expect(
+                dialog.getByRole('button', {name: 'Generate link', exact: true}),
+            ).toBeVisible();
+        else
+            await expect(dialog.getByRole('textbox', {name: 'Public link'})).toHaveValue(
+                'https://yql.example.com/public/63cb3e94',
+            );
+        if (story === 'error')
+            await expect(dialog).toContainText('Could not update the link. Try again.');
+        await expect(dialog).toHaveScreenshot(`${story}.png`);
+    });
+}

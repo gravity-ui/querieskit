@@ -993,9 +993,10 @@
     "test:package-contract": "node tests/tree-shaking/check-published.mjs && node tests/types/check-simple-form-package.mjs",
     "test:consumer": "node tests/tree-shaking/consumer.mjs",
     "test:visual": "node scripts/run-visual-tests.mjs",
-    "test:visual:update": "node scripts/run-visual-tests.mjs --update-snapshots",
+    "test:visual:update": "node scripts/run-visual-tests.mjs --update-snapshots=all",
     "test:visual:impl": "playwright test -c playwright.visual.config.ts",
     "test:visual:types": "tsc -p tests/visual",
+    "test:visual:coverage": "node tests/visual/check-coverage.mjs",
     "test:visual:report": "playwright show-report playwright-report/visual"
   },
   "repository": {

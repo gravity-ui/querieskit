@@ -66,7 +66,7 @@ args.push(
     '-c',
     // Arguments stay separate from shell source, including grep expressions and snapshot flags.
     // The container writes editable reports and baselines to the mounted checkout.
-    'set -e; umask 0000; npm ci --no-audit --no-fund; npm run test:visual:types; npm run build-storybook; exec npm run test:visual:impl -- "$@"',
+    'set -e; umask 0000; npm ci --no-audit --no-fund; npm run test:visual:coverage; npm run test:visual:types; npm run build-storybook; exec npm run test:visual:impl -- "$@"',
     'visual-tests',
     ...process.argv.slice(2),
 );
