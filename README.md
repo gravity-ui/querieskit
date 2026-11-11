@@ -456,6 +456,17 @@ npm run lint:all         # ESLint
 npm run build-storybook  # static Storybook
 ```
 
+Visual regression tests use Playwright and Storybook in Docker, with Podman as a fallback:
+
+```shell
+npm run test:visual         # compare with committed screenshots
+npm run test:visual:update  # explicitly regenerate screenshots for review
+npm run test:visual:report  # open the HTML report
+```
+
+See the [visual testing guide](tests/visual/README.md) for CI, baseline setup,
+and native debugging without containers.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
