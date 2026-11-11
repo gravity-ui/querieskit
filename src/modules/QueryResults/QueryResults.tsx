@@ -57,7 +57,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
 
     useLayoutEffect(() => {
         const toolbar = toolbarRef.current;
-        if (!toolbar || view !== 'schema' || stickyHead === false) return undefined;
+        if (!toolbar || stickyHead === false) return undefined;
 
         const measure = () => setToolbarHeight(toolbar.getBoundingClientRect().height);
         measure();
@@ -98,6 +98,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
     } else {
         content = (
             <QueryResultsTable
+                className={block('table')}
                 columns={displayedColumns}
                 rows={rows}
                 loading={loading}
@@ -105,6 +106,7 @@ export function QueryResults<TRow extends Record<string, unknown>>({
                 displayIndices={displayIndices}
                 stripedRows={stripedRows}
                 stickyHead={stickyHead}
+                stickyTop={toolbarHeight}
                 formatterSettings={formatterSettings}
                 maxVisibleLines={maxVisibleLines}
                 collapseAfterLines={collapseAfterLines}

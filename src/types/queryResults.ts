@@ -116,6 +116,8 @@ export type QueryResultsTableProps<TRow extends Record<string, unknown>> =
         loaded?: boolean;
         errorContent?: ReactNode;
         emptyVariant?: EmptyContentVariant;
+        /** Offset of the sticky header from the top of the scroll container. */
+        stickyTop?: Settings['stickyTop'];
         className?: string;
     };
 
