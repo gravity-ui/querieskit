@@ -100,44 +100,51 @@ describe('QueryResults Schema integration', () => {
         expect(rows()[0].children.length).toBe(3);
         expect(container.querySelector('.data-table__sticky_head')).not.toBeNull();
     });
-    it('tracks toolbar height and observes table content for sticky header synchronization', () => {
-        const observers = new Map<Element, ResizeObserverCallback>();
-        vi.stubGlobal(
-            'ResizeObserver',
-            class {
-                private callback: ResizeObserverCallback;
-                constructor(callback: ResizeObserverCallback) {
-                    this.callback = callback;
-                }
-                observe = (element: Element) => observers.set(element, this.callback);
-                unobserve = (element: Element) => observers.delete(element);
-                disconnect = () => {
-                    for (const [element, callback] of observers) {
-                        if (callback === this.callback) observers.delete(element);
+    it.each(['schema', 'result'] as const)(
+        'tracks toolbar height and synchronizes the %s sticky header',
+        (view) => {
+            const observers = new Map<Element, ResizeObserverCallback>();
+            vi.stubGlobal(
+                'ResizeObserver',
+                class {
+                    private callback: ResizeObserverCallback;
+                    constructor(callback: ResizeObserverCallback) {
+                        this.callback = callback;
                     }
-                };
-            },
-        );
-        let height = 40;
-        const original = HTMLElement.prototype.getBoundingClientRect;
-        vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
-            const rect = original.call(this);
-            return this.classList.contains('qp-query-results__toolbar') ? {...rect, height} : rect;
-        });
-        render();
-        const toolbar = container.querySelector('.qp-query-results__toolbar') as HTMLElement;
-        const table = container.querySelector('.data-table__box table') as HTMLElement;
-        const head = () => container.querySelector<HTMLElement>('.data-table__sticky_head');
-        expect(observers.has(toolbar)).toBe(true);
-        expect(observers.has(table)).toBe(true);
-        expect(head()?.style.top).toBe('40px');
-        height = 72;
-        act(() => observers.get(toolbar)?.([], {} as ResizeObserver));
-        expect(head()?.style.top).toBe('72px');
-        render({stickyHead: false});
-        expect(observers.has(toolbar)).toBe(false);
-        expect(observers.has(table)).toBe(false);
-    });
+                    observe = (element: Element) => observers.set(element, this.callback);
+                    unobserve = (element: Element) => observers.delete(element);
+                    disconnect = () => {
+                        for (const [element, callback] of observers) {
+                            if (callback === this.callback) observers.delete(element);
+                        }
+                    };
+                },
+            );
+            let height = 40;
+            const original = HTMLElement.prototype.getBoundingClientRect;
+            vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
+                function () {
+                    const rect = original.call(this);
+                    return this.classList.contains('qp-query-results__toolbar')
+                        ? {...rect, height}
+                        : rect;
+                },
+            );
+            render({view, rows: [{name: 'example', count: 1, ratio: 0.5}]});
+            const toolbar = container.querySelector('.qp-query-results__toolbar') as HTMLElement;
+            const table = container.querySelector('.data-table__box table') as HTMLElement;
+            const head = () => container.querySelector<HTMLElement>('.data-table__sticky_head');
+            expect(observers.has(toolbar)).toBe(true);
+            expect(observers.has(table)).toBe(true);
+            expect(head()?.style.top).toBe('40px');
+            height = 72;
+            act(() => observers.get(toolbar)?.([], {} as ResizeObserver));
+            expect(head()?.style.top).toBe('72px');
+            render({view, stickyHead: false});
+            expect(observers.has(toolbar)).toBe(false);
+            expect(observers.has(table)).toBe(false);
+        },
+    );
     it('preserves expansion on equivalent rerender and resets only the replaced schema row', () => {
         const makeColumns = (first = 'Record') => [
             {...columns[0], schemaType: nested(first)},

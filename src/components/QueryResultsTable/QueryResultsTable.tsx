@@ -34,6 +34,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
     displayIndices = true,
     stripedRows = true,
     stickyHead = BaseDataTable.MOVING,
+    stickyTop = 0,
     className,
 }: QueryResultsTableProps<TRow>) {
     const resolvedStickyHead = stickyHead === false ? undefined : stickyHead;
@@ -112,6 +113,7 @@ export function QueryResultsTable<TRow extends Record<string, unknown>>({
                     stripedRows,
                     sortable: false,
                     stickyHead: resolvedStickyHead,
+                    stickyTop,
                     syncHeadOnResize: Boolean(resolvedStickyHead),
                 }}
             />

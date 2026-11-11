@@ -504,6 +504,14 @@ const deepSchemaColumns: Array<QueryResultColumn<Record<string, unknown>>> = [
     ...schemaFamilyColumns,
 ];
 
+export const ResultsResizeAndScroll: Story = {
+    render: () => (
+        <div style={{width: 480, maxWidth: '100%', height: 240, resize: 'both', overflow: 'auto'}}>
+            <QueryResults columns={columns} rows={rows} />
+        </div>
+    ),
+};
+
 export const SchemaResizeAndScroll: Story = {
     render: () => (
         <div style={{width: 480, maxWidth: '100%', height: 400, resize: 'both', overflow: 'auto'}}>
