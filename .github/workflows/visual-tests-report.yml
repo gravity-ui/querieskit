@@ -1,0 +1,146 @@
+name: Visual test report
+
+on:
+  workflow_run:
+    workflows: [Visual tests]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: visual-report-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # This workflow runs from the default branch. Never check out or execute
+      # PR code here: the downloaded report is only copied as static files.
+      - name: Find the current PR and report
+        id: report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const eventRun = context.payload.workflow_run;
+            const {data: run} = await github.rest.actions.getWorkflowRun({
+              owner, repo, run_id: eventRun.id,
+            });
+            if (run.path !== '.github/workflows/visual-tests.yml' ||
+                run.event !== 'pull_request' || run.run_attempt !== eventRun.run_attempt ||
+                !run.head_repository) return;
+
+            const associated = await github.paginate(
+              github.rest.repos.listPullRequestsAssociatedWithCommit,
+              {owner, repo, commit_sha: run.head_sha, per_page: 100},
+            );
+            const pr = associated.find((candidate) =>
+              candidate.state === 'open' && candidate.head.sha === run.head_sha &&
+              candidate.head.ref === run.head_branch &&
+              candidate.head.repo?.id === run.head_repository.id &&
+              candidate.base.repo.full_name === `${owner}/${repo}` && candidate.base.ref === 'main'
+            );
+            if (!pr) {
+              core.info('No open PR at this tested commit; skipping stale report.');
+              return;
+            }
+            const {data: runs} = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: run.workflow_id, event: 'pull_request',
+              head_sha: run.head_sha, per_page: 100,
+            });
+            if (runs.workflow_runs.some((candidate) => candidate.id > run.id &&
+                candidate.head_repository?.id === run.head_repository.id &&
+                candidate.head_branch === run.head_branch)) return;
+
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+              owner, repo, run_id: run.id, per_page: 100,
+            });
+            const artifact = artifacts.find((item) =>
+              item.name === `visual-test-report-${run.run_attempt}` && !item.expired
+            );
+            if (!artifact) {
+              await core.summary.addRaw('No visual report artifact was produced by this run.').write();
+              return;
+            }
+            core.setOutput('publish', 'true');
+            core.setOutput('pr', pr.number);
+            core.setOutput('run', run.id);
+            core.setOutput('attempt', run.run_attempt);
+            core.setOutput('sha', run.head_sha);
+            core.setOutput('artifact', artifact.id);
+
+      - name: Download the report
+        if: steps.report.outputs.publish == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.report.outputs.run }}
+          artifact-ids: ${{ steps.report.outputs.artifact }}
+          path: report
+          merge-multiple: true
+
+      - name: Check the static report
+        if: steps.report.outputs.publish == 'true'
+        run: |
+          test -f report/playwright-report/visual/index.html
+          # The uploader follows symlinks; never allow artifact contents to point
+          # outside the report directory on this privileged runner.
+          test -z "$(find report -type l -print -quit)"
+
+      - name: Publish HTML report to S3
+        if: steps.report.outputs.publish == 'true'
+        uses: gravity-ui/preview-upload-to-s3-action@cb6825ac4463b21d0a153d5515afb2fb7c9127e9 # v1
+        with:
+          src-path: report/playwright-report/visual
+          dest-path: /querieskit/visual-reports/${{ steps.report.outputs.run }}/${{ steps.report.outputs.attempt }}/
+          s3-key-id: ${{ secrets.STORYBOOK_S3_KEY_ID }}
+          s3-secret-key: ${{ secrets.STORYBOOK_S3_SECRET_KEY }}
+
+      - name: Link the report in the PR
+        if: steps.report.outputs.publish == 'true'
+        uses: actions/github-script@v7
+        env:
+          REPORT_PR: ${{ steps.report.outputs.pr }}
+          REPORT_RUN: ${{ steps.report.outputs.run }}
+          REPORT_ATTEMPT: ${{ steps.report.outputs.attempt }}
+          REPORT_SHA: ${{ steps.report.outputs.sha }}
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const number = Number(process.env.REPORT_PR);
+            const runId = Number(process.env.REPORT_RUN);
+            const attempt = Number(process.env.REPORT_ATTEMPT);
+            const {data: pr} = await github.rest.pulls.get({owner, repo, pull_number: number});
+            const {data: run} = await github.rest.actions.getWorkflowRun({owner, repo, run_id: runId});
+            // Recheck after the upload: a new push or rerun may have happened meanwhile.
+            if (pr.state !== 'open' || pr.head.sha !== process.env.REPORT_SHA ||
+                run.run_attempt !== attempt) return;
+            const {data: runs} = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: run.workflow_id, event: 'pull_request',
+              head_sha: run.head_sha, per_page: 100,
+            });
+            if (runs.workflow_runs.some((candidate) => candidate.id > runId &&
+                candidate.head_repository?.id === run.head_repository.id &&
+                candidate.head_branch === run.head_branch)) return;
+
+            const url = `https://storage.yandexcloud.net/storybook-static/querieskit/visual-reports/${runId}/${attempt}/index.html`;
+            const marker = '<!-- querieskit-visual-test-report -->';
+            const body = `${marker}\n[Visual test report](${url}) — **${run.conclusion}**.\n\n` +
+              `Commit \`${run.head_sha.slice(0, 7)}\` · [CI run](${run.html_url}) · attempt ${attempt}.`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: number, per_page: 100,
+            });
+            const comment = comments.find((item) => item.user?.login === 'github-actions[bot]' &&
+              item.body?.includes(marker));
+            if (comment) {
+              await github.rest.issues.updateComment({owner, repo, comment_id: comment.id, body});
+            } else {
+              await github.rest.issues.createComment({owner, repo, issue_number: number, body});
+            }
+            await core.summary.addLink('Visual test report', url).write();

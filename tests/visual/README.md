@@ -1,9 +1,20 @@
 # Visual tests
 
-Playwright compares selected Storybook stories in Chromium, in light and dark themes.
-The suite covers history durations, navigation clusters, query results, the query editor,
-and the sharing dialog. These tests are separate from Vitest component tests and the
-browser integration suite.
+Playwright compares Storybook scenarios in Chromium, in light and dark themes.
+Each public component and module has a visual spec, grouped by the same unit name as
+the library API. The suite also retains the QueryEditor widget smoke test. These tests
+are separate from Vitest component tests and the browser integration suite.
+
+Scenarios cover meaningful variants such as populated/empty/loading/error content,
+disabled controls, expanded overlays, selected rows, and editor modes where applicable.
+History includes successful, failed, and running queries. Search scenarios distinguish
+title matching from full-text SQL matching and assert results before capturing them.
+The fixture fixes the current date so running durations remain repeatable.
+
+`npm run test:visual:coverage` checks the component/module public barrels against
+per-unit visual specs containing screenshot assertions. The container runner performs
+this check before building Storybook, so a newly exported unit needs a visual spec.
+This is a unit-presence check, not a claim that every prop combination is covered.
 
 ## Run and update
 
@@ -94,9 +105,29 @@ See also the [Podman Rosetta status update](https://blog.podman.io/2025/08/podma
 ## CI and environments without containers
 
 The **Visual tests** workflow compares screenshots on pull requests and uploads the HTML
-report and failure traces. Once the workflow is available in GitHub Actions, it can also
+report and failure traces as `visual-test-report-<attempt>` (retained for 14 days).
+Each attempt has its own artifact so a rerun cannot publish an earlier attempt's report.
+The separate **Visual test report** workflow publishes the HTML report and its attachments
+to the same S3 bucket used by Storybook previews, using `STORYBOOK_S3_KEY_ID` and
+`STORYBOOK_S3_SECRET_KEY`. It updates one PR comment with a direct report link and adds
+the link to its job summary, including when screenshot comparisons fail. Reports use
+an immutable path per run and attempt:
+
+```text
+https://storage.yandexcloud.net/storybook-static/querieskit/visual-reports/<run-id>/<attempt>/index.html
+```
+
+The publisher reads artifacts from a completed PR run without checking out or executing
+PR code. It only updates comments for an open PR at the tested commit and skips stale
+runs. If tests fail before producing a report, the CI logs remain the source of details.
+GitHub starts `workflow_run` publishers only when their workflow exists on the default
+branch: merge `visual-tests-report.yml` into `main` before expecting automatic report
+links, then rerun **Visual tests**. Manual `workflow_dispatch` runs retain downloadable
+artifacts but do not publish a PR comment.
+
+Once the testing workflow is available in GitHub Actions, it can also
 be dispatched manually with `update_snapshots` enabled. Download the `visual-baselines`
-artifact and extract its contents into `tests/visual`, preserving the `modules` and
+artifact and extract its contents into `tests/visual`, preserving the `components`, `modules`, and
 `widgets` directories. Review the images and commit them. CI never commits or accepts
 changed screenshots automatically.
 
@@ -138,6 +169,9 @@ name, such as `history.png`; theme, browser, and platform suffixes are added aut
 Prefer fixed data and completed states over timers or live progress. The fixture fixes
 the date, locale, timezone and theme, and waits for fonts; it does not freeze timers.
 For async editors/charts, also wait for their actual rendered content.
+Canvas graphs and timelines additionally use `prepareCanvas` to load their text fonts
+and redraw through the zoom/fit controls before capture. Canvas text does not update
+automatically when a webfont finishes loading.
 
 Capture `#storybook-root` for ordinary stories and the dialog/menu locator for portals.
 Avoid arbitrary sleeps, broad masks and relaxed diff thresholds. Both themes run

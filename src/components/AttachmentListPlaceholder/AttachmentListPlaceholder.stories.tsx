@@ -28,3 +28,12 @@ type Story = StoryObj<typeof meta>;
 
 /** Empty state with documentation and two secondary actions, matching the Figma example. */
 export const Default: Story = {};
+
+export const CustomMessage: Story = {
+    args: {
+        title: 'No source files',
+        description: 'Upload a CSV file or attach a URL',
+        addFileText: 'Upload CSV',
+        linkForDoc: undefined,
+    },
+};

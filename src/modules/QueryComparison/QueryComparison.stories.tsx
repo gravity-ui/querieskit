@@ -1,5 +1,8 @@
 import React, {useState} from 'react';
 import type {Meta, StoryObj} from '@storybook/react';
+import {waitFor} from 'storybook/test';
+// @ts-ignore Monaco's deep entrypoint does not expose its bundled declarations.
+import * as monaco from 'monaco-editor/editor/editor.api';
 import type {
     QueryComparisonItem,
     QueryComparisonProps,
@@ -119,7 +122,40 @@ export default meta;
 type Story = StoryObj<typeof QueryComparison>;
 
 export const Default: Story = {};
-export const Unified: Story = {args: {defaultMode: 'unified'}};
+export const Unified: Story = {
+    args: {defaultMode: 'unified'},
+    play: async ({canvasElement}) => {
+        const editors = await waitFor(
+            () => {
+                const instances = monaco.editor
+                    .getDiffEditors()
+                    .filter((instance) => canvasElement.contains(instance.getContainerDomNode()));
+                if (instances.length !== items.length)
+                    throw new Error('Diff editors are not mounted');
+                return instances;
+            },
+            {timeout: 10_000},
+        );
+        // Unified mode hides the original editor; its deleted-line tokens can
+        // otherwise stay lazy. Prepare both real models through Monaco's public
+        // colorizer APIs before the visual test captures inline diff zones.
+        await Promise.all(
+            editors.map(async (instance) => {
+                for (const view of [instance.getOriginalEditor(), instance.getModifiedEditor()]) {
+                    const model = view.getModel();
+                    if (!model) throw new Error('Missing diff model');
+                    await monaco.editor.colorize(model.getValue(), model.getLanguageId(), {});
+                    monaco.editor.colorizeModelLine(model, model.getLineCount());
+                    // The cursor marker is not part of the file comparison appearance.
+                    view.updateOptions({hideCursorInOverviewRuler: true});
+                    view.render(true);
+                }
+                instance.layout();
+            }),
+        );
+        canvasElement.setAttribute('data-monaco-ready', 'true');
+    },
+};
 export const ReadOnly: Story = {args: {readOnly: true}};
 export const QueryOnly: Story = {args: {items: [items[1]]}};
 export const Empty: Story = {args: {items: []}};

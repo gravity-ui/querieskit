@@ -15,7 +15,8 @@ export const test = base.extend<{openStory: (id: string) => Promise<void>}>({
                 globals: `theme:${theme};locale:en`,
             });
             await page.goto(`/iframe.html?${params}`);
-            await expect(page.locator('#storybook-root')).not.toBeEmpty();
+            // Input-only and icon-only stories can render without text content.
+            await expect(page.locator('#storybook-root > *').first()).toBeAttached();
             await expect(page.locator('body')).toHaveClass(new RegExp(`g-root_theme_${theme}`));
             await page.evaluate(() => document.fonts.ready);
         });
