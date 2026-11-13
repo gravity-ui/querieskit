@@ -35,10 +35,14 @@ CONTAINER_RUNTIME=podman npm run test:visual:update
 CONTAINER_RUNTIME=podman npm run test:visual
 ```
 
-The runner prefers Docker when its CLI is available, otherwise Podman. Override this
-selection with `CONTAINER_RUNTIME=docker` or `CONTAINER_RUNTIME=podman`. If the selected
-daemon is unavailable, its error is returned; the runner does not install or start it.
+The runner prefers Docker when its server is reachable, otherwise it tries Podman.
+It detects Podman behind a Docker-compatible CLI/API and uses Podman-compatible mount
+options. Override client selection with `CONTAINER_RUNTIME=docker` or
+`CONTAINER_RUNTIME=podman`; an explicit selection disables fallback. If neither server
+is available, the runner reports connection errors; it does not install or start a server.
 On ARM hosts the runtime must support running `linux/amd64` images.
+Runner selection and mount arguments can be checked without containers using
+`node --test tests/scripts/run-visual-tests.test.mjs`.
 
 The official Playwright image version comes from `package-lock.json`. Every run uses
 Linux amd64, installs locked dependencies and builds Storybook inside the container.
