@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import React, {act} from 'react';
+import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {MonacoEditor} from '../../src/components/MonacoEditor';
@@ -116,6 +117,52 @@ describe('MonacoEditor', () => {
     function render(props: Partial<MonacoEditorProps> = {}) {
         act(() => root.render(<MonacoEditor value="SELECT 1" {...props} />));
     }
+
+    it('defaults to the light theme without a ThemeProvider', () => {
+        render();
+        expect(mock.api.setTheme).toHaveBeenLastCalledWith('yt-light');
+    });
+
+    it('inherits the UI theme and follows changes without recreating the editor', () => {
+        const renderTheme = (theme: 'light' | 'dark') => {
+            act(() =>
+                root.render(
+                    <ThemeProvider theme={theme}>
+                        <MonacoEditor value="SELECT 1" />
+                    </ThemeProvider>,
+                ),
+            );
+        };
+        renderTheme('dark');
+        expect(mock.api.create).toHaveBeenCalledWith(
+            expect.any(HTMLElement),
+            expect.objectContaining({theme: 'yt-dark'}),
+        );
+        expect(mock.api.setTheme).toHaveBeenLastCalledWith('yt-dark');
+        renderTheme('light');
+        expect(mock.api.setTheme).toHaveBeenLastCalledWith('yt-light');
+        expect(mock.api.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('prioritizes an explicit theme and resumes inheritance when it is removed', () => {
+        const renderTheme = (theme?: string) => {
+            act(() =>
+                root.render(
+                    <ThemeProvider theme="dark">
+                        <MonacoEditor value="SELECT 1" theme={theme} />
+                    </ThemeProvider>,
+                ),
+            );
+        };
+        renderTheme('vs');
+        expect(mock.api.create).toHaveBeenCalledWith(
+            expect.any(HTMLElement),
+            expect.objectContaining({theme: 'vs'}),
+        );
+        expect(mock.api.setTheme).toHaveBeenLastCalledWith('vs');
+        renderTheme();
+        expect(mock.api.setTheme).toHaveBeenLastCalledWith('yt-dark');
+    });
 
     it('reports edits to the latest callback and accepts the controlled echo without replacing text', () => {
         const first = vi.fn();

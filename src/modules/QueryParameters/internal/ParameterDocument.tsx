@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Flex, Loader, Text, useThemeValue} from '@gravity-ui/uikit';
+import {Flex, Loader, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import type {MonacoEditorConfig, MonacoEditorProps} from '../../../types/monacoEditor';
 import i18n from '../i18n';
@@ -30,7 +30,6 @@ export function ParameterDocument({
         value: string;
         tokens: {text: string; kind: string}[];
     }>();
-    const theme = useThemeValue();
     const config = useMemo<MonacoEditorConfig>(
         () => ({
             ariaLabel: label,
@@ -100,7 +99,7 @@ export function ParameterDocument({
         return () => {
             active = false;
         };
-    }, [editing, value, theme]);
+    }, [editing, value]);
 
     if (!editing) {
         return highlight?.value === value ? (
@@ -126,7 +125,6 @@ export function ParameterDocument({
                             if (!disabled) onUpdate(next);
                         }}
                         language="json"
-                        theme={theme}
                         readOnly={disabled}
                         monacoConfig={config}
                     />

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Flex, Icon, Text, useThemeValue} from '@gravity-ui/uikit';
+import {Button, Flex, Icon, Text} from '@gravity-ui/uikit';
 import CheckIcon from '@gravity-ui/icons/svgs/check.svg';
 import XmarkIcon from '@gravity-ui/icons/svgs/xmark.svg';
 import cn from 'bem-cn-lite';
@@ -19,8 +19,6 @@ export function SpytSettingsContent({
     className?: string;
     classNames?: {editorFrame?: string; editor?: string; invalidEditorFrame?: string};
 }) {
-    const theme = useThemeValue();
-
     return (
         <Flex direction="column" gap={2} className={block(null, className)}>
             <div
@@ -36,7 +34,6 @@ export function SpytSettingsContent({
                     className={block('editor', classNames?.editor)}
                     value={draft}
                     language="json"
-                    theme={theme}
                     readOnly={disabled}
                     onChange={change}
                     onBlur={blur}
