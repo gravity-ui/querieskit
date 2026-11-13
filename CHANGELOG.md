@@ -19,6 +19,14 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [4.3.3](https://github.com/gravity-ui/querieskit/compare/v4.3.2...v4.3.3) (2026-11-13)
+
+
+### Bug Fixes
+
+* detect available visual test container runtime ([a9cc693](https://github.com/gravity-ui/querieskit/commit/a9cc6933f1b3095df842404a1259a159014c3de9))
+* **MonacoEditor:** inherit the surrounding UI theme ([4fcc302](https://github.com/gravity-ui/querieskit/commit/4fcc3021dbf266fdd7e50e3bf2d0b9cae4463ab2))
+
 ## [4.3.2](https://github.com/gravity-ui/querieskit/compare/v4.3.1...v4.3.2) (2026-11-11)
 
 
