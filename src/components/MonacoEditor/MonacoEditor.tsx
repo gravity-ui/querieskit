@@ -1,5 +1,5 @@
-import React, {FC, useCallback, useEffect, useId, useMemo, useRef} from 'react';
-import {Flex} from '@gravity-ui/uikit';
+import React, {FC, useCallback, useContext, useEffect, useId, useMemo, useRef} from 'react';
+import {Flex, ThemeContext} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
 import type {editor} from 'monaco-editor';
 // @ts-ignore monaco-editor ships its own types but the default resolution
@@ -46,6 +46,8 @@ export const MonacoEditor: FC<MonacoEditorProps> = ({
     monacoConfig,
     className,
 }) => {
+    const themeContext = useContext(ThemeContext);
+    const resolvedTheme = resolveTheme(theme ?? themeContext?.themeValue);
     const containerRef = useRef<HTMLDivElement>(null);
     const statusBarRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -136,7 +138,7 @@ export const MonacoEditor: FC<MonacoEditorProps> = ({
                 lineNumbers: 'on',
                 suggestOnTriggerCharacters: true,
                 wordBasedSuggestions: 'off',
-                theme: resolveTheme(theme),
+                theme: resolvedTheme,
                 ...monacoConfig,
             },
         );
@@ -367,10 +369,10 @@ export const MonacoEditor: FC<MonacoEditorProps> = ({
         });
     }, [highlightedLine, own]);
 
-    // Keep the editor theme in sync with the `theme` prop.
+    // Follow the UI theme unless an explicit editor theme is provided.
     useEffect(() => {
-        monaco.editor.setTheme(resolveTheme(theme));
-    }, [theme]);
+        monaco.editor.setTheme(resolvedTheme);
+    }, [resolvedTheme]);
 
     // Override Monaco's color tokens on this editor only, without changing the
     // shared Monaco theme or selecting its internal markup. CSS variables also

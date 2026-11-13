@@ -37,6 +37,7 @@ export type MonacoEditorProps = MonacoEditorIntegrationProps & {
     onChange?: (value: string) => void;
     readOnly?: boolean;
     language?: string;
+    /** Overrides the surrounding Gravity UI theme. */
     theme?: string;
     /** Instance-local editor and gutter background; accepts CSS colors and variables. */
     backgroundColor?: string;

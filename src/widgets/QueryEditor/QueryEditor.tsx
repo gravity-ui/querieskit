@@ -1,6 +1,6 @@
 import type {QuerySettingsCustomFieldsContext} from '../../types/querySettings';
 import React, {useEffect, useId, useMemo, useState} from 'react';
-import {Button, Flex, Icon, useThemeValue} from '@gravity-ui/uikit';
+import {Button, Flex, Icon} from '@gravity-ui/uikit';
 import SparklesIcon from '@gravity-ui/icons/svgs/sparkles.svg';
 import cn from 'bem-cn-lite';
 import {createEditorCommandsExtension} from '../../helpers/createEditorCommandsExtension';
@@ -58,7 +58,6 @@ export function QueryEditor<
     const parametersId = useId();
     const settingsId = useId();
     const attachmentsId = useId();
-    const theme = useThemeValue();
     const changePanel = (panel: QueryEditorPanel) => {
         if (controlledPanel === undefined) setLocalPanel(panel);
         props.onActivePanelChange?.(panel);
@@ -220,7 +219,6 @@ export function QueryEditor<
                     onChange={props.onChange}
                     readOnly={props.readOnly}
                     language={language}
-                    theme={theme}
                     backgroundColor="var(--g-color-base-background)"
                     monacoConfig={{
                         ariaLabel: i18n('field_query'),

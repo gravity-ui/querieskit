@@ -1138,14 +1138,13 @@ describe('QueryEditor', () => {
         click(button('Share'));
         expect(document.querySelector('[role="dialog"]')).not.toBeNull();
     });
-    it('forwards editor data, options and theme and derives language from selected engine', () => {
+    it('forwards editor data and options and derives language from selected engine', () => {
         render({engineId: 'ch', readOnly: true, editorOptions: {fontSize: 16}});
         expect(editor.props).toMatchObject({
             value: 'select 1',
             onChange: props.onChange,
             readOnly: true,
             language: 'clickhouse',
-            theme: 'light',
         });
         expect(editor.props.monacoConfig).toMatchObject({
             fontSize: 16,
