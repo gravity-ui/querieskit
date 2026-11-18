@@ -106,7 +106,7 @@ export function QueryExecutionPanel<
     };
 
     const getTitle = (tab: QueryExecutionTab<TRow, TMetaItem>) => {
-        if (tab.type === 'info') return i18n(`title_${getMessagesSeverity(tab.props?.root)}`);
+        if (tab.type === 'info') return i18n(`title_${getMessagesSeverity(tab.props?.roots)}`);
         if (tab.type === 'custom') return tab.title;
         return tab.title ?? i18n(`title_${tab.type}`);
     };

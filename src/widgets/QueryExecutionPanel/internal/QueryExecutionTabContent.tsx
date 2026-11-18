@@ -31,7 +31,7 @@ export function QueryExecutionTabContent<
         case 'meta':
             return <NavigationMeta {...tab.props} />;
         case 'info':
-            return tab.props ? (
+            return tab.props?.roots.length ? (
                 <ErrorTree {...tab.props} />
             ) : (
                 <Text color="secondary">{i18n('context_no-messages')}</Text>

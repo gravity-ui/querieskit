@@ -3,7 +3,7 @@ import type {Meta as StoryMeta, StoryObj} from '@storybook/react';
 import {Button, Flex, Text, TextInput} from '@gravity-ui/uikit';
 import {QueryExecutionPanel} from '../QueryExecutionPanel';
 import type {QueryExecutionTab} from '../../../types/queryExecutionPanel';
-import type {ErrorTreeSeverity} from '../../../types/errorTree';
+import type {ErrorTreeItem, ErrorTreeSeverity} from '../../../types/errorTree';
 import {DashboardCharts} from '../../DashboardCharts';
 import {lineSeriesMap} from '../../DashboardCharts/story/mockData';
 import {fieldsChartItems, fieldsEditorProps} from '../../DashboardCharts/story/fieldsData';
@@ -40,7 +40,7 @@ const allTabs: QueryExecutionTab[] = [
     {
         id: 'info',
         type: 'info',
-        props: {root: {id: 'root', severity: 'info', message: 'Query completed'}},
+        props: {roots: [{id: 'root', severity: 'info', message: 'Query completed'}]},
     },
     {
         id: 'statistics',
@@ -126,6 +126,9 @@ export const Narrow: Story = {
 };
 export const Empty: Story = {args: {tabs: []}};
 export const EmptyInfo: Story = {args: {tabs: [{id: 'info', type: 'info'}]}};
+export const EmptyMessages: Story = {
+    args: {tabs: [{id: 'info', type: 'info', props: {roots: []}}]},
+};
 export const Loading: Story = {args: {loading: true}};
 export const LoadingError: Story = {
     render: function LoadingErrorExample(args) {
@@ -172,12 +175,16 @@ export const DynamicMessages: Story = {
                             id: 'messages',
                             type: 'info',
                             props: {
-                                root: {
-                                    id: 'root',
-                                    severity: 'info',
-                                    message: 'Execution messages',
-                                    children: [{id: 'child', severity, message: 'Updated message'}],
-                                },
+                                roots: [
+                                    {
+                                        id: 'root',
+                                        severity: 'info',
+                                        message: 'Execution messages',
+                                        children: [
+                                            {id: 'child', severity, message: 'Updated message'},
+                                        ],
+                                    },
+                                ],
                             },
                         },
                     ]}
@@ -212,7 +219,7 @@ export const QueryTrackerLifecycle: Story = {
             results: [results, results],
             progress,
             meta: metaProps,
-            error: {root: {id: 'error', severity: 'error', message: 'Execution failed'}},
+            error: {roots: [{id: 'error', severity: 'error', message: 'Execution failed'}]},
             statistics: {data: [{id: 'rows', name: 'Rows', values: {count: 2}}]},
             charts: [{dataSource: {line: lineSeriesMap}}],
         };
@@ -248,6 +255,51 @@ export const ApplicationLayout: Story = {
             >
                 <QueryExecutionPanel {...args} expanded={expanded} onExpandedChange={setExpanded} />
             </div>
+        );
+    },
+};
+
+export const MultipleMessages: Story = {
+    render: function MultipleMessagesExample(args) {
+        const messages: ErrorTreeItem[] = [
+            {
+                id: 'planning',
+                severity: 'info',
+                message: 'Planning diagnostics',
+                children: [{id: 'warning', severity: 'warning', message: 'Full table scan'}],
+            },
+            {
+                id: 'execution',
+                severity: 'info',
+                message: 'Execution diagnostics',
+                children: [
+                    {
+                        id: 'error',
+                        severity: 'error',
+                        message: 'Unknown column',
+                        position: {row: 4, column: 8},
+                    },
+                ],
+            },
+        ];
+        const [roots, setRoots] = useState(messages);
+        return (
+            <Flex direction="column" gap={3} height="100%">
+                <Flex gap={2} wrap>
+                    <Button onClick={() => setRoots(messages)}>All messages</Button>
+                    <Button onClick={() => setRoots((items) => [...items].reverse())}>
+                        Reverse order
+                    </Button>
+                    <Button onClick={() => setRoots((items) => items.slice(0, -1))}>
+                        Remove last
+                    </Button>
+                    <Button onClick={() => setRoots([])}>Clear</Button>
+                </Flex>
+                <QueryExecutionPanel
+                    {...args}
+                    tabs={[{id: 'messages', type: 'info', props: {roots}}]}
+                />
+            </Flex>
         );
     },
 };

@@ -20,11 +20,13 @@ createRoot(root).render(
                         id: 'error',
                         type: 'info',
                         props: {
-                            root: {
-                                id: 'error',
-                                severity: 'error',
-                                message: 'Query execution failed',
-                            },
+                            roots: [
+                                {
+                                    id: 'error',
+                                    severity: 'error',
+                                    message: 'Query execution failed',
+                                },
+                            ],
                         },
                     },
                     {id: 'meta', type: 'meta', props: {data: {groups: []}}},
