@@ -67,7 +67,7 @@ const meta: Meta<typeof ErrorTree> = {
     tags: ['autodocs'],
     parameters: {layout: 'padded'},
     args: {
-        root,
+        roots: [root],
         onPositionClick: action('onPositionClick'),
     },
 };
@@ -92,3 +92,27 @@ export const Narrow: Story = {
         </div>
     ),
 };
+
+export const MultipleRoots: Story = {
+    args: {
+        roots: [
+            root,
+            {
+                id: 'independent-warning',
+                severity: 'warning',
+                message: 'An independent warning',
+                position: {row: 12, column: 3},
+                attributes: {severity: 'Warning'},
+                children: [
+                    {
+                        id: 'warning-detail',
+                        severity: 'info',
+                        message: 'Consider limiting the number of rows',
+                    },
+                ],
+            },
+        ],
+    },
+};
+
+export const Empty: Story = {args: {roots: []}};

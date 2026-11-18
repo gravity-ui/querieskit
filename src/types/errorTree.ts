@@ -8,6 +8,7 @@ export type ErrorTreePosition = {
 };
 
 export type ErrorTreeItem = {
+    /** Stable and unique among siblings, including top-level roots. */
     id: string;
     severity: ErrorTreeSeverity;
     message: string;
@@ -18,7 +19,8 @@ export type ErrorTreeItem = {
 };
 
 export type ErrorTreeProps = {
-    root: ErrorTreeItem;
+    /** Independent message trees in display order. An empty array renders no messages. */
+    roots: ErrorTreeItem[];
     className?: string;
     defaultExpanded?: boolean;
     defaultInfoExpanded?: boolean;

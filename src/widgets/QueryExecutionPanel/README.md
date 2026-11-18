@@ -29,7 +29,7 @@ const tabs: QueryExecutionTab<{name: string}>[] = [
   {
     id: 'messages',
     type: 'info',
-    props: {root: {id: 'root', severity: 'info', message: 'Completed'}},
+    props: {roots: [{id: 'root', severity: 'info', message: 'Completed'}]},
   },
   {
     id: 'notes',
@@ -62,15 +62,43 @@ hide a tab, or set `disabled` to retain its header without allowing selection.
 | ------------ | ---------------------------------------------------------- | ----------------------------- |
 | `result`     | `props: QueryResultsProps<TRow>`                           | Result                        |
 | `progress`   | `props: QueryProgressProps`                                | Progress                      |
-| `info`       | `props?: ErrorTreeProps`                                   | Computed from the entire tree |
+| `info`       | `props?: ErrorTreeProps`                                   | Computed from all trees       |
 | `statistics` | `props: QueryStatisticsProps`                              | Statistics                    |
 | `meta`       | `props: NavigationMetaProps<TMetaItem>`                    | Meta                          |
 | `charts`     | `props: DashboardChartsProps` or `renderContent({active})` | Charts                        |
 | `custom`     | `title`, `renderContent({active})`                         | Required                      |
 
 Standard types other than Info accept an optional `title: ReactNode`. Info uses
-Error > Warning > Info, including collapsed descendants. Without props, it shows
-an empty message state. Its ID never changes when its title changes.
+Error > Warning > Info across all roots and their descendants, including collapsed
+messages. Without props or with `props: {roots: []}`, it shows the localized
+“No messages” state and uses the Info title. Its ID never changes when its title changes.
+
+Pass independent messages directly through `roots`, with no synthetic parent:
+
+```tsx
+const messagesTab: QueryExecutionTab = {
+  id: 'messages',
+  type: 'info',
+  props: {
+    roots: [
+      {id: 'warning', severity: 'warning', message: 'Query can be optimized'},
+      {id: 'error', severity: 'error', message: 'Execution failed'},
+    ],
+  },
+};
+```
+
+Roots appear in array order and expand independently. Keep item IDs stable and
+unique among siblings, including the roots, so updating or reordering the array
+preserves each remaining message's state. `defaultExpanded`, `defaultInfoExpanded`,
+`renderAttributes` and `onPositionClick` apply to every tree. Each root uses
+`defaultExpanded`; `defaultInfoExpanded` controls informational descendants.
+A standalone `<ErrorTree roots={[]} />` renders no messages; the Info tab owns
+the empty-state text.
+
+The former `root` prop has been replaced by the required `roots` array. Migrate
+`<ErrorTree root={item} />` to `<ErrorTree roots={[item]} />`, and an Info tab's
+`props: {root: item}` to `props: {roots: [item]}`.
 
 Charts accepts `props: DashboardChartsProps` to render the built-in dashboard.
 It loads the dashboard on first activation and preserves it afterward. The built-in

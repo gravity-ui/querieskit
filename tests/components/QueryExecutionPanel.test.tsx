@@ -307,17 +307,20 @@ describe('QueryExecutionPanel', () => {
         expect(selected()).toBe('b');
         expect(changes).not.toHaveBeenCalled();
     });
-    it('computes severity across the tree and changes the title without remounting Info', () => {
+    it('computes severity across all trees and changes the title without remounting Info', () => {
         const info = (severity: 'info' | 'warning' | 'error'): QueryExecutionTab => ({
             id: 'messages',
             type: 'info',
             props: {
-                root: {
-                    id: 'root',
-                    severity: 'info',
-                    message: 'root',
-                    children: [{id: 'child', severity, message: 'child'}],
-                },
+                roots: [
+                    {id: 'first', severity: 'info', message: 'First message'},
+                    {
+                        id: 'root',
+                        severity: 'info',
+                        message: 'root',
+                        children: [{id: 'child', severity, message: 'child'}],
+                    },
+                ],
             },
         });
         render({tabs: [info('info')]});
@@ -332,6 +335,18 @@ describe('QueryExecutionPanel', () => {
         expect(selected()).toBe('Info');
         expect(panel().textContent).toContain('No messages');
         expect(getMessagesSeverity()).toBe('info');
+        render({tabs: [{id: 'messages', type: 'info', props: {roots: []}}]});
+        expect(selected()).toBe('Info');
+        expect(panel().textContent).toContain('No messages');
+        render({tabs: [info('warning')]});
+        expect(selected()).toBe('Warning');
+        expect(panel().textContent).toContain('Count 0');
+        expect(
+            getMessagesSeverity([
+                {id: 'error', severity: 'error', message: 'Error'},
+                {id: 'warning', severity: 'warning', message: 'Warning'},
+            ]),
+        ).toBe('error');
     });
     it('renders multiple result/chart tabs in array order and pauses hidden progress', () => {
         const tabs: QueryExecutionTab[] = [

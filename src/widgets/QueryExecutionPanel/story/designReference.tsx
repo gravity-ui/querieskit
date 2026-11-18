@@ -100,22 +100,24 @@ export const designTabs: QueryExecutionTab[] = [
         id: 'info',
         type: 'info',
         props: {
-            root: {
-                id: 'root',
-                severity: 'error',
-                message: 'Missing value for parameter: $h',
-                code: 2,
-                attributes: {parameter: '$h'},
-                children: [
-                    {
-                        id: 'child',
-                        severity: 'error',
-                        message: 'Missing value for parameter: $h',
-                        code: 2,
-                        attributes: {parameter: '$h'},
-                    },
-                ],
-            },
+            roots: [
+                {
+                    id: 'root',
+                    severity: 'error',
+                    message: 'Missing value for parameter: $h',
+                    code: 2,
+                    attributes: {parameter: '$h'},
+                    children: [
+                        {
+                            id: 'child',
+                            severity: 'error',
+                            message: 'Missing value for parameter: $h',
+                            code: 2,
+                            attributes: {parameter: '$h'},
+                        },
+                    ],
+                },
+            ],
         },
     },
     {

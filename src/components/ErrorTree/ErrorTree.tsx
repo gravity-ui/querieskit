@@ -7,7 +7,7 @@ import {ErrorTreeNode} from './internal/ErrorTreeNode';
 const block = cn('qp-error-tree');
 
 export function ErrorTree({
-    root,
+    roots,
     className,
     defaultExpanded = true,
     defaultInfoExpanded = false,
@@ -16,15 +16,18 @@ export function ErrorTree({
 }: ErrorTreeProps) {
     return (
         <div className={block(null, className)}>
-            <ErrorTreeNode
-                item={root}
-                level={0}
-                defaultNodeExpanded={defaultExpanded}
-                defaultExpanded={defaultExpanded}
-                defaultInfoExpanded={defaultInfoExpanded}
-                renderAttributes={renderAttributes}
-                onPositionClick={onPositionClick}
-            />
+            {roots.map((root) => (
+                <ErrorTreeNode
+                    key={root.id}
+                    item={root}
+                    level={0}
+                    defaultNodeExpanded={defaultExpanded}
+                    defaultExpanded={defaultExpanded}
+                    defaultInfoExpanded={defaultInfoExpanded}
+                    renderAttributes={renderAttributes}
+                    onPositionClick={onPositionClick}
+                />
+            ))}
         </div>
     );
 }

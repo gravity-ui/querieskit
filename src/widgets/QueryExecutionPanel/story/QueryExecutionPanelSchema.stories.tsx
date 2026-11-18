@@ -52,11 +52,13 @@ export const DefaultSchema: Story = {
                     id: 'info',
                     type: 'info',
                     props: {
-                        root: {
-                            id: 'done',
-                            severity: 'info',
-                            message: 'Schema is available without result rows',
-                        },
+                        roots: [
+                            {
+                                id: 'done',
+                                severity: 'info',
+                                message: 'Schema is available without result rows',
+                            },
+                        ],
                     },
                 },
             ]}
