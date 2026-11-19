@@ -77,6 +77,16 @@ export const LazyList = <T extends object>({
 
     const empty = isEmpty ?? !items.length;
 
+    if (empty && hasMore && onLoadMore) {
+        // Filtered pages may stay empty. Keep observing the visible loading area
+        // until pagination finishes instead of showing a final empty state.
+        return (
+            <div ref={sentinelRef} className={block('spinner', className)}>
+                <ListSpinner />
+            </div>
+        );
+    }
+
     if (loading && empty) {
         return <ListSpinner className={block('spinner', className)} />;
     }

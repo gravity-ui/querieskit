@@ -5,6 +5,7 @@ import type {Root} from 'react-dom/client';
 import {createRoot} from 'react-dom/client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {LazyList} from '../../src/components/LazyList/LazyList';
+import {ListActivityContext} from '../../src/helpers/ListActivityContext';
 
 const {resetAfterIndex} = vi.hoisted(() => ({resetAfterIndex: vi.fn()}));
 
@@ -73,8 +74,8 @@ class IntersectionObserverMock {
         IntersectionObserverMock.instances.push(this);
     }
 
-    public intersect() {
-        this.callback([{isIntersecting: true} as IntersectionObserverEntry], this as never);
+    public intersect(isIntersecting = true) {
+        this.callback([{isIntersecting} as IntersectionObserverEntry], this as never);
     }
 }
 
@@ -86,15 +87,18 @@ describe('LazyList loading indicator', () => {
 
     const renderList = (
         props: Partial<React.ComponentProps<typeof LazyList<(typeof ITEMS)[number]>>>,
+        active = true,
     ) => {
         act(() => {
             root.render(
-                <LazyList
-                    items={ITEMS}
-                    itemHeight={() => 24}
-                    renderItem={(item) => <div data-testid={`item-${item.id}`}>{item.id}</div>}
-                    {...props}
-                />,
+                <ListActivityContext.Provider value={active}>
+                    <LazyList
+                        items={ITEMS}
+                        itemHeight={() => 24}
+                        renderItem={(item) => <div data-testid={`item-${item.id}`}>{item.id}</div>}
+                        {...props}
+                    />
+                </ListActivityContext.Provider>,
             );
         });
     };
@@ -120,6 +124,65 @@ describe('LazyList loading indicator', () => {
 
         expect(container.querySelector('[data-testid="spin"]')).not.toBeNull();
         expect(container.querySelector('[data-testid="list"]')).toBeNull();
+    });
+
+    it('waits for visibility and suppresses duplicate requests for an empty page', () => {
+        const onLoadMore = vi.fn();
+        const props = {items: [], hasMore: true, loading: false, onLoadMore};
+        renderList(props);
+        expect(onLoadMore).not.toHaveBeenCalled();
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect(false));
+        expect(onLoadMore).not.toHaveBeenCalled();
+        act(() => {
+            IntersectionObserverMock.instances.at(-1)?.intersect();
+            IntersectionObserverMock.instances.at(-1)?.intersect();
+        });
+        expect(onLoadMore).toHaveBeenCalledTimes(1);
+        renderList({...props, loading: true});
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
+        expect(onLoadMore).toHaveBeenCalledTimes(1);
+        renderList(props);
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
+        expect(onLoadMore).toHaveBeenCalledTimes(2);
+    });
+
+    it('pauses empty pagination while inactive and resumes after hidden loading completes', () => {
+        const onLoadMore = vi.fn();
+        const props = {items: [], hasMore: true, loading: false, onLoadMore};
+        renderList(props, false);
+        expect(IntersectionObserverMock.instances).toHaveLength(0);
+        renderList(props);
+        const observer = IntersectionObserverMock.instances.at(-1);
+        act(() => observer?.intersect());
+        expect(onLoadMore).toHaveBeenCalledTimes(1);
+        renderList({...props, loading: true});
+        renderList({...props, loading: true}, false);
+        renderList(props, false);
+        act(() => observer?.intersect());
+        expect(onLoadMore).toHaveBeenCalledTimes(1);
+        expect(observer?.disconnect).toHaveBeenCalled();
+        renderList(props);
+        expect(onLoadMore).toHaveBeenCalledTimes(1);
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
+        expect(onLoadMore).toHaveBeenCalledTimes(2);
+    });
+
+    it.each([{hasMore: false}, {hasMore: true}, {}])(
+        'preserves the final empty state without available pagination: %j',
+        (props) => {
+            renderList({items: [], emptyContent: <span>No results</span>, ...props});
+            expect(container.textContent).toBe('No results');
+            expect(IntersectionObserverMock.instances).toHaveLength(0);
+        },
+    );
+
+    it('honors logical emptiness even when auxiliary rows exist', () => {
+        const onLoadMore = vi.fn();
+        renderList({isEmpty: true, hasMore: true, loading: false, onLoadMore});
+        expect(container.querySelector('[data-testid="item-1"]')).toBeNull();
+        expect(container.querySelector('[data-testid="spin"]')).not.toBeNull();
+        act(() => IntersectionObserverMock.instances.at(-1)?.intersect());
+        expect(onLoadMore).toHaveBeenCalledTimes(1);
     });
 
     it('shows a 40px loader row after existing items while loading', () => {
