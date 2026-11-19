@@ -334,7 +334,7 @@ Set `search.fullSearchAvailable` to `false` to disable full-text search and hide
 
 ### TutorialsHistory
 
-Tutorial list with search, optional filters, selectable rows, incremental loading, and custom
+Tutorial list with search, an optional engine selector, selectable rows, incremental loading, and custom
 link or row rendering.
 
 ```tsx
@@ -352,8 +352,32 @@ const renderLink: QueryListLinkRenderer = ({href = '', ...props}) => (
   onLoadMore={loadNextPage}
   renderLink={renderLink}
   search={{value: search, onUpdate: updateSearch}}
+  engineFilter={{
+    engines: [
+      {id: 'yql', title: 'YQL'},
+      {id: 'chyt', title: 'CHYT'},
+    ],
+    value: selectedEngineId,
+    onUpdate: setSelectedEngineId,
+  }}
 />;
 ```
+
+`engineFilter` is controlled by the application. Its `engines` are `{id, title}` options;
+`value: null` and `value: undefined` both mean **All**. Selecting an engine immediately calls
+`onUpdate(id)`; selecting **All** calls `onUpdate(null)`. The application filters `items`,
+loads matching data, and resets pagination when the engine changes.
+
+The selector is hidden when `engineFilter` or `engines` is omitted, or `engines` is empty.
+In those cases the engine filter is inactive, even if a `value` is supplied; hiding the selector
+does not call `onUpdate`. With a visible selector, a selected engine and no matching results
+show **Nothing found**; **All** without search and no items shows **No tutorials**.
+
+**Migration:** `TutorialsHistory.filter` has been removed. Replace its history-form
+configuration with `engineFilter={{engines, value, onUpdate}}`. There are no Apply/Reset
+buttons; callbacks receive an engine ID or `null`, rather than a record of form values.
+`TutorialsEngineOption` and `TutorialsEngineFilterConfig` are exported public types.
+Other history lists retain their existing `filter` API.
 
 `renderLink` is used for tutorial rows with a non-empty `href`, including full-text search
 results. Without it, those rows render as regular `<a>` elements; rows without an `href` render
@@ -437,7 +461,7 @@ opened item. Omit `tabs` to keep the existing schema/preview/meta/view preset. S
 | Widget | Description |
 | --- | --- |
 | `QueriesHistory` | Query history with search, filters, visible fields, editing, and comparison |
-| `TutorialsHistory` | Tutorials list with search, filters, pagination, and custom rendering |
+| `TutorialsHistory` | Tutorials list with search, an engine selector, pagination, and custom rendering |
 
 ## Development
 

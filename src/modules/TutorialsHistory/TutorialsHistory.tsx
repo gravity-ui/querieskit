@@ -4,6 +4,7 @@ import {EmptyContent} from '../../components/EmptyContent';
 import i18n from './i18n';
 import type {TutorialHistoryRow} from '../../types/tutorial';
 import {TutorialRowContent} from './TutorialRowContent';
+import {TutorialsEngineFilter} from './TutorialsEngineFilter';
 import cn from 'bem-cn-lite';
 import './TutorialsHistory.scss';
 
@@ -16,7 +17,7 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
     title,
     logo,
     search,
-    filter,
+    engineFilter,
     items,
     selectedRowId,
     renderRowItem,
@@ -27,6 +28,10 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
     renderLink,
     className,
 }: TutorialsHistoryProps<T>) => {
+    const engines = engineFilter?.engines;
+    const hasEngines = Boolean(engines?.length);
+    const selectedEngine = engineFilter?.value ?? null;
+
     return (
         <QueriesList
             variant="panel"
@@ -34,7 +39,10 @@ export const TutorialsHistory = <T extends TutorialHistoryRow>({
             title={title || i18n('title_tutorials')}
             logo={logo}
             search={search}
-            filter={filter}
+            isFilterActive={hasEngines && selectedEngine !== null}
+            headerActions={
+                hasEngines && engineFilter && <TutorialsEngineFilter {...engineFilter} />
+            }
             items={items}
             selectedRowId={selectedRowId}
             renderRow={(data) =>

@@ -35,7 +35,11 @@ export * from './types/dashboardCharts';
 export type {QueriesHistoryProps} from './types/queriesHistory';
 export type {QueriesNavigationProps} from './types/queriesNavigation';
 export type {SavedQueriesProps} from './types/savedQueriesProps';
-export type {TutorialsHistoryProps} from './types/tutorialsHistory';
+export type {
+    TutorialsHistoryProps,
+    TutorialsEngineOption,
+    TutorialsEngineFilterConfig,
+} from './types/tutorialsHistory';
 export type {
     AttachmentsProps,
     AttachItem,
