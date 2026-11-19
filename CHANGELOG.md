@@ -19,6 +19,13 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [4.4.1](https://github.com/gravity-ui/querieskit/compare/v4.4.0...v4.4.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* **LazyList:** continue pagination for empty filtered results ([f4d6614](https://github.com/gravity-ui/querieskit/commit/f4d661490e7df3ed6b3c22bab042a1d31d86ef9a))
+
 ## [4.4.0](https://github.com/gravity-ui/querieskit/compare/v4.3.3...v4.4.0) (2026-11-18)
 
 
