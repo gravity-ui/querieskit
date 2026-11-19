@@ -102,7 +102,15 @@ describe('shared list panels', () => {
                     <Component
                         items={[]}
                         search={{...search, value}}
-                        filter={filter}
+                        {...(Component === TutorialsHistory
+                            ? {
+                                  engineFilter: {
+                                      engines: [{id: 'yql', title: 'YQL'}],
+                                      value: filter?.isChanged ? 'yql' : null,
+                                      onUpdate: vi.fn(),
+                                  },
+                              }
+                            : {filter})}
                         loading={loading}
                     />,
                 );

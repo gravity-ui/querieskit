@@ -5,31 +5,18 @@ import {Flex, Icon, Text} from '@gravity-ui/uikit';
 import BookOpenIcon from '@gravity-ui/icons/svgs/book-open.svg';
 import {HistoryGroupHeader, RowLink} from '../../components';
 import {TutorialsHistory} from './TutorialsHistory';
-import type {
-    QueryListFilterConfig,
-    QueryListItem,
-    QueryListLinkRenderer,
-} from '../../types/queryList';
+import type {QueryListItem, QueryListLinkRenderer} from '../../types/queryList';
 import type {TutorialHistoryRow} from '../../types/tutorial';
 import {action} from 'storybook/actions';
 
-const filterFields: QueryListFilterConfig['fields'] = [
-    {id: 'onlyMine', type: 'switch', title: 'My queries only', initialValue: true},
-    {id: 'range', type: 'rangeDatePicker', title: 'Period'},
-    {
-        id: 'dialect',
-        type: 'checkboxGroup',
-        title: 'Dialect',
-        initialValue: [],
-        items: [
-            {id: 'yql', title: 'YQL'},
-            {id: 'sql', title: 'SQL'},
-        ],
-    },
+const ENGINES = [
+    {id: 'yql', title: 'YQL'},
+    {id: 'chyt', title: 'CHYT'},
 ];
-
-const logFilterApply = action('onFilterApply');
-const logFilterReset = action('onFilterReset');
+const ENGINE_ITEMS = BASE_ITEMS.map((item) =>
+    'id' in item ? {...item, engineId: item.id === 3 ? 'chyt' : 'yql'} : item,
+);
+const logEngineUpdate = action('onEngineUpdate');
 
 const LINK_ITEMS = BASE_ITEMS.map((item) =>
     'id' in item ? {...item, href: `/tutorials/${item.id}`} : item,
@@ -101,48 +88,36 @@ export default meta;
 type Story = StoryObj<typeof TutorialsHistory>;
 
 const DefaultStory = () => {
-    const [items, setItems] = useState([...BASE_ITEMS]);
+    const [engineId, setEngineId] = useState<string | null>(null);
     const [search, setSearch] = useState({value: '', fullSearch: false});
-
-    const handleOnSearch = (data: {value: string; fullSearch: boolean}) => {
-        setSearch(data);
-
-        if (!data.value) {
-            setItems(BASE_ITEMS);
-            return;
-        }
-
-        const newItems = BASE_ITEMS.filter((item) => {
-            if (!('id' in item)) return false;
-
-            const title = item.title.toLowerCase();
-            const query = item.query?.toLowerCase();
-            const searchValue = data.value.toLowerCase();
-
-            if (data.fullSearch) {
-                return title.includes(searchValue) || query?.includes(searchValue);
-            }
-
-            return title.includes(searchValue);
-        });
-        setItems(newItems);
-    };
+    const searchValue = search.value.trim().toLowerCase();
+    const items = ENGINE_ITEMS.filter((item) => {
+        if (!('id' in item)) return !engineId && !searchValue;
+        if (engineId && item.engineId !== engineId) return false;
+        return (
+            item.title.toLowerCase().includes(searchValue) ||
+            (search.fullSearch && item.query?.toLowerCase().includes(searchValue))
+        );
+    });
 
     return (
         <div style={{width: 300, height: 500}}>
             <TutorialsHistory
                 title="Tutorials"
                 items={items}
-                filter={{
-                    fields: filterFields,
-                    onApply: logFilterApply,
-                    onReset: logFilterReset('reset'),
+                engineFilter={{
+                    engines: ENGINES,
+                    value: engineId,
+                    onUpdate: (value) => {
+                        setEngineId(value);
+                        logEngineUpdate(value);
+                    },
                 }}
                 search={{
                     value: search.value,
                     fullSearch: search.fullSearch,
                     hasClear: true,
-                    onUpdate: handleOnSearch,
+                    onUpdate: setSearch,
                 }}
             />
         </div>
@@ -279,7 +254,7 @@ export const DesignReference: Story = {
         items: DESIGN_ITEMS,
         logo: <Text>YQL UI</Text>,
         search: {onUpdate: action('onSearchUpdate')},
-        filter: {fields: filterFields},
+        engineFilter: {engines: ENGINES, onUpdate: logEngineUpdate},
     },
     decorators: [
         (StoryComponent) => (
@@ -292,13 +267,53 @@ export const DesignReference: Story = {
 
 export const DesignEmpty: Story = {
     ...DesignReference,
-    args: {...DesignReference.args, items: [], filter: {fields: filterFields, isChanged: true}},
+    args: {
+        ...DesignReference.args,
+        items: [],
+        engineFilter: {engines: ENGINES, value: 'chyt', onUpdate: logEngineUpdate},
+    },
 };
 
 export const DesignSelected: Story = {
     ...DesignReference,
     args: {...DesignReference.args, selectedRowId: 'lesson-2'},
 };
+export const DesignEngineSelected: Story = {
+    ...DesignReference,
+    args: {
+        ...DesignReference.args,
+        engineFilter: {engines: ENGINES, value: 'yql', onUpdate: logEngineUpdate},
+    },
+};
+
+export const MissingEngines: Story = {
+    ...DesignReference,
+    args: {
+        ...DesignReference.args,
+        engineFilter: {value: 'yql', onUpdate: logEngineUpdate},
+    },
+};
+
+export const EmptyEngines: Story = {
+    ...DesignReference,
+    args: {
+        ...DesignReference.args,
+        engineFilter: {engines: [], value: 'yql', onUpdate: logEngineUpdate},
+    },
+};
+
+export const LongEngineName: Story = {
+    ...DesignReference,
+    args: {
+        ...DesignReference.args,
+        engineFilter: {
+            engines: [{id: 'custom', title: 'Custom analytics query engine'}],
+            value: 'custom',
+            onUpdate: logEngineUpdate,
+        },
+    },
+};
+
 export const InitialLoading: Story = {
     args: {
         title: 'Loading tutorials',

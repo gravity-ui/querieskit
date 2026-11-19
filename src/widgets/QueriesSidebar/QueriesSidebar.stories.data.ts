@@ -26,6 +26,14 @@ import {META_GROUPS} from '../../modules/NavigationMeta/story/mockData';
 import {VIEW_COLUMNS, makeViewRows} from '../../modules/NavigationView/story/mockData';
 import type {QueriesSidebarTab} from '../../types/queriesSidebar';
 
+const TUTORIAL_ENGINES = [
+    {id: 'yql', title: 'YQL'},
+    {id: 'chyt', title: 'CHYT'},
+];
+const TUTORIAL_ENGINE_ITEMS = TUTORIAL_ITEMS.map((item) =>
+    'id' in item ? {...item, engineId: item.id === 3 ? 'chyt' : 'yql'} : item,
+);
+
 const resolveDetail = createNavigationDetailResolver({
     table: createTableDetailConfig({
         resolveSchema: () => ({columns: SCHEMA_COLUMNS, loaded: true}),
@@ -71,6 +79,7 @@ export function useQueriesSidebarTabs(): QueriesSidebarTab[] {
     const historySearch = useSearch();
     const savedSearch = useSearch();
     const tutorialSearch = useSearch();
+    const [tutorialEngineId, setTutorialEngineId] = useState<string | null>(null);
     const [historyFields, setHistoryFields] = useState<QueryListFieldKey<QueryHistoryRow>[]>([
         'duration',
         'mode',
@@ -155,8 +164,20 @@ export function useQueriesSidebarTabs(): QueriesSidebarTab[] {
             id: 'tutorials',
             type: 'tutorials',
             props: {
-                items: filterItems(TUTORIAL_ITEMS, tutorialSearch),
+                items: filterItems(
+                    TUTORIAL_ENGINE_ITEMS.filter(
+                        (item) =>
+                            !tutorialEngineId ||
+                            ('id' in item && item.engineId === tutorialEngineId),
+                    ),
+                    tutorialSearch,
+                ),
                 search: tutorialSearch,
+                engineFilter: {
+                    engines: TUTORIAL_ENGINES,
+                    value: tutorialEngineId,
+                    onUpdate: setTutorialEngineId,
+                },
                 selectedRowId: selectedTutorial,
                 onListItemClick: (item) => {
                     if ('id' in item) setSelectedTutorial(item.id);

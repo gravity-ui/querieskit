@@ -61,7 +61,7 @@ class IntersectionObserverMock {
 const EMPTY_ITEMS: TutorialHistoryRow[] = [];
 const MATCH: TutorialHistoryRow = {id: 'match', title: 'Matching tutorial', height: 28};
 
-describe('TutorialsHistory empty filtered pagination', () => {
+describe.each(['search', 'engine'] as const)('TutorialsHistory %s filtered pagination', (mode) => {
     let container: HTMLDivElement;
     let root: Root;
     let onLoadMore: ReturnType<typeof vi.fn>;
@@ -72,7 +72,16 @@ describe('TutorialsHistory empty filtered pagination', () => {
                 <ThemeProvider>
                     <TutorialsHistory
                         items={EMPTY_ITEMS}
-                        search={{value: 'Matching', onUpdate: vi.fn()}}
+                        search={{value: mode === 'search' ? 'Matching' : '', onUpdate: vi.fn()}}
+                        engineFilter={
+                            mode === 'engine'
+                                ? {
+                                      engines: [{id: 'yql', title: 'YQL'}],
+                                      value: 'yql',
+                                      onUpdate: vi.fn(),
+                                  }
+                                : undefined
+                        }
                         hasMore
                         loading={false}
                         onLoadMore={onLoadMore}
@@ -150,6 +159,7 @@ describe('TutorialsHistory empty filtered pagination', () => {
             render({hasMore: page < 3});
         }
         expect(container.querySelector('.qp-empty-content')).not.toBeNull();
+        expect(container.textContent).toContain('Nothing found');
         expect(container.querySelector('.qp-list-spinner')).toBeNull();
         intersect();
         expect(onLoadMore).toHaveBeenCalledTimes(3);

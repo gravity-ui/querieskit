@@ -40,7 +40,7 @@ export const SearchWithButtons: FC<SearchWithButtonsProps> = ({
                 }
             />
             {hasEndButtons && (
-                <Flex gap={1} className={block('end-buttons')}>
+                <Flex gap={1} shrink={0} className={block('end-buttons')}>
                     {renderButtons(endButtons as React.ReactNode[])}
                 </Flex>
             )}

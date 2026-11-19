@@ -25,6 +25,8 @@ export const QueriesList = <T extends QueryListRow>({
     logo,
     search,
     filter,
+    headerActions,
+    isFilterActive,
     items,
     selectedRowId,
     editing,
@@ -58,7 +60,8 @@ export const QueriesList = <T extends QueryListRow>({
     const listKey = useListKey(items, rowVariant, Boolean(onLoadMore));
 
     const isPanel = variant !== 'default';
-    const hasSearchOrFilter = Boolean(searchValue.trim()) || filter?.isChanged === true;
+    const hasSearchOrFilter =
+        Boolean(searchValue.trim()) || filter?.isChanged === true || isFilterActive === true;
     const hideSearch = hideSearchWhenEmpty && !items.length && !loading && !hasSearchOrFilter;
     const resolvedEmptyContent = isPanel
         ? getPanelEmptyContent(hasSearchOrFilter, emptyContent)
@@ -74,7 +77,7 @@ export const QueriesList = <T extends QueryListRow>({
             comparison={comparison}
             getRowActions={getRowActions}
             renderRow={renderRow}
-            showFiltersHint={Boolean(filter)}
+            showFiltersHint={Boolean(filter) || isFilterActive === true}
             emptyContent={resolvedEmptyContent}
             hasMore={hasMore}
             loading={loading}
@@ -96,11 +99,16 @@ export const QueriesList = <T extends QueryListRow>({
                         variant={variant}
                         className={block('header')}
                         actions={
-                            visibleFields && (
-                                <FieldsSelector
-                                    buttonView={isPanel ? 'flat' : 'normal'}
-                                    {...visibleFields}
-                                />
+                            (headerActions || visibleFields) && (
+                                <>
+                                    {headerActions}
+                                    {visibleFields && (
+                                        <FieldsSelector
+                                            buttonView={isPanel ? 'flat' : 'normal'}
+                                            {...visibleFields}
+                                        />
+                                    )}
+                                </>
                             )
                         }
                         search={searchValue}

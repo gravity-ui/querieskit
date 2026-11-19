@@ -19,6 +19,9 @@ export type QueriesListProps<T extends QueryListRow> = QueryListPanelOptions & {
     logo?: React.ReactNode;
     search: QueryListSearchConfig;
     filter?: HistoryFilterConfig;
+    headerActions?: React.ReactNode;
+    /** Additional filtering controlled by the consumer. */
+    isFilterActive?: boolean;
     items: QueryListItem<T>[];
     selectedRowId?: T['id'];
     editing?: QueryListEditingConfig<T>;
