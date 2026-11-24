@@ -1,11 +1,11 @@
-import {DropdownMenu, Flex, Icon, Text} from '@gravity-ui/uikit';
+import {Flex, Icon, Text} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {getDefaultNavigationIcon} from '../../helpers/getDefaultNavigationIcon';
 import type {NavigationItem} from '../../types/navigation';
 import type {NavigationItemRowProps} from '../../types/navigationItemRowProps';
 import {NavigationActionButtons} from '../NavigationActionButtons';
-import i18n from './i18n';
+import {NavigationActionsMenu} from '../NavigationActionsMenu';
 import './NavigationItemRow.scss';
 export type {NavigationItemRowProps} from '../../types/navigationItemRowProps';
 
@@ -17,13 +17,26 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
     indicators,
     actions,
     menuActions,
+    menuActionGroups,
+    actionsVisibility = 'hover',
+    actionsMenuOpen = false,
     renderMenuTrigger,
     className,
 }: NavigationItemRowProps<T>) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const hasCustomMenu = Boolean(renderMenuTrigger);
     const visibleMenuActions = menuActions?.filter((action) => !action.hidden) ?? [];
+    const hasMenuGroups = menuActionGroups?.some((group) =>
+        group.actions.some((action) => !action.hidden),
+    );
     const visibleActions = actions?.filter((action) => !action.hidden) ?? [];
+    const hasStandardMenu = visibleMenuActions.length > 0 || Boolean(hasMenuGroups);
+    useEffect(() => setMenuOpen(false), [item.path, item.disabled, hasCustomMenu, hasStandardMenu]);
     const hasActions =
-        visibleActions.length > 0 || Boolean(renderMenuTrigger) || visibleMenuActions.length > 0;
+        visibleActions.length > 0 ||
+        hasCustomMenu ||
+        visibleMenuActions.length > 0 ||
+        hasMenuGroups;
 
     return (
         <Flex gap={2} alignItems="center" className={block({disabled: item.disabled}, className)}>
@@ -59,6 +72,10 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
                     gap={1}
                     shrink={0}
                     alignItems="center"
+                    className={block('actions', {
+                        hover: actionsVisibility === 'hover',
+                        open: hasCustomMenu ? actionsMenuOpen : menuOpen,
+                    })}
                     // React events from the portalled menu also bubble through this boundary.
                     onClick={(event) => event.stopPropagation()}
                     onDoubleClick={(event) => event.stopPropagation()}
@@ -76,25 +93,20 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
                         }))}
                         arg={item}
                     />
-                    {renderMenuTrigger
-                        ? renderMenuTrigger({item, disabled: Boolean(item.disabled)})
-                        : visibleMenuActions.length > 0 && (
-                              <DropdownMenu
-                                  size="s"
-                                  disabled={item.disabled}
-                                  defaultSwitcherProps={{'aria-label': i18n('action_more')}}
-                                  items={visibleMenuActions.map((action) => ({
-                                      text: action.title,
-                                      iconStart: action.content,
-                                      disabled: item.disabled || action.disabled,
-                                      qa: action.qa,
-                                      action: (event) => {
-                                          event.stopPropagation();
-                                          action.onClick(item);
-                                      },
-                                  }))}
-                              />
-                          )}
+                    {renderMenuTrigger ? (
+                        renderMenuTrigger({item, disabled: Boolean(item.disabled)})
+                    ) : (
+                        <NavigationActionsMenu
+                            key={item.path}
+                            size="s"
+                            arg={item}
+                            disabled={item.disabled}
+                            actions={visibleMenuActions}
+                            groups={menuActionGroups}
+                            open={menuOpen}
+                            onOpenToggle={setMenuOpen}
+                        />
+                    )}
                 </Flex>
             )}
         </Flex>

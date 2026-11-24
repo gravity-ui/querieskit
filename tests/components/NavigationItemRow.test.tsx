@@ -138,6 +138,75 @@ describe('NavigationItemRow actions inside the real list', () => {
         expect(onNavigate).not.toHaveBeenCalled();
     });
 
+    it('keeps the actions area open until a built-in menu action closes it', async () => {
+        render();
+        const actions = container.querySelector('.qp-navigation-item-row__actions')!;
+        const trigger = container.querySelector<HTMLButtonElement>(
+            '.g-dropdown-menu__switcher-button',
+        )!;
+        expect(actions.classList.contains('qp-navigation-item-row__actions_hover')).toBe(true);
+        expect(actions.classList.contains('qp-navigation-item-row__actions_open')).toBe(false);
+        await act(async () => trigger.click());
+        expect(actions.classList.contains('qp-navigation-item-row__actions_open')).toBe(true);
+        const menuItem = Array.from(
+            document.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+        ).find((element) => element.textContent?.includes('Copy path'))!;
+        await act(async () => menuItem.click());
+        expect(actions.classList.contains('qp-navigation-item-row__actions_open')).toBe(false);
+        expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('uses custom menu open state and supports always-visible actions', () => {
+        const renderMenuTrigger = () => <button>Custom menu</button>;
+        render(false, {renderMenuTrigger, actionsMenuOpen: true});
+        expect(container.querySelector('.qp-navigation-item-row__actions_open')).not.toBeNull();
+        render(false, {renderMenuTrigger, actionsMenuOpen: false, actionsVisibility: 'always'});
+        expect(container.querySelector('.qp-navigation-item-row__actions_open')).toBeNull();
+        expect(container.querySelector('.qp-navigation-item-row__actions_hover')).toBeNull();
+    });
+
+    it('renders grouped menu actions and passes the original application item', async () => {
+        render(false, {
+            menuActions: [],
+            menuActionGroups: [
+                {id: 'copy', title: 'Copy group', actions: [more]},
+                {
+                    id: 'hidden',
+                    title: 'Empty group',
+                    actions: [{...more, id: 'hidden', hidden: true}],
+                },
+            ],
+        });
+        await act(async () =>
+            container
+                .querySelector<HTMLButtonElement>('.g-dropdown-menu__switcher-button')!
+                .click(),
+        );
+        expect(document.body.textContent).toContain('Copy group');
+        expect(document.body.textContent).not.toContain('Empty group');
+        const menuItem = Array.from(
+            document.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+        ).find((element) => element.textContent?.includes('Copy path'))!;
+        await act(async () => menuItem.click());
+        expect(onAction).toHaveBeenCalledExactlyOnceWith(ITEM);
+        expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not reopen a menu after all row actions disappear and return', async () => {
+        render(false, {actions: []});
+        await act(async () =>
+            container
+                .querySelector<HTMLButtonElement>('.g-dropdown-menu__switcher-button')!
+                .click(),
+        );
+        expect(document.querySelector('[role="menuitem"]')).not.toBeNull();
+        render(false, {actions: [], menuActions: []});
+        expect(container.querySelector('.qp-navigation-item-row__actions')).toBeNull();
+        render(false, {actions: []});
+        expect(container.querySelector('.qp-navigation-item-row__actions_open')).toBeNull();
+        expect(document.querySelector('[role="menuitem"]')).toBeNull();
+    });
+
     it('disables actions and menu on a disabled item', () => {
         render(true);
         const buttons = Array.from(container.querySelectorAll('button'));

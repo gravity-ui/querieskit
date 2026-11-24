@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import type {FieldsSelectorProps} from './fieldsSelectorProps';
 import type {QueryResultColumn, QueryResultsTableSettings} from './queryResults';
 import type {LoadPathSuggestions} from './pathEditor';
+import type {NavigationActionGroup} from './navigationActionsMenuProps';
 
 export type NavigationLocation = {
     cluster: string | undefined;
@@ -62,6 +63,11 @@ export type NavigationItemRowConfig<T extends NavigationItem = NavigationItem> =
     indicators?: ReactNode;
     actions?: Array<NavigationAction<T>>;
     menuActions?: Array<NavigationAction<T>>;
+    menuActionGroups?: Array<NavigationActionGroup<T>>;
+    /** Hover by default; keyboard focus and touch access remain available. */
+    actionsVisibility?: 'hover' | 'always';
+    /** Keep actions visible while any application-owned menu is open. */
+    actionsMenuOpen?: boolean;
     /** Replaces menuActions, even when returning null. Standard actions remain visible. */
     renderMenuTrigger?: (context: NavigationItemMenuRenderContext<T>) => ReactNode;
 };

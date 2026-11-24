@@ -8,6 +8,7 @@ test('NavigationItemRow default', async ({page, openStory}) => {
 
 test('NavigationItemRow disabled', async ({page, openStory}) => {
     await openStory('components-navigationitemrow--disabled');
+    await page.locator('.qp-navigation-item-row').hover();
     await expect(page.getByRole('button', {name: 'Open table', exact: true})).toBeVisible();
     await expect(page.getByRole('button', {name: 'Open table'})).toBeDisabled();
     await expect(page.locator('#storybook-root')).toHaveScreenshot('disabled.png');

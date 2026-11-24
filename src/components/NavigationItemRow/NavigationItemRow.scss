@@ -15,6 +15,26 @@
         min-width: 0;
     }
 
+    // Preserve layout and keyboard tab stops while hiding pointer-only controls.
+    &__actions_hover {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    &:hover &__actions,
+    &:has(:focus-visible) &__actions,
+    &__actions_open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    @media (hover: none) {
+        &__actions_hover {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
     &_disabled {
         color: var(--g-color-text-secondary);
         cursor: default;
