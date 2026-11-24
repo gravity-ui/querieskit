@@ -466,6 +466,16 @@
         "default": "./build/cjs/components/NavigationItemRow/index.js"
       }
     },
+    "./components/NavigationActionsMenu": {
+      "import": {
+        "types": "./build/esm/components/NavigationActionsMenu/index.d.ts",
+        "default": "./build/esm/components/NavigationActionsMenu/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/components/NavigationActionsMenu/index.d.ts",
+        "default": "./build/cjs/components/NavigationActionsMenu/index.js"
+      }
+    },
     "./components/NavigationActionButtons": {
       "import": {
         "types": "./build/esm/components/NavigationActionButtons/index.d.ts",
