@@ -19,6 +19,15 @@
 
 - Share cell and table settings across results and navigation, including preview callbacks, per-cell metadata, row keys, indices, stripes, and sticky headers. Add `resolvePreviewView` to `createTableDetailConfig`.
 
+## [4.6.0](https://github.com/gravity-ui/querieskit/compare/v4.5.0...v4.6.0) (2026-11-24)
+
+
+### Features
+
+* add favorite badge to navigation rows ([ba9d810](https://github.com/gravity-ui/querieskit/commit/ba9d810e0cb3500e23c731b798455f0f1c42ff3e))
+* add reusable navigation actions menu ([0c67505](https://github.com/gravity-ui/querieskit/commit/0c67505483ef4078c62198177e0f8ae71e12ddab))
+* reveal navigation row actions on hover ([aff0744](https://github.com/gravity-ui/querieskit/commit/aff0744c68e15df58eff4fa1310821925591590b))
+
 ## [4.5.0](https://github.com/gravity-ui/querieskit/compare/v4.4.1...v4.5.0) (2026-11-19)
 
 
