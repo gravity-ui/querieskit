@@ -9,7 +9,7 @@ Use `getItemRowConfig(item)` to configure standard rows without replacing their 
 The resolver receives the original generic item, including application metadata. It is never
 called for the synthetic parent row. Optional `description` uses a 48px row; rows without a
 nonempty description keep their 32px height. `indicators` accepts passive badges or status
-content; put interactive controls in `actions` or `menuActions` instead.
+content; put interactive controls in `actions`, `menuActions`, or `menuActionGroups` instead.
 
 ```tsx
 import React, {useState} from 'react';
@@ -60,22 +60,60 @@ export function Browser() {
 
 Both action collections reuse `NavigationAction<T>` (`id`, `title`, `content`, `onClick`,
 optional `hidden`, `disabled`, `qa`). Hidden actions are omitted. A disabled item also disables
-its controls. Controls stay visible for keyboard and touch access; action and menu events do
-not activate the row. Action titles supply accessible names. Long titles and descriptions
+its controls. By default, the actions area appears on row hover and remains visible while its
+menu is open. Keyboard focus also reveals the controls, and devices without hover keep them
+visible. Set `actionsVisibility: 'always'` to keep actions visible on every device. Hidden
+controls retain their layout space, so revealing them does not move the row title. Action and
+menu events do not activate the row. Action titles supply accessible names. Long titles and descriptions
 truncate while controls retain their space. Keep the primary action set small for narrow panels;
-move remaining actions to `menuActions`.
+move remaining actions to `menuActions` or `menuActionGroups`.
 
-Use `renderMenuTrigger({item, disabled})` to replace only the additional-actions menu while
-keeping standard `actions`. The renderer receives the original typed item and a boolean
-disabled state. It takes precedence over `menuActions`, even when it returns `null`.
+`menuActionGroups` adds named groups to the standard menu. Each group has `id`, optional
+`title`, and `actions: NavigationAction<T>[]`. Plain `menuActions` appear first, followed by
+the groups. Hidden actions and empty groups are omitted. The application supplies translated
+titles and callbacks; the menu does not interpret engines, paths, or query syntax.
 
 ```tsx
 getItemRowConfig={(item) => ({
-  actions: getInlineActions(item),
-  renderMenuTrigger: ({item: original, disabled}) => (
-    <PathActionsMenu node={original.node} disabled={disabled} />
-  ),
+  menuActionGroups: [
+    {id: 'copy', title: t('action_copy'), actions: getCopyActions(item)},
+    {id: 'insert', title: t('action_insert'), actions: getInsertActions(item)},
+  ],
 })}
+```
+
+The standard menu automatically keeps the row actions visible while open. For a custom menu,
+set `actionsMenuOpen` to its current open state. With multiple custom menus, pass the logical
+OR of their open states.
+
+Use `renderMenuTrigger({item, disabled})` to replace only the additional-actions menu while
+keeping standard `actions`. The renderer receives the original typed item and a boolean
+disabled state. It takes precedence over `menuActions` and `menuActionGroups`, even when it returns `null`.
+
+```tsx
+import React, {useState} from 'react';
+import {NavigationActionsMenu, NavigationItemRow} from '@gravity-ui/querieskit';
+
+function ApplicationRow({item}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <NavigationItemRow
+      item={item}
+      actions={getInlineActions(item)}
+      actionsMenuOpen={open}
+      renderMenuTrigger={({item: original, disabled}) => (
+        <NavigationActionsMenu
+          arg={original}
+          disabled={disabled}
+          groups={getActionGroups(original)}
+          open={open}
+          onOpenToggle={setOpen}
+        />
+      )}
+    />
+  );
+}
 ```
 
 The trigger shares the non-shrinking actions area. Mouse, pointer and keyboard events from
@@ -97,7 +135,31 @@ actions. The slot is also available on `NavigationHeader` and `NavigationDetail`
 
 `header.renderActions` keeps its existing full-replacement semantics and takes precedence over
 `renderMenuTrigger`, including when it returns `null`. Without the new optional props,
-existing header and row behavior remains unchanged.
+the header keeps its standard action buttons.
+
+## Shared actions menu
+
+`NavigationActionsMenu<T>` can also be used independently or in the header. Pass `arg` and
+ready-made `actions` and/or `groups`; callbacks receive the original argument. The component
+provides grouping, hidden/disabled handling, an accessible default trigger, and optional
+controlled state through `open` / `onOpenToggle`. `size`, `className`, and `renderSwitcher`
+allow presentation customization. A custom switcher must forward the supplied props and
+provide its own accessible name.
+
+```tsx
+header={{
+  renderMenuTrigger: ({location}) => (
+    <NavigationActionsMenu
+      arg={location}
+      groups={getLocationActionGroups(location)}
+    />
+  ),
+}}
+```
+
+Groups are presentational: formatting a path, generating SQL, inserting text into an editor,
+creating queries, and confirming unsaved changes remain application responsibilities. No
+engine registry or engine-specific data is required by the shared menu.
 
 ## Compose table detail tabs
 
