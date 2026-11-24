@@ -30,6 +30,8 @@ export type {ClusterRowProps} from './ClusterRow';
 export {NavigationItemRow} from './NavigationItemRow';
 export type {NavigationItemRowProps} from './NavigationItemRow';
 export {NavigationActionButtons} from './NavigationActionButtons';
+export {NavigationActionsMenu} from './NavigationActionsMenu';
+export type {NavigationActionsMenuProps, NavigationActionGroup} from './NavigationActionsMenu';
 export type {NavigationActionButtonsProps} from './NavigationActionButtons';
 export {SkeletonRows} from './SkeletonRows';
 export type {SkeletonRowsProps} from './SkeletonRows';
