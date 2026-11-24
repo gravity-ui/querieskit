@@ -59,6 +59,8 @@ export type NavigationItemMenuRenderContext<T extends NavigationItem = Navigatio
 };
 
 export type NavigationItemRowConfig<T extends NavigationItem = NavigationItem> = {
+    /** Show a persistent, passive favorite badge over the item icon. */
+    isFavorite?: boolean;
     description?: string;
     indicators?: ReactNode;
     actions?: Array<NavigationAction<T>>;

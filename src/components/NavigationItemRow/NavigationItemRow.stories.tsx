@@ -30,6 +30,17 @@ export const Disabled: Story = {
         actions: [{id: 'open', title: 'Open table', content: 'Open', onClick: () => {}}],
     },
 };
+
+export const Favorite: Story = {
+    args: {...Default.args, isFavorite: true},
+};
+
+export const FavoriteCustomIcon: Story = {
+    args: {
+        ...Favorite.args,
+        item: {path: '/home/events', title: 'Events', icon: <span>DB</span>},
+    },
+};
 export const BrokenLink: Story = {
     args: {
         item: {

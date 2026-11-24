@@ -1,5 +1,22 @@
 import {expect, test} from '../../fixtures';
 
+for (const story of ['favorite', 'favorite-custom-icon']) {
+    test(`NavigationItemRow ${story} displays a passive badge without hover`, async ({
+        page,
+        openStory,
+    }) => {
+        await openStory(`components-navigationitemrow--${story}`);
+        await page.mouse.move(900, 700);
+        const badge = page.getByRole('img', {name: 'Favorite', exact: true});
+        await expect(badge).toBeVisible();
+        await expect(badge).toHaveCSS('pointer-events', 'none');
+        await expect(badge).toHaveCSS('opacity', '1');
+        if (story === 'favorite-custom-icon') {
+            await expect(page.getByText('DB', {exact: true})).toBeVisible();
+        }
+    });
+}
+
 for (const story of ['grouped-actions', 'custom-controlled-menu']) {
     test(`NavigationItemRow ${story} keeps actions visible while its menu is open`, async ({
         page,
