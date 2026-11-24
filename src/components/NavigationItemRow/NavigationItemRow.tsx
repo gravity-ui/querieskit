@@ -1,4 +1,5 @@
 import {Flex, Icon, Text} from '@gravity-ui/uikit';
+import StarFillIcon from '@gravity-ui/icons/svgs/star-fill.svg';
 import cn from 'bem-cn-lite';
 import React, {useEffect, useState} from 'react';
 import {getDefaultNavigationIcon} from '../../helpers/getDefaultNavigationIcon';
@@ -6,6 +7,7 @@ import type {NavigationItem} from '../../types/navigation';
 import type {NavigationItemRowProps} from '../../types/navigationItemRowProps';
 import {NavigationActionButtons} from '../NavigationActionButtons';
 import {NavigationActionsMenu} from '../NavigationActionsMenu';
+import i18n from './i18n';
 import './NavigationItemRow.scss';
 export type {NavigationItemRowProps} from '../../types/navigationItemRowProps';
 
@@ -13,6 +15,7 @@ const block = cn('qp-navigation-item-row');
 
 export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
     item,
+    isFavorite,
     description,
     indicators,
     actions,
@@ -32,20 +35,33 @@ export const NavigationItemRow = <T extends NavigationItem = NavigationItem>({
     const visibleActions = actions?.filter((action) => !action.hidden) ?? [];
     const hasStandardMenu = visibleMenuActions.length > 0 || Boolean(hasMenuGroups);
     useEffect(() => setMenuOpen(false), [item.path, item.disabled, hasCustomMenu, hasStandardMenu]);
-    const hasActions =
-        visibleActions.length > 0 ||
-        hasCustomMenu ||
-        visibleMenuActions.length > 0 ||
-        hasMenuGroups;
+    const hasActions = visibleActions.length > 0 || hasCustomMenu || hasStandardMenu;
 
     return (
         <Flex gap={2} alignItems="center" className={block({disabled: item.disabled}, className)}>
-            <Flex width={20} height={20} shrink={0} alignItems="center" justifyContent="center">
+            <Flex
+                width={20}
+                height={20}
+                shrink={0}
+                alignItems="center"
+                justifyContent="center"
+                className={block('icon')}
+            >
                 {item.icon ?? (
                     <Icon
                         data={getDefaultNavigationIcon(item.kind, item.targetPathBroken)}
                         size={16}
                     />
+                )}
+                {isFavorite && (
+                    <span
+                        className={block('favorite')}
+                        role="img"
+                        aria-label={i18n('context_favorite')}
+                        title={i18n('context_favorite')}
+                    >
+                        <Icon data={StarFillIcon} size={10} />
+                    </span>
                 )}
             </Flex>
             <Flex direction="column" className={block('text')}>

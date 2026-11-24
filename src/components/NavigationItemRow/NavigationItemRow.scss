@@ -6,6 +6,19 @@
     box-sizing: border-box;
     cursor: pointer;
 
+    &__icon {
+        position: relative;
+    }
+
+    &__favorite {
+        position: absolute;
+        bottom: 0;
+        right: -2px;
+        line-height: 0;
+        color: var(--g-color-text-primary);
+        pointer-events: none;
+    }
+
     &__text {
         flex-grow: 1;
         min-width: 0;

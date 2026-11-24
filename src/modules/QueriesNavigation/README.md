@@ -28,7 +28,7 @@ export function Browser() {
       items={items}
       getItemRowConfig={(item) => ({
         description: item.target,
-        indicators: item.favorite ? <span aria-label="Favorite">★</span> : null,
+        isFavorite: item.favorite,
         actions: [
           {
             id: 'favorite',
@@ -136,6 +136,20 @@ actions. The slot is also available on `NavigationHeader` and `NavigationDetail`
 `header.renderActions` keeps its existing full-replacement semantics and takes precedence over
 `renderMenuTrigger`, including when it returns `null`. Without the new optional props,
 the header keeps its standard action buttons.
+
+## Favorite indicator
+
+Set `isFavorite` in `getItemRowConfig` (or directly on `NavigationItemRow`) to show a
+persistent star over the standard or custom item icon. The badge is passive, has a localized
+accessible description, and remains visible when row actions are hidden. Favorite state,
+persistence, and add/remove handlers in `actions` or `menuActions` stay in the application.
+
+```tsx
+getItemRowConfig={({node}) => ({
+  isFavorite: node.isFavorite,
+  menuActions: getItemActions(node),
+})}
+```
 
 ## Shared actions menu
 
