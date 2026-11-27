@@ -1,6 +1,6 @@
 import {Flex} from '@gravity-ui/uikit';
 import cn from 'bem-cn-lite';
-import React, {FC, Suspense, lazy} from 'react';
+import React, {FC, Suspense, lazy, useMemo} from 'react';
 import type {SearchRowLayoutProps} from '../../types/searchRowLayoutProps';
 import {RowLink} from '../RowLink';
 import {fitQueryToVisibleLines} from './helpers/fitQueryToVisibleLines';
@@ -17,13 +17,21 @@ const block = cn('qp-search-row-layout');
 export const SearchRowLayout: FC<SearchRowLayoutProps> = ({
     header,
     query,
+    previewLineNumber,
     language,
     href,
     disabled,
     renderLink,
     className,
 }) => {
-    const visibleQuery = fitQueryToVisibleLines(query);
+    const {query: visibleQuery, startLineNumber} = fitQueryToVisibleLines(query, previewLineNumber);
+    const monacoConfig = useMemo(
+        () => ({
+            ...MONACO_CONFIG,
+            lineNumbers: (lineNumber: number) => String(startLineNumber + lineNumber - 1),
+        }),
+        [startLineNumber],
+    );
 
     return (
         <RowLink
@@ -45,7 +53,7 @@ export const SearchRowLayout: FC<SearchRowLayoutProps> = ({
                         value={visibleQuery}
                         language={language}
                         readOnly
-                        monacoConfig={MONACO_CONFIG}
+                        monacoConfig={monacoConfig}
                         className={block('monaco')}
                     />
                 </Suspense>

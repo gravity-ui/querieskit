@@ -22,11 +22,13 @@ export const HistorySearchRow = <T extends QueryHistoryRow>({
     comparison,
     renderLink,
 }: Props<T>) => {
-    const {href, status, startTime, endTime, engine, mode, isPrivate, query} = item;
+    const {href, status, startTime, endTime, engine, mode, isPrivate, query, previewLineNumber} =
+        item;
 
     return (
         <SearchRowLayout
             query={query}
+            previewLineNumber={previewLineNumber}
             language={resolveMonacoLanguage(engine)}
             href={href}
             disabled={Boolean(editing?.enabled) || Boolean(comparison?.enabled)}

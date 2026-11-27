@@ -50,3 +50,25 @@ export const WithModeAndPrivate: Story = {
         item: makeRow({status: 'completed', mode: 'batch', isPrivate: true}),
     },
 };
+
+/** The match on line 8 is shown with its original line numbers and preceding context. */
+export const TargetLine: Story = {
+    args: {
+        item: makeRow({
+            query: [
+                'SELECT',
+                '    region,',
+                '    category,',
+                '    SUM(revenue) AS total',
+                'FROM events',
+                'WHERE',
+                "    status = 'completed'",
+                "    AND category = 'target-category'",
+                'GROUP BY region, category',
+                'ORDER BY total DESC',
+                'LIMIT 100;',
+            ].join('\n'),
+            previewLineNumber: 8,
+        }),
+    },
+};
