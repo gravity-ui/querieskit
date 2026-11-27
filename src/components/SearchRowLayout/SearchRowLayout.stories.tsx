@@ -33,3 +33,15 @@ export const Multiline: Story = {
         href: '#query',
     },
 };
+
+/** Change previewLineNumber in Controls to move the preview through the full query. */
+export const TargetLine: Story = {
+    args: {
+        ...Multiline.args,
+        query: 'SELECT\n  region,\n  category,\n  SUM(revenue) AS total\nFROM events\nWHERE active = true\nGROUP BY region, category\nORDER BY total DESC;',
+        previewLineNumber: 6,
+    },
+    argTypes: {
+        previewLineNumber: {control: {type: 'number', step: 1}},
+    },
+};
